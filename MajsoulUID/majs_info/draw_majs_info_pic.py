@@ -53,6 +53,10 @@ async def draw_majs_info_img(ev: Event, uid: str):
         extended = extended3
         record = await majs_api.get_player_record(uid, MODE='3')
 
+    for s in player_extend_zero:
+        if s not in extended:
+            extended[s] = player_extend_zero[s]
+
     if isinstance(record, int):
         record = []
 
