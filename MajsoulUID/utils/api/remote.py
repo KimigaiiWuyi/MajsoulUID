@@ -284,7 +284,9 @@ class PlayerLevel:
         return f'{score_display}{max_point_display}'
 
     def getFullTag(self):
-        return PLAYER_RANKS_DETAIL[self._majorRank - 1]
+        return PLAYER_RANKS_DETAIL[
+            LEVEL_KONTEN - 2 if self.isKonten() else self._majorRank - 1
+        ]
 
     def getMinorRank(self):
         return self._minorRank
