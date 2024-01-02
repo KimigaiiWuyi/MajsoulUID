@@ -210,6 +210,8 @@ async def get_lz_bar(
 
 
 def get_rate(value: float):
+    if not value:
+        return '0.00%'
     return '{:.2f}%'.format(value * 100)
 
 
