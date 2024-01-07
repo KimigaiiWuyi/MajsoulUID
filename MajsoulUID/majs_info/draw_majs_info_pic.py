@@ -32,7 +32,7 @@ async def draw_majs_info_img(ev: Event, uid: str):
     # avatar = await get_avatar_with_ring(ev)
 
     if data4 == data3 or extended3 == extended4:
-        return '不存在该ID的玩家数据...'
+        return '不存在该ID的玩家数据...\n提示: 需要在金之间有一定数量的对局才能被正确记录！'
 
     if isinstance(data4, int):
         data4 = deepcopy(player_stats_zero)
