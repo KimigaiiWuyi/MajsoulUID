@@ -94,7 +94,9 @@ async def draw_majs_info_img(ev: Event, uid: str):
     yf_rate = get_rate(extended['一发率'])
     jddxl = str(extended['净打点效率'])
 
-    all_rong = extended['立直和了'] + extended['副露和了'] + extended['默听和了']
+    all_rong = (
+        extended['立直和了'] + extended['副露和了'] + extended['默听和了']
+    )
     lz_r_rate = extended['立直和了'] / all_rong
     fl_r_rate = extended['副露和了'] / all_rong
     mt_r_rate = extended['默听和了'] / all_rong
@@ -102,7 +104,11 @@ async def draw_majs_info_img(ev: Event, uid: str):
     lz_f_rate = extended['放铳时立直率']
     fl_f_rate = extended['放铳时副露率']
 
-    all_chong = extended['放铳至立直'] + extended['放铳至副露'] + extended['放铳至默听']
+    all_chong = (
+        extended['放铳至立直']
+        + extended['放铳至副露']
+        + extended['放铳至默听']
+    )
     lz_c_rate = extended['放铳至立直'] / all_chong
     fl_c_rate = extended['放铳至副露'] / all_chong
     mt_c_rate = extended['放铳至默听'] / all_chong
