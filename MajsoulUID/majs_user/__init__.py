@@ -27,7 +27,9 @@ async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
     uid = ev.text.strip()
 
     if not uid:
-        return await bot.send('该命令需要带上正确的uid!\n如果不知道, 可以使用雀魂搜索命令查询\n如雀魂搜索Wuyi')
+        return await bot.send(
+            '该命令需要带上正确的uid!\n如果不知道, 可以使用雀魂搜索命令查询\n如雀魂搜索Wuyi'
+        )
 
     await bot.logger.info('[Majs] 开始执行[绑定/解绑用户信息]')
     qid = ev.user_id
