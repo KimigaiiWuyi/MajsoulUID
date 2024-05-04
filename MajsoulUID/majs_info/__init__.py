@@ -15,4 +15,12 @@ async def send_majs_search_msg(bot: Bot, ev: Event):
     uid = await get_uid(bot, ev, MajsBind)
     if uid is None:
         return await bot.send(UID_HINT)
-    await bot.send(await draw_majs_info_img(ev, uid))
+
+    if '四' in ev.text:
+        mode = '4'
+    elif '三' in ev.text:
+        mode = '3'
+    else:
+        mode = 'auto'
+
+    await bot.send(await draw_majs_info_img(ev, uid, mode))

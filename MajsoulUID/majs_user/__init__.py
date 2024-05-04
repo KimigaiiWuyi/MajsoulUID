@@ -26,7 +26,7 @@ majs_user_bind = SV('雀魂用户绑定')
 async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
     uid = ev.text.strip()
 
-    if not uid:
+    if not uid and '绑定' in ev.command:
         return await bot.send(
             '该命令需要带上正确的uid!\n如果不知道, 可以使用雀魂搜索命令查询\n如雀魂搜索Wuyi'
         )
@@ -54,6 +54,14 @@ async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
         retcode = await MajsBind.switch_uid_by_game(qid, ev.bot_id, uid)
         if retcode == 0:
             return await bot.send(f'[Majs] 切换UID{uid}成功！')
+        elif retcode == -3:
+            now_uid = await MajsBind.get_uid_by_game(qid, ev.bot_id)
+            if now_uid:
+                return await bot.send(
+                    f'[Majs] 你目前只绑定了一个UID{now_uid}, 无法切换!'
+                )
+            else:
+                return await bot.send('[Majs] 你尚未绑定任何UID, 无法切换!')
         else:
             return await bot.send(f'[Majs] 尚未绑定该UID{uid}')
     else:

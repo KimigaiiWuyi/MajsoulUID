@@ -21,7 +21,7 @@ RANK_ALPHA = {2: 0.7, 3: 0.5, 4: 0.1}
 W = (255, 255, 255)
 
 
-async def draw_majs_info_img(ev: Event, uid: str):
+async def draw_majs_info_img(ev: Event, uid: str, mode: str = 'auto'):
     data4 = await majs_api.get_player_stats(uid)
     data3 = await majs_api.get_player_stats(uid, '3')
 
@@ -44,14 +44,18 @@ async def draw_majs_info_img(ev: Event, uid: str):
     if isinstance(extended3, int):
         extended3 = deepcopy(player_extend_zero)
 
-    if data4['level']['id'] >= data3['level']['id']:
-        data = data4
-        extended = extended4
-        record = await majs_api.get_player_record(uid)
-    else:
+    if mode == '3' or (
+        mode == 'auto' and data4['level']['score'] < data3['level']['score']
+    ):
+        _mode = '三麻战绩'
         data = data3
         extended = extended3
         record = await majs_api.get_player_record(uid, MODE='3')
+    else:
+        _mode = '四麻战绩'
+        data = data4
+        extended = extended4
+        record = await majs_api.get_player_record(uid)
 
     for s in player_extend_zero:
         if s not in extended:
@@ -66,9 +70,13 @@ async def draw_majs_info_img(ev: Event, uid: str):
     img = Image.open(TEXTURE / 'bg.jpg')
     title = Image.open(TEXTURE / 'title.png')
     detail_bg = Image.open(TEXTURE / 'detail_bg.png')
+    mid = Image.open(TEXTURE / 'mid.png')
 
     detail_draw = ImageDraw.Draw(detail_bg)
     title_draw = ImageDraw.Draw(title)
+    mid_draw = ImageDraw.Draw(mid)
+
+    mid_draw.text((500, 40), _mode, W, majs_font(30), 'mm')
 
     title_draw.text(
         (504, 435),
@@ -187,6 +195,7 @@ async def draw_majs_info_img(ev: Event, uid: str):
     img.paste(rank3_icon, (357, 857), rank3_icon)
 
     img.paste(detail_bg, (0, 1188), detail_bg)
+    img.paste(mid, (0, 1161), mid)
     img.paste(footer, (0, 2151), footer)
 
     return await convert_img(img)

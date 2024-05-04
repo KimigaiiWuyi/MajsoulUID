@@ -1,8 +1,9 @@
 import datetime
+from json import JSONDecodeError
 from typing import Any, Dict, List, Union, Literal, Optional, cast
 
+from httpx import AsyncClient
 from gsuid_core.logger import logger
-from aiohttp import FormData, TCPConnector, ClientSession, ContentTypeError
 
 from .remote_const import GameMode
 from .models import Game, Stats, Player, Extended
@@ -108,12 +109,10 @@ class KoromoApi:
         header: Dict[str, str] = _HEADER,
         params: Optional[Dict[str, Any]] = None,
         json: Optional[Dict[str, Any]] = None,
-        data: Optional[FormData] = None,
+        data: Optional[Dict[str, Any]] = None,
     ) -> Union[Dict, int]:
-        async with ClientSession(
-            connector=TCPConnector(verify_ssl=self.ssl_verify)
-        ) as client:
-            async with client.request(
+        async with AsyncClient() as client:
+            resp = await client.request(
                 method,
                 url=url,
                 headers=header,
@@ -121,13 +120,13 @@ class KoromoApi:
                 json=json,
                 data=data,
                 timeout=300,
-            ) as resp:
-                try:
-                    raw_data = await resp.json()
-                except ContentTypeError:
-                    _raw_data = await resp.text()
-                    raw_data = {"retcode": -999, "data": _raw_data}
-                logger.debug(raw_data)
-                if 'error' in raw_data:
-                    return -1
-                return raw_data
+            )
+            try:
+                raw_data = resp.json()
+            except JSONDecodeError:
+                _raw_data = resp.text
+                raw_data = {"retcode": -999, "data": _raw_data}
+            logger.debug(raw_data)
+            if 'error' in raw_data:
+                return -1
+            return raw_data
