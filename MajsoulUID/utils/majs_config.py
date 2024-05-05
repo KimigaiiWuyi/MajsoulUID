@@ -6,11 +6,20 @@ from gsuid_core.data_store import get_res_path
 from gsuid_core.utils.plugins_config.models import GSC
 
 # 然后添加到GsCore网页控制台中
-from gsuid_core.utils.plugins_config.gs_config import StringConfig
+from gsuid_core.utils.plugins_config.gs_config import (
+    GsBoolConfig,
+    StringConfig,
+)
 
 # 建立自己插件的CONFIG_DEFAULT
 # 名字无所谓, 类型一定是Dict[str, GSC]，以下为示例，可以添加无数个配置
-CONIFG_DEFAULT: Dict[str, GSC] = {}
+CONIFG_DEFAULT: Dict[str, GSC] = {
+    'use_flower_history': GsBoolConfig(
+        '对局历史使用花图替代折线图',
+        '对局历史使用花图替代折线图',
+        False,
+    ),
+}
 
 CONFIG_PATH = get_res_path('MajsoulUID') / 'config.json'
 

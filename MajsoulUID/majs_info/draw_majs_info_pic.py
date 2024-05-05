@@ -4,11 +4,13 @@ from typing import Optional
 
 from PIL import Image, ImageDraw
 from gsuid_core.models import Event
+from gsuid_core.utils.cache import gs_cache
 from gsuid_core.utils.image.convert import convert_img
 from gsuid_core.utils.fonts.fonts import core_font as majs_font
 
 from ..utils.majs_api import majs_api
 from ..utils.api.remote import PlayerLevel
+from ..utils.majs_config import majs_config
 from ..utils.api.models import Stats, Extended
 from ..utils.api.remote_const import player_stats_zero, player_extend_zero
 
@@ -17,11 +19,13 @@ star_empty = Image.open(TEXTURE / 'star_empty.png').resize((32, 32))
 star_full = Image.open(TEXTURE / 'star_full.png').resize((32, 32))
 
 RANK_ALPHA = {2: 0.7, 3: 0.5, 4: 0.1}
-
+RANK_POS = {4: 321, 3: 242, 2: 160, 1: 73}
 W = (255, 255, 255)
 
 
+@gs_cache()
 async def draw_majs_info_img(ev: Event, uid: str, mode: str = 'auto'):
+    MODE: bool = majs_config.get_config('use_flower_history').data
     data4 = await majs_api.get_player_stats(uid)
     data3 = await majs_api.get_player_stats(uid, '3')
 
@@ -145,8 +149,12 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = 'auto'):
             'mm',
         )
 
+    record_bg = Image.open(TEXTURE / 'record_bg.png')
+    record_p = Image.new('RGBA', record_bg.size)
+    record_draw = ImageDraw.Draw(record_bg)
+    pos_prev = (0, 0)
+
     for i, r in enumerate(record):
-        flower = Image.open(TEXTURE / 'flower.png')
         ranks = {p['nickname']: p['gradingScore'] for p in r['players']}
         sorted_players = sorted(
             ranks.items(), key=lambda x: x[1], reverse=True
@@ -158,21 +166,46 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = 'auto'):
                 if player == data['nickname']
             )
         )
-        if _rank > 1:
-            _rank_alpha = RANK_ALPHA[_rank]
-            flower.putalpha(
-                flower.getchannel('A').point(
-                    lambda x: round(x * _rank_alpha) if x > 0 else 0
+        if MODE:
+            flower = Image.open(TEXTURE / 'flower.png')
+            if _rank > 1:
+                _rank_alpha = RANK_ALPHA[_rank]
+                flower.putalpha(
+                    flower.getchannel('A').point(
+                        lambda x: round(x * _rank_alpha) if x > 0 else 0
+                    )
                 )
+            detail_bg.paste(
+                flower, (99 + 99 * (i % 8), 588 + 152 * (i // 8)), flower
             )
-        detail_bg.paste(
-            flower, (99 + 99 * (i % 8), 588 + 152 * (i // 8)), flower
-        )
+            detail_draw.text(
+                (149 + 99 * (i % 8), 710 + 152 * (i // 8)),
+                f'第{_rank}名',
+                W,
+                majs_font(24),
+                'mm',
+            )
+        else:
+            pos_y = RANK_POS[_rank]
+            pos = (108 + i * 50, pos_y)
+            rank_img = Image.open(TEXTURE / f'rank_{_rank}.png')
+            if pos_prev != (0, 0):
+                line_pos = (
+                    (pos_prev[0] + 15, pos_prev[1] + 15),
+                    (pos[0] + 15, pos[1] + 15),
+                )
+                record_draw.line(line_pos, W, 3)
+            record_p.paste(rank_img, pos, rank_img)
+            pos_prev = pos
+
+    if not MODE:
+        record_bg.paste(record_p, (0, 0), record_p)
+        detail_bg.paste(record_bg, (0, 558), record_bg)
         detail_draw.text(
-            (149 + 99 * (i % 8), 710 + 152 * (i // 8)),
-            f'第{_rank}名',
+            (500, 590),
+            '最近对局记录走势',
             W,
-            majs_font(24),
+            majs_font(34),
             'mm',
         )
 

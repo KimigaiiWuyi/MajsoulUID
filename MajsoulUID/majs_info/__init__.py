@@ -22,5 +22,5 @@ async def send_majs_search_msg(bot: Bot, ev: Event):
         mode = '3'
     else:
         mode = 'auto'
-
-    await bot.send(await draw_majs_info_img(ev, uid, mode))
+    im = await draw_majs_info_img(ev, uid, mode)
+    await bot.send(im)
