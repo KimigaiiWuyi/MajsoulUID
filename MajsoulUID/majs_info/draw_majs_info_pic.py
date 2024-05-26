@@ -154,7 +154,7 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = 'auto'):
     record_draw = ImageDraw.Draw(record_bg)
     pos_prev = (0, 0)
 
-    for i, r in enumerate(record):
+    for i, r in enumerate(record[::-1]):
         ranks = {p['nickname']: p['gradingScore'] for p in r['players']}
         sorted_players = sorted(
             ranks.items(), key=lambda x: x[1], reverse=True

@@ -78,12 +78,14 @@ class KoromoApi:
         MODE: Union[str, int] = '4',
     ):
         timestamp = int(datetime.datetime.now().timestamp() * 1000)
+        URL = KOROMO_PLAYER_RECORD.format(MODE, player_id, timestamp)
         data = await self._koromo_request(
-            KOROMO_PLAYER_RECORD.format(MODE, player_id, timestamp),
+            URL,
             params={
-                'limit': str(limit),
+                'limit': limit,
                 'mode': MODE_4 if MODE == '4' else MODE_3,
-                'tag': '466',
+                'tag': '54',
+                'descending': True,
             },
         )
         if isinstance(data, List) or isinstance(data, Dict):
