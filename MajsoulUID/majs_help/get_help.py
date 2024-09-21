@@ -12,6 +12,7 @@ from ..version import MajsoulUID_version
 
 TEXT_PATH = Path(__file__).parent / 'texture2d'
 HELP_DATA = Path(__file__).parent / 'Help.json'
+ICON = Path(__file__).parent.parent.parent / 'ICON.png'
 
 
 async def get_help_data() -> Union[Dict[str, PluginHelp], None]:
