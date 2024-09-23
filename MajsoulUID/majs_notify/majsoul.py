@@ -13,11 +13,7 @@ from msgspec import convert
 
 from ..lib import lq as liblq
 from .codec import MajsoulProtoCodec
-from .constants import (
-    ACCESS_TOKEN,
-    HEADERS,
-    ModeId2Room,
-)
+from .constants import ACCESS_TOKEN, HEADERS, ModeId2Room
 from .majsoul_friend import MajsoulFriend
 from .model import (
     MajsoulConfig,
@@ -31,7 +27,9 @@ from .utils import encodeAccountId, getRes
 
 
 class MajsoulConnection:
-    def __init__(self, server: str, codec: MajsoulProtoCodec, versionInfo: MajsoulVersionInfo):
+    def __init__(
+        self, server: str, codec: MajsoulProtoCodec, versionInfo: MajsoulVersionInfo
+    ):
         self._endpoint = server
         self._codec = codec
         self._ws = None
@@ -103,7 +101,9 @@ class MajsoulConnection:
                             msg += f" {rome_name} mod_id: {mode_id}\n"
                             msg += f"对局id: {active_state.playing.game_uuid}"
                             # save game_uuid
-                            game_record[active_state.playing.game_uuid] = friend.account_id
+                            game_record[active_state.playing.game_uuid] = (
+                                friend.account_id
+                            )
                         elif not active_state.playing and friend.playing:
                             with open("game_record.json", encoding="utf8") as f:
                                 game_record = json.load(f)
@@ -146,7 +146,9 @@ class MajsoulConnection:
                             need_send = True
                             # 三麻
                             level_info = friend.level3.formatAdjustedScoreWithTag()
-                            score_change = changed_base.level3.score - friend.level3.score
+                            score_change = (
+                                changed_base.level3.score - friend.level3.score
+                            )
                             msg += f"段位信息: {level_info}\n"
                             if score_change >= 0:
                                 msg += f"增加了 {score_change}"
@@ -343,7 +345,9 @@ async def createMajsoulConnection():
     ipDef = next(filter(lambda x: x.name == "player", config.ip))
 
     serverListUrl = random.choice(ipDef.region_urls).url
-    serverListUrl += "?service=ws-gateway&protocol=ws&ssl=true&rv=" + str(random.random())[2:]
+    serverListUrl += (
+        "?service=ws-gateway&protocol=ws&ssl=true&rv=" + str(random.random())[2:]
+    )
 
     resp = await AsyncClient(headers=HEADERS).get(serverListUrl)
     resp.raise_for_status()

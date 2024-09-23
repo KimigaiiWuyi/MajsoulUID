@@ -45,7 +45,9 @@ async def majsoul_notify_check_command(bot: Bot, event: Event):
         return
     if await conn.check_alive():
         msg = "Connection is alive\n"
-        msg += f"Current majsoul accountId: {conn.account_id}, nickName: {conn.nick_name}"
+        msg += (
+            f"Current majsoul accountId: {conn.account_id}, nickName: {conn.nick_name}"
+        )
     else:
         msg = "Connection is dead. Please send RestartMajsoulNotify to restart"
     await bot.send(msg)

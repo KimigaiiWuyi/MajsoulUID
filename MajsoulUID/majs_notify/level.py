@@ -1,5 +1,10 @@
 from ..lib import lq as liblq
-from .constants import LEVEL_KONTEN, LEVEL_MAX_POINT_KONTEN, LEVEL_MAX_POINTS, PLAYER_RANKS
+from .constants import (
+    LEVEL_KONTEN,
+    LEVEL_MAX_POINT_KONTEN,
+    LEVEL_MAX_POINTS,
+    PLAYER_RANKS,
+)
 
 
 class MajsoulLevel:
@@ -18,7 +23,9 @@ class MajsoulLevel:
         return self._major_rank >= LEVEL_KONTEN - 1
 
     def get_tag(self) -> str:
-        label = PLAYER_RANKS[LEVEL_KONTEN - 2 if self.is_konten() else self._major_rank - 1]
+        label = PLAYER_RANKS[
+            LEVEL_KONTEN - 2 if self.is_konten() else self._major_rank - 1
+        ]
         if self._minor_rank == LEVEL_KONTEN - 1:
             return label
         match self._minor_rank:
