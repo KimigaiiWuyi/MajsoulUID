@@ -56,9 +56,10 @@ jobs:
       - name: Copy files
         run: cp -r ./lib ./MajsoulUID/lib
 
-      - name: Commit and push changes
+      - name: Set up Git
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email actions@noreply.github.com
-          git add .
-          git commit -m "Auto liqi update"
+
+      - name: Check if there are any changes
+        run: git diff --exit-code || git commit -am "Auto Liqi" && git push
