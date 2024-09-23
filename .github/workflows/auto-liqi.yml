@@ -54,7 +54,7 @@ jobs:
         run: rm -f liqi.json liqi.proto
 
       - name: Copy files
-        run: cp -r ./lib ./MajsoulUID/lib
+        run: cp -r ./lib ./MajsoulUID/lib && rm -rf lib
 
       - name: Set up Git
         run: |
