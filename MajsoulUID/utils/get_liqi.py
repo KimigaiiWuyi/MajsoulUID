@@ -9,34 +9,40 @@ Headers = {
 
 
 def get_version():
-    req = requests.get("https://game.maj-soul.com/1/version.json", headers=Headers)
+    req = requests.get(
+        "https://game.maj-soul.com/1/version.json", headers=Headers
+    )
     return req.json()
 
 
 def get_prefix(version):
     req = requests.get(
-        f"https://game.maj-soul.com/1/resversion{version}.json", headers=Headers
+        f"https://game.maj-soul.com/1/resversion{version}.json",
+        headers=Headers,
     )
     return req.json()["res"]["res/proto/liqi.json"]["prefix"]
 
 
 def get_lqc_prefix(version):
     req = requests.get(
-        f"https://game.maj-soul.com/1/resversion{version}.json", headers=Headers
+        f"https://game.maj-soul.com/1/resversion{version}.json",
+        headers=Headers,
     )
     return req.json()["res"]["res/config/lqc.lqbin"]["prefix"]
 
 
 def get_liqi(prefix):
     req = requests.get(
-        f"https://game.maj-soul.com/1/{prefix}/res/proto/liqi.json", headers=Headers
+        f"https://game.maj-soul.com/1/{prefix}/res/proto/liqi.json",
+        headers=Headers,
     )
     return req.text
 
 
 def get_lqc(prefix):
     req = requests.get(
-        f"https://game.maj-soul.com/1/{prefix}/res/config/lqc.lqbin", headers=Headers
+        f"https://game.maj-soul.com/1/{prefix}/res/config/lqc.lqbin",
+        headers=Headers,
     )
     return req.content
 
