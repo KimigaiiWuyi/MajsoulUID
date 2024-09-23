@@ -1,18 +1,18 @@
 import datetime
 from json import JSONDecodeError
-from typing import Any, Dict, List, Literal, Optional, Union, cast
+from typing import Any, Dict, List, Union, Literal, Optional, cast
 
-from gsuid_core.logger import logger
 from httpx import AsyncClient
+from gsuid_core.logger import logger
 
+from .remote_const import GameMode
+from .models import Game, Stats, Player, Extended
 from .api import (
+    KOROMO_PLAYER_STATS,
     KOROMO_PLAYER_EXTEND,
     KOROMO_PLAYER_RECORD,
-    KOROMO_PLAYER_STATS,
     KOROMO_SEARCH_PLAYER,
 )
-from .models import Extended, Game, Player, Stats
-from .remote_const import GameMode
 
 MODE_MAP = {
     "四王座": 16,
@@ -28,7 +28,9 @@ MODE_MAP = {
 }
 
 MODE_3 = ",".join(str(mode.value) for mode in GameMode if "三" in mode.name)
-MODE_4 = ",".join(str(mode.value) for mode in GameMode if "三" not in mode.name)
+MODE_4 = ",".join(
+    str(mode.value) for mode in GameMode if "三" not in mode.name
+)
 
 
 class KoromoApi:

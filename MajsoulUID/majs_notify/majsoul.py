@@ -1,41 +1,46 @@
-import asyncio
 import json
-import random
 import time
 import uuid
+import random
+import asyncio
 from typing import cast
 
 import websockets
+from msgspec import convert
+from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
-from httpx import AsyncClient
-from msgspec import convert
 
 from ..lib import lq as liblq
 from .codec import MajsoulProtoCodec
-from .constants import ACCESS_TOKEN, HEADERS, ModeId2Room
 from .majsoul_friend import MajsoulFriend
+from .utils import getRes, encodeAccountId
+from .constants import HEADERS, ACCESS_TOKEN, ModeId2Room
 from .model import (
     MajsoulConfig,
-    MajsoulDecodedMessage,
-    MajsoulLiqiProto,
     MajsoulResInfo,
+    MajsoulLiqiProto,
     MajsoulServerList,
     MajsoulVersionInfo,
+    MajsoulDecodedMessage,
 )
-from .utils import encodeAccountId, getRes
 
 
 class MajsoulConnection:
     def __init__(
-        self, server: str, codec: MajsoulProtoCodec, versionInfo: MajsoulVersionInfo
+        self,
+        server: str,
+        codec: MajsoulProtoCodec,
+        versionInfo: MajsoulVersionInfo,
     ):
         self._endpoint = server
         self._codec = codec
         self._ws = None
         self._req_events: dict[int, asyncio.Event] = {}
         self._res: dict[int, MajsoulDecodedMessage] = {}
-        self.clientVersionString = "web-" + versionInfo.version.replace(".w", "")
+        self.clientVersionString = "web-" + versionInfo.version.replace(
+            ".w", ""
+        )
         self.no_operation_counter = 0
         self.bg_tasks = []
         self.account_id = 0
@@ -48,7 +53,9 @@ class MajsoulConnection:
             return False
         resp = cast(
             liblq.ResCommon,
-            await self.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0}),
+            await self.rpc_call(
+                ".lq.Lobby.heatbeat", {"no_operation_counter": 0}
+            ),
         )
         if resp.error.code:
             return False
@@ -77,7 +84,9 @@ class MajsoulConnection:
                             msg = f"{nick_name} 下线了"
 
                         try:
-                            with open("game_record.json", encoding="utf8") as f:
+                            with open(
+                                "game_record.json", encoding="utf8"
+                            ) as f:
                                 game_record = json.load(f)
                         except FileNotFoundError:
                             game_record = {}
@@ -96,7 +105,9 @@ class MajsoulConnection:
                                 case 4:
                                     msg = f"{nick_name} 开始了比赛场"
                                 case _:
-                                    msg = f"{nick_name} 未知牌谱类别 {category}"
+                                    msg = (
+                                        f"{nick_name} 未知牌谱类别 {category}"
+                                    )
                             rome_name = ModeId2Room.get(mode_id, "")
                             msg += f" {rome_name} mod_id: {mode_id}\n"
                             msg += f"对局id: {active_state.playing.game_uuid}"
@@ -105,14 +116,20 @@ class MajsoulConnection:
                                 friend.account_id
                             )
                         elif not active_state.playing and friend.playing:
-                            with open("game_record.json", encoding="utf8") as f:
+                            with open(
+                                "game_record.json", encoding="utf8"
+                            ) as f:
                                 game_record = json.load(f)
                             mode_id = friend.playing.meta.mode_id
                             msg = f"{nick_name} 结束了在 {ModeId2Room.get(mode_id, '')} 的对局\n"
                             msg += f"牌谱为 https://game.maj-soul.com/1/?paipu={friend.playing.game_uuid}_a{encodeAccountId(friend.account_id)}\n"
                             # also save game_uuid
-                            game_record[friend.playing.game_uuid] = friend.account_id
-                        with open("game_record.json", "w", encoding="utf8") as f:
+                            game_record[friend.playing.game_uuid] = (
+                                friend.account_id
+                            )
+                        with open(
+                            "game_record.json", "w", encoding="utf8"
+                        ) as f:
                             json.dump(game_record, f)
 
                         # set friend state
@@ -134,8 +151,12 @@ class MajsoulConnection:
                         if changed_base.level.score != friend.level.score:
                             need_send = True
                             # 四麻
-                            level_info = friend.level.formatAdjustedScoreWithTag()
-                            score_change = changed_base.level.score - friend.level.score
+                            level_info = (
+                                friend.level.formatAdjustedScoreWithTag()
+                            )
+                            score_change = (
+                                changed_base.level.score - friend.level.score
+                            )
 
                             msg += f"段位信息: {level_info}\n"
                             if score_change >= 0:
@@ -145,7 +166,9 @@ class MajsoulConnection:
                         elif changed_base.level3.score != friend.level3.score:
                             need_send = True
                             # 三麻
-                            level_info = friend.level3.formatAdjustedScoreWithTag()
+                            level_info = (
+                                friend.level3.formatAdjustedScoreWithTag()
+                            )
                             score_change = (
                                 changed_base.level3.score - friend.level3.score
                             )
@@ -279,7 +302,8 @@ class MajsoulConnection:
         resp = cast(
             liblq.ResCommon,
             await self.rpc_call(
-                ".lq.Lobby.loginBeat", {"contract": "DF2vkXCnfeXp4WoGSBGNcJBufZiMN3UP"}
+                ".lq.Lobby.loginBeat",
+                {"contract": "DF2vkXCnfeXp4WoGSBGNcJBufZiMN3UP"},
             ),
         )
         if resp.error.code:
@@ -346,7 +370,8 @@ async def createMajsoulConnection():
 
     serverListUrl = random.choice(ipDef.region_urls).url
     serverListUrl += (
-        "?service=ws-gateway&protocol=ws&ssl=true&rv=" + str(random.random())[2:]
+        "?service=ws-gateway&protocol=ws&ssl=true&rv="
+        + str(random.random())[2:]
     )
 
     resp = await AsyncClient(headers=HEADERS).get(serverListUrl)

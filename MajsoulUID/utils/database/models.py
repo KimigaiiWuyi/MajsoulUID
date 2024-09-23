@@ -1,8 +1,8 @@
 from typing import Optional
 
-from gsuid_core.utils.database.base_models import Bind
-from gsuid_core.webconsole.mount_app import GsAdminModel, PageSchema, site
 from sqlmodel import Field
+from gsuid_core.utils.database.base_models import Bind
+from gsuid_core.webconsole.mount_app import PageSchema, GsAdminModel, site
 
 
 class MajsBind(Bind, table=True):
