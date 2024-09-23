@@ -1,6 +1,6 @@
 from enum import Enum
 
-from .models import Extended, Stats
+from .models import Stats, Extended
 
 # 定义一个常量，表示玩家的等级
 PLAYER_RANKS = "初士杰豪圣魂"
