@@ -665,6 +665,8 @@ FodyWeavers.xsd
 ### CI ###
 result.txt
 
+.pdm-python
+
 ### GenshinUID ###
 *.xlsx
 all_image
