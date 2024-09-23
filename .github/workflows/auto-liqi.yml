@@ -45,7 +45,7 @@ jobs:
         run: python -m pip install betterproto[compiler] --pre
 
       - name: Make lib directory
-        run: mkdir -p lib
+        run: mkdir -p lib MajsoulUID/lib
 
       - name: Generate python code from liqi.proto
         run: protoc -I . --python_betterproto_opt=pydantic_dataclasses --python_betterproto_out=lib liqi.proto
