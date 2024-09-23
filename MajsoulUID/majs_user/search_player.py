@@ -1,7 +1,7 @@
-from typing import List, Optional, Tuple
+from typing import List, Tuple, Optional
 
-from ..utils.api.remote import PlayerLevel
 from ..utils.majs_api import majs_api
+from ..utils.api.remote import PlayerLevel
 
 
 async def search_player_with_name(name: str) -> Tuple[str, Optional[List]]:

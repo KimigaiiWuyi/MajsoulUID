@@ -1,9 +1,9 @@
 from ..lib import lq as liblq
 from .constants import (
     LEVEL_KONTEN,
-    LEVEL_MAX_POINT_KONTEN,
-    LEVEL_MAX_POINTS,
     PLAYER_RANKS,
+    LEVEL_MAX_POINTS,
+    LEVEL_MAX_POINT_KONTEN,
 )
 
 
@@ -17,7 +17,11 @@ class MajsoulLevel:
         self._num_player_id = level.id // 10000
 
     def to_level_id(self):
-        return self._num_player_id * 10000 + self._major_rank * 100 + self._minor_rank
+        return (
+            self._num_player_id * 10000
+            + self._major_rank * 100
+            + self._minor_rank
+        )
 
     def is_konten(self) -> bool:
         return self._major_rank >= LEVEL_KONTEN - 1
@@ -43,7 +47,9 @@ class MajsoulLevel:
             if self._minor_rank == 20:
                 return 0
             return LEVEL_MAX_POINT_KONTEN
-        return LEVEL_MAX_POINTS[(self._major_rank - 1) * 3 + self._minor_rank - 1]
+        return LEVEL_MAX_POINTS[
+            (self._major_rank - 1) * 3 + self._minor_rank - 1
+        ]
 
     def get_starting_point(self) -> int:
         if self._major_rank == 1:
