@@ -77,4 +77,4 @@ class MajsoulLevel:
         return f"{self.get_tag()} {self.formatAdjustedScore()}"
 
     def formatAdjustedScore(self) -> str:
-        return f"{self.get_score_display()}{'' if not self.get_max_point() else '/' + self.get_max_point_score_display()}"
+        return f"{self.get_score_display()}{'' if not self.get_max_point() else '/' + self.get_max_point_score_display()}"  # noqa: E501

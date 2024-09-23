@@ -5,7 +5,7 @@ import random
 import asyncio
 from typing import cast
 
-import websockets
+import websockets.client
 from msgspec import convert
 from httpx import AsyncClient
 from gsuid_core.gss import gss
@@ -15,7 +15,8 @@ from ..lib import lq as liblq
 from .codec import MajsoulProtoCodec
 from .majsoul_friend import MajsoulFriend
 from .utils import getRes, encodeAccountId
-from .constants import HEADERS, ACCESS_TOKEN, ModeId2Room
+from .constants import HEADERS, ModeId2Room
+from ..utils.database.models import MajsPush, MajsUser
 from .model import (
     MajsoulConfig,
     MajsoulResInfo,
@@ -24,6 +25,8 @@ from .model import (
     MajsoulVersionInfo,
     MajsoulDecodedMessage,
 )
+
+PP_HOST = 'https://game.maj-soul.com/1/?paipu='
 
 
 class MajsoulConnection:
@@ -63,7 +66,7 @@ class MajsoulConnection:
 
     async def connect(self):
         logger.info(f"Connecting to {self._endpoint}")
-        self._ws = await websockets.connect(self._endpoint)
+        self._ws = await websockets.client.connect(self._endpoint)
         self._msg_dispatcher = asyncio.create_task(self.dispatch_msg())
 
     async def handle_notify(self, notify: MajsoulDecodedMessage):
@@ -121,8 +124,13 @@ class MajsoulConnection:
                             ) as f:
                                 game_record = json.load(f)
                             mode_id = friend.playing.meta.mode_id
-                            msg = f"{nick_name} 结束了在 {ModeId2Room.get(mode_id, '')} 的对局\n"
-                            msg += f"牌谱为 https://game.maj-soul.com/1/?paipu={friend.playing.game_uuid}_a{encodeAccountId(friend.account_id)}\n"
+                            room_name = ModeId2Room.get(mode_id, '')
+                            msg = f"{nick_name} 结束了在 {room_name} 的对局\n"
+                            uuid = friend.playing.game_uuid
+                            encode_aid = encodeAccountId(friend.account_id)
+                            url = f'{PP_HOST}{uuid}_a{encode_aid}'
+                            msg += f"牌谱为 {url}\n"
+
                             # also save game_uuid
                             game_record[friend.playing.game_uuid] = (
                                 friend.account_id
@@ -145,14 +153,17 @@ class MajsoulConnection:
                         msg = ""
                         # check level change
                         if changed_base.level.id != friend.level.id:
-                            msg = f"{nick_name} 的段位更新为 {changed_base.level.id}\n"
+                            changed = changed_base.level.id
+                            msg = f"{nick_name} 的段位更新为 {changed}\n"
                             need_send = True
 
                         if changed_base.level.score != friend.level.score:
                             need_send = True
                             # 四麻
                             level_info = (
-                                friend.level.formatAdjustedScoreWithTag()
+                                friend.level.formatAdjustedScoreWithTag(
+                                    friend.level.score
+                                )
                             )
                             score_change = (
                                 changed_base.level.score - friend.level.score
@@ -167,7 +178,9 @@ class MajsoulConnection:
                             need_send = True
                             # 三麻
                             level_info = (
-                                friend.level3.formatAdjustedScoreWithTag()
+                                friend.level3.formatAdjustedScoreWithTag(
+                                    friend.level3.score
+                                )
                             )
                             score_change = (
                                 changed_base.level3.score - friend.level3.score
@@ -187,15 +200,26 @@ class MajsoulConnection:
                 if msg == "{}":
                     return
 
-        for BOT_ID in gss.active_bot:
-            bot = gss.active_bot[BOT_ID]
-            await bot.target_send(
-                msg,
-                "group",
-                "",
-                "onebot",
-                "",
-            )
+        push_data = await MajsPush.select_data_by_uid(uid=str(target_user))
+        if push_data:
+            if push_data.push_id != 'off':
+                bot_id = push_data.bot_id
+                if push_data.push_id == 'on':
+                    push_target = push_data.user_id
+                    push_type = 'direct'
+                else:
+                    push_target = push_data.push_id
+                    push_type = 'group'
+
+                for BOT_ID in gss.active_bot:
+                    bot = gss.active_bot[BOT_ID]
+                    await bot.target_send(
+                        msg,
+                        push_type,
+                        push_target,
+                        bot_id,
+                        '',
+                    )
 
     async def dispatch_msg(self):
         if self._ws is None:
@@ -249,12 +273,16 @@ class MajsoulConnection:
             raise ConnectionError("Connection is broken")
         return True
 
-    async def accessTokenLogin(self, versionInfo: MajsoulVersionInfo):
+    async def accessTokenLogin(
+        self,
+        versionInfo: MajsoulVersionInfo,
+        access_token: str,
+    ):
         resp = cast(
             liblq.ResOauth2Check,
             await self.rpc_call(
                 ".lq.Lobby.oauth2Check",
-                {"type": 0, "access_token": ACCESS_TOKEN},
+                {"type": 0, "access_token": access_token},
             ),
         )
         logger.info(f"OAuth2 Check: {resp}")
@@ -264,7 +292,7 @@ class MajsoulConnection:
                 liblq.ResOauth2Check,
                 await self.rpc_call(
                     ".lq.Lobby.oauth2Check",
-                    {"type": 0, "access_token": ACCESS_TOKEN},
+                    {"type": 0, "access_token": access_token},
                 ),
             )
         if not resp.has_account:
@@ -276,7 +304,7 @@ class MajsoulConnection:
                 ".lq.Lobby.oauth2Login",
                 {
                     "type": 0,
-                    "access_token": ACCESS_TOKEN,
+                    "access_token": access_token,
                     "reconnect": False,
                     "device": {
                         "platform": "pc",
@@ -348,7 +376,7 @@ class MajsoulConnection:
         return resp
 
 
-async def createMajsoulConnection():
+async def createMajsoulConnection(access_token: str):
     versionInfo = convert(
         await getRes("version.json", bust_cache=True),
         MajsoulVersionInfo,
@@ -389,7 +417,7 @@ async def createMajsoulConnection():
     logger.info("Connection established, sending heartbeat")
     _ = await conn.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0})
     logger.info(f"Authenticating ({versionInfo.version})")
-    await conn.accessTokenLogin(versionInfo)
+    await conn.accessTokenLogin(versionInfo, access_token)
 
     # create a new task to keep the connection alive, 300s heartbeat
     async def heartbeat():
@@ -415,11 +443,25 @@ class MajsoulManager:
         # maybe we need to support multiple connections in the future
         self.conn: list[MajsoulConnection] = []
 
+    async def check_access_token(self, access_token: str):
+        try:
+            conn = await createMajsoulConnection(access_token)
+        except ValueError:
+            return False
+        return conn.account_id
+
     async def start(self):
         if len(self.conn) == 0:
-            conn = await createMajsoulConnection()
-            self.conn.append(conn)
-            await self.conn[0].fetchInfo()
+            cookies = await MajsUser.get_all_cookie()
+            if cookies:
+                for access_token in cookies:
+                    conn = await createMajsoulConnection(access_token)
+                    self.conn.append(conn)
+                    await conn.fetchInfo()
+            else:
+                return (
+                    '❌错误: 未找到有效的ACCESS_TOKEN！请先进行[雀魂添加账号]'
+                )
         return self.conn[0]
 
     async def restart(self):

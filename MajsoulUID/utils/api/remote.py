@@ -32,9 +32,12 @@ def getTranslatedLevelTags():
 # 定义一个类，表示玩家的等级
 class PlayerLevel:
     # 定义一个构造函数，接受一个整数参数，表示等级的编号
-    def __init__(self, levelId: int):
+    def __init__(self, levelId: int, score: int = 0):
+        self.id = levelId
         # 计算真实的编号，去掉前面的玩家编号
         realId: int = levelId % 10000
+        self.score = score
+        self.realId = realId
         # 计算主等级，即等级的前两位数字
         self._majorRank: int = realId // 100
         # 计算次等级，即等级的后两位数字

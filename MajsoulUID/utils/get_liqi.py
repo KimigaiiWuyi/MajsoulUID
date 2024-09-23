@@ -4,7 +4,7 @@ import os
 import requests
 
 Headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"  # noqa: E501
 }
 
 
@@ -59,7 +59,7 @@ def main():
     with open("liqi.json", "w") as f:
         f.write(liqi)
     env = os.getenv("GITHUB_ENV")
-    with open(env, "a") as f:
+    with open(env, "a") as f:  # type:ignore
         f.write(f"liqi-json={prefix}\n")
 
 

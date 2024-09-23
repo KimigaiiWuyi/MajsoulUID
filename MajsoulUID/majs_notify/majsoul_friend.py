@@ -1,5 +1,5 @@
 from ..lib import lq as liblq
-from .level import MajsoulLevel
+from ..utils.api.remote import PlayerLevel
 
 
 class MajsoulFriend:
@@ -7,8 +7,11 @@ class MajsoulFriend:
         self.player = friend
         self.account_id = friend.base.account_id
         self.nickname = friend.base.nickname
-        self.level = MajsoulLevel(friend.base.level)
-        self.level3 = MajsoulLevel(friend.base.level3)
+        self.level = PlayerLevel(friend.base.level.id, friend.base.level.score)
+
+        self.level3 = PlayerLevel(
+            friend.base.level3.id, friend.base.level3.score
+        )
         self.login_time = friend.state.login_time
         self.logout_time = friend.state.logout_time
         self.is_online = friend.state.is_online
@@ -16,8 +19,8 @@ class MajsoulFriend:
 
     def change_base(self, base: liblq.PlayerBaseView):
         self.nickname = base.nickname
-        self.level = MajsoulLevel(base.level)
-        self.level3 = MajsoulLevel(base.level3)
+        self.level = PlayerLevel(base.level.id, base.level.score)
+        self.level3 = PlayerLevel(base.level3.id, base.level.score)
 
     def change_state(self, state: liblq.AccountActiveState):
         self.login_time = state.login_time
