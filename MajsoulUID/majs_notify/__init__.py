@@ -1,6 +1,7 @@
 from gsuid_core.sv import SV
 from gsuid_core.bot import Bot
 from gsuid_core.models import Event
+from gsuid_core.logger import logger
 from gsuid_core.utils.database.api import get_uid
 
 from .majsoul import manager
@@ -13,9 +14,23 @@ majsoul_get_notify = SV('雀魂订阅推送')
 majsoul_add_account = SV('雀魂账号池', pm=0)
 
 
-@majsoul_add_account.on_command(('雀魂添加账号'))
+@majsoul_add_account.on_command(('添加账号'))
 async def majsoul_add_at(bot: Bot, ev: Event):
-    access_token = ev.text.strip()
+    token = ev.text.strip()
+    token = token.replace('，', ',')
+    if ',' not in token:
+        return await bot.send(
+            '❌ 请输入有效的绑定token!格式为 好友码, access_toekn'
+        )
+
+    friend_code, access_token = token.split(',')
+
+    friend_code = friend_code.strip()
+    access_token = access_token.strip()
+
+    if not friend_code:
+        return await bot.send('❌ 请输入有效的好友码!')
+
     if not access_token:
         return await bot.send('❌ 请输入有效的access_token!')
 
@@ -23,9 +38,10 @@ async def majsoul_add_at(bot: Bot, ev: Event):
     if isinstance(account_id, bool):
         return await bot.send('❌ 登陆失败, 请输入正确的access_token!')
 
-    if MajsUser.data_exist(uid=account_id):
+    if await MajsUser.data_exist(uid=account_id):
         await MajsUser.update_data_by_data(
-            {'uid': str(account_id)}, {'cookie': access_token}
+            {'uid': str(account_id)},
+            {'cookie': access_token, 'friend_code': friend_code},
         )
     else:
         await MajsUser.insert_data(
@@ -33,6 +49,7 @@ async def majsoul_add_at(bot: Bot, ev: Event):
             ev.bot_id,
             uid=str(account_id),
             cookie=access_token,
+            friend_code=friend_code,
         )
 
     conn = await manager.start()
@@ -45,7 +62,7 @@ async def majsoul_add_at(bot: Bot, ev: Event):
     await bot.send(msg)
 
 
-@majsoul_get_notify.on_command(('雀魂订阅'))
+@majsoul_get_notify.on_command(('订阅'))
 async def majsoul_get_notify_command(bot: Bot, ev: Event):
     conn = await manager.start()
     if isinstance(conn, str):
@@ -55,18 +72,27 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
     if uid is None:
         return await bot.send(UID_HINT)
 
+    logger.info(f'[majs] 开始订阅推送 {uid}, 进行刷新账号数据中...')
     await conn.fetchInfo()
+
+    friend_code = await MajsUser.get_user_attr_by_uid(
+        str(conn.account_id),
+        'friend_code',
+    )
+    if friend_code is None:
+        return await bot.send('[majs] 账号池账号异常, 请联系管理员!')
+
     for friend in conn.friends:
         if uid == str(friend.account_id):
             break
     else:
         return await bot.send(
             '[majs] 未找到好友信息! \n'
-            f'请先在【游戏中】添加 {conn.nick_name}: {conn.account_id}好友再执行此操作！'
+            f'请先在【游戏中】添加 {conn.nick_name}: {friend_code}好友再执行此操作！'
         )
 
     push_id = ev.group_id if ev.group_id else 'on'
-    if MajsPush.data_exist(uid=uid):
+    if await MajsPush.data_exist(uid=uid):
         retcode = await MajsPush.update_data_by_uid(
             uid,
             ev.bot_id,
@@ -80,12 +106,13 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
         )
 
     if retcode == 0:
+        logger.success(f'[majs] {uid}订阅推送成功！当前值：{push_id}')
         return await bot.send(f'[majs] 修改推送订阅成功！当前值：{push_id}')
     else:
         return await bot.send('[majs] 推送订阅失败！')
 
 
-@majsoul_notify.on_fullmatch(('雀魂推送启动'))
+@majsoul_notify.on_fullmatch(('推送启动'))
 async def majsoul_notify_command(bot: Bot, event: Event):
     conn = await manager.start()
     if isinstance(conn, str):
@@ -97,7 +124,7 @@ async def majsoul_notify_command(bot: Bot, event: Event):
     await bot.send(msg)
 
 
-@majsoul_notify.on_fullmatch('雀魂重启订阅服务')
+@majsoul_notify.on_fullmatch('重启订阅服务')
 async def majsoul_notify_reset_command(bot: Bot, event: Event):
     conn = await manager.restart()
     if isinstance(conn, str):
@@ -108,7 +135,7 @@ async def majsoul_notify_reset_command(bot: Bot, event: Event):
     await bot.send(msg)
 
 
-@majsoul_notify.on_fullmatch('雀魂检查服务')
+@majsoul_notify.on_fullmatch('检查服务')
 async def majsoul_notify_check_command(bot: Bot, event: Event):
     conn = manager.get_conn()
     if conn is None:
@@ -122,7 +149,7 @@ async def majsoul_notify_check_command(bot: Bot, event: Event):
     await bot.send(msg)
 
 
-@majsoul_friend_level_billboard.on_command('雀魂好友排行榜')
+@majsoul_friend_level_billboard.on_command('好友排行榜')
 async def majsoul_friend_billboard_command(bot: Bot, event: Event):
     # get connection
     conn = manager.get_conn()
@@ -149,4 +176,5 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
                 friend.level3.score
             )
             msg += f'{friend.nickname} {level_str}\n'
+        await bot.send(msg)
         await bot.send(msg)

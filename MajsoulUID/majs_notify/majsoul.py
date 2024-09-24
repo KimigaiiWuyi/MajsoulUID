@@ -41,13 +41,13 @@ class MajsoulConnection:
         self._ws = None
         self._req_events: dict[int, asyncio.Event] = {}
         self._res: dict[int, MajsoulDecodedMessage] = {}
-        self.clientVersionString = "web-" + versionInfo.version.replace(
-            ".w", ""
+        self.clientVersionString = 'web-' + versionInfo.version.replace(
+            '.w', ''
         )
         self.no_operation_counter = 0
         self.bg_tasks = []
         self.account_id = 0
-        self.nick_name = ""
+        self.nick_name = ''
         self.friends: list[MajsoulFriend] = []
         self.last_heartbeat_time = 0
 
@@ -57,7 +57,7 @@ class MajsoulConnection:
         resp = cast(
             liblq.ResCommon,
             await self.rpc_call(
-                ".lq.Lobby.heatbeat", {"no_operation_counter": 0}
+                '.lq.Lobby.heatbeat', {'no_operation_counter': 0}
             ),
         )
         if resp.error.code:
@@ -65,140 +65,129 @@ class MajsoulConnection:
         return True
 
     async def connect(self):
-        logger.info(f"Connecting to {self._endpoint}")
+        logger.info(f'Connecting to {self._endpoint}')
         self._ws = await websockets.client.connect(self._endpoint)
         self._msg_dispatcher = asyncio.create_task(self.dispatch_msg())
 
     async def handle_notify(self, notify: MajsoulDecodedMessage):
-        logger.info(f"Notify: {notify}")
-        msg = ""
-        match notify.method_name:
-            case ".lq.NotifyFriendStateChange":
-                data = cast(liblq.NotifyFriendStateChange, notify.payload)
-                target_user = data.target_id
-                active_state = data.active_state
-                for friend in self.friends:
-                    if friend.account_id == target_user:
-                        nick_name = friend.nickname
-                        # find what changed
-                        if active_state.is_online and not friend.is_online:
-                            msg = f"{nick_name} 上线了"
-                        elif not active_state.is_online and friend.is_online:
-                            msg = f"{nick_name} 下线了"
+        logger.info(f'Notify: {notify}')
+        msg = ''
+        if notify.method_name == '.lq.NotifyFriendStateChange':
+            data = cast(liblq.NotifyFriendStateChange, notify.payload)
+            target_user = data.target_id
+            active_state = data.active_state
+            for friend in self.friends:
+                if friend.account_id == target_user:
+                    nick_name = friend.nickname
+                    # find what changed
+                    if active_state.is_online and not friend.is_online:
+                        msg = f'{nick_name} 上线了'
+                    elif not active_state.is_online and friend.is_online:
+                        msg = f'{nick_name} 下线了'
 
-                        try:
-                            with open(
-                                "game_record.json", encoding="utf8"
-                            ) as f:
-                                game_record = json.load(f)
-                        except FileNotFoundError:
-                            game_record = {}
-                        except json.JSONDecodeError:
-                            game_record = {}
+                    try:
+                        with open('game_record.json', encoding='utf8') as f:
+                            game_record = json.load(f)
+                    except FileNotFoundError:
+                        game_record = {}
+                    except json.JSONDecodeError:
+                        game_record = {}
 
-                        # if active_state have playing
-                        if active_state.playing and not friend.playing:
-                            category = active_state.playing.category
-                            mode_id = active_state.playing.meta.mode_id
-                            match category:
-                                case 1:
-                                    msg = f"{nick_name} 开始了歹人场"
-                                case 2:
-                                    msg = f"{nick_name} 开始了段位场"
-                                case 4:
-                                    msg = f"{nick_name} 开始了比赛场"
-                                case _:
-                                    msg = (
-                                        f"{nick_name} 未知牌谱类别 {category}"
-                                    )
-                            rome_name = ModeId2Room.get(mode_id, "")
-                            msg += f" {rome_name} mod_id: {mode_id}\n"
-                            msg += f"对局id: {active_state.playing.game_uuid}"
-                            # save game_uuid
-                            game_record[active_state.playing.game_uuid] = (
-                                friend.account_id
-                            )
-                        elif not active_state.playing and friend.playing:
-                            with open(
-                                "game_record.json", encoding="utf8"
-                            ) as f:
-                                game_record = json.load(f)
-                            mode_id = friend.playing.meta.mode_id
-                            room_name = ModeId2Room.get(mode_id, '')
-                            msg = f"{nick_name} 结束了在 {room_name} 的对局\n"
-                            uuid = friend.playing.game_uuid
-                            encode_aid = encodeAccountId(friend.account_id)
-                            url = f'{PP_HOST}{uuid}_a{encode_aid}'
-                            msg += f"牌谱为 {url}\n"
+                    # if active_state have playing
+                    active_uuid = active_state.playing.game_uuid
+                    if active_uuid and not friend.playing.game_uuid:
+                        category = active_state.playing.category
+                        mode_id = active_state.playing.meta.mode_id
+                        if category == 1:
+                            msg = f'{nick_name} 开始了歹人场'
+                        elif category == 2:
+                            msg = f'{nick_name} 开始了段位场'
+                        elif category == 4:
+                            msg = f'{nick_name} 开始了比赛场'
+                        else:
+                            msg = f'{nick_name} 未知牌谱类别 {category}'
+                        rome_name = ModeId2Room.get(mode_id, '')
+                        msg += f' {rome_name} mod_id: {mode_id}\n'
+                        msg += f'对局id: {active_state.playing.game_uuid}'
+                        # save game_uuid
+                        game_record[active_state.playing.game_uuid] = (
+                            friend.account_id
+                        )
+                    elif not active_state.playing and friend.playing:
+                        with open('game_record.json', encoding='utf8') as f:
+                            game_record = json.load(f)
+                        mode_id = friend.playing.meta.mode_id
+                        room_name = ModeId2Room.get(mode_id, '')
+                        msg = f'{nick_name} 结束了在 {room_name} 的对局\n'
+                        uuid = friend.playing.game_uuid
+                        encode_aid = encodeAccountId(friend.account_id)
+                        url = f'{PP_HOST}{uuid}_a{encode_aid}'
+                        msg += f'牌谱为 {url}\n'
 
-                            # also save game_uuid
-                            game_record[friend.playing.game_uuid] = (
-                                friend.account_id
-                            )
-                        with open(
-                            "game_record.json", "w", encoding="utf8"
-                        ) as f:
-                            json.dump(game_record, f)
+                        # also save game_uuid
+                        game_record[friend.playing.game_uuid] = (
+                            friend.account_id
+                        )
+                    with open('game_record.json', 'w', encoding='utf8') as f:
+                        json.dump(game_record, f)
+                    # set friend state
+                    friend.change_state(active_state)
+        elif notify.method_name == '.lq.NotifyFriendViewChange':
+            data = cast(liblq.NotifyFriendViewChange, notify.payload)
+            target_user = data.target_id
+            changed_base = data.base
+            for friend in self.friends:
+                if friend.account_id == target_user:
+                    nick_name = friend.nickname
+                    need_send = False
+                    msg = ''
+                    # check level change
+                    changed_level = changed_base.level.id
+                    if changed_level != friend.level.id:
+                        msg = f'{nick_name} 的段位更新为 {changed_level}\n'
+                        need_send = True
 
-                        # set friend state
-                        friend.change_state(active_state)
-            case ".lq.NotifyFriendViewChange":
-                data = cast(liblq.NotifyFriendViewChange, notify.payload)
-                target_user = data.target_id
-                changed_base = data.base
-                for friend in self.friends:
-                    if friend.account_id == target_user:
-                        nick_name = friend.nickname
-                        need_send = False
-                        msg = ""
-                        # check level change
-                        if changed_base.level.id != friend.level.id:
-                            changed = changed_base.level.id
-                            msg = f"{nick_name} 的段位更新为 {changed}\n"
-                            need_send = True
+                    changed_score = changed_base.level.score
+                    changed_score3 = changed_base.level3.score
+                    if changed_score != friend.level.score:
+                        need_send = True
+                        # 四麻
+                        level_info = friend.level.formatAdjustedScoreWithTag(
+                            friend.level.score
+                        )
+                        score_change = (
+                            changed_base.level.score - friend.level.score
+                        )
 
-                        if changed_base.level.score != friend.level.score:
-                            need_send = True
-                            # 四麻
-                            level_info = (
-                                friend.level.formatAdjustedScoreWithTag(
-                                    friend.level.score
-                                )
-                            )
-                            score_change = (
-                                changed_base.level.score - friend.level.score
-                            )
+                        msg += f'四麻段位信息: {level_info}\n'
+                        if score_change >= 0:
+                            msg += f'增加了 {score_change}'
+                        else:
+                            msg += f'减少了 {-score_change}'
+                    elif changed_score3 != friend.level3.score:
+                        need_send = True
+                        # 三麻
+                        level_info = friend.level3.formatAdjustedScoreWithTag(
+                            friend.level3.score
+                        )
+                        score_change = changed_score3 - friend.level3.score
+                        msg += f'三麻段位信息: {level_info}\n'
+                        if score_change >= 0:
+                            msg += f'增加了 {score_change}'
+                        else:
+                            msg += f'减少了 {-score_change}'
 
-                            msg += f"段位信息: {level_info}\n"
-                            if score_change >= 0:
-                                msg += f"增加了 {score_change}"
-                            else:
-                                msg += f"减少了 {-score_change}"
-                        elif changed_base.level3.score != friend.level3.score:
-                            need_send = True
-                            # 三麻
-                            level_info = (
-                                friend.level3.formatAdjustedScoreWithTag(
-                                    friend.level3.score
-                                )
-                            )
-                            score_change = (
-                                changed_base.level3.score - friend.level3.score
-                            )
-                            msg += f"段位信息: {level_info}\n"
-                            if score_change >= 0:
-                                msg += f"增加了 {score_change}"
-                            else:
-                                msg += f"减少了 {-score_change}"
+                    # set friend base
+                    friend.change_base(changed_base)
+                    if not need_send:
+                        return
+        else:
+            msg = notify.payload.to_json()
+            if msg == '{}':
+                return
 
-                        # set friend base
-                        friend.change_base(changed_base)
-                        if not need_send:
-                            return
-            case _:
-                msg = notify.payload.to_json()
-                if msg == "{}":
-                    return
+        if not msg:
+            return
 
         push_data = await MajsPush.select_data_by_uid(uid=str(target_user))
         if push_data:
@@ -223,7 +212,7 @@ class MajsoulConnection:
 
     async def dispatch_msg(self):
         if self._ws is None:
-            raise ConnectionError("Connection is broken")
+            raise ConnectionError('Connection is broken')
 
         while True:
             msg = await self._ws.recv()
@@ -239,14 +228,14 @@ class MajsoulConnection:
                 await self.handle_notify(data)
                 continue
             if data.msg_type == self._codec.REQUEST:
-                logger.info(f"Request: {data}")
+                logger.info(f'Request: {data}')
                 continue
 
     async def rpc_call(self, method_name: str, payload: dict):
         idx = self._codec.index
 
         if self._ws is None:
-            raise ConnectionError("Connection is broken")
+            raise ConnectionError('Connection is broken')
 
         req = self._codec.encode_request(method_name, payload)
 
@@ -270,7 +259,7 @@ class MajsoulConnection:
 
     async def check_connection(self):
         if self._ws is None:
-            raise ConnectionError("Connection is broken")
+            raise ConnectionError('Connection is broken')
         return True
 
     async def accessTokenLogin(
@@ -281,83 +270,83 @@ class MajsoulConnection:
         resp = cast(
             liblq.ResOauth2Check,
             await self.rpc_call(
-                ".lq.Lobby.oauth2Check",
-                {"type": 0, "access_token": access_token},
+                '.lq.Lobby.oauth2Check',
+                {'type': 0, 'access_token': access_token},
             ),
         )
-        logger.info(f"OAuth2 Check: {resp}")
+        logger.info(f'OAuth2 Check: {resp}')
         if not resp.has_account:
             await asyncio.sleep(2)
             resp = cast(
                 liblq.ResOauth2Check,
                 await self.rpc_call(
-                    ".lq.Lobby.oauth2Check",
-                    {"type": 0, "access_token": access_token},
+                    '.lq.Lobby.oauth2Check',
+                    {'type': 0, 'access_token': access_token},
                 ),
             )
         if not resp.has_account:
-            raise ValueError("Failed to check account")
+            raise ValueError('Failed to check account')
 
         resp = cast(
             liblq.ResLogin,
             await self.rpc_call(
-                ".lq.Lobby.oauth2Login",
+                '.lq.Lobby.oauth2Login',
                 {
-                    "type": 0,
-                    "access_token": access_token,
-                    "reconnect": False,
-                    "device": {
-                        "platform": "pc",
-                        "hardware": "pc",
-                        "os": "windows",
-                        "os_version": "win10",
-                        "is_browser": True,
-                        "software": "Chrome",
-                        "sale_platform": "web",
+                    'type': 0,
+                    'access_token': access_token,
+                    'reconnect': False,
+                    'device': {
+                        'platform': 'pc',
+                        'hardware': 'pc',
+                        'os': 'windows',
+                        'os_version': 'win10',
+                        'is_browser': True,
+                        'software': 'Chrome',
+                        'sale_platform': 'web',
                     },
-                    "random_key": str(uuid.uuid4()),
-                    "client_version": {"resource": versionInfo.version},
-                    "currency_platforms": [],
-                    "client_version_string": self.clientVersionString,
+                    'random_key': str(uuid.uuid4()),
+                    'client_version': {'resource': versionInfo.version},
+                    'currency_platforms': [],
+                    'client_version_string': self.clientVersionString,
                 },
             ),
         )
         if not resp.account_id:
-            raise ValueError("Failed to login")
+            raise ValueError('Failed to login')
         self.account_id = resp.account_id
         self.nick_name = resp.account.nickname
 
         resp = cast(
             liblq.ResCommon,
             await self.rpc_call(
-                ".lq.Lobby.loginBeat",
-                {"contract": "DF2vkXCnfeXp4WoGSBGNcJBufZiMN3UP"},
+                '.lq.Lobby.loginBeat',
+                {'contract': 'DF2vkXCnfeXp4WoGSBGNcJBufZiMN3UP'},
             ),
         )
         if resp.error.code:
-            raise ValueError(f"Failed to loginBeat: {resp}")
-        logger.info("Connection ready")
+            raise ValueError(f'Failed to loginBeat: {resp}')
+        logger.info('Connection ready')
 
     async def fetchLiveGames(self):
         game216 = cast(
             liblq.ResGameLiveList,
             await self.rpc_call(
-                ".lq.Lobby.fetchGameLiveList",
-                {"filter_id": 216},
+                '.lq.Lobby.fetchGameLiveList',
+                {'filter_id': 216},
             ),
         )
         game209 = cast(
             liblq.ResGameLiveList,
             await self.rpc_call(
-                ".lq.Lobby.fetchGameLiveList",
-                {"filter_id": 209},
+                '.lq.Lobby.fetchGameLiveList',
+                {'filter_id': 209},
             ),
         )
         game212 = cast(
             liblq.ResGameLiveList,
             await self.rpc_call(
-                ".lq.Lobby.fetchGameLiveList",
-                {"filter_id": 212},
+                '.lq.Lobby.fetchGameLiveList',
+                {'filter_id': 212},
             ),
         )
         return game216.live_list + game209.live_list + game212.live_list
@@ -366,7 +355,7 @@ class MajsoulConnection:
         resp = cast(
             liblq.ResFetchInfo,
             await self.rpc_call(
-                ".lq.Lobby.fetchInfo",
+                '.lq.Lobby.fetchInfo',
                 {},
             ),
         )
@@ -378,27 +367,27 @@ class MajsoulConnection:
 
 async def createMajsoulConnection(access_token: str):
     versionInfo = convert(
-        await getRes("version.json", bust_cache=True),
+        await getRes('version.json', bust_cache=True),
         MajsoulVersionInfo,
     )
     resInfo = convert(
-        await getRes(f"resversion{versionInfo.version}.json"),
+        await getRes(f'resversion{versionInfo.version}.json'),
         MajsoulResInfo,
     )
-    pbVersion = resInfo.res["res/proto/liqi.json"].prefix
+    pbVersion = resInfo.res['res/proto/liqi.json'].prefix
     pbDef = convert(
-        await getRes(f"{pbVersion}/res/proto/liqi.json"),
+        await getRes(f'{pbVersion}/res/proto/liqi.json'),
         MajsoulLiqiProto,
     )
     config = convert(
-        await getRes(f"{resInfo.res['config.json'].prefix}/config.json"),
+        await getRes(f'{resInfo.res["config.json"].prefix}/config.json'),
         MajsoulConfig,
     )
-    ipDef = next(filter(lambda x: x.name == "player", config.ip))
+    ipDef = next(filter(lambda x: x.name == 'player', config.ip))
 
     serverListUrl = random.choice(ipDef.region_urls).url
     serverListUrl += (
-        "?service=ws-gateway&protocol=ws&ssl=true&rv="
+        '?service=ws-gateway&protocol=ws&ssl=true&rv='
         + str(random.random())[2:]
     )
 
@@ -407,16 +396,16 @@ async def createMajsoulConnection(access_token: str):
     serverList = convert(resp.json(), MajsoulServerList)
 
     server = random.choice(serverList.servers)
-    if server.find("maj-soul") > -1:
-        server += "/gateway"
+    if server.find('maj-soul') > -1:
+        server += '/gateway'
 
     codec = MajsoulProtoCodec(pbDef, pbVersion)
-    conn = MajsoulConnection(f"wss://{server}", codec, versionInfo)
+    conn = MajsoulConnection(f'wss://{server}', codec, versionInfo)
     await conn.connect()
 
-    logger.info("Connection established, sending heartbeat")
-    _ = await conn.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0})
-    logger.info(f"Authenticating ({versionInfo.version})")
+    logger.info('Connection established, sending heartbeat')
+    _ = await conn.rpc_call('.lq.Lobby.heatbeat', {'no_operation_counter': 0})
+    logger.info(f'Authenticating ({versionInfo.version})')
     await conn.accessTokenLogin(versionInfo, access_token)
 
     # create a new task to keep the connection alive, 300s heartbeat
@@ -424,11 +413,11 @@ async def createMajsoulConnection(access_token: str):
         while True:
             # random sleep to avoid heartbeat collision
             await asyncio.sleep(360)
-            resp = await conn.rpc_call(".lq.Lobby.fetchServerTime", {})
+            resp = await conn.rpc_call('.lq.Lobby.fetchServerTime', {})
             logger.info(resp)
             resp = await conn.rpc_call(
-                ".lq.Lobby.heatbeat",
-                {"no_operation_counter": 0},
+                '.lq.Lobby.heatbeat',
+                {'no_operation_counter': 0},
             )
             logger.info(resp)
 
@@ -446,7 +435,9 @@ class MajsoulManager:
     async def check_access_token(self, access_token: str):
         try:
             conn = await createMajsoulConnection(access_token)
-        except ValueError:
+        except ValueError as e:
+            logger.error(e)
+
             return False
         return conn.account_id
 
@@ -483,5 +474,5 @@ class MajsoulManager:
 
 manager = MajsoulManager()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     asyncio.run(manager.start())

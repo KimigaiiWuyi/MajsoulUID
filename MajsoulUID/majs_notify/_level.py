@@ -32,15 +32,14 @@ class MajsoulLevel:
         ]
         if self._minor_rank == LEVEL_KONTEN - 1:
             return label
-        match self._minor_rank:
-            case 1:
-                return label + "一"
-            case 2:
-                return label + "二"
-            case 3:
-                return label + "三"
-            case _:
-                raise ValueError(f"Unknown minor rank: {self._minor_rank}")
+        if self._minor_rank == 1:
+            return label + "一"
+        elif self._minor_rank == 2:
+            return label + "二"
+        elif self._minor_rank == 3:
+            return label + "三"
+        else:
+            raise ValueError(f"Unknown minor rank: {self._minor_rank}")
 
     def get_max_point(self) -> int:
         if self.is_konten():

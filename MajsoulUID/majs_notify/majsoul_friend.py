@@ -20,7 +20,7 @@ class MajsoulFriend:
     def change_base(self, base: liblq.PlayerBaseView):
         self.nickname = base.nickname
         self.level = PlayerLevel(base.level.id, base.level.score)
-        self.level3 = PlayerLevel(base.level3.id, base.level.score)
+        self.level3 = PlayerLevel(base.level3.id, base.level3.score)
 
     def change_state(self, state: liblq.AccountActiveState):
         self.login_time = state.login_time

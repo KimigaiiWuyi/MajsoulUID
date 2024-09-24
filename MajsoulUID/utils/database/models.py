@@ -17,6 +17,7 @@ class MajsBind(Bind, table=True):
 
 class MajsUser(User, table=True):
     uid: Optional[str] = Field(default=None, title="雀魂UID")
+    friend_code: str = Field(default='', title="好友码")
 
 
 @site.register_admin
