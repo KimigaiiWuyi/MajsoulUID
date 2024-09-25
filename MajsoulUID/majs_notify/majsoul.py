@@ -1,31 +1,31 @@
+import asyncio
 import json
+import random
 import time
 import uuid
-import random
-import asyncio
 from typing import cast
 
 import websockets.client
-from msgspec import convert
-from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
+from httpx import AsyncClient
+from msgspec import convert
 
 from ..lib import lq as liblq
-from .codec import MajsoulProtoCodec
-from .majsoul_friend import MajsoulFriend
 from ..utils.api.remote import PlayerLevel
-from .utils import getRes, encodeAccountId
-from .constants import HEADERS, ModeId2Room
 from ..utils.database.models import MajsPush, MajsUser
+from .codec import MajsoulProtoCodec
+from .constants import HEADERS, ModeId2Room
+from .majsoul_friend import MajsoulFriend
 from .model import (
     MajsoulConfig,
-    MajsoulResInfo,
+    MajsoulDecodedMessage,
     MajsoulLiqiProto,
+    MajsoulResInfo,
     MajsoulServerList,
     MajsoulVersionInfo,
-    MajsoulDecodedMessage,
 )
+from .utils import encodeAccountId, getRes
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 
@@ -42,9 +42,7 @@ class MajsoulConnection:
         self._ws = None
         self._req_events: dict[int, asyncio.Event] = {}
         self._res: dict[int, MajsoulDecodedMessage] = {}
-        self.clientVersionString = "web-" + versionInfo.version.replace(
-            ".w", ""
-        )
+        self.clientVersionString = "web-" + versionInfo.version.replace(".w", "")
         self.no_operation_counter = 0
         self.bg_tasks = []
         self.account_id = 0
@@ -58,9 +56,7 @@ class MajsoulConnection:
             return False
         resp = cast(
             liblq.ResCommon,
-            await self.rpc_call(
-                ".lq.Lobby.heatbeat", {"no_operation_counter": 0}
-            ),
+            await self.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0}),
         )
         if resp.error.code:
             return False
@@ -112,9 +108,7 @@ class MajsoulConnection:
                         msg += f" {rome_name} mod_id: {mode_id}\n"
                         msg += f"对局id: {active_state.playing.game_uuid}"
                         # save game_uuid
-                        game_record[active_state.playing.game_uuid] = (
-                            friend.account_id
-                        )
+                        game_record[active_state.playing.game_uuid] = friend.account_id
                     elif not active_state.playing and friend.playing:
                         with open("game_record.json", encoding="utf8") as f:
                             game_record = json.load(f)
@@ -127,9 +121,7 @@ class MajsoulConnection:
                         msg += f"牌谱为 {url}\n"
 
                         # also save game_uuid
-                        game_record[friend.playing.game_uuid] = (
-                            friend.account_id
-                        )
+                        game_record[friend.playing.game_uuid] = friend.account_id
                     with open("game_record.json", "w", encoding="utf8") as f:
                         json.dump(game_record, f)
                     # set friend state
@@ -147,12 +139,16 @@ class MajsoulConnection:
                     changed_level = changed_base.level.id
                     changed_level3 = changed_base.level3.id
                     if changed_level != friend.level.id:
-                        msg = f"{nick_name} 的四麻段位更新为 {changed_level}\n"
+                        level_info = PlayerLevel(
+                            changed_level, changed_base.level.score
+                        ).getTag()
+                        msg = f"{nick_name} 的四麻段位更新为 {level_info}\n"
                         need_send = True
                     if changed_level3 != friend.level3.id:
-                        msg = (
-                            f"{nick_name} 的三麻段位更新为 {changed_level3}\n"
-                        )
+                        level_info = PlayerLevel(
+                            changed_level3, changed_base.level3.score
+                        ).getTag()
+                        msg = f"{nick_name} 的三麻段位更新为 {level_info}\n"
                         need_send = True
 
                     changed_score = changed_base.level.score
@@ -163,9 +159,7 @@ class MajsoulConnection:
                         level_info = PlayerLevel(
                             changed_level, changed_score
                         ).formatAdjustedScoreWithTag(changed_score)
-                        score_change = (
-                            changed_base.level.score - friend.level.score
-                        )
+                        score_change = changed_score - friend.level.score
 
                         msg += f"四麻段位信息: {level_info}\n"
                         if score_change >= 0:
@@ -229,6 +223,10 @@ class MajsoulConnection:
                         friend = MajsoulFriend(data.friend)
                         msg = f"Successfully update friend {friend.nickname}"
                         # Maybe more msg info about friend update?
+        elif notify.method_name == ".lq.NotifyAnotherLogin":
+            data = cast(liblq.NotifyAnotherLogin, notify.payload)
+            msg = f"Current account {self.nick_name}({self.account_id}) has been logged in elsewhere\n"
+            msg += "Access Token maybe expired, please check"
         else:
             msg = notify.payload.to_json()
             if msg == "{}":
@@ -448,8 +446,7 @@ async def createMajsoulConnection(access_token: str):
 
     serverListUrl = random.choice(ipDef.region_urls).url
     serverListUrl += (
-        "?service=ws-gateway&protocol=ws&ssl=true&rv="
-        + str(random.random())[2:]
+        "?service=ws-gateway&protocol=ws&ssl=true&rv=" + str(random.random())[2:]
     )
 
     resp = await AsyncClient(headers=HEADERS).get(serverListUrl)
@@ -511,9 +508,7 @@ class MajsoulManager:
                     self.conn.append(conn)
                     await conn.fetchInfo()
             else:
-                return (
-                    "❌错误: 未找到有效的ACCESS_TOKEN！请先进行[雀魂添加账号]"
-                )
+                return "❌错误: 未找到有效的ACCESS_TOKEN！请先进行[雀魂添加账号]"
         return self.conn[0]
 
     async def restart(self):
