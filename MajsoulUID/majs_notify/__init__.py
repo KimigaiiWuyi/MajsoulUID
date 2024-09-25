@@ -102,6 +102,7 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
     else:
         retcode = await MajsPush.full_insert_data(
             uid=uid,
+            bot_id=ev.bot_id,
             user_id=ev.user_id,
             push_id=push_id,
         )
