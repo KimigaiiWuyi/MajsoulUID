@@ -414,11 +414,13 @@ class MajsoulConnection:
             ),
         )
         friend_list = resp.friend_list.friends
-        for friend in friend_list:
-            self.friends.append(MajsoulFriend(friend))
+        if friend_list:
+            for friend in friend_list:
+                self.friends.append(MajsoulFriend(friend))
         friend_apply_list = resp.friend_apply_list.applies
-        for apply in friend_apply_list:
-            self.friend_apply_list.append(apply.account_id)
+        if friend_apply_list:
+            for apply in friend_apply_list:
+                self.friend_apply_list.append(apply.account_id)
         return resp
 
     async def acceptFriendApply(self, account_id: int):
