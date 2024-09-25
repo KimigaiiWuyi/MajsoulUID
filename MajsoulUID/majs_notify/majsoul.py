@@ -1,30 +1,30 @@
-import asyncio
 import json
-import random
 import time
 import uuid
+import random
+import asyncio
 from typing import cast
 
 import websockets.client
+from msgspec import convert
+from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
-from httpx import AsyncClient
-from msgspec import convert
 
 from ..lib import lq as liblq
-from ..utils.database.models import MajsPush, MajsUser
 from .codec import MajsoulProtoCodec
-from .constants import HEADERS, ModeId2Room
 from .majsoul_friend import MajsoulFriend
+from .utils import getRes, encodeAccountId
+from .constants import HEADERS, ModeId2Room
+from ..utils.database.models import MajsPush, MajsUser
 from .model import (
     MajsoulConfig,
-    MajsoulDecodedMessage,
-    MajsoulLiqiProto,
     MajsoulResInfo,
+    MajsoulLiqiProto,
     MajsoulServerList,
     MajsoulVersionInfo,
+    MajsoulDecodedMessage,
 )
-from .utils import encodeAccountId, getRes
 
 PP_HOST = 'https://game.maj-soul.com/1/?paipu='
 

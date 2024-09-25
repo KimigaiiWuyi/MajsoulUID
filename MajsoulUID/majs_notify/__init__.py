@@ -1,12 +1,12 @@
-from gsuid_core.bot import Bot
-from gsuid_core.logger import logger
-from gsuid_core.models import Event
 from gsuid_core.sv import SV
+from gsuid_core.bot import Bot
+from gsuid_core.models import Event
+from gsuid_core.logger import logger
 from gsuid_core.utils.database.api import get_uid
 
-from ..utils.database.models import MajsBind, MajsPush, MajsUser
-from ..utils.error_reply import UID_HINT
 from .majsoul import manager
+from ..utils.error_reply import UID_HINT
+from ..utils.database.models import MajsBind, MajsPush, MajsUser
 
 majsoul_notify = SV('雀魂推送服务', pm=0)
 majsoul_friend_level_billboard = SV('雀魂好友排行榜')
@@ -180,6 +180,7 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
         await bot.send(msg)
         await bot.send(msg)
 
+
 @majsoul_friend_manage.on_command('好友总览')
 async def majsoul_friend_overview_command(bot: Bot, event: Event):
     conn = manager.get_conn()
@@ -190,6 +191,7 @@ async def majsoul_friend_overview_command(bot: Bot, event: Event):
     for friend in friends:
         msg += f'{friend.nickname} {friend.account_id}\n'
     await bot.send(msg)
+
 
 @majsoul_friend_manage.on_command('获取好友全部申请')
 async def majsoul_friend_apply_get_command(bot: Bot, event: Event):
@@ -202,6 +204,7 @@ async def majsoul_friend_apply_get_command(bot: Bot, event: Event):
         msg += f'{apply}\n'
     await bot.send(msg)
 
+
 @majsoul_friend_manage.on_command('同意所有好友申请')
 async def majsoul_friend_apply_all_command(bot: Bot, event: Event):
     conn = manager.get_conn()
@@ -211,6 +214,7 @@ async def majsoul_friend_apply_all_command(bot: Bot, event: Event):
     for apply in applys:
         await conn.acceptFriendApply(apply)
     await bot.send('已同意所有好友申请')
+
 
 @majsoul_friend_manage.on_command('同意好友申请')
 async def majsoul_friend_apply_command(bot: Bot, event: Event):
