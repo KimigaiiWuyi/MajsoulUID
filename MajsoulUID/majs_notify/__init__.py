@@ -12,7 +12,7 @@ majsoul_notify = SV('雀魂推送服务', pm=0)
 majsoul_friend_level_billboard = SV('雀魂好友排行榜')
 majsoul_get_notify = SV('雀魂订阅推送')
 majsoul_add_account = SV('雀魂账号池', pm=0)
-majsoul_friend_manage = SV('雀魂好友管理')
+majsoul_friend_manage = SV('雀魂好友管理', pm=0)
 
 
 @majsoul_add_account.on_command(('添加账号'))
@@ -168,7 +168,6 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
                 friend.level.score
             )
             msg += f'{friend.nickname} {level_str}\n'
-        await bot.send(msg)
     else:
         friends.sort(key=lambda x: (x.level3.id, x.level3.score), reverse=True)
         msg = '本群雀魂好友三麻排行榜\n'
@@ -177,8 +176,7 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
                 friend.level3.score
             )
             msg += f'{friend.nickname} {level_str}\n'
-        await bot.send(msg)
-        await bot.send(msg)
+    await bot.send(msg)
 
 
 @majsoul_friend_manage.on_command('好友总览')
