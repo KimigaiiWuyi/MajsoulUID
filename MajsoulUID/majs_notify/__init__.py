@@ -1,17 +1,18 @@
-from gsuid_core.sv import SV
 from gsuid_core.bot import Bot
-from gsuid_core.models import Event
 from gsuid_core.logger import logger
+from gsuid_core.models import Event
+from gsuid_core.sv import SV
 from gsuid_core.utils.database.api import get_uid
 
-from .majsoul import manager
-from ..utils.error_reply import UID_HINT
 from ..utils.database.models import MajsBind, MajsPush, MajsUser
+from ..utils.error_reply import UID_HINT
+from .majsoul import manager
 
 majsoul_notify = SV('雀魂推送服务', pm=0)
 majsoul_friend_level_billboard = SV('雀魂好友排行榜')
 majsoul_get_notify = SV('雀魂订阅推送')
 majsoul_add_account = SV('雀魂账号池', pm=0)
+majsoul_friend_manage = SV('雀魂好友管理')
 
 
 @majsoul_add_account.on_command(('添加账号'))
@@ -178,3 +179,44 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
             msg += f'{friend.nickname} {level_str}\n'
         await bot.send(msg)
         await bot.send(msg)
+
+@majsoul_friend_manage.on_command('好友总览')
+async def majsoul_friend_overview_command(bot: Bot, event: Event):
+    conn = manager.get_conn()
+    if conn is None:
+        return await bot.send('未找到有效连接, 请先进行[雀魂推送启动]')
+    friends = conn.friends
+    msg = '本群雀魂好友列表\n'
+    for friend in friends:
+        msg += f'{friend.nickname} {friend.account_id}\n'
+    await bot.send(msg)
+
+@majsoul_friend_manage.on_command('获取好友全部申请')
+async def majsoul_friend_apply_get_command(bot: Bot, event: Event):
+    conn = manager.get_conn()
+    if conn is None:
+        return await bot.send('未找到有效连接, 请先进行[雀魂推送启动]')
+    applys = conn.friend_apply_list
+    msg = '本群雀魂好友申请列表\n'
+    for apply in applys:
+        msg += f'{apply}\n'
+    await bot.send(msg)
+
+@majsoul_friend_manage.on_command('同意所有好友申请')
+async def majsoul_friend_apply_all_command(bot: Bot, event: Event):
+    conn = manager.get_conn()
+    if conn is None:
+        return await bot.send('未找到有效连接, 请先进行[雀魂推送启动]')
+    applys = conn.friend_apply_list
+    for apply in applys:
+        await conn.acceptFriendApply(apply)
+    await bot.send('已同意所有好友申请')
+
+@majsoul_friend_manage.on_command('同意好友申请')
+async def majsoul_friend_apply_command(bot: Bot, event: Event):
+    conn = manager.get_conn()
+    if conn is None:
+        return await bot.send('未找到有效连接, 请先进行[雀魂推送启动]')
+    apply = int(event.text.strip())
+    await conn.acceptFriendApply(apply)
+    await bot.send('已同意好友申请')

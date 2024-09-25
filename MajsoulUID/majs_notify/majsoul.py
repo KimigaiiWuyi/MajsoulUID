@@ -1,30 +1,30 @@
+import asyncio
 import json
+import random
 import time
 import uuid
-import random
-import asyncio
 from typing import cast
 
 import websockets.client
-from msgspec import convert
-from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
+from httpx import AsyncClient
+from msgspec import convert
 
 from ..lib import lq as liblq
-from .codec import MajsoulProtoCodec
-from .majsoul_friend import MajsoulFriend
-from .utils import getRes, encodeAccountId
-from .constants import HEADERS, ModeId2Room
 from ..utils.database.models import MajsPush, MajsUser
+from .codec import MajsoulProtoCodec
+from .constants import HEADERS, ModeId2Room
+from .majsoul_friend import MajsoulFriend
 from .model import (
     MajsoulConfig,
-    MajsoulResInfo,
+    MajsoulDecodedMessage,
     MajsoulLiqiProto,
+    MajsoulResInfo,
     MajsoulServerList,
     MajsoulVersionInfo,
-    MajsoulDecodedMessage,
 )
+from .utils import encodeAccountId, getRes
 
 PP_HOST = 'https://game.maj-soul.com/1/?paipu='
 
@@ -49,6 +49,7 @@ class MajsoulConnection:
         self.account_id = 0
         self.nick_name = ''
         self.friends: list[MajsoulFriend] = []
+        self.friend_apply_list: list[int] = []
         self.last_heartbeat_time = 0
 
     async def check_alive(self):
@@ -181,6 +182,46 @@ class MajsoulConnection:
                     friend.change_base(changed_base)
                     if not need_send:
                         return
+        elif notify.method_name == '.lq.NotifyNewFriendApply':
+            data = cast(liblq.NotifyNewFriendApply, notify.payload)
+            account_id = data.account_id
+            # use rpc call to get info
+            resp = cast(
+                liblq.ResMultiAccountBrief,
+                await self.rpc_call(
+                    '.lq.Lobby.fetchMultiAccountBrief',
+                    {'account_id_list': [account_id]},
+                ),
+            )
+            if resp.error.code:
+                msg = f'Error fetchMultiAccountBrief when NotifyNewFriendApply for {account_id}, {resp.error}'
+                logger.error(msg)
+            else:
+                account = resp.players[0]
+                msg = f'收到来自 {account.nickname} 的好友申请'
+                self.friend_apply_list.append(account_id)
+        elif notify.method_name == '.lq.NotifyFriendChange':
+            data = cast(liblq.NotifyFriendChange, notify.payload)
+            if data.type == 1:
+                # TODO: The meaning of type 1 is not clear, need to check
+                # add a check if friend is in self.friends
+                for friend in self.friends:
+                    if friend.account_id == data.account_id:
+                        logger.error(
+                            f'Error: friend {data.account_id} already in self.friends'
+                        )
+                        msg = 'Error: friend already in self.friends, please check .lq.NotifyFriendChange'
+                # maybe add friend
+                friend = MajsoulFriend(data.friend)
+                self.friends.append(friend)
+                msg = f'Successfully add friend {friend.nickname}'
+            else:
+                # check if friend is in self.friends
+                for friend in self.friends:
+                    if friend.account_id == data.account_id:
+                        friend = MajsoulFriend(data.friend)
+                        msg = f'Successfully update friend {friend.nickname}'
+                        # Maybe more msg info about friend update?
         else:
             msg = notify.payload.to_json()
             if msg == '{}':
@@ -362,6 +403,19 @@ class MajsoulConnection:
         friend_list = resp.friend_list.friends
         for friend in friend_list:
             self.friends.append(MajsoulFriend(friend))
+        friend_apply_list = resp.friend_apply_list.applies
+        for apply in friend_apply_list:
+            self.friend_apply_list.append(apply.account_id)
+        return resp
+
+    async def acceptFriendApply(self, account_id: int):
+        resp = cast(
+            liblq.ResCommon,
+            await self.rpc_call(
+                '.lq.Lobby.handleFriendApply',
+                {'method': 1, 'target_id': account_id},
+            ),
+        )
         return resp
 
 
