@@ -4,6 +4,7 @@ import uuid
 import random
 import asyncio
 from typing import cast
+from collections.abc import Iterable
 
 import websockets.client
 from msgspec import convert
@@ -414,11 +415,11 @@ class MajsoulConnection:
             ),
         )
         friend_list = resp.friend_list.friends
-        if friend_list:
+        if isinstance(friend_list, Iterable):
             for friend in friend_list:
                 self.friends.append(MajsoulFriend(friend))
         friend_apply_list = resp.friend_apply_list.applies
-        if friend_apply_list:
+        if isinstance(friend_apply_list, Iterable):
             for apply in friend_apply_list:
                 self.friend_apply_list.append(apply.account_id)
         return resp
