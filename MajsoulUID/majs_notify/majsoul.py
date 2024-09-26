@@ -67,10 +67,17 @@ class MajsoulConnection:
             return False
         return True
 
+    def handle_task_completion(self, task):
+        try:
+            task.result()
+        except Exception as e:
+            logger.exception(f"任务异常: {e}")
+
     async def connect(self):
         logger.info(f"Connecting to {self._endpoint}")
         self._ws = await websockets.client.connect(self._endpoint)
         self._msg_dispatcher = asyncio.create_task(self.dispatch_msg())
+        self._msg_dispatcher.add_done_callback(self.handle_task_completion)
 
     async def handle_notify(self, notify: MajsoulDecodedMessage):
         logger.info(f"Notify: {notify}")
@@ -195,6 +202,8 @@ class MajsoulConnection:
         elif notify.method_name == ".lq.NotifyNewFriendApply":
             data = cast(liblq.NotifyNewFriendApply, notify.payload)
             account_id = data.account_id
+            msg = f"收到来自 {account_id} 的好友申请"
+            self.friend_apply_list.append(account_id)
             # use rpc call to get info
             resp = cast(
                 liblq.ResMultiAccountBrief,
@@ -209,7 +218,8 @@ class MajsoulConnection:
             else:
                 account = resp.players[0]
                 msg = f"收到来自 {account.nickname} 的好友申请"
-                self.friend_apply_list.append(account_id)
+                if account_id not in self.friend_apply_list:
+                    self.friend_apply_list.append(account_id)
         elif notify.method_name == ".lq.NotifyFriendChange":
             data = cast(liblq.NotifyFriendChange, notify.payload)
             if data.type == 1:
@@ -527,10 +537,12 @@ class MajsoulManager:
         return self.conn[0]
 
     async def restart(self):
-        for task in self.conn[0].bg_tasks:
-            task.cancel()
-        for conn in self.conn:
-            await conn._ws.close()  # type: ignore
+        if self.conn:
+            if len(self.conn) >= 1:
+                for task in self.conn[0].bg_tasks:
+                    task.cancel()
+            for conn in self.conn:
+                await conn._ws.close()  # type: ignore
         self.conn = []
         return await self.start()
 
