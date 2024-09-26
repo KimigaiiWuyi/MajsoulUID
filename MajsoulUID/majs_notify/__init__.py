@@ -6,6 +6,7 @@ from gsuid_core.utils.database.api import get_uid
 
 from .majsoul import manager
 from ..utils.error_reply import UID_HINT
+from ..utils.api.remote import encode_account_id2
 from ..utils.database.models import MajsBind, MajsPush, MajsUser
 
 majsoul_notify = SV('雀魂推送服务', pm=0)
@@ -17,21 +18,7 @@ majsoul_friend_manage = SV('雀魂好友管理', pm=0)
 
 @majsoul_add_account.on_command(('添加账号'))
 async def majsoul_add_at(bot: Bot, ev: Event):
-    token = ev.text.strip()
-    token = token.replace('，', ',')
-    if ',' not in token:
-        return await bot.send(
-            '❌ 请输入有效的绑定token!格式为 好友码, access_toekn'
-        )
-
-    friend_code, access_token = token.split(',')
-
-    friend_code = friend_code.strip()
-    access_token = access_token.strip()
-
-    if not friend_code:
-        return await bot.send('❌ 请输入有效的好友码!')
-
+    access_token = ev.text.strip()
     if not access_token:
         return await bot.send('❌ 请输入有效的access_token!')
 
@@ -39,6 +26,7 @@ async def majsoul_add_at(bot: Bot, ev: Event):
     if isinstance(account_id, bool):
         return await bot.send('❌ 登陆失败, 请输入正确的access_token!')
 
+    friend_code = str(encode_account_id2(account_id))
     if await MajsUser.data_exist(uid=account_id):
         await MajsUser.update_data_by_data(
             {'uid': str(account_id)},

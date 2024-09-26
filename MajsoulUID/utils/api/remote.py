@@ -13,6 +13,16 @@ from .remote_const import (
 )
 
 
+def encode_account_id2(id: int) -> int:
+    p = 6139246 ^ id
+    H = 67108863
+    s = p & ~H
+    z = p & H
+    for _ in range(5):
+        z = ((511 & z) << 17) | (z >> 9)
+    return z + s + 10000000
+
+
 # 定义一个函数，返回一个列表，包含玩家等级的翻译
 def getTranslatedLevelTags():
     # 使用gettext模块的gettext函数，根据当前语言环境，获取玩家等级的翻译
