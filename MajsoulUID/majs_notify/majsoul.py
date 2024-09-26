@@ -236,6 +236,8 @@ class MajsoulConnection:
                     friend = MajsoulFriend(data.friend)
                     self.friends.append(friend)
                     msg = f"Successfully add friend {friend.nickname}"
+                    if data.account_id in self.friend_apply_list:
+                        self.friend_apply_list.remove(data.account_id)
             else:
                 # check if friend is in self.friends
                 for friend in self.friends:
