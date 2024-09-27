@@ -1,5 +1,5 @@
-import random
 import hashlib
+import random
 from pathlib import Path
 
 from httpx import AsyncClient
@@ -7,10 +7,6 @@ from httpx import AsyncClient
 from .constants import HEADERS, URL_BASE
 
 HTTPX_CLIENT = AsyncClient(headers=HEADERS)
-
-
-def encodeAccountId(account_id: int) -> int:
-    return 1358437 + ((7 * account_id + 1117113) ^ 86216345)
 
 
 async def getRes(path: str, bust_cache: bool = False):

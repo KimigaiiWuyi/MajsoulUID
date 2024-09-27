@@ -1,4 +1,5 @@
 import betterproto
+from lib.lq import RecordGame
 from msgspec import Struct
 
 
@@ -87,3 +88,13 @@ class MajsoulFriend(Struct):
     user_id: int
     nickname: str
     avatar: str
+
+
+class MjsLogItem(Struct):
+    name: str
+    data: betterproto.Message
+
+
+class MjsLog(Struct):
+    head: RecordGame
+    data: list[MjsLogItem]
