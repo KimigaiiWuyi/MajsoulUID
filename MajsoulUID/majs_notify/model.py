@@ -1,6 +1,6 @@
 import betterproto
-from lib.lq import RecordGame
 from msgspec import Struct
+from lib.lq import RecordGame
 
 
 class InflightRequest(Struct):

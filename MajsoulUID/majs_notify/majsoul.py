@@ -1,40 +1,40 @@
-import asyncio
 import json
-import random
 import time
 import uuid
-from collections.abc import Iterable
+import random
+import asyncio
 from typing import cast
+from collections.abc import Iterable
 
 import websockets.client
+from msgspec import convert
+from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
-from httpx import AsyncClient
-from msgspec import convert
 
+from .utils import getRes
 from ..lib import lq as liblq
-from ..utils.api.remote import (
-    PlayerLevel,
-    decode_account_id,
-    decode_log_id,
-    encode_account_id,
-)
-from ..utils.database.models import MajsPush, MajsUser
 from .codec import MajsoulProtoCodec
-from .constants import HEADERS, ModeId2Room
 from .majs_to_tenhou import toTenhou
 from .majsoul_friend import MajsoulFriend
+from .constants import HEADERS, ModeId2Room
+from ..utils.database.models import MajsPush, MajsUser
+from ..utils.api.remote import (
+    PlayerLevel,
+    decode_log_id,
+    decode_account_id,
+    encode_account_id,
+)
 from .model import (
-    MajsoulConfig,
-    MajsoulDecodedMessage,
-    MajsoulLiqiProto,
-    MajsoulResInfo,
-    MajsoulServerList,
-    MajsoulVersionInfo,
     MjsLog,
     MjsLogItem,
+    MajsoulConfig,
+    MajsoulResInfo,
+    MajsoulLiqiProto,
+    MajsoulServerList,
+    MajsoulVersionInfo,
+    MajsoulDecodedMessage,
 )
-from .utils import getRes
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 
@@ -51,7 +51,9 @@ class MajsoulConnection:
         self._ws = None
         self._req_events: dict[int, asyncio.Event] = {}
         self._res: dict[int, MajsoulDecodedMessage] = {}
-        self.clientVersionString = "web-" + versionInfo.version.replace(".w", "")
+        self.clientVersionString = "web-" + versionInfo.version.replace(
+            ".w", ""
+        )
         self.no_operation_counter = 0
         self.bg_tasks = []
         self.account_id = 0
@@ -65,7 +67,9 @@ class MajsoulConnection:
             return False
         resp = cast(
             liblq.ResCommon,
-            await self.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0}),
+            await self.rpc_call(
+                ".lq.Lobby.heatbeat", {"no_operation_counter": 0}
+            ),
         )
         if resp.error.code:
             return False
@@ -124,7 +128,9 @@ class MajsoulConnection:
                         msg += f" {rome_name} mod_id: {mode_id}\n"
                         msg += f"对局id: {active_state.playing.game_uuid}"
                         # save game_uuid
-                        game_record[active_state.playing.game_uuid] = friend.account_id
+                        game_record[active_state.playing.game_uuid] = (
+                            friend.account_id
+                        )
                     elif not active_state.playing and friend.playing:
                         with open("game_record.json", encoding="utf8") as f:
                             game_record = json.load(f)
@@ -137,7 +143,9 @@ class MajsoulConnection:
                         msg += f"牌谱为 {url}\n"
 
                         # also save game_uuid
-                        game_record[friend.playing.game_uuid] = friend.account_id
+                        game_record[friend.playing.game_uuid] = (
+                            friend.account_id
+                        )
                     with open("game_record.json", "w", encoding="utf8") as f:
                         json.dump(game_record, f)
                     # set friend state
@@ -530,7 +538,8 @@ async def createMajsoulConnection(access_token: str):
 
     serverListUrl = random.choice(ipDef.region_urls).url
     serverListUrl += (
-        "?service=ws-gateway&protocol=ws&ssl=true&rv=" + str(random.random())[2:]
+        "?service=ws-gateway&protocol=ws&ssl=true&rv="
+        + str(random.random())[2:]
     )
 
     resp = await AsyncClient(headers=HEADERS).get(serverListUrl)
@@ -592,7 +601,9 @@ class MajsoulManager:
                     self.conn.append(conn)
                     await conn.fetchInfo()
             else:
-                return "❌错误: 未找到有效的ACCESS_TOKEN！请先进行[雀魂添加账号]"
+                return (
+                    "❌错误: 未找到有效的ACCESS_TOKEN！请先进行[雀魂添加账号]"
+                )
         return self.conn[0]
 
     async def restart(self):
