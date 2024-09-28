@@ -14,14 +14,14 @@ from gsuid_core.utils.plugins_config.gs_config import (
 # 建立自己插件的CONFIG_DEFAULT
 # 名字无所谓, 类型一定是Dict[str, GSC]，以下为示例，可以添加无数个配置
 CONIFG_DEFAULT: Dict[str, GSC] = {
-    'use_flower_history': GsBoolConfig(
-        '对局历史使用花图替代折线图',
-        '对局历史使用花图替代折线图',
+    "use_flower_history": GsBoolConfig(
+        "对局历史使用花图替代折线图",
+        "对局历史使用花图替代折线图",
         False,
     ),
 }
 
-CONFIG_PATH = get_res_path('MajsoulUID') / 'config.json'
+CONFIG_PATH = get_res_path("MajsoulUID") / "config.json"
 
 # 分别传入 配置总名称（不要和其他插件重复），配置路径，以及配置模型
-majs_config = StringConfig('MajsoulUID', CONFIG_PATH, CONIFG_DEFAULT)
+majs_config = StringConfig("MajsoulUID", CONFIG_PATH, CONIFG_DEFAULT)

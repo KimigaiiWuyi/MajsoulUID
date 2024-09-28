@@ -3,8 +3,8 @@ from enum import Enum
 from .models import Stats, Extended
 
 # 定义一个常量，表示玩家的等级
-PLAYER_RANKS = '初士杰豪圣魂'
-PLAYER_RANKS_DETAIL = ['初心', '雀士', '雀杰', '雀豪', '雀圣', '魂天']
+PLAYER_RANKS = "初士杰豪圣魂"
+PLAYER_RANKS_DETAIL = ["初心", "雀士", "雀杰", "雀豪", "雀圣", "魂天"]
 LEVEL_KONTEN = 7
 LEVEL_MAX_POINT_KONTEN = 2000
 

@@ -104,7 +104,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -664,6 +663,8 @@ FodyWeavers.xsd
 
 ### CI ###
 result.txt
+
+.pdm-python
 
 ### GenshinUID ###
 *.xlsx

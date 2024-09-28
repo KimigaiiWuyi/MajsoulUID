@@ -13,6 +13,50 @@ from .remote_const import (
 )
 
 
+def encode_account_id(account_id: int) -> int:
+    return 1358437 + ((7 * account_id + 1117113) ^ 86216345)
+
+
+def decode_account_id(id: int) -> int:
+    return ((7 * id + 1117113) ^ 86216345) + 1358437
+
+
+def decode_log_id(log_id):
+    zero = ord("0")
+    alpha = ord("a")
+
+    ret = ""
+    for i in range(len(log_id)):
+        ch = log_id[i]
+        code = ord(ch)
+
+        if zero <= code < zero + 10:
+            o = code - zero
+        elif alpha <= code < alpha + 26:
+            o = code - alpha + 10
+        else:
+            ret += ch
+            continue
+
+        o = (o + 55 - i) % 36
+        if o < 10:
+            ret += chr(o + zero)
+        else:
+            ret += chr(o + alpha - 10)
+
+    return ret
+
+
+def encode_account_id2(id: int) -> int:
+    p = 6139246 ^ id
+    H = 67108863
+    s = p & ~H
+    z = p & H
+    for _ in range(5):
+        z = ((511 & z) << 17) | (z >> 9)
+    return z + s + 10000000
+
+
 # 定义一个函数，返回一个列表，包含玩家等级的翻译
 def getTranslatedLevelTags():
     # 使用gettext模块的gettext函数，根据当前语言环境，获取玩家等级的翻译
@@ -32,9 +76,12 @@ def getTranslatedLevelTags():
 # 定义一个类，表示玩家的等级
 class PlayerLevel:
     # 定义一个构造函数，接受一个整数参数，表示等级的编号
-    def __init__(self, levelId: int):
+    def __init__(self, levelId: int, score: int = 0):
+        self.id = levelId
         # 计算真实的编号，去掉前面的玩家编号
         realId: int = levelId % 10000
+        self.score = score
+        self.realId = realId
         # 计算主等级，即等级的前两位数字
         self._majorRank: int = realId // 100
         # 计算次等级，即等级的后两位数字
@@ -44,7 +91,7 @@ class PlayerLevel:
 
         self.major_rank = self.getFullTag()
         self.minor_rank = self.getMinorRank()
-        self.full_tag = f'{self.major_rank}{self.minor_rank}'
+        self.full_tag = f"{self.major_rank}{self.minor_rank}"
 
     # 定义一个方法，返回等级的编号
     def toLevelId(self):
@@ -57,7 +104,7 @@ class PlayerLevel:
         return self._majorRank == other._majorRank
 
     # 定义一个方法，判断是否和另一个等级对象完全相同
-    def isSame(self, other: 'PlayerLevel'):
+    def isSame(self, other: "PlayerLevel"):
         # 如果两个等级对象都是Konten等级，即最高等级
         if self.isKonten() and other.isKonten():
             # 如果其中一个等级对象的主等级是Konten等级的前一级，即第九级
@@ -251,7 +298,7 @@ class PlayerLevel:
         # 如果是Konten等级，即最高等级
         if self.isKonten():
             # 则返回分数除以100，保留一位小数
-            return f'{score / 100:.1f}'
+            return f"{score / 100:.1f}"
         # 否则，返回分数的字符串形式
         return str(score)
 
@@ -260,7 +307,7 @@ class PlayerLevel:
         # 获取调整后的等级对象，根据分数的变化
         level = self.getAdjustedLevel(score)
         # 返回等级的标签和分数的格式的组合
-        return f'{level.getTag()} {self.formatAdjustedScore(score)}'
+        return f"{level.getTag()} {self.formatAdjustedScore(score)}"
 
     # 定义一个方法，返回分数的格式
     def formatAdjustedScore(self, score):
@@ -276,12 +323,12 @@ class PlayerLevel:
         )
         # 定义一个变量，存储最大分数的显示格式，如果有的话
         max_point_display = (
-            f'/{level.getScoreDisplay(level.getMaxPoint())}'
+            f"/{level.getScoreDisplay(level.getMaxPoint())}"
             if level.getMaxPoint()
-            else ''
+            else ""
         )
         # 返回分数和最大分数的组合
-        return f'{score_display}{max_point_display}'
+        return f"{score_display}{max_point_display}"
 
     def getFullTag(self):
         return PLAYER_RANKS_DETAIL[

@@ -15,21 +15,21 @@ from .api import (
 )
 
 MODE_MAP = {
-    '四王座': 16,
-    '四玉': 12,
-    '四金': 9,
-    '四玉东': 11,
-    '四金东': 8,
-    '三王座': 26,
-    '三金': 22,
-    '三金东': 21,
-    '三玉': 24,
-    '三玉东': 23,
+    "四王座": 16,
+    "四玉": 12,
+    "四金": 9,
+    "四玉东": 11,
+    "四金东": 8,
+    "三王座": 26,
+    "三金": 22,
+    "三金东": 21,
+    "三玉": 24,
+    "三玉东": 23,
 }
 
-MODE_3 = ','.join(str(mode.value) for mode in GameMode if '三' in mode.name)
-MODE_4 = ','.join(
-    str(mode.value) for mode in GameMode if '三' not in mode.name
+MODE_3 = ",".join(str(mode.value) for mode in GameMode if "三" in mode.name)
+MODE_4 = ",".join(
+    str(mode.value) for mode in GameMode if "三" not in mode.name
 )
 
 
@@ -40,14 +40,14 @@ class KoromoApi:
     async def get_player_stats(
         self,
         player_id: Union[int, str],
-        MODE: Union[str, int] = '4',
+        MODE: Union[str, int] = "4",
     ):
         timestamp = int(datetime.datetime.now().timestamp() * 1000)
         data = await self._koromo_request(
             KOROMO_PLAYER_STATS.format(MODE, player_id, timestamp),
             params={
-                'mode': MODE_4 if MODE == '4' else MODE_3,
-                'tag': '473317',
+                "mode": MODE_4 if MODE == "4" else MODE_3,
+                "tag": "473317",
             },
         )
         if isinstance(data, Dict):
@@ -57,14 +57,14 @@ class KoromoApi:
     async def get_player_extended(
         self,
         player_id: Union[int, str],
-        MODE: Union[str, int] = '4',
+        MODE: Union[str, int] = "4",
     ):
         timestamp = int(datetime.datetime.now().timestamp() * 1000)
         data = await self._koromo_request(
             KOROMO_PLAYER_EXTEND.format(MODE, player_id, timestamp),
             params={
-                'mode': MODE_4 if MODE == '4' else MODE_3,
-                'tag': '473317',
+                "mode": MODE_4 if MODE == "4" else MODE_3,
+                "tag": "473317",
             },
         )
         if isinstance(data, Dict):
@@ -75,17 +75,17 @@ class KoromoApi:
         self,
         player_id: Union[int, str],
         limit: Union[int, str] = 16,
-        MODE: Union[str, int] = '4',
+        MODE: Union[str, int] = "4",
     ):
         timestamp = int(datetime.datetime.now().timestamp() * 1000)
         URL = KOROMO_PLAYER_RECORD.format(MODE, player_id, timestamp)
         data = await self._koromo_request(
             URL,
             params={
-                'limit': limit,
-                'mode': MODE_4 if MODE == '4' else MODE_3,
-                'tag': '54',
-                'descending': True,
+                "limit": limit,
+                "mode": MODE_4 if MODE == "4" else MODE_3,
+                "tag": "54",
+                "descending": True,
             },
         )
         if isinstance(data, List) or isinstance(data, Dict):
@@ -96,11 +96,11 @@ class KoromoApi:
         self,
         player_name: str,
         num: int = 4,
-        MODE: Union[str, int] = '4',
+        MODE: Union[str, int] = "4",
     ):
         data = await self._koromo_request(
             KOROMO_SEARCH_PLAYER.format(MODE, player_name),
-            params={'limit': num, 'tag': 'all'},
+            params={"limit": num, "tag": "all"},
         )
         return cast(List[Player], data)
 
@@ -129,6 +129,6 @@ class KoromoApi:
                 _raw_data = resp.text
                 raw_data = {"retcode": -999, "data": _raw_data}
             logger.debug(raw_data)
-            if 'error' in raw_data:
+            if "error" in raw_data:
                 return -1
             return raw_data
