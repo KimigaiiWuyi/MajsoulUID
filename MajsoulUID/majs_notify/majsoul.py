@@ -100,7 +100,9 @@ class MajsoulConnection:
                     '',
                 )
         else:
-            logger.warning('[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!')
+            logger.warning(
+                '[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!'
+            )
 
     async def send_msg_to_user(self, target_user: str, msg):
         if MAJS_CONFIG.get_config('MajsIsPushActiveToMaster').data:
@@ -201,9 +203,7 @@ class MajsoulConnection:
                     msg += f'牌谱为 {url}\n'
 
                     # also save game_uuid
-                    game_record[friend.playing.game_uuid] = (
-                        friend.account_id
-                    )
+                    game_record[friend.playing.game_uuid] = friend.account_id
                 with open('game_record.json', 'w', encoding='utf8') as f:
                     json.dump(game_record, f)
                 # set friend state

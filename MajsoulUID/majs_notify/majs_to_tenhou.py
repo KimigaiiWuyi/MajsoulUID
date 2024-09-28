@@ -357,9 +357,7 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
     elif h.count >= 13:
         _a = f"{fuhan if SHOWFU else ''}"
         _b = f"{RUNES['kazoeyakuman'][NAMEPREF]}"
-        res.append(
-            f"{_a}{_b}"
-        )
+        res.append(f"{_a}{_b}")
     elif h.count >= 11:
         res.append(
             f"{fuhan if SHOWFU else ''}{RUNES['sanbaiman'][NAMEPREF]}{points}"
@@ -385,9 +383,7 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
     ):
         _a = f"{fuhan if SHOWFU else ''}"
         _b = f"{RUNES['kiriagemangan'][NAMEPREF]}{points}"
-        res.append(
-            f"{_a}{_b}"
-        )
+        res.append(f"{_a}{_b}")
     else:
         res.append(f"{fuhan}{points}")
 
@@ -397,15 +393,11 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
         if h.yiman:
             _a = f'{name_jp if JPNAME == NAMEPREF else name_en}'
             _b = f"({RUNES['yakuman'][JPNAME]})"
-            res.append(
-                f"{_a}{_b}"
-            )
+            res.append(f"{_a}{_b}")
         else:
             _a = f"{name_jp if JPNAME == NAMEPREF else name_en}"
             _b = f"({e.val}{RUNES['han'][JPNAME]})"
-            res.append(
-                f"{_a}{_b}"
-            )
+            res.append(f"{_a}{_b}")
 
     return [pad_right(delta, 4, 0), res]
 
