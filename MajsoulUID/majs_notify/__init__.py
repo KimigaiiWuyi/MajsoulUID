@@ -102,7 +102,7 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
         return await bot.send('[majs] 推送订阅失败！')
 
 
-@majsoul_notify.on_fullmatch(('推送启动', '启动推送'))
+@majsoul_notify.on_fullmatch(('推送启动', '启动推送', '服务启动', '启动服务'))
 async def majsoul_notify_command(bot: Bot, event: Event):
     conn = await manager.start()
     if isinstance(conn, str):
@@ -114,7 +114,7 @@ async def majsoul_notify_command(bot: Bot, event: Event):
     await bot.send(msg)
 
 
-@majsoul_notify.on_fullmatch('重启订阅服务')
+@majsoul_notify.on_fullmatch(('重启订阅服务', '重启服务'))
 async def majsoul_notify_reset_command(bot: Bot, event: Event):
     conn = await manager.restart()
     if isinstance(conn, str):
@@ -125,7 +125,7 @@ async def majsoul_notify_reset_command(bot: Bot, event: Event):
     await bot.send(msg)
 
 
-@majsoul_notify.on_fullmatch('检查服务')
+@majsoul_notify.on_fullmatch(('检查服务', '检查订阅服务'))
 async def majsoul_notify_check_command(bot: Bot, event: Event):
     conn = manager.get_conn()
     if conn is None:
@@ -180,7 +180,9 @@ async def majsoul_friend_overview_command(bot: Bot, event: Event):
     await bot.send(msg)
 
 
-@majsoul_friend_manage.on_command(('获取好友全部申请', '好友申请列表'))
+@majsoul_friend_manage.on_command(
+    ('获取好友全部申请', '好友申请列表', '好友申请')
+)
 async def majsoul_friend_apply_get_command(bot: Bot, event: Event):
     conn = manager.get_conn()
     if conn is None:
