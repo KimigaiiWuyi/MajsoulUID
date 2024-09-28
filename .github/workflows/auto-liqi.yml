@@ -48,7 +48,7 @@ jobs:
         run: mkdir -p MajsoulUID/lib
 
       - name: Generate python code from liqi.proto
-        run: protoc -I . --python_betterproto_opt=pydantic_dataclasses --python_betterproto_out=./MajsoulUID/lib liqi.proto
+        run: protoc -I . --python_betterproto_out=./MajsoulUID/lib liqi.proto
 
       - name: Remove files
         run: rm -f liqi.json liqi.proto
