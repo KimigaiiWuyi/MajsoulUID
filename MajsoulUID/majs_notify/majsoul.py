@@ -96,7 +96,7 @@ class MajsoulConnection:
                     meta_msg,
                     meta_type,
                     meta_id,
-                    BOT_ID,
+                    bot.bot_id,
                     '',
                 )
         else:
