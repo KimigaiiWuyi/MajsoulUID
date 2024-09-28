@@ -18,6 +18,12 @@ CONFIG_DEFAULT: Dict[str, GSC] = {
         '设置后将会向下面设置的推送对象也推送订阅信息',
         False,
     ),
+    'MajsFriendPushBotId': GsStrConfig(
+        '账号池信息推送bot_id',
+        '元信息的推送Bot',
+        'onebot',
+        ['onebot', 'onebot_v12', 'qq_group', 'qq_guild'],
+    ),
     'MajsFriendPushType': GsStrConfig(
         '账号池信息推送方式',
         '设置一些元信息的推送渠道',

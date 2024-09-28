@@ -86,6 +86,7 @@ class MajsoulConnection:
         self._msg_dispatcher = asyncio.create_task(self.start_sv())
 
     async def send_meta(self, meta_msg):
+        meta_bot_id = MAJS_CONFIG.get_config('MajsFriendPushBotId').data
         meta_type = MAJS_CONFIG.get_config('MajsFriendPushType').data
         meta_id: str = MAJS_CONFIG.get_config('MajsFriendPushID').data
 
@@ -96,7 +97,7 @@ class MajsoulConnection:
                     meta_msg,
                     meta_type,
                     meta_id,
-                    bot.bot_id,
+                    meta_bot_id,
                     '',
                 )
         else:
