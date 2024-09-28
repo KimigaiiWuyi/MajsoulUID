@@ -1,5 +1,5 @@
 from ..lib import lq as liblq
-from .constants import (
+from ..utils.api.remote_const import (
     LEVEL_KONTEN,
     PLAYER_RANKS,
     LEVEL_MAX_POINTS,

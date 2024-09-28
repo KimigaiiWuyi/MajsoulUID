@@ -1,10 +1,11 @@
 import json
-from typing import Any, cast
+from pathlib import Path
 from datetime import datetime
+from typing import Any, Dict, cast
 from collections.abc import Sequence
 
-from model import MjsLog, MjsLogItem
-from lib.lq import (
+from .model import MjsLog, MjsLogItem
+from ..lib.lq import (
     HuleInfo,
     RecordHule,
     RecordBaBei,
@@ -17,12 +18,13 @@ from lib.lq import (
     RecordAnGangAddGang,
 )
 
-with open("data.json", "r", encoding="utf8") as f:
-    cfg = json.load(f)
+cfg: Dict = {}
 
 # variables you might actually want to change
 NAMEPREF = 0  # 2 for english, 1 for sane amount of weeb, 0 for japanese
-# VERBOSELOG = False  # dump mjs records to output - will make the file too large for tenhou.net/5 viewer
+# VERBOSELOG = False
+# dump mjs records to output -
+# will make the file too large for tenhou.net/5 viewer
 SHOWFU = False  # always show fu/han for scoring - even for limit hands
 
 JPNAME = 0
@@ -77,8 +79,15 @@ TSUMOLOSSOFF = (
 )
 
 
-def pad_right(a: list[int], l: int, f: int):
-    return a + [f] * (l - len(a))
+def pad_right(a: list[int], _l: int, f: int):
+    return a + [f] * (_l - len(a))
+
+
+def lazy_imp():
+    global cfg
+    data_path = Path(__file__).parent / "data.json"
+    with open(data_path, "r", encoding="utf8") as f:
+        cfg = json.load(f)
 
 
 def tm2t(s: str):
@@ -199,7 +208,9 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
     """
     Parse MJS hule into Tenhou agari list
     """
-    # Tenhou log viewer requires 点, 飜) or 役満) to end strings, rest of scoring string is optional
+    lazy_imp()
+    # Tenhou log viewer requires 点, 飜) or 役満) to end strings
+    # rest of scoring string is optional
     res: list[int | str] = [
         h.seat,
         h.zimo and h.seat or kyoku.ldseat,
@@ -344,8 +355,10 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
             f"{fuhan if SHOWFU else ''}{RUNES['yakuman'][NAMEPREF]}{points}"
         )
     elif h.count >= 13:
+        _a = f"{fuhan if SHOWFU else ''}"
+        _b = f"{RUNES['kazoeyakuman'][NAMEPREF]}"
         res.append(
-            f"{fuhan if SHOWFU else ''}{RUNES['kazoeyakuman'][NAMEPREF]}{points}"
+            f"{_a}{_b}"
         )
     elif h.count >= 11:
         res.append(
@@ -370,8 +383,10 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
     elif ALLOW_KIRIAGE and (
         (h.count == 4 and h.fu == 30) or (h.count == 3 and h.fu == 60)
     ):
+        _a = f"{fuhan if SHOWFU else ''}"
+        _b = f"{RUNES['kiriagemangan'][NAMEPREF]}{points}"
         res.append(
-            f"{fuhan if SHOWFU else ''}{RUNES['kiriagemangan'][NAMEPREF]}{points}"
+            f"{_a}{_b}"
         )
     else:
         res.append(f"{fuhan}{points}")
@@ -380,12 +395,16 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
         name_jp = cfg["fan"]["fan"]["map_"][str(e.id)]["name_jp"]
         name_en = cfg["fan"]["fan"]["map_"][str(e.id)]["name_en"]
         if h.yiman:
+            _a = f'{name_jp if JPNAME == NAMEPREF else name_en}'
+            _b = f"({RUNES['yakuman'][JPNAME]})"
             res.append(
-                f"{name_jp if JPNAME == NAMEPREF else name_en}({RUNES['yakuman'][JPNAME]})"
+                f"{_a}{_b}"
             )
         else:
+            _a = f"{name_jp if JPNAME == NAMEPREF else name_en}"
+            _b = f"({e.val}{RUNES['han'][JPNAME]})"
             res.append(
-                f"{name_jp if JPNAME == NAMEPREF else name_en}({e.val}{RUNES['han'][JPNAME]})"
+                f"{_a}{_b}"
             )
 
     return [pad_right(delta, 4, 0), res]
@@ -421,7 +440,8 @@ def generatelog(mjslog: list[MjsLogItem]):
                 # Discard - marking tsumogiri and riichi
                 symbol = TSUMOGIRI if e.moqie else tm2t(e.tile)
 
-                # We pretend that the dealer's initial 14th tile is drawn - manually check the first discard
+                # We pretend that the dealer's initial 14th tile is drawn -
+                # manually check the first discard
                 if (
                     e.seat == kyoku.dealerseat
                     and not kyoku.discards[e.seat]
@@ -585,13 +605,13 @@ def generatelog(mjslog: list[MjsLogItem]):
                             delta[i] += g
 
                 if e.liujumanguan:
-                    entry.append(
-                        [RUNES["nagashimangan"][NAMEPREF], delta]
-                    )  # Nagashi mangan
+                    # Nagashi mangan
+                    _d = [RUNES["nagashimangan"][NAMEPREF], delta]
+                    entry.append(_d)  # type: ignore
                 else:
-                    entry.append(
-                        [RUNES["ryuukyoku"][NAMEPREF], delta]
-                    )  # Normal ryuukyoku
+                    # Normal ryuukyoku
+                    _d = [RUNES["ryuukyoku"][NAMEPREF], delta]
+                    entry.append(_d)  # type: ignore
                 log.append(entry)
 
             case "RecordHule":

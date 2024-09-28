@@ -102,7 +102,7 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
         return await bot.send('[majs] 推送订阅失败！')
 
 
-@majsoul_notify.on_fullmatch(('推送启动'))
+@majsoul_notify.on_fullmatch(('推送启动', '启动推送'))
 async def majsoul_notify_command(bot: Bot, event: Event):
     conn = await manager.start()
     if isinstance(conn, str):
@@ -180,7 +180,7 @@ async def majsoul_friend_overview_command(bot: Bot, event: Event):
     await bot.send(msg)
 
 
-@majsoul_friend_manage.on_command('获取好友全部申请')
+@majsoul_friend_manage.on_command(('获取好友全部申请', '好友申请列表'))
 async def majsoul_friend_apply_get_command(bot: Bot, event: Event):
     conn = manager.get_conn()
     if conn is None:
