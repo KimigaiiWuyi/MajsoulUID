@@ -1,8 +1,14 @@
-from typing import Optional
+from typing import Type, Optional
 
 from sqlmodel import Field
-from gsuid_core.utils.database.base_models import Bind, Push, User
+from sqlalchemy.ext.asyncio import AsyncSession
 from gsuid_core.webconsole.mount_app import PageSchema, GsAdminModel, site
+from gsuid_core.utils.database.base_models import (
+    Bind,
+    Push,
+    User,
+    with_session,
+)
 
 
 class MajsPush(Push, table=True):
@@ -18,6 +24,26 @@ class MajsBind(Bind, table=True):
 class MajsUser(User, table=True):
     uid: Optional[str] = Field(default=None, title='雀魂UID')
     friend_code: str = Field(default='', title='好友码')
+    account: str = Field(default='', title='账号')
+    password: str = Field(default='', title='密码')
+
+    @classmethod
+    @with_session
+    async def get_account(
+        cls: Type["MajsUser"],
+        session: AsyncSession,
+        uid: str,
+    ) -> Optional[str]:
+        return await cls.get_user_attr_by_uid(uid, 'account')
+
+    @classmethod
+    @with_session
+    async def get_password(
+        cls: Type["MajsUser"],
+        session: AsyncSession,
+        uid: str,
+    ) -> Optional[str]:
+        return await cls.get_user_attr_by_uid(uid, 'password')
 
 
 @site.register_admin
