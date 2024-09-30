@@ -1,13 +1,13 @@
-from gsuid_core.bot import Bot
-from gsuid_core.logger import logger
-from gsuid_core.models import Event
 from gsuid_core.sv import SV
+from gsuid_core.bot import Bot
+from gsuid_core.models import Event
+from gsuid_core.logger import logger
 from gsuid_core.utils.database.api import get_uid
 
+from .majsoul import manager
+from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
 from ..utils.database.models import MajsBind, MajsPush, MajsUser
-from ..utils.error_reply import UID_HINT
-from .majsoul import manager
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_friend_level_billboard = SV("雀魂好友排行榜")
@@ -160,13 +160,17 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
         # get level info
         msg = "本群雀魂好友四麻排行榜\n"
         for friend in friends:
-            level_str = friend.level.formatAdjustedScoreWithTag(friend.level.score)
+            level_str = friend.level.formatAdjustedScoreWithTag(
+                friend.level.score
+            )
             msg += f"{friend.nickname} {level_str}\n"
     else:
         friends.sort(key=lambda x: (x.level3.id, x.level3.score), reverse=True)
         msg = "本群雀魂好友三麻排行榜\n"
         for friend in friends:
-            level_str = friend.level3.formatAdjustedScoreWithTag(friend.level3.score)
+            level_str = friend.level3.formatAdjustedScoreWithTag(
+                friend.level3.score
+            )
             msg += f"{friend.nickname} {level_str}\n"
     await bot.send(msg)
 
@@ -183,7 +187,9 @@ async def majsoul_friend_overview_command(bot: Bot, event: Event):
     await bot.send(msg)
 
 
-@majsoul_friend_manage.on_command(("获取好友全部申请", "好友申请列表", "好友申请"))
+@majsoul_friend_manage.on_command(
+    ("获取好友全部申请", "好友申请列表", "好友申请")
+)
 async def majsoul_friend_apply_get_command(bot: Bot, event: Event):
     conn = manager.get_conn()
     if conn is None:

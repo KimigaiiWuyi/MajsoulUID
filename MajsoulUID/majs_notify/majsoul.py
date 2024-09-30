@@ -1,42 +1,42 @@
-import asyncio
-import hashlib
 import hmac
 import json
-import random
 import uuid
-from collections.abc import Iterable
+import random
+import asyncio
+import hashlib
 from typing import cast
+from collections.abc import Iterable
 
 import websockets.client
+from msgspec import convert
+from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
-from httpx import AsyncClient
-from msgspec import convert
 
+from .utils import getRes
 from ..lib import lq as liblq
-from ..majs_config.majs_config import MAJS_CONFIG
-from ..utils.api.remote import (
-    PlayerLevel,
-    decode_account_id,
-    decode_log_id,
-    encode_account_id,
-)
-from ..utils.database.models import MajsPaipu, MajsPush, MajsUser
 from .codec import MajsoulProtoCodec
-from .constants import HEADERS, ModeId2Room
 from .majs_to_tenhou import toTenhou
 from .majsoul_friend import MajsoulFriend
+from .constants import HEADERS, ModeId2Room
+from ..majs_config.majs_config import MAJS_CONFIG
+from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
+from ..utils.api.remote import (
+    PlayerLevel,
+    decode_log_id,
+    decode_account_id,
+    encode_account_id,
+)
 from .model import (
-    MajsoulConfig,
-    MajsoulDecodedMessage,
-    MajsoulLiqiProto,
-    MajsoulResInfo,
-    MajsoulServerList,
-    MajsoulVersionInfo,
     MjsLog,
     MjsLogItem,
+    MajsoulConfig,
+    MajsoulResInfo,
+    MajsoulLiqiProto,
+    MajsoulServerList,
+    MajsoulVersionInfo,
+    MajsoulDecodedMessage,
 )
-from .utils import getRes
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 
@@ -53,7 +53,9 @@ class MajsoulConnection:
         self._ws = None
         self._req_events: dict[int, asyncio.Event] = {}
         self._res: dict[int, MajsoulDecodedMessage] = {}
-        self.clientVersionString = "web-" + versionInfo.version.replace(".w", "")
+        self.clientVersionString = "web-" + versionInfo.version.replace(
+            ".w", ""
+        )
         self.no_operation_counter = 0
         self.bg_tasks = []
         self.queue = asyncio.queues.Queue()
@@ -72,7 +74,9 @@ class MajsoulConnection:
             return False
         resp = cast(
             liblq.ResCommon,
-            await self.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0}),
+            await self.rpc_call(
+                ".lq.Lobby.heatbeat", {"no_operation_counter": 0}
+            ),
         )
         if resp.error.code:
             return False
@@ -102,7 +106,9 @@ class MajsoulConnection:
                     "",
                 )
         else:
-            logger.warning("[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!")
+            logger.warning(
+                "[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!"
+            )
 
     async def send_msg_to_user(self, target_user: str, msg):
         if MAJS_CONFIG.get_config("MajsIsPushActiveToMaster").data:
@@ -193,7 +199,9 @@ class MajsoulConnection:
                             account_id=str(friend.account_id),
                             uuid=active_uuid,
                         )
-                    game_record[active_state.playing.game_uuid] = friend.account_id
+                    game_record[active_state.playing.game_uuid] = (
+                        friend.account_id
+                    )
                 elif not active_state.playing and friend.playing:
                     with open("game_record.json", encoding="utf8") as f:
                         game_record = json.load(f)
@@ -423,7 +431,9 @@ class MajsoulConnection:
         password: str,
         version_info: MajsoulVersionInfo,
     ):
-        password = hmac.new(b"lailai", password.encode(), hashlib.sha256).hexdigest()
+        password = hmac.new(
+            b"lailai", password.encode(), hashlib.sha256
+        ).hexdigest()
         resp = cast(
             liblq.ResLogin,
             await self.rpc_call(
@@ -662,7 +672,8 @@ async def createMajsoulConnection(
 
     serverListUrl = random.choice(ipDef.region_urls).url
     serverListUrl += (
-        "?service=ws-gateway&protocol=ws&ssl=true&rv=" + str(random.random())[2:]
+        "?service=ws-gateway&protocol=ws&ssl=true&rv="
+        + str(random.random())[2:]
     )
 
     resp = await AsyncClient(headers=HEADERS).get(serverListUrl)
@@ -733,7 +744,9 @@ class MajsoulManager:
             users = await MajsUser.get_all_user()
             for user in users:
                 try:
-                    conn = await createMajsoulConnection(access_token=user.cookie)
+                    conn = await createMajsoulConnection(
+                        access_token=user.cookie
+                    )
                 except ValueError as e:
                     conn = await createMajsoulConnection(
                         username=user.account,
