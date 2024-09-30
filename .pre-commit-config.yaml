@@ -35,3 +35,4 @@ repos:
       - id: poetry-export
         args: ["-f", "requirements.txt", "--without-hashes", "-o", "requirements.txt"]
         verbose: true
+exclude: 'MajsoulUID/lib/lq/'
