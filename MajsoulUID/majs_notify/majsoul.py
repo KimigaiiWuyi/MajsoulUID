@@ -190,7 +190,7 @@ class MajsoulConnection:
                     # save game_uuid
                     if not await MajsPaipu.data_exist(uuid=active_uuid):
                         MajsPaipu.insert_data(
-                            uid=friend.account_id,
+                            account_id=friend.account_id,
                             uuid=active_uuid,
                         )
                     game_record[active_state.playing.game_uuid] = friend.account_id
@@ -206,7 +206,7 @@ class MajsoulConnection:
                     msg += f"牌谱为 {url}\n"
                     if not await MajsPaipu.data_exist(uuid=active_uuid):
                         MajsPaipu.insert_data(
-                            uid=friend.account_id,
+                            account_id=friend.account_id,
                             uuid=active_uuid,
                         )
 
