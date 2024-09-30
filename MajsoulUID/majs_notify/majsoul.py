@@ -1,42 +1,42 @@
-import hmac
-import json
-import uuid
-import random
 import asyncio
 import hashlib
-from typing import cast
+import hmac
+import json
+import random
+import uuid
 from collections.abc import Iterable
+from typing import cast
 
 import websockets.client
-from msgspec import convert
-from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
+from httpx import AsyncClient
+from msgspec import convert
 
-from .utils import getRes
 from ..lib import lq as liblq
-from .codec import MajsoulProtoCodec
-from .majs_to_tenhou import toTenhou
-from .majsoul_friend import MajsoulFriend
-from .constants import HEADERS, ModeId2Room
 from ..majs_config.majs_config import MAJS_CONFIG
-from ..utils.database.models import MajsPush, MajsUser
 from ..utils.api.remote import (
     PlayerLevel,
-    decode_log_id,
     decode_account_id,
+    decode_log_id,
     encode_account_id,
 )
+from ..utils.database.models import MajsPaipu, MajsPush, MajsUser
+from .codec import MajsoulProtoCodec
+from .constants import HEADERS, ModeId2Room
+from .majs_to_tenhou import toTenhou
+from .majsoul_friend import MajsoulFriend
 from .model import (
-    MjsLog,
-    MjsLogItem,
     MajsoulConfig,
-    MajsoulResInfo,
+    MajsoulDecodedMessage,
     MajsoulLiqiProto,
+    MajsoulResInfo,
     MajsoulServerList,
     MajsoulVersionInfo,
-    MajsoulDecodedMessage,
+    MjsLog,
+    MjsLogItem,
 )
+from .utils import getRes
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 
@@ -53,9 +53,7 @@ class MajsoulConnection:
         self._ws = None
         self._req_events: dict[int, asyncio.Event] = {}
         self._res: dict[int, MajsoulDecodedMessage] = {}
-        self.clientVersionString = "web-" + versionInfo.version.replace(
-            ".w", ""
-        )
+        self.clientVersionString = "web-" + versionInfo.version.replace(".w", "")
         self.no_operation_counter = 0
         self.bg_tasks = []
         self.queue = asyncio.queues.Queue()
@@ -74,9 +72,7 @@ class MajsoulConnection:
             return False
         resp = cast(
             liblq.ResCommon,
-            await self.rpc_call(
-                ".lq.Lobby.heatbeat", {"no_operation_counter": 0}
-            ),
+            await self.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0}),
         )
         if resp.error.code:
             return False
@@ -106,9 +102,7 @@ class MajsoulConnection:
                     "",
                 )
         else:
-            logger.warning(
-                "[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!"
-            )
+            logger.warning("[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!")
 
     async def send_msg_to_user(self, target_user: str, msg):
         if MAJS_CONFIG.get_config("MajsIsPushActiveToMaster").data:
@@ -194,9 +188,12 @@ class MajsoulConnection:
                     msg += f" {rome_name} mod_id: {mode_id}\n"
                     msg += f"对局id: {active_state.playing.game_uuid}"
                     # save game_uuid
-                    game_record[active_state.playing.game_uuid] = (
-                        friend.account_id
-                    )
+                    if not await MajsPaipu.data_exist(uuid=active_uuid):
+                        MajsPaipu.insert_data(
+                            uid=friend.account_id,
+                            uuid=active_uuid,
+                        )
+                    game_record[active_state.playing.game_uuid] = friend.account_id
                 elif not active_state.playing and friend.playing:
                     with open("game_record.json", encoding="utf8") as f:
                         game_record = json.load(f)
@@ -207,6 +204,11 @@ class MajsoulConnection:
                     encode_aid = encode_account_id(friend.account_id)
                     url = f"{PP_HOST}{uuid}_a{encode_aid}"
                     msg += f"牌谱为 {url}\n"
+                    if not await MajsPaipu.data_exist(uuid=active_uuid):
+                        MajsPaipu.insert_data(
+                            uid=friend.account_id,
+                            uuid=active_uuid,
+                        )
 
                     # also save game_uuid
                     game_record[friend.playing.game_uuid] = friend.account_id
@@ -421,9 +423,7 @@ class MajsoulConnection:
         password: str,
         version_info: MajsoulVersionInfo,
     ):
-        password = hmac.new(
-            b"lailai", password.encode(), hashlib.sha256
-        ).hexdigest()
+        password = hmac.new(b"lailai", password.encode(), hashlib.sha256).hexdigest()
         resp = cast(
             liblq.ResLogin,
             await self.rpc_call(
@@ -455,6 +455,7 @@ class MajsoulConnection:
         self.manual_login_username = username
         self.manual_login_password = password
         logger.info("Connection ready")
+        return self.account_id, self.access_token
 
     async def access_token_login(
         self,
@@ -634,13 +635,17 @@ class MajsoulConnection:
         return tenhou_log
 
 
-async def createMajsoulConnection(access_token: str):
-    versionInfo = convert(
+async def createMajsoulConnection(
+    username: str = "",
+    password: str = "",
+    access_token: str = "",
+):
+    version_info = convert(
         await getRes("version.json", bust_cache=True),
         MajsoulVersionInfo,
     )
     resInfo = convert(
-        await getRes(f"resversion{versionInfo.version}.json"),
+        await getRes(f"resversion{version_info.version}.json"),
         MajsoulResInfo,
     )
     pbVersion = resInfo.res["res/proto/liqi.json"].prefix
@@ -657,8 +662,7 @@ async def createMajsoulConnection(access_token: str):
 
     serverListUrl = random.choice(ipDef.region_urls).url
     serverListUrl += (
-        "?service=ws-gateway&protocol=ws&ssl=true&rv="
-        + str(random.random())[2:]
+        "?service=ws-gateway&protocol=ws&ssl=true&rv=" + str(random.random())[2:]
     )
 
     resp = await AsyncClient(headers=HEADERS).get(serverListUrl)
@@ -670,20 +674,40 @@ async def createMajsoulConnection(access_token: str):
         server += "/gateway"
 
     codec = MajsoulProtoCodec(pbDef, pbVersion)
-    conn = MajsoulConnection(f"wss://{server}", codec, versionInfo)
+    conn = MajsoulConnection(f"wss://{server}", codec, version_info)
     await conn.connect()
 
     logger.info("Connection established, sending heartbeat")
     _ = await conn.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0})
-    logger.info(f"Authenticating ({versionInfo.version})")
-    try:
-        await conn.access_token_login(versionInfo, access_token)
-    except ValueError as _:
-        await conn.manual_login(
-            MAJS_CONFIG.get_config("MajsUsername").data,
-            MAJS_CONFIG.get_config("MajsPassword").data,
-            versionInfo,
-        )
+    logger.info(f"Authenticating ({version_info.version})")
+
+    if access_token:
+        try:
+            await conn.access_token_login(
+                version_info,
+                access_token,
+            )
+        except ValueError as e:
+            raise ValueError(f"Access token login failed: {e}")
+    else:
+        if not username or not password:
+            raise ValueError("Username or password is empty")
+        try:
+            account_id, access_token = await conn.manual_login(
+                username,
+                password,
+                version_info,
+            )
+            await MajsUser.update_data_by_data(
+                {"uid": str(account_id)},
+                {
+                    "cookie": access_token,
+                    "username": username,
+                    "password": password,
+                },
+            )
+        except ValueError as e:
+            raise ValueError(f"Manual login failed: {e}")
 
     await conn.create_heatbeat_task()
 
@@ -695,27 +719,29 @@ class MajsoulManager:
         # maybe we need to support multiple connections in the future
         self.conn: list[MajsoulConnection] = []
 
-    async def check_access_token(self, access_token: str):
+    async def check_username_password(self, username: str, password: str):
         try:
-            conn = await createMajsoulConnection(access_token)
+            conn = await createMajsoulConnection(username, password)
         except ValueError as e:
             logger.error(e)
-
             return False
-        return conn.account_id
+        return conn
 
     async def start(self):
         if len(self.conn) == 0:
-            cookies = await MajsUser.get_all_cookie()
-            if cookies:
-                for access_token in cookies:
-                    conn = await createMajsoulConnection(access_token)
-                    self.conn.append(conn)
-                    await conn.fetchInfo()
-            else:
-                return (
-                    "❌错误: 未找到有效的ACCESS_TOKEN！请先进行[雀魂添加账号]"
-                )
+            # get all accounts
+            users = await MajsUser.get_all_user()
+            for user in users:
+                try:
+                    conn = await createMajsoulConnection(access_token=user.cookie)
+                except ValueError as e:
+                    conn = await createMajsoulConnection(
+                        username=user.account,
+                        password=user.password,
+                    )
+
+                self.conn.append(conn)
+                await conn.fetchInfo()
         return self.conn[0]
 
     async def restart(self):
