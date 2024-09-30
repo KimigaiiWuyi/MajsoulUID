@@ -4,16 +4,22 @@
 # This file has been @generated
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import (
+    TYPE_CHECKING,
+    Dict,
+    List,
+    Optional,
+)
 
-import grpclib
 import betterproto
+import grpclib
 from betterproto.grpc.grpclib_server import ServiceBase
+
 
 if TYPE_CHECKING:
     import grpclib.server
-    from grpclib.metadata import Deadline
     from betterproto.grpc.grpclib_client import MetadataLike
+    from grpclib.metadata import Deadline
 
 
 class GamePlayerState(betterproto.Enum):
@@ -52,8 +58,8 @@ class NotifyMatchGameStart(betterproto.Message):
 class NotifyRoomPlayerReady(betterproto.Message):
     account_id: int = betterproto.uint32_field(1)
     ready: bool = betterproto.bool_field(2)
-    account_list: "NotifyRoomPlayerReadyAccountReadyState" = (
-        betterproto.message_field(3)
+    account_list: "NotifyRoomPlayerReadyAccountReadyState" = betterproto.message_field(
+        3
     )
     seq: int = betterproto.uint32_field(4)
 
@@ -200,30 +206,26 @@ class NotifyActivitySegmentTaskUpdate(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class NotifyActivityUpdate(betterproto.Message):
-    list: List["NotifyActivityUpdateFeedActivityData"] = (
-        betterproto.message_field(1)
-    )
+    list: List["NotifyActivityUpdateFeedActivityData"] = betterproto.message_field(1)
 
 
 @dataclass(eq=False, repr=False)
 class NotifyActivityUpdateFeedActivityData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     feed_count: int = betterproto.uint32_field(2)
-    friend_receive_data: (
-        "NotifyActivityUpdateFeedActivityDataCountWithTimeData"
-    ) = betterproto.message_field(3)
-    friend_send_data: (
-        "NotifyActivityUpdateFeedActivityDataCountWithTimeData"
-    ) = betterproto.message_field(4)
+    friend_receive_data: "NotifyActivityUpdateFeedActivityDataCountWithTimeData" = (
+        betterproto.message_field(3)
+    )
+    friend_send_data: "NotifyActivityUpdateFeedActivityDataCountWithTimeData" = (
+        betterproto.message_field(4)
+    )
     gift_inbox: List["NotifyActivityUpdateFeedActivityDataGiftBoxData"] = (
         betterproto.message_field(5)
     )
 
 
 @dataclass(eq=False, repr=False)
-class NotifyActivityUpdateFeedActivityDataCountWithTimeData(
-    betterproto.Message
-):
+class NotifyActivityUpdateFeedActivityDataCountWithTimeData(betterproto.Message):
     count: int = betterproto.uint32_field(1)
     last_update_time: int = betterproto.uint32_field(2)
 
@@ -294,8 +296,8 @@ class NotifyPayResult(betterproto.Message):
     order_id: str = betterproto.string_field(2)
     goods_id: int = betterproto.uint32_field(3)
     new_month_ticket: int = betterproto.uint32_field(4)
-    resource_modify: List["NotifyPayResultResourceModify"] = (
-        betterproto.message_field(5)
+    resource_modify: List["NotifyPayResultResourceModify"] = betterproto.message_field(
+        5
     )
 
 
@@ -361,17 +363,13 @@ class NotifyLoginQueueFinished(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class NotifyGameFinishRewardV2(betterproto.Message):
     mode_id: int = betterproto.uint32_field(1)
-    level_change: "NotifyGameFinishRewardV2LevelChange" = (
-        betterproto.message_field(2)
+    level_change: "NotifyGameFinishRewardV2LevelChange" = betterproto.message_field(2)
+    match_chest: "NotifyGameFinishRewardV2MatchChest" = betterproto.message_field(3)
+    main_character: "NotifyGameFinishRewardV2MainCharacter" = betterproto.message_field(
+        4
     )
-    match_chest: "NotifyGameFinishRewardV2MatchChest" = (
-        betterproto.message_field(3)
-    )
-    main_character: "NotifyGameFinishRewardV2MainCharacter" = (
-        betterproto.message_field(4)
-    )
-    character_gift: "NotifyGameFinishRewardV2CharacterGift" = (
-        betterproto.message_field(5)
+    character_gift: "NotifyGameFinishRewardV2CharacterGift" = betterproto.message_field(
+        5
     )
 
 
@@ -490,15 +488,9 @@ class AntiAddiction(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class AccountMahjongStatistic(betterproto.Message):
     final_position_counts: List[int] = betterproto.uint32_field(1)
-    recent_round: "AccountMahjongStatisticRoundSummary" = (
-        betterproto.message_field(2)
-    )
-    recent_hu: "AccountMahjongStatisticHuSummary" = betterproto.message_field(
-        3
-    )
-    highest_hu: "AccountMahjongStatisticHighestHuRecord" = (
-        betterproto.message_field(4)
-    )
+    recent_round: "AccountMahjongStatisticRoundSummary" = betterproto.message_field(2)
+    recent_hu: "AccountMahjongStatisticHuSummary" = betterproto.message_field(3)
+    highest_hu: "AccountMahjongStatisticHighestHuRecord" = betterproto.message_field(4)
     recent_20_hu_summary: "AccountMahjongStatisticLiqi20Summary" = (
         betterproto.message_field(6)
     )
@@ -596,23 +588,17 @@ class Account(betterproto.Message):
     birthday: int = betterproto.int32_field(15)
     phone: str = betterproto.string_field(16)
     phone_verify: int = betterproto.uint32_field(17)
-    platform_diamond: List["AccountPlatformDiamond"] = (
-        betterproto.message_field(18)
-    )
+    platform_diamond: List["AccountPlatformDiamond"] = betterproto.message_field(18)
     level: "AccountLevel" = betterproto.message_field(21)
     level3: "AccountLevel" = betterproto.message_field(22)
     avatar_frame: int = betterproto.uint32_field(23)
     skin_ticket: int = betterproto.uint32_field(24)
-    platform_skin_ticket: List["AccountPlatformSkinTicket"] = (
-        betterproto.message_field(25)
+    platform_skin_ticket: List["AccountPlatformSkinTicket"] = betterproto.message_field(
+        25
     )
     verified: int = betterproto.uint32_field(26)
-    challenge_levels: List["AccountChallengeLevel"] = (
-        betterproto.message_field(27)
-    )
-    achievement_count: List["AccountAchievementCount"] = (
-        betterproto.message_field(28)
-    )
+    challenge_levels: List["AccountChallengeLevel"] = betterproto.message_field(27)
+    achievement_count: List["AccountAchievementCount"] = betterproto.message_field(28)
     frozen_state: int = betterproto.uint32_field(29)
     loading_image: List[int] = betterproto.uint32_field(30)
 
@@ -649,41 +635,25 @@ class AccountOwnerData(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class AccountUpdate(betterproto.Message):
-    numerical: List["AccountUpdateNumericalUpdate"] = (
-        betterproto.message_field(1)
-    )
+    numerical: List["AccountUpdateNumericalUpdate"] = betterproto.message_field(1)
     character: "AccountUpdateCharacterUpdate" = betterproto.message_field(2)
     bag: "BagUpdate" = betterproto.message_field(3)
-    achievement: "AccountUpdateAchievementUpdate" = betterproto.message_field(
-        4
-    )
+    achievement: "AccountUpdateAchievementUpdate" = betterproto.message_field(4)
     shilian: "AccountShiLian" = betterproto.message_field(5)
     daily_task: "AccountUpdateDailyTaskUpdate" = betterproto.message_field(6)
     title: "AccountUpdateTitleUpdate" = betterproto.message_field(7)
     new_recharged_list: List[int] = betterproto.uint32_field(8)
     activity_task: "AccountUpdateTaskUpdate" = betterproto.message_field(9)
-    activity_flip_task: "AccountUpdateTaskUpdate" = betterproto.message_field(
-        10
-    )
-    activity_period_task: "AccountUpdateTaskUpdate" = (
-        betterproto.message_field(11)
-    )
-    activity_random_task: "AccountUpdateTaskUpdate" = (
-        betterproto.message_field(12)
-    )
-    challenge: "AccountUpdateAccountChallengeUpdate" = (
-        betterproto.message_field(13)
-    )
-    ab_match: "AccountUpdateAccountAbMatchUpdate" = betterproto.message_field(
-        14
-    )
+    activity_flip_task: "AccountUpdateTaskUpdate" = betterproto.message_field(10)
+    activity_period_task: "AccountUpdateTaskUpdate" = betterproto.message_field(11)
+    activity_random_task: "AccountUpdateTaskUpdate" = betterproto.message_field(12)
+    challenge: "AccountUpdateAccountChallengeUpdate" = betterproto.message_field(13)
+    ab_match: "AccountUpdateAccountAbMatchUpdate" = betterproto.message_field(14)
     activity: "AccountActivityUpdate" = betterproto.message_field(15)
-    activity_segment_task: "AccountUpdateSegmentTaskUpdate" = (
-        betterproto.message_field(16)
+    activity_segment_task: "AccountUpdateSegmentTaskUpdate" = betterproto.message_field(
+        16
     )
-    month_ticket: "AccountUpdateMonthTicketUpdate" = betterproto.message_field(
-        17
-    )
+    month_ticket: "AccountUpdateMonthTicketUpdate" = betterproto.message_field(17)
 
 
 @dataclass(eq=False, repr=False)
@@ -840,9 +810,7 @@ class GameMode(betterproto.Message):
     ai: bool = betterproto.bool_field(4)
     extendinfo: str = betterproto.string_field(5)
     detail_rule: "GameDetailRule" = betterproto.message_field(6)
-    testing_environment: "GameTestingEnvironmentSet" = (
-        betterproto.message_field(7)
-    )
+    testing_environment: "GameTestingEnvironmentSet" = betterproto.message_field(7)
     game_setting: "GameSetting" = betterproto.message_field(8)
 
 
@@ -996,9 +964,7 @@ class Bag(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class BagUpdate(betterproto.Message):
     update_items: List["Item"] = betterproto.message_field(1)
-    update_daily_gain_record: List["ItemGainRecords"] = (
-        betterproto.message_field(2)
-    )
+    update_daily_gain_record: List["ItemGainRecords"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -1088,8 +1054,8 @@ class AccountStatisticByGameMode(betterproto.Message):
     xun_count_sum: int = betterproto.uint32_field(11)
     highest_lianzhuang: int = betterproto.uint32_field(12)
     score_earn_sum: int = betterproto.uint32_field(13)
-    rank_score: List["AccountStatisticByGameModeRankScore"] = (
-        betterproto.message_field(14)
+    rank_score: List["AccountStatisticByGameModeRankScore"] = betterproto.message_field(
+        14
     )
 
 
@@ -1121,9 +1087,7 @@ class AccountFanAchieved(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class AccountDetailStatistic(betterproto.Message):
-    game_mode: List["AccountStatisticByGameMode"] = betterproto.message_field(
-        1
-    )
+    game_mode: List["AccountStatisticByGameMode"] = betterproto.message_field(1)
     fan: List["AccountStatisticByFan"] = betterproto.message_field(2)
     liujumanguan: int = betterproto.uint32_field(3)
     fan_achieved: List["AccountFanAchieved"] = betterproto.message_field(4)
@@ -1137,24 +1101,18 @@ class AccountDetailStatisticByCategory(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class AccountDetailStatisticV2(betterproto.Message):
-    friend_room_statistic: "AccountDetailStatistic" = (
-        betterproto.message_field(1)
-    )
-    rank_statistic: "AccountDetailStatisticV2RankStatistic" = (
-        betterproto.message_field(2)
+    friend_room_statistic: "AccountDetailStatistic" = betterproto.message_field(1)
+    rank_statistic: "AccountDetailStatisticV2RankStatistic" = betterproto.message_field(
+        2
     )
     customized_contest_statistic: (
         "AccountDetailStatisticV2CustomizedContestStatistic"
     ) = betterproto.message_field(3)
-    leisure_match_statistic: "AccountDetailStatistic" = (
-        betterproto.message_field(4)
-    )
+    leisure_match_statistic: "AccountDetailStatistic" = betterproto.message_field(4)
     challenge_match_statistic: "AccountDetailStatisticV2ChallengeStatistic" = (
         betterproto.message_field(5)
     )
-    activity_match_statistic: "AccountDetailStatistic" = (
-        betterproto.message_field(6)
-    )
+    activity_match_statistic: "AccountDetailStatistic" = betterproto.message_field(6)
     ab_match_statistic: "AccountDetailStatistic" = betterproto.message_field(7)
 
 
@@ -1171,18 +1129,14 @@ class AccountDetailStatisticV2RankStatistic(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class AccountDetailStatisticV2RankStatisticRankData(betterproto.Message):
-    all_level_statistic: "AccountDetailStatistic" = betterproto.message_field(
-        1
-    )
+    all_level_statistic: "AccountDetailStatistic" = betterproto.message_field(1)
     level_data_list: List[
         "AccountDetailStatisticV2RankStatisticRankDataRankLevelData"
     ] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
-class AccountDetailStatisticV2RankStatisticRankDataRankLevelData(
-    betterproto.Message
-):
+class AccountDetailStatisticV2RankStatisticRankDataRankLevelData(betterproto.Message):
     rank_level: int = betterproto.uint32_field(1)
     statistic: "AccountDetailStatistic" = betterproto.message_field(2)
 
@@ -1197,15 +1151,13 @@ class AccountDetailStatisticV2CustomizedContestStatistic(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class AccountDetailStatisticV2ChallengeStatistic(betterproto.Message):
     all_season: "AccountDetailStatistic" = betterproto.message_field(1)
-    season_data_list: List[
-        "AccountDetailStatisticV2ChallengeStatisticSeasonData"
-    ] = betterproto.message_field(2)
+    season_data_list: List["AccountDetailStatisticV2ChallengeStatisticSeasonData"] = (
+        betterproto.message_field(2)
+    )
 
 
 @dataclass(eq=False, repr=False)
-class AccountDetailStatisticV2ChallengeStatisticSeasonData(
-    betterproto.Message
-):
+class AccountDetailStatisticV2ChallengeStatisticSeasonData(betterproto.Message):
     season_id: int = betterproto.uint32_field(1)
     statistic: "AccountDetailStatistic" = betterproto.message_field(2)
 
@@ -1299,12 +1251,8 @@ class FeedActivityData(betterproto.Message):
     friend_receive_data: "FeedActivityDataCountWithTimeData" = (
         betterproto.message_field(3)
     )
-    friend_send_data: "FeedActivityDataCountWithTimeData" = (
-        betterproto.message_field(4)
-    )
-    gift_inbox: List["FeedActivityDataGiftBoxData"] = (
-        betterproto.message_field(5)
-    )
+    friend_send_data: "FeedActivityDataCountWithTimeData" = betterproto.message_field(4)
+    gift_inbox: List["FeedActivityDataGiftBoxData"] = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -1347,17 +1295,11 @@ class AccountActivityUpdate(betterproto.Message):
     rpg_data: List["RpgActivity"] = betterproto.message_field(2)
     feed_data: List["ActivityFeedData"] = betterproto.message_field(3)
     spot_data: List["ActivitySpotData"] = betterproto.message_field(4)
-    friend_gift_data: List["ActivityFriendGiftData"] = (
-        betterproto.message_field(5)
-    )
+    friend_gift_data: List["ActivityFriendGiftData"] = betterproto.message_field(5)
     upgrade_data: List["ActivityUpgradeData"] = betterproto.message_field(6)
     gacha_data: List["ActivityGachaUpdateData"] = betterproto.message_field(7)
-    simulation_data: List["ActivitySimulationData"] = (
-        betterproto.message_field(8)
-    )
-    combining_data: List["ActivityCombiningLqData"] = (
-        betterproto.message_field(9)
-    )
+    simulation_data: List["ActivitySimulationData"] = betterproto.message_field(8)
+    combining_data: List["ActivityCombiningLqData"] = betterproto.message_field(9)
     village_data: List["ActivityVillageData"] = betterproto.message_field(10)
     festival_data: List["ActivityFestivalData"] = betterproto.message_field(11)
     island_data: List["ActivityIslandData"] = betterproto.message_field(12)
@@ -1374,8 +1316,8 @@ class ActivityCombiningWorkbench(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ActivityCombiningMenuData(betterproto.Message):
     menu_group: int = betterproto.uint32_field(1)
-    generated: List["ActivityCombiningMenuDataMenuRequire"] = (
-        betterproto.message_field(2)
+    generated: List["ActivityCombiningMenuDataMenuRequire"] = betterproto.message_field(
+        2
     )
 
 
@@ -1396,9 +1338,7 @@ class ActivityCombiningOrderData(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ActivityCombiningLqData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
-    workbench: List["ActivityCombiningWorkbench"] = betterproto.message_field(
-        2
-    )
+    workbench: List["ActivityCombiningWorkbench"] = betterproto.message_field(2)
     orders: List["ActivityCombiningOrderData"] = betterproto.message_field(3)
     recycle_bin: "ActivityCombiningWorkbench" = betterproto.message_field(4)
     unlocked_craft: List[int] = betterproto.uint32_field(5)
@@ -1413,21 +1353,15 @@ class ActivityCombiningPoolData(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ActivityCombiningData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
-    workbench: List["ActivityCombiningWorkbench"] = betterproto.message_field(
-        2
-    )
+    workbench: List["ActivityCombiningWorkbench"] = betterproto.message_field(2)
     orders: List["ActivityCombiningOrderData"] = betterproto.message_field(3)
     recycle_bin: "ActivityCombiningWorkbench" = betterproto.message_field(4)
     menu: "ActivityCombiningMenuData" = betterproto.message_field(5)
     current_order_id: int = betterproto.uint32_field(6)
     bonus: "ActivityCombiningDataBonusData" = betterproto.message_field(7)
     unlocked_craft: List[int] = betterproto.uint32_field(8)
-    craft_pool: List["ActivityCombiningPoolData"] = betterproto.message_field(
-        9
-    )
-    order_pool: List["ActivityCombiningPoolData"] = betterproto.message_field(
-        10
-    )
+    craft_pool: List["ActivityCombiningPoolData"] = betterproto.message_field(9)
+    order_pool: List["ActivityCombiningPoolData"] = betterproto.message_field(10)
 
 
 @dataclass(eq=False, repr=False)
@@ -1614,8 +1548,8 @@ class AmuletGameUpdateData(betterproto.Message):
     coin: int = betterproto.uint32_field(14)
     stage: int = betterproto.uint32_field(22)
     desktop_remain: int = betterproto.uint32_field(26)
-    show_desktop_tiles: List["AmuletShowDesktopTileData"] = (
-        betterproto.message_field(28)
+    show_desktop_tiles: List["AmuletShowDesktopTileData"] = betterproto.message_field(
+        28
     )
     ting_list: List["AmuletActivityTingInfo"] = betterproto.message_field(30)
     next_operation: List["AmuletGameOperation"] = betterproto.message_field(31)
@@ -1654,8 +1588,8 @@ class AmuletGameData(betterproto.Message):
     show_desktop: List[int] = betterproto.uint32_field(25)
     desktop_remain: int = betterproto.uint32_field(26)
     free_effect_list: List[int] = betterproto.uint32_field(27)
-    show_desktop_tiles: List["AmuletShowDesktopTileData"] = (
-        betterproto.message_field(28)
+    show_desktop_tiles: List["AmuletShowDesktopTileData"] = betterproto.message_field(
+        28
     )
     change_tile_count: int = betterproto.uint32_field(29)
     ting_list: List["AmuletActivityTingInfo"] = betterproto.message_field(30)
@@ -1717,9 +1651,7 @@ class ActivityAmuletData(betterproto.Message):
     game: "AmuletGameData" = betterproto.message_field(2)
     version: int = betterproto.uint32_field(3)
     upgrade: "ActivityAmuletUpgradeData" = betterproto.message_field(4)
-    illustrated_book: "ActivityAmuletIllustratedBookData" = (
-        betterproto.message_field(5)
-    )
+    illustrated_book: "ActivityAmuletIllustratedBookData" = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -1729,12 +1661,8 @@ class ActivityFeedData(betterproto.Message):
     friend_receive_data: "ActivityFeedDataCountWithTimeData" = (
         betterproto.message_field(3)
     )
-    friend_send_data: "ActivityFeedDataCountWithTimeData" = (
-        betterproto.message_field(4)
-    )
-    gift_inbox: List["ActivityFeedDataGiftBoxData"] = (
-        betterproto.message_field(5)
-    )
+    friend_send_data: "ActivityFeedDataCountWithTimeData" = betterproto.message_field(4)
+    gift_inbox: List["ActivityFeedDataGiftBoxData"] = betterproto.message_field(5)
     max_inbox_id: int = betterproto.uint32_field(6)
 
 
@@ -1773,15 +1701,11 @@ class ActivityStoryData(betterproto.Message):
 class ActivityFriendGiftData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     max_inbox_id: int = betterproto.uint32_field(2)
-    receive_data: "ActivityFriendGiftDataCountWithTimeData" = (
-        betterproto.message_field(3)
+    receive_data: "ActivityFriendGiftDataCountWithTimeData" = betterproto.message_field(
+        3
     )
-    send_data: "ActivityFriendGiftDataCountWithTimeData" = (
-        betterproto.message_field(4)
-    )
-    gift_inbox: List["ActivityFriendGiftDataGiftBoxData"] = (
-        betterproto.message_field(5)
-    )
+    send_data: "ActivityFriendGiftDataCountWithTimeData" = betterproto.message_field(4)
+    gift_inbox: List["ActivityFriendGiftDataGiftBoxData"] = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -1804,9 +1728,7 @@ class ActivityFriendGiftDataGiftBoxData(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ActivityUpgradeData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
-    groups: List["ActivityUpgradeDataLevelGroup"] = betterproto.message_field(
-        2
-    )
+    groups: List["ActivityUpgradeDataLevelGroup"] = betterproto.message_field(2)
     received_level: int = betterproto.uint32_field(3)
 
 
@@ -1849,18 +1771,14 @@ class ActivitySimulationGameRecord(betterproto.Message):
     uuid: str = betterproto.string_field(3)
     start_time: int = betterproto.uint32_field(4)
     scores: List[int] = betterproto.int32_field(5)
-    messages: List["ActivitySimulationGameRecordMessage"] = (
-        betterproto.message_field(6)
-    )
+    messages: List["ActivitySimulationGameRecordMessage"] = betterproto.message_field(6)
 
 
 @dataclass(eq=False, repr=False)
 class ActivitySimulationDailyContest(betterproto.Message):
     day: int = betterproto.uint32_field(1)
     characters: List[int] = betterproto.uint32_field(2)
-    records: List["ActivitySimulationGameRecord"] = betterproto.message_field(
-        3
-    )
+    records: List["ActivitySimulationGameRecord"] = betterproto.message_field(3)
     round: int = betterproto.uint32_field(4)
 
 
@@ -1877,12 +1795,8 @@ class ActivitySimulationData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     stats: List[int] = betterproto.uint32_field(2)
     stamina_update_time: int = betterproto.uint32_field(3)
-    daily_contest: List["ActivitySimulationDailyContest"] = (
-        betterproto.message_field(4)
-    )
-    train_records: List["ActivitySimulationTrainRecord"] = (
-        betterproto.message_field(5)
-    )
+    daily_contest: List["ActivitySimulationDailyContest"] = betterproto.message_field(4)
+    train_records: List["ActivitySimulationTrainRecord"] = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -2258,9 +2172,7 @@ class RecordGameAccountInfo(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class CustomizedContestGameStart(betterproto.Message):
-    players: List["CustomizedContestGameStartItem"] = (
-        betterproto.message_field(1)
-    )
+    players: List["CustomizedContestGameStartItem"] = betterproto.message_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -2271,9 +2183,7 @@ class CustomizedContestGameStartItem(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class CustomizedContestGameEnd(betterproto.Message):
-    players: List["CustomizedContestGameEndItem"] = betterproto.message_field(
-        1
-    )
+    players: List["CustomizedContestGameEndItem"] = betterproto.message_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -2376,18 +2286,14 @@ class GameFinalSnapshot(betterproto.Message):
     category: int = betterproto.uint32_field(3)
     mode: "GameMode" = betterproto.message_field(4)
     meta: "GameMetaData" = betterproto.message_field(5)
-    calculate_param: "GameFinalSnapshotCalculateParam" = (
-        betterproto.message_field(6)
-    )
+    calculate_param: "GameFinalSnapshotCalculateParam" = betterproto.message_field(6)
     create_time: int = betterproto.uint32_field(7)
     start_time: int = betterproto.uint32_field(8)
     finish_time: int = betterproto.uint32_field(9)
     seats: List["GameFinalSnapshotGameSeat"] = betterproto.message_field(10)
     rounds: List["GameRoundSnapshot"] = betterproto.message_field(11)
     account_views: List["PlayerGameView"] = betterproto.message_field(12)
-    final_players: List["GameFinalSnapshotFinalPlayer"] = (
-        betterproto.message_field(13)
-    )
+    final_players: List["GameFinalSnapshotFinalPlayer"] = betterproto.message_field(13)
     afk_info: List["GameFinalSnapshotAfkInfo"] = betterproto.message_field(14)
 
 
@@ -2656,11 +2562,9 @@ class AccountResourceSnapshot(betterproto.Message):
     currency: List["AccountResourceSnapshotCurrencySnapshot"] = (
         betterproto.message_field(2)
     )
-    title: "AccountResourceSnapshotTitleSnapshot" = betterproto.message_field(
-        3
-    )
-    used_title: "AccountResourceSnapshotUsedTitleSnapshot" = (
-        betterproto.message_field(4)
+    title: "AccountResourceSnapshotTitleSnapshot" = betterproto.message_field(3)
+    used_title: "AccountResourceSnapshotUsedTitleSnapshot" = betterproto.message_field(
+        4
     )
     currency_convert: int = betterproto.uint32_field(5)
 
@@ -2696,9 +2600,7 @@ class AccountCharacterSnapshot(betterproto.Message):
     main_character: "AccountCharacterSnapshotMainCharacterSnapshot" = (
         betterproto.message_field(4)
     )
-    skins: "AccountCharacterSnapshotSkinsSnapshot" = betterproto.message_field(
-        5
-    )
+    skins: "AccountCharacterSnapshotSkinsSnapshot" = betterproto.message_field(5)
     hidden_characters: "AccountCharacterSnapshotHiddenCharacter" = (
         betterproto.message_field(6)
     )
@@ -2722,12 +2624,8 @@ class AccountCharacterSnapshotHiddenCharacter(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class AccountMailRecord(betterproto.Message):
     created_mails: List[int] = betterproto.uint32_field(1)
-    removed_mails: List["AccountMailRecordMailSnapshot"] = (
-        betterproto.message_field(2)
-    )
-    modified_mails: List["AccountMailRecordMailSnapshot"] = (
-        betterproto.message_field(3)
-    )
+    removed_mails: List["AccountMailRecordMailSnapshot"] = betterproto.message_field(2)
+    modified_mails: List["AccountMailRecordMailSnapshot"] = betterproto.message_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -2746,8 +2644,8 @@ class AccountAchievementSnapshot(betterproto.Message):
     rewarded_group: "AccountAchievementSnapshotRewardedGroupSnapshot" = (
         betterproto.message_field(2)
     )
-    version: "AccountAchievementSnapshotAchievementVersion" = (
-        betterproto.message_field(3)
+    version: "AccountAchievementSnapshotAchievementVersion" = betterproto.message_field(
+        3
     )
 
 
@@ -2772,9 +2670,7 @@ class AccountMiscSnapshot(betterproto.Message):
     month_ticket: "AccountMiscSnapshotAccountMonthTicketSnapshot" = (
         betterproto.message_field(5)
     )
-    recharged: "AccountMiscSnapshotAccountRechargeInfo" = (
-        betterproto.message_field(6)
-    )
+    recharged: "AccountMiscSnapshotAccountRechargeInfo" = betterproto.message_field(6)
     month_ticket_v2: "AccountMiscSnapshotAccountMonthTicketSnapshotV2" = (
         betterproto.message_field(7)
     )
@@ -2796,9 +2692,7 @@ class AccountMiscSnapshotMonthTicketInfo(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class AccountMiscSnapshotAccountMonthTicketSnapshot(betterproto.Message):
-    tickets: List["AccountMiscSnapshotMonthTicketInfo"] = (
-        betterproto.message_field(1)
-    )
+    tickets: List["AccountMiscSnapshotMonthTicketInfo"] = betterproto.message_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -2815,9 +2709,7 @@ class AccountMiscSnapshotAccountRechargeInfo(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class AccountMiscSnapshotAccountRechargeInfoRechargeRecord(
-    betterproto.Message
-):
+class AccountMiscSnapshotAccountRechargeInfoRechargeRecord(betterproto.Message):
     level: int = betterproto.uint32_field(1)
     recharge_time: int = betterproto.uint32_field(2)
 
@@ -2919,25 +2811,19 @@ class AmuletHuleInfo(betterproto.Message):
 class AmuletHuleOperateResult(betterproto.Message):
     hu_final: "AmuletHuleInfo" = betterproto.message_field(2)
     hu_base: "AmuletHuleInfo" = betterproto.message_field(3)
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(
-        5
-    )
+    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
 class AmuletGangOperateResult(betterproto.Message):
     new_dora: List[int] = betterproto.uint32_field(4)
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(
-        5
-    )
+    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
 class AmuletDealTileResult(betterproto.Message):
     tile: int = betterproto.uint32_field(1)
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(
-        5
-    )
+    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -2952,9 +2838,7 @@ class AmuletUpgradeResult(betterproto.Message):
     point_coin: int = betterproto.uint32_field(2)
     level_coin: int = betterproto.uint32_field(3)
     shop: "AmuletGameShopData" = betterproto.message_field(4)
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(
-        5
-    )
+    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -3506,9 +3390,7 @@ class ResFriendList(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResFriendApplyList(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    applies: List["ResFriendApplyListFriendApply"] = betterproto.message_field(
-        2
-    )
+    applies: List["ResFriendApplyListFriendApply"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -3674,9 +3556,7 @@ class ResReceiveAchievementReward(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResFetchAchievementRate(betterproto.Message):
     error: "Error" = betterproto.message_field(2)
-    rate: List["ResFetchAchievementRateAchievementRate"] = (
-        betterproto.message_field(1)
-    )
+    rate: List["ResFetchAchievementRateAchievementRate"] = betterproto.message_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -3741,9 +3621,7 @@ class ReqCurrentMatchInfo(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResCurrentMatchInfo(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    matches: List["ResCurrentMatchInfoCurrentMatchInfo"] = (
-        betterproto.message_field(2)
-    )
+    matches: List["ResCurrentMatchInfoCurrentMatchInfo"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -4567,9 +4445,7 @@ class ReqDoActivitySignIn(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResDoActivitySignIn(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    rewards: List["ResDoActivitySignInRewardData"] = betterproto.message_field(
-        2
-    )
+    rewards: List["ResDoActivitySignInRewardData"] = betterproto.message_field(2)
     sign_in_count: int = betterproto.uint32_field(3)
 
 
@@ -4896,9 +4772,7 @@ class ReqFetchCustomizedContestList(betterproto.Message):
 class ResFetchCustomizedContestList(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     contests: List["CustomizedContestBase"] = betterproto.message_field(2)
-    follow_contests: List["CustomizedContestBase"] = betterproto.message_field(
-        3
-    )
+    follow_contests: List["CustomizedContestBase"] = betterproto.message_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -4922,9 +4796,7 @@ class ReqEnterCustomizedContest(betterproto.Message):
 class ResEnterCustomizedContest(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     detail_info: "CustomizedContestDetail" = betterproto.message_field(2)
-    player_report: "CustomizedContestPlayerReport" = betterproto.message_field(
-        3
-    )
+    player_report: "CustomizedContestPlayerReport" = betterproto.message_field(3)
     is_followed: bool = betterproto.bool_field(4)
     state: int = betterproto.uint32_field(5)
     is_admin: bool = betterproto.bool_field(6)
@@ -5037,50 +4909,34 @@ class ResAccountActivityData(betterproto.Message):
     accumulated_point_list: List["ActivityAccumulatedPointData"] = (
         betterproto.message_field(4)
     )
-    rank_data_list: List["ActivityRankPointData"] = betterproto.message_field(
-        5
-    )
-    flip_task_progress_list: List["TaskProgress"] = betterproto.message_field(
-        6
-    )
+    rank_data_list: List["ActivityRankPointData"] = betterproto.message_field(5)
+    flip_task_progress_list: List["TaskProgress"] = betterproto.message_field(6)
     sign_in_data: List["ResAccountActivityDataActivitySignInData"] = (
         betterproto.message_field(7)
     )
     richman_data: List["ResAccountActivityDataActivityRichmanData"] = (
         betterproto.message_field(8)
     )
-    period_task_progress_list: List["TaskProgress"] = (
-        betterproto.message_field(9)
-    )
-    random_task_progress_list: List["TaskProgress"] = (
-        betterproto.message_field(10)
-    )
+    period_task_progress_list: List["TaskProgress"] = betterproto.message_field(9)
+    random_task_progress_list: List["TaskProgress"] = betterproto.message_field(10)
     chest_up_data: List["ResAccountActivityDataChestUpData"] = (
         betterproto.message_field(11)
     )
-    sns_data: "ResAccountActivityDataActivitySnsData" = (
-        betterproto.message_field(12)
-    )
+    sns_data: "ResAccountActivityDataActivitySnsData" = betterproto.message_field(12)
     mine_data: List["MineActivityData"] = betterproto.message_field(13)
     rpg_data: List["RpgActivity"] = betterproto.message_field(14)
     arena_data: List["ActivityArenaData"] = betterproto.message_field(15)
     feed_data: List["FeedActivityData"] = betterproto.message_field(16)
-    segment_task_progress_list: List["SegmentTaskProgress"] = (
-        betterproto.message_field(17)
+    segment_task_progress_list: List["SegmentTaskProgress"] = betterproto.message_field(
+        17
     )
     vote_records: List["VoteData"] = betterproto.message_field(18)
     spot_data: List["ActivitySpotData"] = betterproto.message_field(19)
-    friend_gift_data: List["ActivityFriendGiftData"] = (
-        betterproto.message_field(20)
-    )
+    friend_gift_data: List["ActivityFriendGiftData"] = betterproto.message_field(20)
     upgrade_data: List["ActivityUpgradeData"] = betterproto.message_field(21)
     gacha_data: List["ActivityGachaUpdateData"] = betterproto.message_field(22)
-    simulation_data: List["ActivitySimulationData"] = (
-        betterproto.message_field(23)
-    )
-    combining_data: List["ActivityCombiningLqData"] = (
-        betterproto.message_field(24)
-    )
+    simulation_data: List["ActivitySimulationData"] = betterproto.message_field(23)
+    combining_data: List["ActivityCombiningLqData"] = betterproto.message_field(24)
     village_data: List["ActivityVillageData"] = betterproto.message_field(25)
     festival_data: List["ActivityFestivalData"] = betterproto.message_field(26)
     island_data: List["ActivityIslandData"] = betterproto.message_field(27)
@@ -5220,9 +5076,7 @@ class ReqFetchRankPointLeaderboard(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResFetchRankPointLeaderboard(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    items: List["ResFetchRankPointLeaderboardItem"] = (
-        betterproto.message_field(2)
-    )
+    items: List["ResFetchRankPointLeaderboardItem"] = betterproto.message_field(2)
     last_refresh_time: int = betterproto.uint32_field(3)
 
 
@@ -5271,9 +5125,7 @@ class ResRichmanNextMoveRewardData(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResRichmanNextMovePathData(betterproto.Message):
     location: int = betterproto.uint32_field(1)
-    rewards: List["ResRichmanNextMoveRewardData"] = betterproto.message_field(
-        2
-    )
+    rewards: List["ResRichmanNextMoveRewardData"] = betterproto.message_field(2)
     events: List[int] = betterproto.uint32_field(3)
 
 
@@ -5431,9 +5283,7 @@ class ResFetchAbMatch(betterproto.Message):
     buy_in_count: int = betterproto.uint32_field(4)
     point: int = betterproto.uint32_field(5)
     rewarded: bool = betterproto.bool_field(6)
-    match_max_point: List["ResFetchAbMatchMatchPoint"] = (
-        betterproto.message_field(7)
-    )
+    match_max_point: List["ResFetchAbMatchMatchPoint"] = betterproto.message_field(7)
     quit: bool = betterproto.bool_field(8)
 
 
@@ -5478,9 +5328,7 @@ class ReqReceiveChallengeRankReward(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResReceiveChallengeRankReward(betterproto.Message):
     error: "Error" = betterproto.message_field(2)
-    rewards: List["ResReceiveChallengeRankRewardReward"] = (
-        betterproto.message_field(1)
-    )
+    rewards: List["ResReceiveChallengeRankRewardReward"] = betterproto.message_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -5572,9 +5420,7 @@ class ReqFetchLastPrivacy(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResFetchLastPrivacy(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    privacy: List["ResFetchLastPrivacyPrivacyInfo"] = (
-        betterproto.message_field(2)
-    )
+    privacy: List["ResFetchLastPrivacyPrivacyInfo"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -5706,9 +5552,7 @@ class ReqReceiveRpgReward(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResReceiveRpgRewards(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    items: List["ResReceiveRpgRewardsRewardItem"] = betterproto.message_field(
-        2
-    )
+    items: List["ResReceiveRpgRewardsRewardItem"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -5740,9 +5584,7 @@ class ReqReceiveCharacterRewards(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResReceiveCharacterRewards(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    items: List["ResReceiveCharacterRewardsRewardItem"] = (
-        betterproto.message_field(2)
-    )
+    items: List["ResReceiveCharacterRewardsRewardItem"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -5798,8 +5640,8 @@ class ReqFetchFriendGiftActivityData(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResFetchFriendGiftActivityData(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    list: List["ResFetchFriendGiftActivityDataFriendData"] = (
-        betterproto.message_field(2)
+    list: List["ResFetchFriendGiftActivityDataFriendData"] = betterproto.message_field(
+        2
     )
 
 
@@ -5873,9 +5715,7 @@ class ReqReceiveActivitySpotReward(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResReceiveActivitySpotReward(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    items: List["ResReceiveActivitySpotRewardRewardItem"] = (
-        betterproto.message_field(2)
-    )
+    items: List["ResReceiveActivitySpotRewardRewardItem"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -5921,9 +5761,7 @@ class ReqSetLoadingImage(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResFetchShopInterval(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    result: List["ResFetchShopIntervalShopInterval"] = (
-        betterproto.message_field(2)
-    )
+    result: List["ResFetchShopIntervalShopInterval"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -5994,9 +5832,7 @@ class ReqFetchSimulationGameRecord(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResFetchSimulationGameRecord(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    messages: List["ActivitySimulationGameRecordMessage"] = (
-        betterproto.message_field(2)
-    )
+    messages: List["ActivitySimulationGameRecordMessage"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -6007,9 +5843,7 @@ class ReqStartSimulationActivityGame(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResStartSimulationActivityGame(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    records: List["ActivitySimulationGameRecord"] = betterproto.message_field(
-        2
-    )
+    records: List["ActivitySimulationGameRecord"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -6021,9 +5855,7 @@ class ReqFetchSimulationGameRank(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResFetchSimulationGameRank(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    rank: List["ResFetchSimulationGameRankRankInfo"] = (
-        betterproto.message_field(2)
-    )
+    rank: List["ResFetchSimulationGameRankRankInfo"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -6120,9 +5952,7 @@ class ResFetchInfo(betterproto.Message):
     shop_info: "ResShopInfo" = betterproto.message_field(12)
     shop_interval: "ResFetchShopInterval" = betterproto.message_field(13)
     activity_data: "ResAccountActivityData" = betterproto.message_field(14)
-    activity_interval: "ResFetchActivityInterval" = betterproto.message_field(
-        15
-    )
+    activity_interval: "ResFetchActivityInterval" = betterproto.message_field(15)
     activity_buff: "ResActivityBuff" = betterproto.message_field(16)
     vip_reward: "ResVipReward" = betterproto.message_field(17)
     month_ticket_info: "ResMonthTicketInfo" = betterproto.message_field(18)
@@ -6200,8 +6030,8 @@ class ReqGetFriendVillageData(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResGetFriendVillageData(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    list: List["ResGetFriendVillageDataFriendVillageData"] = (
-        betterproto.message_field(2)
+    list: List["ResGetFriendVillageDataFriendVillageData"] = betterproto.message_field(
+        2
     )
 
 
@@ -6316,16 +6146,14 @@ class ReqIslandActivitySellSellItem(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ReqIslandActivityTidyBag(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
-    bag_data: List["ReqIslandActivityTidyBagBagData"] = (
-        betterproto.message_field(2)
-    )
+    bag_data: List["ReqIslandActivityTidyBagBagData"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
 class ReqIslandActivityTidyBagBagData(betterproto.Message):
     bag_id: int = betterproto.uint32_field(2)
-    items: List["ReqIslandActivityTidyBagBagDataITemData"] = (
-        betterproto.message_field(3)
+    items: List["ReqIslandActivityTidyBagBagDataITemData"] = betterproto.message_field(
+        3
     )
     drops: List[int] = betterproto.uint32_field(4)
 
@@ -6346,9 +6174,7 @@ class ReqIslandActivityUnlockBagGrid(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class ContestSetting(betterproto.Message):
-    level_limit: List["ContestSettingLevelLimit"] = betterproto.message_field(
-        1
-    )
+    level_limit: List["ContestSettingLevelLimit"] = betterproto.message_field(1)
     game_limit: int = betterproto.uint32_field(2)
     system_broadcast: int = betterproto.uint32_field(3)
 
@@ -6432,12 +6258,8 @@ class ReqFetchContestPlayerRank(betterproto.Message):
 class ResFetchContestPlayerRank(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     total: int = betterproto.uint32_field(2)
-    rank: List["ResFetchContestPlayerRankSeasonRank"] = (
-        betterproto.message_field(3)
-    )
-    player_data: "ResFetchContestPlayerRankPlayerData" = (
-        betterproto.message_field(4)
-    )
+    rank: List["ResFetchContestPlayerRankSeasonRank"] = betterproto.message_field(3)
+    player_data: "ResFetchContestPlayerRankPlayerData" = betterproto.message_field(4)
 
 
 @dataclass(eq=False, repr=False)
@@ -6572,9 +6394,7 @@ class ReqAmuletActivityUpgrade(betterproto.Message):
 class ResAmuletActivityUpgrade(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     game: "AmuletGameData" = betterproto.message_field(2)
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(
-        3
-    )
+    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -6757,9 +6577,7 @@ class ReqFetchActivityRank(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResFetchActivityRank(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    items: List["ResFetchActivityRankActivityRankItem"] = (
-        betterproto.message_field(4)
-    )
+    items: List["ResFetchActivityRankActivityRankItem"] = betterproto.message_field(4)
     self: "ResFetchActivityRankActivityRankItem" = betterproto.message_field(5)
 
 
@@ -6904,9 +6722,7 @@ class GameSnapshotPlayerSnapshot(betterproto.Message):
     liqiposition: int = betterproto.int32_field(2)
     tilenum: int = betterproto.uint32_field(3)
     qipais: List[str] = betterproto.string_field(4)
-    mings: List["GameSnapshotPlayerSnapshotFulu"] = betterproto.message_field(
-        5
-    )
+    mings: List["GameSnapshotPlayerSnapshotFulu"] = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -7114,9 +6930,7 @@ class ActionChangeTile(betterproto.Message):
 class RecordChangeTile(betterproto.Message):
     doras: List[str] = betterproto.string_field(1)
     tingpai: List["RecordChangeTileTingPai"] = betterproto.message_field(2)
-    change_tile_infos: List["RecordChangeTileChangeTile"] = (
-        betterproto.message_field(3)
-    )
+    change_tile_infos: List["RecordChangeTileChangeTile"] = betterproto.message_field(3)
     operation: "OptionalOperationList" = betterproto.message_field(4)
     change_type: int = betterproto.uint32_field(5)
     operations: List["OptionalOperationList"] = betterproto.message_field(6)
@@ -7709,18 +7523,10 @@ class NotifyAccountLevelChange(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class NotifyGameFinishReward(betterproto.Message):
     mode_id: int = betterproto.uint32_field(1)
-    level_change: "NotifyGameFinishRewardLevelChange" = (
-        betterproto.message_field(2)
-    )
-    match_chest: "NotifyGameFinishRewardMatchChest" = (
-        betterproto.message_field(3)
-    )
-    main_character: "NotifyGameFinishRewardMainCharacter" = (
-        betterproto.message_field(4)
-    )
-    character_gift: "NotifyGameFinishRewardCharacterGift" = (
-        betterproto.message_field(5)
-    )
+    level_change: "NotifyGameFinishRewardLevelChange" = betterproto.message_field(2)
+    match_chest: "NotifyGameFinishRewardMatchChest" = betterproto.message_field(3)
+    main_character: "NotifyGameFinishRewardMainCharacter" = betterproto.message_field(4)
+    character_gift: "NotifyGameFinishRewardCharacterGift" = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -7823,7 +7629,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResConnectionInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchConnectionInfo",
@@ -7840,7 +7646,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchQueueInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchQueueInfo",
@@ -7857,7 +7663,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/cancelQueue",
@@ -7874,7 +7680,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResOauth2Check":
         return await self._unary_unary(
             "/lq.Lobby/openidCheck",
@@ -7891,7 +7697,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResSignupAccount":
         return await self._unary_unary(
             "/lq.Lobby/signup",
@@ -7908,7 +7714,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResLogin":
         return await self._unary_unary(
             "/lq.Lobby/login",
@@ -7925,7 +7731,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchInfo",
@@ -7942,7 +7748,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/loginSuccess",
@@ -7959,7 +7765,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResLogin":
         return await self._unary_unary(
             "/lq.Lobby/emailLogin",
@@ -7976,7 +7782,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResOauth2Auth":
         return await self._unary_unary(
             "/lq.Lobby/oauth2Auth",
@@ -7993,7 +7799,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResOauth2Check":
         return await self._unary_unary(
             "/lq.Lobby/oauth2Check",
@@ -8010,7 +7816,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResOauth2Signup":
         return await self._unary_unary(
             "/lq.Lobby/oauth2Signup",
@@ -8027,7 +7833,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResLogin":
         return await self._unary_unary(
             "/lq.Lobby/oauth2Login",
@@ -8044,7 +7850,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResDmmPreLogin":
         return await self._unary_unary(
             "/lq.Lobby/dmmPreLogin",
@@ -8061,7 +7867,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/createPhoneVerifyCode",
@@ -8078,7 +7884,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/createEmailVerifyCode",
@@ -8095,7 +7901,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResVerfiyCodeForSecure":
         return await self._unary_unary(
             "/lq.Lobby/verfifyCodeForSecure",
@@ -8112,7 +7918,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/bindPhoneNumber",
@@ -8129,7 +7935,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/unbindPhoneNumber",
@@ -8146,7 +7952,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchPhoneLoginBind":
         return await self._unary_unary(
             "/lq.Lobby/fetchPhoneLoginBind",
@@ -8163,7 +7969,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/createPhoneLoginBind",
@@ -8180,7 +7986,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/bindEmail",
@@ -8197,7 +8003,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/modifyPassword",
@@ -8214,7 +8020,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/bindAccount",
@@ -8231,7 +8037,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResLogout":
         return await self._unary_unary(
             "/lq.Lobby/logout",
@@ -8248,7 +8054,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/heatbeat",
@@ -8265,7 +8071,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/loginBeat",
@@ -8282,7 +8088,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/createNickname",
@@ -8299,7 +8105,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/modifyNickname",
@@ -8316,7 +8122,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/modifyBirthday",
@@ -8333,7 +8139,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResSelfRoom":
         return await self._unary_unary(
             "/lq.Lobby/fetchRoom",
@@ -8350,7 +8156,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchGamingInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchGamingInfo",
@@ -8367,7 +8173,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateRoom":
         return await self._unary_unary(
             "/lq.Lobby/createRoom",
@@ -8384,7 +8190,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResJoinRoom":
         return await self._unary_unary(
             "/lq.Lobby/joinRoom",
@@ -8401,7 +8207,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/leaveRoom",
@@ -8418,7 +8224,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/readyPlay",
@@ -8435,7 +8241,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/dressingStatus",
@@ -8452,7 +8258,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/startRoom",
@@ -8469,7 +8275,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/kickPlayer",
@@ -8486,7 +8292,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/modifyRoom",
@@ -8503,7 +8309,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/matchGame",
@@ -8520,7 +8326,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/cancelMatch",
@@ -8537,7 +8343,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAccountInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountInfo",
@@ -8554,7 +8360,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/changeAvatar",
@@ -8571,7 +8377,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/receiveVersionReward",
@@ -8588,7 +8394,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAccountStatisticInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountStatisticInfo",
@@ -8605,7 +8411,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAccountChallengeRankInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountChallengeRankInfo",
@@ -8622,7 +8428,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAccountCharacterInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountCharacterInfo",
@@ -8639,7 +8445,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResShopPurchase":
         return await self._unary_unary(
             "/lq.Lobby/shopPurchase",
@@ -8656,7 +8462,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResGameRecord":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameRecord",
@@ -8673,7 +8479,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/readGameRecord",
@@ -8690,7 +8496,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResGameRecordList":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameRecordList",
@@ -8707,7 +8513,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCollectedGameRecordList":
         return await self._unary_unary(
             "/lq.Lobby/fetchCollectedGameRecordList",
@@ -8724,7 +8530,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResGameRecordsDetail":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameRecordsDetail",
@@ -8741,7 +8547,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAddCollectedGameRecord":
         return await self._unary_unary(
             "/lq.Lobby/addCollectedGameRecord",
@@ -8758,7 +8564,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResRemoveCollectedGameRecord":
         return await self._unary_unary(
             "/lq.Lobby/removeCollectedGameRecord",
@@ -8775,7 +8581,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResChangeCollectedGameRecordRemarks":
         return await self._unary_unary(
             "/lq.Lobby/changeCollectedGameRecordRemarks",
@@ -8792,7 +8598,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResLevelLeaderboard":
         return await self._unary_unary(
             "/lq.Lobby/fetchLevelLeaderboard",
@@ -8809,7 +8615,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResChallengeLeaderboard":
         return await self._unary_unary(
             "/lq.Lobby/fetchChallengeLeaderboard",
@@ -8826,7 +8632,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResMutiChallengeLevel":
         return await self._unary_unary(
             "/lq.Lobby/fetchMutiChallengeLevel",
@@ -8843,7 +8649,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResMultiAccountBrief":
         return await self._unary_unary(
             "/lq.Lobby/fetchMultiAccountBrief",
@@ -8860,7 +8666,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFriendList":
         return await self._unary_unary(
             "/lq.Lobby/fetchFriendList",
@@ -8877,7 +8683,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFriendApplyList":
         return await self._unary_unary(
             "/lq.Lobby/fetchFriendApplyList",
@@ -8894,7 +8700,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/applyFriend",
@@ -8911,7 +8717,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/handleFriendApply",
@@ -8928,7 +8734,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/removeFriend",
@@ -8945,7 +8751,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResSearchAccountById":
         return await self._unary_unary(
             "/lq.Lobby/searchAccountById",
@@ -8962,7 +8768,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResSearchAccountByPattern":
         return await self._unary_unary(
             "/lq.Lobby/searchAccountByPattern",
@@ -8979,7 +8785,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAccountStates":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountState",
@@ -8996,7 +8802,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResBagInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchBagInfo",
@@ -9013,7 +8819,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/useBagItem",
@@ -9030,7 +8836,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/openManualItem",
@@ -9047,7 +8853,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResOpenRandomRewardItem":
         return await self._unary_unary(
             "/lq.Lobby/openRandomRewardItem",
@@ -9064,7 +8870,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResOpenAllRewardItem":
         return await self._unary_unary(
             "/lq.Lobby/openAllRewardItem",
@@ -9081,7 +8887,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/composeShard",
@@ -9098,7 +8904,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAnnouncement":
         return await self._unary_unary(
             "/lq.Lobby/fetchAnnouncement",
@@ -9115,7 +8921,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/readAnnouncement",
@@ -9132,7 +8938,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResMailInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchMailInfo",
@@ -9149,7 +8955,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/readMail",
@@ -9166,7 +8972,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/deleteMail",
@@ -9183,7 +8989,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/takeAttachmentFromMail",
@@ -9200,7 +9006,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReceiveAchievementReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveAchievementReward",
@@ -9217,7 +9023,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReceiveAchievementGroupReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveAchievementGroupReward",
@@ -9234,7 +9040,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchAchievementRate":
         return await self._unary_unary(
             "/lq.Lobby/fetchAchievementRate",
@@ -9251,7 +9057,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAchievement":
         return await self._unary_unary(
             "/lq.Lobby/fetchAchievement",
@@ -9268,7 +9074,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/buyShiLian",
@@ -9285,7 +9091,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/matchShiLian",
@@ -9302,7 +9108,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/goNextShiLian",
@@ -9319,7 +9125,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateClientValue",
@@ -9336,7 +9142,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResClientValue":
         return await self._unary_unary(
             "/lq.Lobby/fetchClientValue",
@@ -9353,7 +9159,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/clientMessage",
@@ -9370,7 +9176,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCurrentMatchInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchCurrentMatchInfo",
@@ -9387,7 +9193,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/userComplain",
@@ -9404,7 +9210,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReviveCoinInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchReviveCoinInfo",
@@ -9421,7 +9227,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/gainReviveCoin",
@@ -9438,7 +9244,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResDailyTask":
         return await self._unary_unary(
             "/lq.Lobby/fetchDailyTask",
@@ -9455,7 +9261,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResRefreshDailyTask":
         return await self._unary_unary(
             "/lq.Lobby/refreshDailyTask",
@@ -9472,7 +9278,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResUseGiftCode":
         return await self._unary_unary(
             "/lq.Lobby/useGiftCode",
@@ -9489,7 +9295,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResUseSpecialGiftCode":
         return await self._unary_unary(
             "/lq.Lobby/useSpecialGiftCode",
@@ -9506,7 +9312,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResTitleList":
         return await self._unary_unary(
             "/lq.Lobby/fetchTitleList",
@@ -9523,7 +9329,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/useTitle",
@@ -9540,7 +9346,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/sendClientMessage",
@@ -9557,7 +9363,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResGameLiveInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameLiveInfo",
@@ -9574,7 +9380,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResGameLiveLeftSegment":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameLiveLeftSegment",
@@ -9591,7 +9397,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResGameLiveList":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameLiveList",
@@ -9608,7 +9414,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommentSetting":
         return await self._unary_unary(
             "/lq.Lobby/fetchCommentSetting",
@@ -9625,7 +9431,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateCommentSetting",
@@ -9642,7 +9448,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchCommentList":
         return await self._unary_unary(
             "/lq.Lobby/fetchCommentList",
@@ -9659,7 +9465,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchCommentContent":
         return await self._unary_unary(
             "/lq.Lobby/fetchCommentContent",
@@ -9676,7 +9482,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/leaveComment",
@@ -9693,7 +9499,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/deleteComment",
@@ -9710,7 +9516,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateReadComment",
@@ -9727,7 +9533,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ReqRollingNotice":
         return await self._unary_unary(
             "/lq.Lobby/fetchRollingNotice",
@@ -9744,7 +9550,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResServerTime":
         return await self._unary_unary(
             "/lq.Lobby/fetchServerTime",
@@ -9761,7 +9567,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResPlatformBillingProducts":
         return await self._unary_unary(
             "/lq.Lobby/fetchPlatformProducts",
@@ -9778,7 +9584,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/cancelGooglePlayOrder",
@@ -9795,7 +9601,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResOpenChest":
         return await self._unary_unary(
             "/lq.Lobby/openChest",
@@ -9812,7 +9618,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResBuyFromChestShop":
         return await self._unary_unary(
             "/lq.Lobby/buyFromChestShop",
@@ -9829,7 +9635,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResDailySignInInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchDailySignInInfo",
@@ -9846,7 +9652,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/doDailySignIn",
@@ -9863,7 +9669,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResDoActivitySignIn":
         return await self._unary_unary(
             "/lq.Lobby/doActivitySignIn",
@@ -9880,7 +9686,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCharacterInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchCharacterInfo",
@@ -9897,7 +9703,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateCharacterSort",
@@ -9914,7 +9720,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/changeMainCharacter",
@@ -9931,7 +9737,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/changeCharacterSkin",
@@ -9948,7 +9754,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/changeCharacterView",
@@ -9965,7 +9771,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResSetHiddenCharacter":
         return await self._unary_unary(
             "/lq.Lobby/setHiddenCharacter",
@@ -9982,7 +9788,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResSendGiftToCharacter":
         return await self._unary_unary(
             "/lq.Lobby/sendGiftToCharacter",
@@ -9999,7 +9805,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/sellItem",
@@ -10016,7 +9822,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommonView":
         return await self._unary_unary(
             "/lq.Lobby/fetchCommonView",
@@ -10033,7 +9839,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/changeCommonView",
@@ -10050,7 +9856,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/saveCommonViews",
@@ -10067,7 +9873,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommonViews":
         return await self._unary_unary(
             "/lq.Lobby/fetchCommonViews",
@@ -10084,7 +9890,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAllcommonViews":
         return await self._unary_unary(
             "/lq.Lobby/fetchAllCommonViews",
@@ -10101,7 +9907,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/useCommonView",
@@ -10118,7 +9924,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResUpgradeCharacter":
         return await self._unary_unary(
             "/lq.Lobby/upgradeCharacter",
@@ -10135,7 +9941,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/addFinishedEnding",
@@ -10152,7 +9958,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/receiveEndingReward",
@@ -10169,7 +9975,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/gameMasterCommand",
@@ -10186,7 +9992,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResShopInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchShopInfo",
@@ -10203,7 +10009,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResBuyFromShop":
         return await self._unary_unary(
             "/lq.Lobby/buyFromShop",
@@ -10220,7 +10026,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/buyFromZHP",
@@ -10237,7 +10043,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResRefreshZhpShop":
         return await self._unary_unary(
             "/lq.Lobby/refreshZHPShop",
@@ -10254,7 +10060,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResMonthTicketInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchMonthTicketInfo",
@@ -10271,7 +10077,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResPayMonthTicket":
         return await self._unary_unary(
             "/lq.Lobby/payMonthTicket",
@@ -10288,7 +10094,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/exchangeCurrency",
@@ -10305,7 +10111,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/exchangeChestStone",
@@ -10322,7 +10128,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/exchangeDiamond",
@@ -10339,7 +10145,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResServerSettings":
         return await self._unary_unary(
             "/lq.Lobby/fetchServerSettings",
@@ -10356,7 +10162,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAccountSettings":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountSettings",
@@ -10373,7 +10179,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateAccountSettings",
@@ -10390,7 +10196,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResModNicknameTime":
         return await self._unary_unary(
             "/lq.Lobby/fetchModNicknameTime",
@@ -10407,7 +10213,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateWechatNativeOrder":
         return await self._unary_unary(
             "/lq.Lobby/createWechatNativeOrder",
@@ -10424,7 +10230,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateWechatAppOrder":
         return await self._unary_unary(
             "/lq.Lobby/createWechatAppOrder",
@@ -10441,7 +10247,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateAlipayOrder":
         return await self._unary_unary(
             "/lq.Lobby/createAlipayOrder",
@@ -10458,7 +10264,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateAlipayScanOrder":
         return await self._unary_unary(
             "/lq.Lobby/createAlipayScanOrder",
@@ -10475,7 +10281,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateAlipayAppOrder":
         return await self._unary_unary(
             "/lq.Lobby/createAlipayAppOrder",
@@ -10492,7 +10298,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateJpCreditCardOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPCreditCardOrder",
@@ -10509,7 +10315,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateJpPaypalOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPPaypalOrder",
@@ -10526,7 +10332,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateJpAuOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPAuOrder",
@@ -10543,7 +10349,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateJpDocomoOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPDocomoOrder",
@@ -10560,7 +10366,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateJpWebMoneyOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPWebMoneyOrder",
@@ -10577,7 +10383,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateJpSoftbankOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPSoftbankOrder",
@@ -10594,7 +10400,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateJpPayPayOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPPayPayOrder",
@@ -10611,7 +10417,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchJpCommonCreditCardOrder":
         return await self._unary_unary(
             "/lq.Lobby/fetchJPCommonCreditCardOrder",
@@ -10628,7 +10434,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateJpgmoOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPGMOOrder",
@@ -10645,7 +10451,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateEnPaypalOrder":
         return await self._unary_unary(
             "/lq.Lobby/createENPaypalOrder",
@@ -10662,7 +10468,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateEnMasterCardOrder":
         return await self._unary_unary(
             "/lq.Lobby/createENMasterCardOrder",
@@ -10679,7 +10485,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateEnVisaOrder":
         return await self._unary_unary(
             "/lq.Lobby/createENVisaOrder",
@@ -10696,7 +10502,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateEnjcbOrder":
         return await self._unary_unary(
             "/lq.Lobby/createENJCBOrder",
@@ -10713,7 +10519,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateEnAlipayOrder":
         return await self._unary_unary(
             "/lq.Lobby/createENAlipayOrder",
@@ -10730,7 +10536,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateKrPaypalOrder":
         return await self._unary_unary(
             "/lq.Lobby/createKRPaypalOrder",
@@ -10747,7 +10553,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateKrMasterCardOrder":
         return await self._unary_unary(
             "/lq.Lobby/createKRMasterCardOrder",
@@ -10764,7 +10570,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateKrVisaOrder":
         return await self._unary_unary(
             "/lq.Lobby/createKRVisaOrder",
@@ -10781,7 +10587,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateKrjcbOrder":
         return await self._unary_unary(
             "/lq.Lobby/createKRJCBOrder",
@@ -10798,7 +10604,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateKrAlipayOrder":
         return await self._unary_unary(
             "/lq.Lobby/createKRAlipayOrder",
@@ -10815,7 +10621,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateDmmOrder":
         return await self._unary_unary(
             "/lq.Lobby/createDMMOrder",
@@ -10832,7 +10638,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateIapOrder":
         return await self._unary_unary(
             "/lq.Lobby/createIAPOrder",
@@ -10849,7 +10655,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateSteamOrder":
         return await self._unary_unary(
             "/lq.Lobby/createSteamOrder",
@@ -10866,7 +10672,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/verifySteamOrder",
@@ -10883,7 +10689,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateMyCardOrder":
         return await self._unary_unary(
             "/lq.Lobby/createMyCardAndroidOrder",
@@ -10900,7 +10706,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateMyCardOrder":
         return await self._unary_unary(
             "/lq.Lobby/createMyCardWebOrder",
@@ -10917,7 +10723,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreatePaypalOrder":
         return await self._unary_unary(
             "/lq.Lobby/createPaypalOrder",
@@ -10934,7 +10740,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateXsollaOrder":
         return await self._unary_unary(
             "/lq.Lobby/createXsollaOrder",
@@ -10951,7 +10757,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/verifyMyCardOrder",
@@ -10968,7 +10774,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResVerificationIapOrder":
         return await self._unary_unary(
             "/lq.Lobby/verificationIAPOrder",
@@ -10985,7 +10791,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateYostarOrder":
         return await self._unary_unary(
             "/lq.Lobby/createYostarSDKOrder",
@@ -11002,7 +10808,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateBillingOrder":
         return await self._unary_unary(
             "/lq.Lobby/createBillingOrder",
@@ -11019,7 +10825,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/solveGooglePlayOrder",
@@ -11036,7 +10842,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/solveGooglePayOrderV3",
@@ -11053,7 +10859,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/deliverAA32Order",
@@ -11070,7 +10876,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResMisc":
         return await self._unary_unary(
             "/lq.Lobby/fetchMisc",
@@ -11087,7 +10893,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/modifySignature",
@@ -11104,7 +10910,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResIdCardInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchIDCardInfo",
@@ -11121,7 +10927,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateIDCardInfo",
@@ -11138,7 +10944,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResVipReward":
         return await self._unary_unary(
             "/lq.Lobby/fetchVipReward",
@@ -11155,7 +10961,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/gainVipReward",
@@ -11172,7 +10978,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchRefundOrder":
         return await self._unary_unary(
             "/lq.Lobby/fetchRefundOrder",
@@ -11189,7 +10995,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchCustomizedContestList":
         return await self._unary_unary(
             "/lq.Lobby/fetchCustomizedContestList",
@@ -11206,7 +11012,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchCustomizedContestAuthInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchCustomizedContestAuthInfo",
@@ -11223,7 +11029,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResEnterCustomizedContest":
         return await self._unary_unary(
             "/lq.Lobby/enterCustomizedContest",
@@ -11240,7 +11046,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/leaveCustomizedContest",
@@ -11257,7 +11063,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchCustomizedContestOnlineInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchCustomizedContestOnlineInfo",
@@ -11274,7 +11080,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchCustomizedContestByContestId":
         return await self._unary_unary(
             "/lq.Lobby/fetchCustomizedContestByContestId",
@@ -11291,7 +11097,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResSignupCustomizedContest":
         return await self._unary_unary(
             "/lq.Lobby/signupCustomizedContest",
@@ -11308,7 +11114,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/startCustomizedContest",
@@ -11325,7 +11131,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/stopCustomizedContest",
@@ -11342,7 +11148,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResJoinCustomizedContestChatRoom":
         return await self._unary_unary(
             "/lq.Lobby/joinCustomizedContestChatRoom",
@@ -11359,7 +11165,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/leaveCustomizedContestChatRoom",
@@ -11376,7 +11182,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/sayChatMessage",
@@ -11393,7 +11199,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchCustomizedContestGameRecords":
         return await self._unary_unary(
             "/lq.Lobby/fetchCustomizedContestGameRecords",
@@ -11410,7 +11216,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchCustomizedContestGameLiveList":
         return await self._unary_unary(
             "/lq.Lobby/fetchCustomizedContestGameLiveList",
@@ -11427,7 +11233,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/followCustomizedContest",
@@ -11444,7 +11250,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/unfollowCustomizedContest",
@@ -11461,7 +11267,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResActivityList":
         return await self._unary_unary(
             "/lq.Lobby/fetchActivityList",
@@ -11478,7 +11284,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAccountActivityData":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountActivityData",
@@ -11495,7 +11301,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResExchangeActivityItem":
         return await self._unary_unary(
             "/lq.Lobby/exchangeActivityItem",
@@ -11512,7 +11318,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completeActivityTask",
@@ -11529,7 +11335,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completeActivityTaskBatch",
@@ -11546,7 +11352,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completeActivityFlipTask",
@@ -11563,7 +11369,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completePeriodActivityTask",
@@ -11580,7 +11386,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completePeriodActivityTaskBatch",
@@ -11597,7 +11403,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completeRandomActivityTask",
@@ -11614,7 +11420,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReceiveActivityFlipTask":
         return await self._unary_unary(
             "/lq.Lobby/receiveActivityFlipTask",
@@ -11631,7 +11437,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCompleteSegmentTaskReward":
         return await self._unary_unary(
             "/lq.Lobby/completeSegmentTaskReward",
@@ -11648,7 +11454,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchActivityFlipInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchActivityFlipInfo",
@@ -11665,7 +11471,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/gainAccumulatedPointActivityReward",
@@ -11682,7 +11488,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/gainMultiPointActivityReward",
@@ -11699,7 +11505,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchRankPointLeaderboard":
         return await self._unary_unary(
             "/lq.Lobby/fetchRankPointLeaderboard",
@@ -11716,7 +11522,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/gainRankPointReward",
@@ -11733,7 +11539,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResRichmanNextMove":
         return await self._unary_unary(
             "/lq.Lobby/richmanActivityNextMove",
@@ -11750,7 +11556,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResRichmanNextMove":
         return await self._unary_unary(
             "/lq.Lobby/richmanAcitivitySpecialMove",
@@ -11767,7 +11573,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResRichmanChestInfo":
         return await self._unary_unary(
             "/lq.Lobby/richmanActivityChestInfo",
@@ -11784,7 +11590,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateGameObserveAuth":
         return await self._unary_unary(
             "/lq.Lobby/createGameObserveAuth",
@@ -11801,7 +11607,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResRefreshGameObserveAuth":
         return await self._unary_unary(
             "/lq.Lobby/refreshGameObserveAuth",
@@ -11818,7 +11624,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResActivityBuff":
         return await self._unary_unary(
             "/lq.Lobby/fetchActivityBuff",
@@ -11835,7 +11641,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResActivityBuff":
         return await self._unary_unary(
             "/lq.Lobby/upgradeActivityBuff",
@@ -11852,7 +11658,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResUpgradeActivityLevel":
         return await self._unary_unary(
             "/lq.Lobby/upgradeActivityLevel",
@@ -11869,7 +11675,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReceiveUpgradeActivityReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveUpgradeActivityReward",
@@ -11886,7 +11692,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResUpgradeChallenge":
         return await self._unary_unary(
             "/lq.Lobby/upgradeChallenge",
@@ -11903,7 +11709,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResRefreshChallenge":
         return await self._unary_unary(
             "/lq.Lobby/refreshChallenge",
@@ -11920,7 +11726,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchChallengeInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchChallengeInfo",
@@ -11937,7 +11743,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/forceCompleteChallengeTask",
@@ -11954,7 +11760,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResChallengeSeasonInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchChallengeSeason",
@@ -11971,7 +11777,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReceiveChallengeRankReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveChallengeRankReward",
@@ -11988,7 +11794,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchAbMatch":
         return await self._unary_unary(
             "/lq.Lobby/fetchABMatchInfo",
@@ -12005,7 +11811,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/buyInABMatch",
@@ -12022,7 +11828,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/receiveABMatchReward",
@@ -12039,7 +11845,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/quitABMatch",
@@ -12056,7 +11862,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/startUnifiedMatch",
@@ -12073,7 +11879,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/cancelUnifiedMatch",
@@ -12090,7 +11896,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResGamePointRank":
         return await self._unary_unary(
             "/lq.Lobby/fetchGamePointRank",
@@ -12107,7 +11913,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchSelfGamePointRank":
         return await self._unary_unary(
             "/lq.Lobby/fetchSelfGamePointRank",
@@ -12124,7 +11930,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReadSns":
         return await self._unary_unary(
             "/lq.Lobby/readSNS",
@@ -12141,7 +11947,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReplySns":
         return await self._unary_unary(
             "/lq.Lobby/replySNS",
@@ -12158,7 +11964,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResLikeSns":
         return await self._unary_unary(
             "/lq.Lobby/likeSNS",
@@ -12175,7 +11981,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResDigMine":
         return await self._unary_unary(
             "/lq.Lobby/digMine",
@@ -12192,7 +11998,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchLastPrivacy":
         return await self._unary_unary(
             "/lq.Lobby/fetchLastPrivacy",
@@ -12209,7 +12015,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/checkPrivacy",
@@ -12226,7 +12032,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/responseCaptcha",
@@ -12243,7 +12049,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchRpgBattleHistory":
         return await self._unary_unary(
             "/lq.Lobby/fetchRPGBattleHistory",
@@ -12260,7 +12066,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchRpgBattleHistoryV2":
         return await self._unary_unary(
             "/lq.Lobby/fetchRPGBattleHistoryV2",
@@ -12277,7 +12083,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReceiveRpgRewards":
         return await self._unary_unary(
             "/lq.Lobby/receiveRPGRewards",
@@ -12294,7 +12100,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReceiveRpgRewards":
         return await self._unary_unary(
             "/lq.Lobby/receiveRPGReward",
@@ -12311,7 +12117,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/buyArenaTicket",
@@ -12328,7 +12134,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/enterArena",
@@ -12345,7 +12151,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResArenaReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveArenaReward",
@@ -12362,7 +12168,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchObToken":
         return await self._unary_unary(
             "/lq.Lobby/fetchOBToken",
@@ -12379,7 +12185,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReceiveCharacterRewards":
         return await self._unary_unary(
             "/lq.Lobby/receiveCharacterRewards",
@@ -12396,7 +12202,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFeedActivityFeed":
         return await self._unary_unary(
             "/lq.Lobby/feedActivityFeed",
@@ -12413,7 +12219,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResSendActivityGiftToFriend":
         return await self._unary_unary(
             "/lq.Lobby/sendActivityGiftToFriend",
@@ -12430,7 +12236,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/receiveActivityGift",
@@ -12447,7 +12253,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReceiveAllActivityGift":
         return await self._unary_unary(
             "/lq.Lobby/receiveAllActivityGift",
@@ -12464,7 +12270,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchFriendGiftActivityData":
         return await self._unary_unary(
             "/lq.Lobby/fetchFriendGiftActivityData",
@@ -12481,7 +12287,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResOpenPreChestItem":
         return await self._unary_unary(
             "/lq.Lobby/openPreChestItem",
@@ -12498,7 +12304,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchVoteActivity":
         return await self._unary_unary(
             "/lq.Lobby/fetchVoteActivity",
@@ -12515,7 +12321,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResVoteActivity":
         return await self._unary_unary(
             "/lq.Lobby/voteActivity",
@@ -12532,7 +12338,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/unlockActivitySpot",
@@ -12549,7 +12355,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/unlockActivitySpotEnding",
@@ -12566,7 +12372,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReceiveActivitySpotReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveActivitySpotReward",
@@ -12583,7 +12389,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResDeleteAccount":
         return await self._unary_unary(
             "/lq.Lobby/deleteAccount",
@@ -12600,7 +12406,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/cancelDeleteAccount",
@@ -12617,7 +12423,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/logReport",
@@ -12634,7 +12440,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/bindOauth2",
@@ -12651,7 +12457,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchOauth2":
         return await self._unary_unary(
             "/lq.Lobby/fetchOauth2Info",
@@ -12668,7 +12474,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/setLoadingImage",
@@ -12685,7 +12491,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchShopInterval":
         return await self._unary_unary(
             "/lq.Lobby/fetchShopInterval",
@@ -12702,7 +12508,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchActivityInterval":
         return await self._unary_unary(
             "/lq.Lobby/fetchActivityInterval",
@@ -12719,7 +12525,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchrecentFriend":
         return await self._unary_unary(
             "/lq.Lobby/fetchRecentFriend",
@@ -12736,7 +12542,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResOpenGacha":
         return await self._unary_unary(
             "/lq.Lobby/openGacha",
@@ -12753,7 +12559,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/taskRequest",
@@ -12770,7 +12576,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResSimulationActivityTrain":
         return await self._unary_unary(
             "/lq.Lobby/simulationActivityTrain",
@@ -12787,7 +12593,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchSimulationGameRecord":
         return await self._unary_unary(
             "/lq.Lobby/fetchSimulationGameRecord",
@@ -12804,7 +12610,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResStartSimulationActivityGame":
         return await self._unary_unary(
             "/lq.Lobby/startSimulationActivityGame",
@@ -12821,7 +12627,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchSimulationGameRank":
         return await self._unary_unary(
             "/lq.Lobby/fetchSimulationGameRank",
@@ -12838,7 +12644,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResGenerateCombiningCraft":
         return await self._unary_unary(
             "/lq.Lobby/generateCombiningCraft",
@@ -12855,7 +12661,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResMoveCombiningCraft":
         return await self._unary_unary(
             "/lq.Lobby/moveCombiningCraft",
@@ -12872,7 +12678,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCombiningRecycleCraft":
         return await self._unary_unary(
             "/lq.Lobby/combiningRecycleCraft",
@@ -12889,7 +12695,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResRecoverCombiningRecycle":
         return await self._unary_unary(
             "/lq.Lobby/recoverCombiningRecycle",
@@ -12906,7 +12712,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFinishCombiningOrder":
         return await self._unary_unary(
             "/lq.Lobby/finishCombiningOrder",
@@ -12923,7 +12729,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/upgradeVillageBuilding",
@@ -12940,7 +12746,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReceiveVillageBuildingReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveVillageBuildingReward",
@@ -12957,7 +12763,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/startVillageTrip",
@@ -12974,7 +12780,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResReceiveVillageTripReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveVillageTripReward",
@@ -12991,7 +12797,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCompleteVillageTask":
         return await self._unary_unary(
             "/lq.Lobby/completeVillageTask",
@@ -13008,7 +12814,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResGetFriendVillageData":
         return await self._unary_unary(
             "/lq.Lobby/getFriendVillageData",
@@ -13025,7 +12831,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResSetVillageWorker":
         return await self._unary_unary(
             "/lq.Lobby/setVillageWorker",
@@ -13042,7 +12848,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResNextRoundVillage":
         return await self._unary_unary(
             "/lq.Lobby/nextRoundVillage",
@@ -13059,7 +12865,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResResolveFestivalActivityProposal":
         return await self._unary_unary(
             "/lq.Lobby/resolveFestivalActivityProposal",
@@ -13076,7 +12882,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResResolveFestivalActivityEvent":
         return await self._unary_unary(
             "/lq.Lobby/resolveFestivalActivityEvent",
@@ -13093,7 +12899,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResBuyFestivalProposal":
         return await self._unary_unary(
             "/lq.Lobby/buyFestivalProposal",
@@ -13110,7 +12916,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/islandActivityMove",
@@ -13127,7 +12933,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/islandActivityBuy",
@@ -13144,7 +12950,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/islandActivitySell",
@@ -13161,7 +12967,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/islandActivityTidyBag",
@@ -13178,7 +12984,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/islandActivityUnlockBagGrid",
@@ -13195,7 +13001,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCreateCustomizedContest":
         return await self._unary_unary(
             "/lq.Lobby/createCustomizedContest",
@@ -13212,7 +13018,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchManagerCustomizedContestList":
         return await self._unary_unary(
             "/lq.Lobby/fetchManagerCustomizedContestList",
@@ -13229,7 +13035,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchManagerCustomizedContest":
         return await self._unary_unary(
             "/lq.Lobby/fetchManagerCustomizedContest",
@@ -13246,7 +13052,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateManagerCustomizedContest",
@@ -13263,7 +13069,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchContestPlayerRank":
         return await self._unary_unary(
             "/lq.Lobby/fetchContestPlayerRank",
@@ -13280,7 +13086,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchReadyPlayerList":
         return await self._unary_unary(
             "/lq.Lobby/fetchReadyPlayerList",
@@ -13297,7 +13103,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/createGamePlan",
@@ -13314,7 +13120,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResGenerateContestManagerLoginCode":
         return await self._unary_unary(
             "/lq.Lobby/generateContestManagerLoginCode",
@@ -13331,7 +13137,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAmuletActivityStartGame":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityStartGame",
@@ -13348,7 +13154,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAmuletActivityOperate":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityOperate",
@@ -13365,7 +13171,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAmuletActivityChangeHands":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityChangeHands",
@@ -13382,7 +13188,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAmuletActivityUpgrade":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityUpgrade",
@@ -13399,7 +13205,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAmuletActivityBuy":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityBuy",
@@ -13416,7 +13222,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAmuletActivitySelectPack":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySelectPack",
@@ -13433,7 +13239,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAmuletActivitySellEffect":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySellEffect",
@@ -13450,7 +13256,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityEffectSort",
@@ -13467,7 +13273,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityGiveup",
@@ -13484,7 +13290,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAmuletActivityRefreshShop":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityRefreshShop",
@@ -13501,7 +13307,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAmuletActivitySelectFreeEffect":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySelectFreeEffect",
@@ -13518,7 +13324,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAmuletActivityUpgradeShopBuff":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityUpgradeShopBuff",
@@ -13535,7 +13341,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAmuletActivityEndShopping":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityEndShopping",
@@ -13552,7 +13358,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySetSkillLevel",
@@ -13569,7 +13375,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAmuletActivityMaintainInfo":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityMaintainInfo",
@@ -13586,7 +13392,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/storyActivityUnlock",
@@ -13603,7 +13409,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/storyActivityUnlockEnding",
@@ -13620,7 +13426,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResStoryReward":
         return await self._unary_unary(
             "/lq.Lobby/storyActivityReceiveEndingReward",
@@ -13637,7 +13443,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResStoryReward":
         return await self._unary_unary(
             "/lq.Lobby/storyActivityReceiveFinishReward",
@@ -13654,7 +13460,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResStoryReward":
         return await self._unary_unary(
             "/lq.Lobby/storyActivityReceiveAllFinishReward",
@@ -13671,7 +13477,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResStoryActivityUnlockEndingAndReceive":
         return await self._unary_unary(
             "/lq.Lobby/storyActivityUnlockEndingAndReceive",
@@ -13688,7 +13494,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResFetchActivityRank":
         return await self._unary_unary(
             "/lq.Lobby/fetchActivityRank",
@@ -13705,7 +13511,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/setVerifiedHidden",
@@ -13724,7 +13530,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResAuthGame":
         return await self._unary_unary(
             "/lq.FastTest/authGame",
@@ -13741,7 +13547,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResEnterGame":
         return await self._unary_unary(
             "/lq.FastTest/enterGame",
@@ -13758,7 +13564,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResSyncGame":
         return await self._unary_unary(
             "/lq.FastTest/syncGame",
@@ -13775,7 +13581,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/finishSyncGame",
@@ -13792,7 +13598,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/terminateGame",
@@ -13809,7 +13615,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/inputOperation",
@@ -13826,7 +13632,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/inputChiPengGang",
@@ -13843,7 +13649,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/confirmNewRound",
@@ -13860,7 +13666,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/broadcastInGame",
@@ -13877,7 +13683,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/inputGameGMCommand",
@@ -13894,7 +13700,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResGamePlayerState":
         return await self._unary_unary(
             "/lq.FastTest/fetchGamePlayerState",
@@ -13911,7 +13717,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/checkNetworkDelay",
@@ -13928,7 +13734,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/clearLeaving",
@@ -13945,7 +13751,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResGameEndVote":
         return await self._unary_unary(
             "/lq.FastTest/voteGameEnd",
@@ -13962,7 +13768,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/authObserve",
@@ -13979,7 +13785,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResStartObserve":
         return await self._unary_unary(
             "/lq.FastTest/startObserve",
@@ -13996,7 +13802,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None,
+        metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/stopObserve",
@@ -14015,9 +13821,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResConnectionInfo":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_queue_info(
-        self, req_common: "ReqCommon"
-    ) -> "ResFetchQueueInfo":
+    async def fetch_queue_info(self, req_common: "ReqCommon") -> "ResFetchQueueInfo":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def cancel_queue(self, req_common: "ReqCommon") -> "ResCommon":
@@ -14042,14 +13846,10 @@ class LobbyBase(ServiceBase):
     async def login_success(self, req_common: "ReqCommon") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def email_login(
-        self, req_email_login: "ReqEmailLogin"
-    ) -> "ResLogin":
+    async def email_login(self, req_email_login: "ReqEmailLogin") -> "ResLogin":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def oauth2_auth(
-        self, req_oauth2_auth: "ReqOauth2Auth"
-    ) -> "ResOauth2Auth":
+    async def oauth2_auth(self, req_oauth2_auth: "ReqOauth2Auth") -> "ResOauth2Auth":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def oauth2_check(
@@ -14062,9 +13862,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResOauth2Signup":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def oauth2_login(
-        self, req_oauth2_login: "ReqOauth2Login"
-    ) -> "ResLogin":
+    async def oauth2_login(self, req_oauth2_login: "ReqOauth2Login") -> "ResLogin":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def dmm_pre_login(
@@ -14115,9 +13913,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def bind_account(
-        self, req_bind_account: "ReqBindAccount"
-    ) -> "ResCommon":
+    async def bind_account(self, req_bind_account: "ReqBindAccount") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def logout(self, req_logout: "ReqLogout") -> "ResLogout":
@@ -14147,14 +13943,10 @@ class LobbyBase(ServiceBase):
     async def fetch_room(self, req_common: "ReqCommon") -> "ResSelfRoom":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_gaming_info(
-        self, req_common: "ReqCommon"
-    ) -> "ResFetchGamingInfo":
+    async def fetch_gaming_info(self, req_common: "ReqCommon") -> "ResFetchGamingInfo":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def create_room(
-        self, req_create_room: "ReqCreateRoom"
-    ) -> "ResCreateRoom":
+    async def create_room(self, req_create_room: "ReqCreateRoom") -> "ResCreateRoom":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def join_room(self, req_join_room: "ReqJoinRoom") -> "ResJoinRoom":
@@ -14177,9 +13969,7 @@ class LobbyBase(ServiceBase):
     async def kick_player(self, req_room_kick: "ReqRoomKick") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def modify_room(
-        self, req_modify_room: "ReqModifyRoom"
-    ) -> "ResCommon":
+    async def modify_room(self, req_modify_room: "ReqModifyRoom") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def match_game(
@@ -14197,14 +13987,10 @@ class LobbyBase(ServiceBase):
     ) -> "ResAccountInfo":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def change_avatar(
-        self, req_change_avatar: "ReqChangeAvatar"
-    ) -> "ResCommon":
+    async def change_avatar(self, req_change_avatar: "ReqChangeAvatar") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def receive_version_reward(
-        self, req_common: "ReqCommon"
-    ) -> "ResCommon":
+    async def receive_version_reward(self, req_common: "ReqCommon") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_account_statistic_info(
@@ -14232,9 +14018,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResGameRecord":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def read_game_record(
-        self, req_game_record: "ReqGameRecord"
-    ) -> "ResCommon":
+    async def read_game_record(self, req_game_record: "ReqGameRecord") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_game_record_list(
@@ -14288,9 +14072,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResMultiAccountBrief":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_friend_list(
-        self, req_common: "ReqCommon"
-    ) -> "ResFriendList":
+    async def fetch_friend_list(self, req_common: "ReqCommon") -> "ResFriendList":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_friend_apply_list(
@@ -14298,9 +14080,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResFriendApplyList":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def apply_friend(
-        self, req_apply_friend: "ReqApplyFriend"
-    ) -> "ResCommon":
+    async def apply_friend(self, req_apply_friend: "ReqApplyFriend") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def handle_friend_apply(
@@ -14308,9 +14088,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def remove_friend(
-        self, req_remove_friend: "ReqRemoveFriend"
-    ) -> "ResCommon":
+    async def remove_friend(self, req_remove_friend: "ReqRemoveFriend") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def search_account_by_id(
@@ -14331,9 +14109,7 @@ class LobbyBase(ServiceBase):
     async def fetch_bag_info(self, req_common: "ReqCommon") -> "ResBagInfo":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def use_bag_item(
-        self, req_use_bag_item: "ReqUseBagItem"
-    ) -> "ResCommon":
+    async def use_bag_item(self, req_use_bag_item: "ReqUseBagItem") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def open_manual_item(
@@ -14351,9 +14127,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResOpenAllRewardItem":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def compose_shard(
-        self, req_compose_shard: "ReqComposeShard"
-    ) -> "ResCommon":
+    async def compose_shard(self, req_compose_shard: "ReqComposeShard") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_announcement(
@@ -14372,9 +14146,7 @@ class LobbyBase(ServiceBase):
     async def read_mail(self, req_read_mail: "ReqReadMail") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def delete_mail(
-        self, req_delete_mail: "ReqDeleteMail"
-    ) -> "ResCommon":
+    async def delete_mail(self, req_delete_mail: "ReqDeleteMail") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def take_attachment_from_mail(
@@ -14388,8 +14160,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def receive_achievement_group_reward(
-        self,
-        req_receive_achievement_group_reward: "ReqReceiveAchievementGroupReward",
+        self, req_receive_achievement_group_reward: "ReqReceiveAchievementGroupReward"
     ) -> "ResReceiveAchievementGroupReward":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -14398,14 +14169,10 @@ class LobbyBase(ServiceBase):
     ) -> "ResFetchAchievementRate":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_achievement(
-        self, req_common: "ReqCommon"
-    ) -> "ResAchievement":
+    async def fetch_achievement(self, req_common: "ReqCommon") -> "ResAchievement":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def buy_shi_lian(
-        self, req_buy_shi_lian: "ReqBuyShiLian"
-    ) -> "ResCommon":
+    async def buy_shi_lian(self, req_buy_shi_lian: "ReqBuyShiLian") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def match_shi_lian(self, req_common: "ReqCommon") -> "ResCommon":
@@ -14419,9 +14186,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_client_value(
-        self, req_common: "ReqCommon"
-    ) -> "ResClientValue":
+    async def fetch_client_value(self, req_common: "ReqCommon") -> "ResClientValue":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def client_message(
@@ -14434,9 +14199,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResCurrentMatchInfo":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def user_complain(
-        self, req_user_complain: "ReqUserComplain"
-    ) -> "ResCommon":
+    async def user_complain(self, req_user_complain: "ReqUserComplain") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_revive_coin_info(
@@ -14447,9 +14210,7 @@ class LobbyBase(ServiceBase):
     async def gain_revive_coin(self, req_common: "ReqCommon") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_daily_task(
-        self, req_common: "ReqCommon"
-    ) -> "ResDailyTask":
+    async def fetch_daily_task(self, req_common: "ReqCommon") -> "ResDailyTask":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def refresh_daily_task(
@@ -14467,9 +14228,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResUseSpecialGiftCode":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_title_list(
-        self, req_common: "ReqCommon"
-    ) -> "ResTitleList":
+    async def fetch_title_list(self, req_common: "ReqCommon") -> "ResTitleList":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def use_title(self, req_use_title: "ReqUseTitle") -> "ResCommon":
@@ -14515,9 +14274,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResFetchCommentContent":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def leave_comment(
-        self, req_leave_comment: "ReqLeaveComment"
-    ) -> "ResCommon":
+    async def leave_comment(self, req_leave_comment: "ReqLeaveComment") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def delete_comment(
@@ -14530,14 +14287,10 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_rolling_notice(
-        self, req_common: "ReqCommon"
-    ) -> "ReqRollingNotice":
+    async def fetch_rolling_notice(self, req_common: "ReqCommon") -> "ReqRollingNotice":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_server_time(
-        self, req_common: "ReqCommon"
-    ) -> "ResServerTime":
+    async def fetch_server_time(self, req_common: "ReqCommon") -> "ResServerTime":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_platform_products(
@@ -14550,9 +14303,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def open_chest(
-        self, req_open_chest: "ReqOpenChest"
-    ) -> "ResOpenChest":
+    async def open_chest(self, req_open_chest: "ReqOpenChest") -> "ResOpenChest":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def buy_from_chest_shop(
@@ -14573,9 +14324,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResDoActivitySignIn":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_character_info(
-        self, req_common: "ReqCommon"
-    ) -> "ResCharacterInfo":
+    async def fetch_character_info(self, req_common: "ReqCommon") -> "ResCharacterInfo":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def update_character_sort(
@@ -14611,9 +14360,7 @@ class LobbyBase(ServiceBase):
     async def sell_item(self, req_sell_item: "ReqSellItem") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_common_view(
-        self, req_common: "ReqCommon"
-    ) -> "ResCommonView":
+    async def fetch_common_view(self, req_common: "ReqCommon") -> "ResCommonView":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def change_common_view(
@@ -14656,9 +14403,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def game_master_command(
-        self, req_gm_command: "ReqGmCommand"
-    ) -> "ResCommon":
+    async def game_master_command(self, req_gm_command: "ReqGmCommand") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_shop_info(self, req_common: "ReqCommon") -> "ResShopInfo":
@@ -14669,9 +14414,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResBuyFromShop":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def buy_from_zhp(
-        self, req_buy_from_zhp: "ReqBuyFromZhp"
-    ) -> "ResCommon":
+    async def buy_from_zhp(self, req_buy_from_zhp: "ReqBuyFromZhp") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def refresh_zhp_shop(
@@ -14684,9 +14427,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResMonthTicketInfo":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def pay_month_ticket(
-        self, req_common: "ReqCommon"
-    ) -> "ResPayMonthTicket":
+    async def pay_month_ticket(self, req_common: "ReqCommon") -> "ResPayMonthTicket":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def exchange_currency(
@@ -14785,8 +14526,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_jp_common_credit_card_order(
-        self,
-        req_fetch_jp_common_credit_card_order: "ReqFetchJpCommonCreditCardOrder",
+        self, req_fetch_jp_common_credit_card_order: "ReqFetchJpCommonCreditCardOrder"
     ) -> "ResFetchJpCommonCreditCardOrder":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -14928,9 +14668,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_id_card_info(
-        self, req_common: "ReqCommon"
-    ) -> "ResIdCardInfo":
+    async def fetch_id_card_info(self, req_common: "ReqCommon") -> "ResIdCardInfo":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def update_id_card_info(
@@ -14938,9 +14676,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_vip_reward(
-        self, req_common: "ReqCommon"
-    ) -> "ResVipReward":
+    async def fetch_vip_reward(self, req_common: "ReqCommon") -> "ResVipReward":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def gain_vip_reward(
@@ -14954,8 +14690,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_customized_contest_list(
-        self,
-        req_fetch_customized_contest_list: "ReqFetchCustomizedContestList",
+        self, req_fetch_customized_contest_list: "ReqFetchCustomizedContestList"
     ) -> "ResFetchCustomizedContestList":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -14970,9 +14705,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResEnterCustomizedContest":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def leave_customized_contest(
-        self, req_common: "ReqCommon"
-    ) -> "ResCommon":
+    async def leave_customized_contest(self, req_common: "ReqCommon") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_customized_contest_online_info(
@@ -15003,8 +14736,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def join_customized_contest_chat_room(
-        self,
-        req_join_customized_contest_chat_room: "ReqJoinCustomizedContestChatRoom",
+        self, req_join_customized_contest_chat_room: "ReqJoinCustomizedContestChatRoom"
     ) -> "ResJoinCustomizedContestChatRoom":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -15040,9 +14772,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_activity_list(
-        self, req_common: "ReqCommon"
-    ) -> "ResActivityList":
+    async def fetch_activity_list(self, req_common: "ReqCommon") -> "ResActivityList":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_account_activity_data(
@@ -15108,8 +14838,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def gain_multi_point_activity_reward(
-        self,
-        req_gain_multi_point_activity_reward: "ReqGainMultiPointActivityReward",
+        self, req_gain_multi_point_activity_reward: "ReqGainMultiPointActivityReward"
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -15148,9 +14877,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResRefreshGameObserveAuth":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_activity_buff(
-        self, req_common: "ReqCommon"
-    ) -> "ResActivityBuff":
+    async def fetch_activity_buff(self, req_common: "ReqCommon") -> "ResActivityBuff":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def upgrade_activity_buff(
@@ -15164,19 +14891,14 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def receive_upgrade_activity_reward(
-        self,
-        req_receive_upgrade_activity_reward: "ReqReceiveUpgradeActivityReward",
+        self, req_receive_upgrade_activity_reward: "ReqReceiveUpgradeActivityReward"
     ) -> "ResReceiveUpgradeActivityReward":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def upgrade_challenge(
-        self, req_common: "ReqCommon"
-    ) -> "ResUpgradeChallenge":
+    async def upgrade_challenge(self, req_common: "ReqCommon") -> "ResUpgradeChallenge":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def refresh_challenge(
-        self, req_common: "ReqCommon"
-    ) -> "ResRefreshChallenge":
+    async def refresh_challenge(self, req_common: "ReqCommon") -> "ResRefreshChallenge":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_challenge_info(
@@ -15185,8 +14907,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def force_complete_challenge_task(
-        self,
-        req_force_complete_challenge_task: "ReqForceCompleteChallengeTask",
+        self, req_force_complete_challenge_task: "ReqForceCompleteChallengeTask"
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -15196,14 +14917,11 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def receive_challenge_rank_reward(
-        self,
-        req_receive_challenge_rank_reward: "ReqReceiveChallengeRankReward",
+        self, req_receive_challenge_rank_reward: "ReqReceiveChallengeRankReward"
     ) -> "ResReceiveChallengeRankReward":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_ab_match_info(
-        self, req_common: "ReqCommon"
-    ) -> "ResFetchAbMatch":
+    async def fetch_ab_match_info(self, req_common: "ReqCommon") -> "ResFetchAbMatch":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def buy_in_ab_match(
@@ -15211,9 +14929,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def receive_ab_match_reward(
-        self, req_common: "ReqCommon"
-    ) -> "ResCommon":
+    async def receive_ab_match_reward(self, req_common: "ReqCommon") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def quit_ab_match(self, req_common: "ReqCommon") -> "ResCommon":
@@ -15256,9 +14972,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResFetchLastPrivacy":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def check_privacy(
-        self, req_check_privacy: "ReqCheckPrivacy"
-    ) -> "ResCommon":
+    async def check_privacy(self, req_check_privacy: "ReqCheckPrivacy") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def response_captcha(
@@ -15291,9 +15005,7 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def enter_arena(
-        self, req_enter_arena: "ReqEnterArena"
-    ) -> "ResCommon":
+    async def enter_arena(self, req_enter_arena: "ReqEnterArena") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def receive_arena_reward(
@@ -15332,8 +15044,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_friend_gift_activity_data(
-        self,
-        req_fetch_friend_gift_activity_data: "ReqFetchFriendGiftActivityData",
+        self, req_fetch_friend_gift_activity_data: "ReqFetchFriendGiftActivityData"
     ) -> "ResFetchFriendGiftActivityData":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -15367,22 +15078,16 @@ class LobbyBase(ServiceBase):
     ) -> "ResReceiveActivitySpotReward":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def delete_account(
-        self, req_common: "ReqCommon"
-    ) -> "ResDeleteAccount":
+    async def delete_account(self, req_common: "ReqCommon") -> "ResDeleteAccount":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def cancel_delete_account(
-        self, req_common: "ReqCommon"
-    ) -> "ResCommon":
+    async def cancel_delete_account(self, req_common: "ReqCommon") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def log_report(self, req_log_report: "ReqLogReport") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def bind_oauth2(
-        self, req_bind_oauth2: "ReqBindOauth2"
-    ) -> "ResCommon":
+    async def bind_oauth2(self, req_bind_oauth2: "ReqBindOauth2") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_oauth2_info(
@@ -15410,14 +15115,10 @@ class LobbyBase(ServiceBase):
     ) -> "ResFetchrecentFriend":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def open_gacha(
-        self, req_open_gacha: "ReqOpenGacha"
-    ) -> "ResOpenGacha":
+    async def open_gacha(self, req_open_gacha: "ReqOpenGacha") -> "ResOpenGacha":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def task_request(
-        self, req_task_request: "ReqTaskRequest"
-    ) -> "ResCommon":
+    async def task_request(self, req_task_request: "ReqTaskRequest") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def simulation_activity_train(
@@ -15431,8 +15132,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def start_simulation_activity_game(
-        self,
-        req_start_simulation_activity_game: "ReqStartSimulationActivityGame",
+        self, req_start_simulation_activity_game: "ReqStartSimulationActivityGame"
     ) -> "ResStartSimulationActivityGame":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -15472,8 +15172,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def receive_village_building_reward(
-        self,
-        req_receive_village_building_reward: "ReqReceiveVillageBuildingReward",
+        self, req_receive_village_building_reward: "ReqReceiveVillageBuildingReward"
     ) -> "ResReceiveVillageBuildingReward":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -15514,8 +15213,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def resolve_festival_activity_event(
-        self,
-        req_resolve_festival_activity_event: "ReqResolveFestivalActivityEvent",
+        self, req_resolve_festival_activity_event: "ReqResolveFestivalActivityEvent"
     ) -> "ResResolveFestivalActivityEvent":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -15545,8 +15243,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def island_activity_unlock_bag_grid(
-        self,
-        req_island_activity_unlock_bag_grid: "ReqIslandActivityUnlockBagGrid",
+        self, req_island_activity_unlock_bag_grid: "ReqIslandActivityUnlockBagGrid"
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -15562,14 +15259,12 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_manager_customized_contest(
-        self,
-        req_fetch_manager_customized_contest: "ReqFetchManagerCustomizedContest",
+        self, req_fetch_manager_customized_contest: "ReqFetchManagerCustomizedContest"
     ) -> "ResFetchManagerCustomizedContest":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def update_manager_customized_contest(
-        self,
-        req_update_manager_customized_contest: "ReqUpdateManagerCustomizedContest",
+        self, req_update_manager_customized_contest: "ReqUpdateManagerCustomizedContest"
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -15650,8 +15345,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_upgrade_shop_buff(
-        self,
-        req_amulet_activity_upgrade_shop_buff: "ReqAmuletActivityUpgradeShopBuff",
+        self, req_amulet_activity_upgrade_shop_buff: "ReqAmuletActivityUpgradeShopBuff"
     ) -> "ResAmuletActivityUpgradeShopBuff":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -15661,8 +15355,7 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_set_skill_level(
-        self,
-        req_amulet_activity_set_skill_level: "ReqAmuletActivitySetSkillLevel",
+        self, req_amulet_activity_set_skill_level: "ReqAmuletActivitySetSkillLevel"
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -15744,8 +15437,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_signup(
-        self,
-        stream: "grpclib.server.Stream[ReqSignupAccount, ResSignupAccount]",
+        self, stream: "grpclib.server.Stream[ReqSignupAccount, ResSignupAccount]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.signup(request)
@@ -15815,16 +15507,14 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_create_phone_verify_code(
-        self,
-        stream: "grpclib.server.Stream[ReqCreatePhoneVerifyCode, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqCreatePhoneVerifyCode, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.create_phone_verify_code(request)
         await stream.send_message(response)
 
     async def __rpc_create_email_verify_code(
-        self,
-        stream: "grpclib.server.Stream[ReqCreateEmailVerifyCode, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqCreateEmailVerifyCode, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.create_email_verify_code(request)
@@ -15853,16 +15543,14 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_phone_login_bind(
-        self,
-        stream: "grpclib.server.Stream[ReqCommon, ResFetchPhoneLoginBind]",
+        self, stream: "grpclib.server.Stream[ReqCommon, ResFetchPhoneLoginBind]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_phone_login_bind(request)
         await stream.send_message(response)
 
     async def __rpc_create_phone_login_bind(
-        self,
-        stream: "grpclib.server.Stream[ReqCreatePhoneLoginBind, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqCreatePhoneLoginBind, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.create_phone_login_bind(request)
@@ -16053,8 +15741,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_account_character_info(
-        self,
-        stream: "grpclib.server.Stream[ReqCommon, ResAccountCharacterInfo]",
+        self, stream: "grpclib.server.Stream[ReqCommon, ResAccountCharacterInfo]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_account_character_info(request)
@@ -16082,16 +15769,14 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_game_record_list(
-        self,
-        stream: "grpclib.server.Stream[ReqGameRecordList, ResGameRecordList]",
+        self, stream: "grpclib.server.Stream[ReqGameRecordList, ResGameRecordList]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_game_record_list(request)
         await stream.send_message(response)
 
     async def __rpc_fetch_collected_game_record_list(
-        self,
-        stream: "grpclib.server.Stream[ReqCommon, ResCollectedGameRecordList]",
+        self, stream: "grpclib.server.Stream[ReqCommon, ResCollectedGameRecordList]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_collected_game_record_list(request)
@@ -16130,8 +15815,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_level_leaderboard(
-        self,
-        stream: "grpclib.server.Stream[ReqLevelLeaderboard, ResLevelLeaderboard]",
+        self, stream: "grpclib.server.Stream[ReqLevelLeaderboard, ResLevelLeaderboard]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_level_leaderboard(request)
@@ -16154,8 +15838,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_multi_account_brief(
-        self,
-        stream: "grpclib.server.Stream[ReqMultiAccountId, ResMultiAccountBrief]",
+        self, stream: "grpclib.server.Stream[ReqMultiAccountId, ResMultiAccountBrief]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_multi_account_brief(request)
@@ -16264,8 +15947,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_announcement(
-        self,
-        stream: "grpclib.server.Stream[ReqFetchAnnouncement, ResAnnouncement]",
+        self, stream: "grpclib.server.Stream[ReqFetchAnnouncement, ResAnnouncement]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_announcement(request)
@@ -16323,8 +16005,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_achievement_rate(
-        self,
-        stream: "grpclib.server.Stream[ReqCommon, ResFetchAchievementRate]",
+        self, stream: "grpclib.server.Stream[ReqCommon, ResFetchAchievementRate]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_achievement_rate(request)
@@ -16380,8 +16061,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_current_match_info(
-        self,
-        stream: "grpclib.server.Stream[ReqCurrentMatchInfo, ResCurrentMatchInfo]",
+        self, stream: "grpclib.server.Stream[ReqCurrentMatchInfo, ResCurrentMatchInfo]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_current_match_info(request)
@@ -16416,8 +16096,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_refresh_daily_task(
-        self,
-        stream: "grpclib.server.Stream[ReqRefreshDailyTask, ResRefreshDailyTask]",
+        self, stream: "grpclib.server.Stream[ReqRefreshDailyTask, ResRefreshDailyTask]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.refresh_daily_task(request)
@@ -16431,8 +16110,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_use_special_gift_code(
-        self,
-        stream: "grpclib.server.Stream[ReqUseGiftCode, ResUseSpecialGiftCode]",
+        self, stream: "grpclib.server.Stream[ReqUseGiftCode, ResUseSpecialGiftCode]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.use_special_gift_code(request)
@@ -16489,16 +16167,14 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_update_comment_setting(
-        self,
-        stream: "grpclib.server.Stream[ReqUpdateCommentSetting, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqUpdateCommentSetting, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.update_comment_setting(request)
         await stream.send_message(response)
 
     async def __rpc_fetch_comment_list(
-        self,
-        stream: "grpclib.server.Stream[ReqFetchCommentList, ResFetchCommentList]",
+        self, stream: "grpclib.server.Stream[ReqFetchCommentList, ResFetchCommentList]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_comment_list(request)
@@ -16556,8 +16232,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_cancel_google_play_order(
-        self,
-        stream: "grpclib.server.Stream[ReqCancelGooglePlayOrder, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqCancelGooglePlayOrder, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.cancel_google_play_order(request)
@@ -16571,8 +16246,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_buy_from_chest_shop(
-        self,
-        stream: "grpclib.server.Stream[ReqBuyFromChestShop, ResBuyFromChestShop]",
+        self, stream: "grpclib.server.Stream[ReqBuyFromChestShop, ResBuyFromChestShop]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.buy_from_chest_shop(request)
@@ -16593,8 +16267,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_do_activity_sign_in(
-        self,
-        stream: "grpclib.server.Stream[ReqDoActivitySignIn, ResDoActivitySignIn]",
+        self, stream: "grpclib.server.Stream[ReqDoActivitySignIn, ResDoActivitySignIn]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.do_activity_sign_in(request)
@@ -16608,32 +16281,28 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_update_character_sort(
-        self,
-        stream: "grpclib.server.Stream[ReqUpdateCharacterSort, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqUpdateCharacterSort, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.update_character_sort(request)
         await stream.send_message(response)
 
     async def __rpc_change_main_character(
-        self,
-        stream: "grpclib.server.Stream[ReqChangeMainCharacter, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqChangeMainCharacter, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.change_main_character(request)
         await stream.send_message(response)
 
     async def __rpc_change_character_skin(
-        self,
-        stream: "grpclib.server.Stream[ReqChangeCharacterSkin, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqChangeCharacterSkin, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.change_character_skin(request)
         await stream.send_message(response)
 
     async def __rpc_change_character_view(
-        self,
-        stream: "grpclib.server.Stream[ReqChangeCharacterView, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqChangeCharacterView, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.change_character_view(request)
@@ -16705,8 +16374,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_upgrade_character(
-        self,
-        stream: "grpclib.server.Stream[ReqUpgradeCharacter, ResUpgradeCharacter]",
+        self, stream: "grpclib.server.Stream[ReqUpgradeCharacter, ResUpgradeCharacter]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.upgrade_character(request)
@@ -16755,8 +16423,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_refresh_zhp_shop(
-        self,
-        stream: "grpclib.server.Stream[ReqReshZhpShop, ResRefreshZhpShop]",
+        self, stream: "grpclib.server.Stream[ReqReshZhpShop, ResRefreshZhpShop]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.refresh_zhp_shop(request)
@@ -16812,8 +16479,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_update_account_settings(
-        self,
-        stream: "grpclib.server.Stream[ReqUpdateAccountSettings, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqUpdateAccountSettings, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.update_account_settings(request)
@@ -16883,8 +16549,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_create_jp_au_order(
-        self,
-        stream: "grpclib.server.Stream[ReqCreateJpAuOrder, ResCreateJpAuOrder]",
+        self, stream: "grpclib.server.Stream[ReqCreateJpAuOrder, ResCreateJpAuOrder]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.create_jp_au_order(request)
@@ -16931,8 +16596,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_create_jpgmo_order(
-        self,
-        stream: "grpclib.server.Stream[ReqCreateJpgmoOrder, ResCreateJpgmoOrder]",
+        self, stream: "grpclib.server.Stream[ReqCreateJpgmoOrder, ResCreateJpgmoOrder]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.create_jpgmo_order(request)
@@ -16963,8 +16627,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_create_enjcb_order(
-        self,
-        stream: "grpclib.server.Stream[ReqCreateEnjcbOrder, ResCreateEnjcbOrder]",
+        self, stream: "grpclib.server.Stream[ReqCreateEnjcbOrder, ResCreateEnjcbOrder]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.create_enjcb_order(request)
@@ -17003,8 +16666,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_create_krjcb_order(
-        self,
-        stream: "grpclib.server.Stream[ReqCreateKrjcbOrder, ResCreateKrjcbOrder]",
+        self, stream: "grpclib.server.Stream[ReqCreateKrjcbOrder, ResCreateKrjcbOrder]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.create_krjcb_order(request)
@@ -17019,24 +16681,21 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_create_dmm_order(
-        self,
-        stream: "grpclib.server.Stream[ReqCreateDmmOrder, ResCreateDmmOrder]",
+        self, stream: "grpclib.server.Stream[ReqCreateDmmOrder, ResCreateDmmOrder]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.create_dmm_order(request)
         await stream.send_message(response)
 
     async def __rpc_create_iap_order(
-        self,
-        stream: "grpclib.server.Stream[ReqCreateIapOrder, ResCreateIapOrder]",
+        self, stream: "grpclib.server.Stream[ReqCreateIapOrder, ResCreateIapOrder]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.create_iap_order(request)
         await stream.send_message(response)
 
     async def __rpc_create_steam_order(
-        self,
-        stream: "grpclib.server.Stream[ReqCreateSteamOrder, ResCreateSteamOrder]",
+        self, stream: "grpclib.server.Stream[ReqCreateSteamOrder, ResCreateSteamOrder]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.create_steam_order(request)
@@ -17113,16 +16772,14 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_solve_google_play_order(
-        self,
-        stream: "grpclib.server.Stream[ReqSolveGooglePlayOrder, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqSolveGooglePlayOrder, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.solve_google_play_order(request)
         await stream.send_message(response)
 
     async def __rpc_solve_google_pay_order_v3(
-        self,
-        stream: "grpclib.server.Stream[ReqSolveGooglePlayOrderV3, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqSolveGooglePlayOrderV3, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.solve_google_pay_order_v3(request)
@@ -17240,16 +16897,14 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_start_customized_contest(
-        self,
-        stream: "grpclib.server.Stream[ReqStartCustomizedContest, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqStartCustomizedContest, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.start_customized_contest(request)
         await stream.send_message(response)
 
     async def __rpc_stop_customized_contest(
-        self,
-        stream: "grpclib.server.Stream[ReqStopCustomizedContest, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqStopCustomizedContest, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.stop_customized_contest(request)
@@ -17294,16 +16949,14 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_follow_customized_contest(
-        self,
-        stream: "grpclib.server.Stream[ReqTargetCustomizedContest, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqTargetCustomizedContest, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.follow_customized_contest(request)
         await stream.send_message(response)
 
     async def __rpc_unfollow_customized_contest(
-        self,
-        stream: "grpclib.server.Stream[ReqTargetCustomizedContest, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqTargetCustomizedContest, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.unfollow_customized_contest(request)
@@ -17317,8 +16970,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_account_activity_data(
-        self,
-        stream: "grpclib.server.Stream[ReqCommon, ResAccountActivityData]",
+        self, stream: "grpclib.server.Stream[ReqCommon, ResAccountActivityData]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_account_activity_data(request)
@@ -17333,32 +16985,28 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_complete_activity_task(
-        self,
-        stream: "grpclib.server.Stream[ReqCompleteActivityTask, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqCompleteActivityTask, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.complete_activity_task(request)
         await stream.send_message(response)
 
     async def __rpc_complete_activity_task_batch(
-        self,
-        stream: "grpclib.server.Stream[ReqCompleteActivityTaskBatch, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqCompleteActivityTaskBatch, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.complete_activity_task_batch(request)
         await stream.send_message(response)
 
     async def __rpc_complete_activity_flip_task(
-        self,
-        stream: "grpclib.server.Stream[ReqCompleteActivityTask, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqCompleteActivityTask, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.complete_activity_flip_task(request)
         await stream.send_message(response)
 
     async def __rpc_complete_period_activity_task(
-        self,
-        stream: "grpclib.server.Stream[ReqCompleteActivityTask, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqCompleteActivityTask, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.complete_period_activity_task(request)
@@ -17373,8 +17021,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_complete_random_activity_task(
-        self,
-        stream: "grpclib.server.Stream[ReqCompleteActivityTask, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqCompleteActivityTask, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.complete_random_activity_task(request)
@@ -17429,32 +17076,28 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_gain_rank_point_reward(
-        self,
-        stream: "grpclib.server.Stream[ReqGainRankPointReward, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqGainRankPointReward, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.gain_rank_point_reward(request)
         await stream.send_message(response)
 
     async def __rpc_richman_activity_next_move(
-        self,
-        stream: "grpclib.server.Stream[ReqRichmanNextMove, ResRichmanNextMove]",
+        self, stream: "grpclib.server.Stream[ReqRichmanNextMove, ResRichmanNextMove]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.richman_activity_next_move(request)
         await stream.send_message(response)
 
     async def __rpc_richman_acitivity_special_move(
-        self,
-        stream: "grpclib.server.Stream[ReqRichmanSpecialMove, ResRichmanNextMove]",
+        self, stream: "grpclib.server.Stream[ReqRichmanSpecialMove, ResRichmanNextMove]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.richman_acitivity_special_move(request)
         await stream.send_message(response)
 
     async def __rpc_richman_activity_chest_info(
-        self,
-        stream: "grpclib.server.Stream[ReqRichmanChestInfo, ResRichmanChestInfo]",
+        self, stream: "grpclib.server.Stream[ReqRichmanChestInfo, ResRichmanChestInfo]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.richman_activity_chest_info(request)
@@ -17484,8 +17127,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_upgrade_activity_buff(
-        self,
-        stream: "grpclib.server.Stream[ReqUpgradeActivityBuff, ResActivityBuff]",
+        self, stream: "grpclib.server.Stream[ReqUpgradeActivityBuff, ResActivityBuff]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.upgrade_activity_buff(request)
@@ -17529,16 +17171,14 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_force_complete_challenge_task(
-        self,
-        stream: "grpclib.server.Stream[ReqForceCompleteChallengeTask, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqForceCompleteChallengeTask, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.force_complete_challenge_task(request)
         await stream.send_message(response)
 
     async def __rpc_fetch_challenge_season(
-        self,
-        stream: "grpclib.server.Stream[ReqCommon, ResChallengeSeasonInfo]",
+        self, stream: "grpclib.server.Stream[ReqCommon, ResChallengeSeasonInfo]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_challenge_season(request)
@@ -17595,8 +17235,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_game_point_rank(
-        self,
-        stream: "grpclib.server.Stream[ReqGamePointRank, ResGamePointRank]",
+        self, stream: "grpclib.server.Stream[ReqGamePointRank, ResGamePointRank]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_game_point_rank(request)
@@ -17639,8 +17278,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_last_privacy(
-        self,
-        stream: "grpclib.server.Stream[ReqFetchLastPrivacy, ResFetchLastPrivacy]",
+        self, stream: "grpclib.server.Stream[ReqFetchLastPrivacy, ResFetchLastPrivacy]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_last_privacy(request)
@@ -17685,8 +17323,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_receive_rpg_reward(
-        self,
-        stream: "grpclib.server.Stream[ReqReceiveRpgReward, ResReceiveRpgRewards]",
+        self, stream: "grpclib.server.Stream[ReqReceiveRpgReward, ResReceiveRpgRewards]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.receive_rpg_reward(request)
@@ -17729,8 +17366,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_feed_activity_feed(
-        self,
-        stream: "grpclib.server.Stream[ReqFeedActivityFeed, ResFeedActivityFeed]",
+        self, stream: "grpclib.server.Stream[ReqFeedActivityFeed, ResFeedActivityFeed]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.feed_activity_feed(request)
@@ -17745,8 +17381,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_receive_activity_gift(
-        self,
-        stream: "grpclib.server.Stream[ReqReceiveActivityGift, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqReceiveActivityGift, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.receive_activity_gift(request)
@@ -17769,8 +17404,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_open_pre_chest_item(
-        self,
-        stream: "grpclib.server.Stream[ReqOpenPreChestItem, ResOpenPreChestItem]",
+        self, stream: "grpclib.server.Stream[ReqOpenPreChestItem, ResOpenPreChestItem]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.open_pre_chest_item(request)
@@ -17799,8 +17433,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_unlock_activity_spot_ending(
-        self,
-        stream: "grpclib.server.Stream[ReqUnlockActivitySpotEnding, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqUnlockActivitySpotEnding, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.unlock_activity_spot_ending(request)
@@ -17864,8 +17497,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_activity_interval(
-        self,
-        stream: "grpclib.server.Stream[ReqCommon, ResFetchActivityInterval]",
+        self, stream: "grpclib.server.Stream[ReqCommon, ResFetchActivityInterval]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_activity_interval(request)
@@ -17965,8 +17597,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_upgrade_village_building(
-        self,
-        stream: "grpclib.server.Stream[ReqUpgradeVillageBuilding, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqUpgradeVillageBuilding, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.upgrade_village_building(request)
@@ -18012,16 +17643,14 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_set_village_worker(
-        self,
-        stream: "grpclib.server.Stream[ReqSetVillageWorker, ResSetVillageWorker]",
+        self, stream: "grpclib.server.Stream[ReqSetVillageWorker, ResSetVillageWorker]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.set_village_worker(request)
         await stream.send_message(response)
 
     async def __rpc_next_round_village(
-        self,
-        stream: "grpclib.server.Stream[ReqNextRoundVillage, ResNextRoundVillage]",
+        self, stream: "grpclib.server.Stream[ReqNextRoundVillage, ResNextRoundVillage]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.next_round_village(request)
@@ -18073,16 +17702,14 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_island_activity_tidy_bag(
-        self,
-        stream: "grpclib.server.Stream[ReqIslandActivityTidyBag, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqIslandActivityTidyBag, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.island_activity_tidy_bag(request)
         await stream.send_message(response)
 
     async def __rpc_island_activity_unlock_bag_grid(
-        self,
-        stream: "grpclib.server.Stream[ReqIslandActivityUnlockBagGrid, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqIslandActivityUnlockBagGrid, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.island_activity_unlock_bag_grid(request)
@@ -18208,16 +17835,14 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_amulet_activity_effect_sort(
-        self,
-        stream: "grpclib.server.Stream[ReqAmuletActivityEffectSort, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqAmuletActivityEffectSort, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_effect_sort(request)
         await stream.send_message(response)
 
     async def __rpc_amulet_activity_giveup(
-        self,
-        stream: "grpclib.server.Stream[ReqAmuletActivityGiveup, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqAmuletActivityGiveup, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_giveup(request)
@@ -18256,32 +17881,28 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_amulet_activity_set_skill_level(
-        self,
-        stream: "grpclib.server.Stream[ReqAmuletActivitySetSkillLevel, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqAmuletActivitySetSkillLevel, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_set_skill_level(request)
         await stream.send_message(response)
 
     async def __rpc_amulet_activity_maintain_info(
-        self,
-        stream: "grpclib.server.Stream[ReqCommon, ResAmuletActivityMaintainInfo]",
+        self, stream: "grpclib.server.Stream[ReqCommon, ResAmuletActivityMaintainInfo]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_maintain_info(request)
         await stream.send_message(response)
 
     async def __rpc_story_activity_unlock(
-        self,
-        stream: "grpclib.server.Stream[ReqStoryActivityUnlock, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqStoryActivityUnlock, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.story_activity_unlock(request)
         await stream.send_message(response)
 
     async def __rpc_story_activity_unlock_ending(
-        self,
-        stream: "grpclib.server.Stream[ReqStoryActivityUnlockEnding, ResCommon]",
+        self, stream: "grpclib.server.Stream[ReqStoryActivityUnlockEnding, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.story_activity_unlock_ending(request)
@@ -20466,9 +20087,7 @@ class FastTestBase(ServiceBase):
     ) -> "ResGamePlayerState":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def check_network_delay(
-        self, req_common: "ReqCommon"
-    ) -> "ResCommon":
+    async def check_network_delay(self, req_common: "ReqCommon") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def clear_leaving(self, req_common: "ReqCommon") -> "ResCommon":
@@ -20479,14 +20098,10 @@ class FastTestBase(ServiceBase):
     ) -> "ResGameEndVote":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def auth_observe(
-        self, req_auth_observe: "ReqAuthObserve"
-    ) -> "ResCommon":
+    async def auth_observe(self, req_auth_observe: "ReqAuthObserve") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def start_observe(
-        self, req_common: "ReqCommon"
-    ) -> "ResStartObserve":
+    async def start_observe(self, req_common: "ReqCommon") -> "ResStartObserve":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def stop_observe(self, req_common: "ReqCommon") -> "ResCommon":
