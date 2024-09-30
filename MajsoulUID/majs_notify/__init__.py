@@ -36,7 +36,9 @@ async def majsoul_add_at(bot: Bot, ev: Event):
 
         connection = await manager.check_username_password(username, password)
         if isinstance(connection, bool):
-            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
+            return await bot.send(
+                "❌ 登陆失败, 请输入正确的username和password!"
+            )
     else:
         return await bot.send(f'❌ 登陆失败!参考命令:\n{EXSAMPLE}')
 
@@ -202,9 +204,7 @@ async def majsoul_friend_overview_command(bot: Bot, event: Event):
     await bot.send(msg)
 
 
-@majsoul_friend_manage.on_command(
-    ("获取好友全部申请", "好友申请")
-)
+@majsoul_friend_manage.on_command(("获取好友全部申请", "好友申请"))
 async def majsoul_friend_apply_get_command(bot: Bot, event: Event):
     conn = manager.get_conn()
     if conn is None:
