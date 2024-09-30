@@ -8,7 +8,14 @@
       "source.organizeImports": "explicit"
     }
   },
-  "python.autoComplete.extraPaths": ["${workspaceFolder}/../../../../"],
-  "isort.args": ["--profile", "black"],
-  "basedpyright.analysis.extraPaths": ["${workspaceFolder}/../../../"]
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}/../../../../"
+  ],
+  "isort.args": [
+    "--profile",
+    "black"
+  ],
+  "basedpyright.analysis.extraPaths": [
+    "${workspaceFolder}/../../../"
+  ]
 }
