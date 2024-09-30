@@ -779,7 +779,9 @@ class MajsoulManager:
                         access_token=user.cookie
                     )
                 except ValueError as e:
-                    logger.warning(f'[majs] AccessToken已失效, 使用账密进行刷新！\n{e}')
+                    logger.warning(
+                        f'[majs] AccessToken已失效, 使用账密进行刷新！\n{e}'
+                    )
                     conn = await createMajsoulConnection(
                         username=user.account,
                         password=user.password,
