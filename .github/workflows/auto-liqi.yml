@@ -1,4 +1,4 @@
-name: Auto Liqi
+name: 🤖 Auto Liqi
 
 on:
   schedule:
@@ -53,10 +53,13 @@ jobs:
       - name: Remove files
         run: rm -f liqi.json liqi.proto
 
+      - name: Run pre-commit hooks to format code
+        run: pre-commit run --all-files
+
       - name: Set up Git
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email actions@noreply.github.com
 
       - name: Check if there are any changes
-        run: git diff --exit-code || git commit -am "Auto Liqi" && git push
+        run: git diff --exit-code || git commit -am "🤖 自动更新 `Liqi`" && git push

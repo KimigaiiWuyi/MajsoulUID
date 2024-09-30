@@ -7,6 +7,7 @@ import hashlib
 from typing import cast
 from collections.abc import Iterable
 
+import aiofiles
 import websockets.client
 from msgspec import convert
 from httpx import AsyncClient
@@ -156,6 +157,19 @@ class MajsoulConnection:
         await self.send_meta(meta_msg)
 
     async def handle_FriendStateChange(self, notify: MajsoulDecodedMessage):
+        def get_playing(_active_state: liblq.AccountActiveState):
+            category = _active_state.playing.category
+            mode_id = _active_state.playing.meta.mode_id
+            if category == 1:
+                _type_name = '歹人场'
+            elif category == 2:
+                _type_name = '段位场'
+            elif category == 4:
+                _type_name = '比赛场'
+            else:
+                _type_name = '未知牌谱类型'
+            return category, _type_name, mode_id
+
         data = cast(liblq.NotifyFriendStateChange, notify.payload)
         target_user = data.target_id
         active_state = data.active_state
@@ -170,8 +184,13 @@ class MajsoulConnection:
                     msg = f"{nick_name} 下线了"
 
                 try:
-                    with open("game_record.json", encoding="utf8") as f:
-                        game_record = json.load(f)
+                    async with aiofiles.open(
+                        "game_record.json",
+                        mode="r",
+                        encoding="utf8",
+                    ) as f:
+                        content = await f.read()
+                        game_record = json.loads(content)
                 except FileNotFoundError:
                     game_record = {}
                 except json.JSONDecodeError:
@@ -180,34 +199,38 @@ class MajsoulConnection:
                 # if active_state have playing
                 active_uuid = active_state.playing.game_uuid
                 if active_uuid and not friend.playing.game_uuid:
-                    category = active_state.playing.category
-                    mode_id = active_state.playing.meta.mode_id
-                    if category == 1:
-                        msg = f"{nick_name} 开始了歹人场"
-                    elif category == 2:
-                        msg = f"{nick_name} 开始了段位场"
-                    elif category == 4:
-                        msg = f"{nick_name} 开始了比赛场"
-                    else:
-                        msg = f"{nick_name} 未知牌谱类别 {category}"
+                    category, _type_name, mode_id = get_playing(active_state)
+
+                    msg = f"{nick_name} 开始了 {_type_name} | {category}"
+
                     rome_name = ModeId2Room.get(mode_id, "")
                     msg += f" {rome_name} mod_id: {mode_id}\n"
                     msg += f"对局id: {active_state.playing.game_uuid}"
                     # save game_uuid
                     if not await MajsPaipu.data_exist(uuid=active_uuid):
-                        MajsPaipu.insert_data(
+                        await MajsPaipu.insert_data(
                             account_id=str(friend.account_id),
                             uuid=active_uuid,
+                            paipu_type=category,
+                            paipu_type_name=_type_name,
                         )
                     game_record[active_state.playing.game_uuid] = (
                         friend.account_id
                     )
                 elif not active_state.playing and friend.playing:
-                    with open("game_record.json", encoding="utf8") as f:
-                        game_record = json.load(f)
+                    async with aiofiles.open(
+                        "game_record.json",
+                        mode="r",
+                        encoding="utf8",
+                    ) as f:
+                        content = await f.read()
+                        game_record = json.loads(content)
+
+                    category, _type_name, mode_id = get_playing(active_state)
+
                     mode_id = friend.playing.meta.mode_id
                     room_name = ModeId2Room.get(mode_id, "")
-                    msg = f"{nick_name} 结束了在 {room_name} 的对局\n"
+                    msg = f"{nick_name} 结束了在 {room_name} 的 {_type_name} 对局\n"
                     uuid = friend.playing.game_uuid
                     encode_aid = encode_account_id(friend.account_id)
                     url = f"{PP_HOST}{uuid}_a{encode_aid}"
@@ -216,12 +239,20 @@ class MajsoulConnection:
                         MajsPaipu.insert_data(
                             account_id=str(friend.account_id),
                             uuid=active_uuid,
+                            paipu_type=category,
+                            paipu_type_name=_type_name,
                         )
 
                     # also save game_uuid
                     game_record[friend.playing.game_uuid] = friend.account_id
-                with open("game_record.json", "w", encoding="utf8") as f:
-                    json.dump(game_record, f)
+
+                async with aiofiles.open(
+                    "game_record.json",
+                    mode="w",
+                    encoding="utf8",
+                ) as f:
+                    await f.write(json.dumps(game_record, ensure_ascii=False))
+
                 # set friend state
                 friend.change_state(active_state)
         if msg:
@@ -398,7 +429,7 @@ class MajsoulConnection:
                 )
                 # check if the connection is still alive
                 if resp.error.code:
-                    logger.error(f"Connection lost: {resp.error}")
+                    logger.error(f"[majs] Connection lost: {resp.error}")
                     await manager.restart()
                 resp = cast(
                     liblq.ResCommon,
@@ -408,7 +439,7 @@ class MajsoulConnection:
                     ),
                 )
                 if resp.error.code:
-                    logger.error(f"Heartbeat failed: {resp.error}")
+                    logger.error(f"[majs] Heartbeat failed: {resp.error}")
                     await manager.restart()
 
         task = asyncio.create_task(heartbeat())
@@ -748,6 +779,7 @@ class MajsoulManager:
                         access_token=user.cookie
                     )
                 except ValueError as e:
+                    logger.warning(f'[majs] AccessToken已失效, 使用账密进行刷新！\n{e}')
                     conn = await createMajsoulConnection(
                         username=user.account,
                         password=user.password,
@@ -761,7 +793,7 @@ class MajsoulManager:
         if self.conn:
             if len(self.conn) >= 1:
                 for task in self.conn[0].bg_tasks:
-                    task.cancel()
+                    task.cancel()  # type: ignore
             for conn in self.conn:
                 await conn._ws.close()  # type: ignore
         self.conn = []
@@ -779,5 +811,4 @@ class MajsoulManager:
 manager = MajsoulManager()
 
 if __name__ == "__main__":
-    asyncio.run(manager.start())
     asyncio.run(manager.start())

@@ -1,21 +1,29 @@
 from typing import Type, TypeVar, Optional
 
-from sqlmodel import Field, SQLModel, select
+from sqlmodel import Field, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from gsuid_core.utils.database.startup import exec_list
 from gsuid_core.webconsole.mount_app import PageSchema, GsAdminModel, site
 from gsuid_core.utils.database.base_models import (
     Bind,
     Push,
     User,
+    BaseIDModel,
     with_session,
 )
 
 T_MajsPaipu = TypeVar("T_MajsPaipu", bound="MajsPaipu")
 
+exec_list.append('ALTER TABLE MajsUser ADD COLUMN username TEXT DEFAULT ""')
+exec_list.append('ALTER TABLE MajsUser ADD COLUMN password TEXT DEFAULT ""')
+exec_list.append('ALTER TABLE MajsUser ADD COLUMN account TEXT DEFAULT ""')
 
-class MajsPaipu(SQLModel, table=True):
-    uuid: str = Field(default="", primary_key=True, title="牌谱UUID")
+
+class MajsPaipu(BaseIDModel, table=True):
     account_id: str = Field(default="", title="雀魂账号ID")
+    uuid: str = Field(default="", title="牌谱UUID")
+    paipu_type: int = Field(default=-1, title="牌谱类型")
+    paipu_type_name: str = Field(default="", title="牌谱类型名称")
 
     @classmethod
     @with_session
@@ -24,10 +32,15 @@ class MajsPaipu(SQLModel, table=True):
         session: AsyncSession,
         uuid: str,
         account_id: str,
+        paipu_type: int,
+        paipu_type_name: str,
     ) -> int:
-        data = cls(uuid=uuid, account_id=account_id)
-        session.add(data)
-        return 0
+        return await cls.full_insert_data(
+            uuid=uuid,
+            account_id=account_id,
+            paipu_type=paipu_type,
+            paipu_type_name=paipu_type_name,
+        )
 
     @classmethod
     @with_session
@@ -52,6 +65,7 @@ class MajsBind(Bind, table=True):
 
 class MajsUser(User, table=True):
     uid: Optional[str] = Field(default=None, title="雀魂UID")
+    username: str = Field(default="", title="昵称")
     friend_code: str = Field(default="", title="好友码")
     account: str = Field(default="", title="账号")
     password: str = Field(default="", title="密码")
@@ -80,7 +94,7 @@ class MajsPaipuadmin(GsAdminModel):
     pk_name = "id"
     page_schema = PageSchema(
         label="雀魂牌谱管理",
-        icon="fa fa-users",
+        icon="fa fa-braille",
     )  # type: ignore
 
     # 配置管理模型
@@ -104,7 +118,7 @@ class MajsUseradmin(GsAdminModel):
     pk_name = "id"
     page_schema = PageSchema(
         label="雀魂账号池管理",
-        icon="fa fa-users",
+        icon="fa fa-inbox",
     )  # type: ignore
 
     # 配置管理模型
@@ -116,7 +130,7 @@ class MajsPushadmin(GsAdminModel):
     pk_name = "id"
     page_schema = PageSchema(
         label="雀魂推送管理",
-        icon="fa fa-users",
+        icon="fa fa-paper-plane",
     )  # type: ignore
 
     # 配置管理模型

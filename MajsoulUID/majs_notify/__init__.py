@@ -15,16 +15,30 @@ majsoul_get_notify = SV("雀魂订阅推送")
 majsoul_add_account = SV("雀魂账号池", pm=0)
 majsoul_friend_manage = SV("雀魂好友管理", pm=0)
 
+EXSAMPLE = '''雀魂登陆 用户名, 密码
+⚠ 提示: 该命令将会使用账密进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
+⚠ 请自行使用任何小号, 本插件不为账号被封禁承担任何责任！！
+'''
 
-@majsoul_add_account.on_command(("添加账号"))
+
+@majsoul_add_account.on_command(("添加账号", "登陆", "登录"))
 async def majsoul_add_at(bot: Bot, ev: Event):
-    username, password = ev.text.strip()
-    if not username or not password:
-        return await bot.send("❌ 请输入有效的username和password!")
+    evt = ev.text.strip()
+    if not evt:
+        return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
 
-    connection = await manager.check_username_password(username, password)
-    if isinstance(connection, bool):
-        return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
+    evt = evt.replace(",", " ").replace("，", " ")
+
+    if ' ' in evt:
+        username, password = evt.split(" ")
+        if not username or not password:
+            return await bot.send("❌ 请输入有效的username和password!")
+
+        connection = await manager.check_username_password(username, password)
+        if isinstance(connection, bool):
+            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
+    else:
+        return await bot.send(f'❌ 登陆失败!参考命令:\n{EXSAMPLE}')
 
     friend_code = str(encode_account_id2(connection.account_id))
     if await MajsUser.data_exist(uid=connection.account_id):
@@ -111,11 +125,12 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
 
 @majsoul_notify.on_fullmatch(("推送启动", "启动推送", "服务启动", "启动服务"))
 async def majsoul_notify_command(bot: Bot, event: Event):
+    await bot.send('正在准备进行账号登陆中...可能需要一定时间!')
     conn = await manager.start()
     if isinstance(conn, str):
         return await bot.send(conn)
 
-    msg = "🥰成功启动雀魂订阅消息推送服务！\n"
+    msg = "🥰 成功启动雀魂订阅消息推送服务！\n"
 
     msg += f"当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name}"
     await bot.send(msg)
@@ -188,7 +203,7 @@ async def majsoul_friend_overview_command(bot: Bot, event: Event):
 
 
 @majsoul_friend_manage.on_command(
-    ("获取好友全部申请", "好友申请列表", "好友申请")
+    ("获取好友全部申请", "好友申请")
 )
 async def majsoul_friend_apply_get_command(bot: Bot, event: Event):
     conn = manager.get_conn()
