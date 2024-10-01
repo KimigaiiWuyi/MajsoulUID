@@ -1,5 +1,4 @@
 import hmac
-import json
 import uuid
 import random
 import asyncio
@@ -7,7 +6,6 @@ import hashlib
 from typing import cast
 from collections.abc import Iterable
 
-import aiofiles
 import websockets.client
 from msgspec import convert
 from httpx import AsyncClient
@@ -16,6 +14,7 @@ from gsuid_core.logger import logger
 
 from .utils import getRes
 from ..lib import lq as liblq
+from ._level import MajsoulLevel
 from .codec import MajsoulProtoCodec
 from .majs_to_tenhou import toTenhou
 from .majsoul_friend import MajsoulFriend
@@ -23,7 +22,6 @@ from .constants import HEADERS, ModeId2Room
 from ..majs_config.majs_config import MAJS_CONFIG
 from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
 from ..utils.api.remote import (
-    PlayerLevel,
     decode_log_id,
     decode_account_id,
     encode_account_id,
@@ -157,18 +155,29 @@ class MajsoulConnection:
         await self.send_meta(meta_msg)
 
     async def handle_FriendStateChange(self, notify: MajsoulDecodedMessage):
-        def get_playing(_active_state: liblq.AccountActiveState):
-            category = _active_state.playing.category
-            mode_id = _active_state.playing.meta.mode_id
-            if category == 1:
-                _type_name = '歹人场'
-            elif category == 2:
-                _type_name = '段位场'
-            elif category == 4:
-                _type_name = '比赛场'
+        def get_playing(
+            active_state: liblq.AccountActiveState | liblq.AccountPlayingGame,
+        ):
+            if isinstance(active_state, liblq.AccountActiveState):
+                category = active_state.playing.category
+                mode_id = active_state.playing.meta.mode_id
+            elif isinstance(active_state, liblq.AccountPlayingGame):
+                category = active_state.category
+                mode_id = active_state.meta.mode_id
             else:
-                _type_name = '未知牌谱类型'
-            return category, _type_name, mode_id
+                raise ValueError(
+                    "get_playing only accept AccountActiveState or AccountPlayingGame"
+                )
+
+            if category == 1:
+                type_name = "歹人场"
+            elif category == 2:
+                type_name = "段位场"
+            elif category == 4:
+                type_name = "比赛场"
+            else:
+                type_name = "未知牌谱类型"
+            return category, type_name, mode_id
 
         data = cast(liblq.NotifyFriendStateChange, notify.payload)
         target_user = data.target_id
@@ -183,28 +192,15 @@ class MajsoulConnection:
                 elif not active_state.is_online and friend.is_online:
                     msg = f"{nick_name} 下线了"
 
-                try:
-                    async with aiofiles.open(
-                        "game_record.json",
-                        mode="r",
-                        encoding="utf8",
-                    ) as f:
-                        content = await f.read()
-                        game_record = json.loads(content)
-                except FileNotFoundError:
-                    game_record = {}
-                except json.JSONDecodeError:
-                    game_record = {}
-
                 # if active_state have playing
                 active_uuid = active_state.playing.game_uuid
                 if active_uuid and not friend.playing.game_uuid:
-                    category, _type_name, mode_id = get_playing(active_state)
+                    category, type_name, mode_id = get_playing(active_state)
 
-                    msg = f"{nick_name} 开始了 {_type_name} | {category}"
+                    msg = f"{nick_name} 开始了 {type_name}"
 
                     rome_name = ModeId2Room.get(mode_id, "")
-                    msg += f" {rome_name} mod_id: {mode_id}\n"
+                    msg += f" {rome_name} category: {category} mode_id: {mode_id}\n"
                     msg += f"对局id: {active_state.playing.game_uuid}"
                     # save game_uuid
                     if not await MajsPaipu.data_exist(uuid=active_uuid):
@@ -212,46 +208,25 @@ class MajsoulConnection:
                             account_id=str(friend.account_id),
                             uuid=active_uuid,
                             paipu_type=category,
-                            paipu_type_name=_type_name,
+                            paipu_type_name=type_name,
                         )
-                    game_record[active_state.playing.game_uuid] = (
-                        friend.account_id
-                    )
                 elif not active_state.playing and friend.playing:
-                    async with aiofiles.open(
-                        "game_record.json",
-                        mode="r",
-                        encoding="utf8",
-                    ) as f:
-                        content = await f.read()
-                        game_record = json.loads(content)
-
-                    category, _type_name, mode_id = get_playing(active_state)
+                    category, type_name, mode_id = get_playing(friend.playing)
 
                     mode_id = friend.playing.meta.mode_id
                     room_name = ModeId2Room.get(mode_id, "")
-                    msg = f"{nick_name} 结束了在 {room_name} 的 {_type_name} 对局\n"
+                    msg = f"{nick_name} 结束了在 {room_name} 的 {type_name} 对局\n"
                     uuid = friend.playing.game_uuid
                     encode_aid = encode_account_id(friend.account_id)
                     url = f"{PP_HOST}{uuid}_a{encode_aid}"
                     msg += f"牌谱为 {url}\n"
                     if not await MajsPaipu.data_exist(uuid=active_uuid):
-                        MajsPaipu.insert_data(
+                        await MajsPaipu.insert_data(
                             account_id=str(friend.account_id),
                             uuid=active_uuid,
                             paipu_type=category,
-                            paipu_type_name=_type_name,
+                            paipu_type_name=type_name,
                         )
-
-                    # also save game_uuid
-                    game_record[friend.playing.game_uuid] = friend.account_id
-
-                async with aiofiles.open(
-                    "game_record.json",
-                    mode="w",
-                    encoding="utf8",
-                ) as f:
-                    await f.write(json.dumps(game_record, ensure_ascii=False))
 
                 # set friend state
                 friend.change_state(active_state)
@@ -268,26 +243,20 @@ class MajsoulConnection:
                 nick_name = friend.nickname
                 msg = ""
                 # check level change
-                changed_level = changed_base.level.id
-                changed_level3 = changed_base.level3.id
-                if changed_level != friend.level.id:
-                    level_info = PlayerLevel(
-                        changed_level, changed_base.level.score
-                    ).getTag()
+                changed_level = MajsoulLevel(changed_base.level)
+                changed_level3 = MajsoulLevel(changed_base.level3)
+                if changed_level.id != friend.level.id:
+                    level_info = changed_level.get_tag()
                     msg = f"{nick_name} 的四麻段位更新为 {level_info}\n"
-                if changed_level3 != friend.level3.id:
-                    level_info = PlayerLevel(
-                        changed_level3, changed_base.level3.score
-                    ).getTag()
+                if changed_level3.id != friend.level3.id:
+                    level_info = changed_level.get_tag()
                     msg = f"{nick_name} 的三麻段位更新为 {level_info}\n"
 
                 changed_score = changed_base.level.score
                 changed_score3 = changed_base.level3.score
                 if changed_score != friend.level.score:
                     # 四麻
-                    level_info = PlayerLevel(
-                        changed_level, changed_score
-                    ).formatAdjustedScoreWithTag(changed_score)
+                    level_info = changed_level.formatAdjustedScoreWithTag()
                     score_change = changed_score - friend.level.score
 
                     msg += f"四麻段位信息: {level_info}\n"
@@ -297,9 +266,7 @@ class MajsoulConnection:
                         msg += f"减少了 {-score_change}"
                 elif changed_score3 != friend.level3.score:
                     # 三麻
-                    level_info = PlayerLevel(
-                        changed_level3, changed_score3
-                    ).formatAdjustedScoreWithTag(changed_score3)
+                    level_info = changed_level3.formatAdjustedScoreWithTag()
                     score_change = changed_score3 - friend.level3.score
                     msg += f"三麻段位信息: {level_info}\n"
                     if score_change >= 0:
@@ -780,7 +747,7 @@ class MajsoulManager:
                     )
                 except ValueError as e:
                     logger.warning(
-                        f'[majs] AccessToken已失效, 使用账密进行刷新！\n{e}'
+                        f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}"
                     )
                     conn = await createMajsoulConnection(
                         username=user.account,
