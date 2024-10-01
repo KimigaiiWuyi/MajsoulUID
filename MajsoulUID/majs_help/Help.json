@@ -1,27 +1,27 @@
 {
   "基础服务": {
-    "desc": "需要先绑定uid",
+    "desc": "需要先绑定uid, 注意好友码不是UID！！",
     "data": [
       {
-        "name": "雀魂绑定uid",
+        "name": "绑定uid",
         "desc": "绑定你的雀魂UID",
-        "eg": "雀魂绑定uid123456",
+        "eg": "绑定uid123456",
         "need_ck": false,
         "need_sk": false,
         "need_admin": false
       },
       {
-        "name": "雀魂删除uid",
+        "name": "删除uid",
         "desc": "删除你的雀魂UID",
-        "eg": "雀魂删除uid123456",
+        "eg": "删除uid123456",
         "need_ck": false,
         "need_sk": false,
         "need_admin": false
       },
       {
-        "name": "雀魂切换uid",
+        "name": "切换uid",
         "desc": "切换你的雀魂UID",
-        "eg": "雀魂切换uid123456",
+        "eg": "切换uid123456",
         "need_ck": false,
         "need_sk": false,
         "need_admin": false
@@ -32,20 +32,110 @@
     "desc": "查询一些基本信息, 需要在金之间拥有一定场次的对局",
     "data": [
       {
-        "name": "雀魂搜索",
+        "name": "搜索",
         "desc": "搜索雀魂玩家",
-        "eg": "雀魂搜索Wuyi",
+        "eg": "搜索Wuyi",
         "need_ck": true,
         "need_sk": false,
         "need_admin": false
       },
       {
-        "name": "雀魂查询",
+        "name": "查询",
         "desc": "查询雀魂数据一览",
-        "eg": "雀魂查询1148850",
+        "eg": "查询1148850",
         "need_ck": true,
         "need_sk": false,
         "need_admin": false
+      }
+    ]
+  },
+  "推送提醒": {
+    "desc": "群内谁又偷偷上大分了？？",
+    "data": [
+      {
+        "name": "订阅",
+        "desc": "在群内订阅机器人推送消息",
+        "eg": "订阅",
+        "need_ck": true,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "好友排行榜",
+        "desc": "检查账号池内小号的好友排行榜",
+        "eg": "好友排行榜三麻",
+        "need_ck": true,
+        "need_sk": false,
+        "need_admin": false
+      }
+    ]
+  },
+  "管理服务": {
+    "desc": "机器人管理员需要关注的服务",
+    "data": [
+      {
+        "name": "添加账号",
+        "desc": "向账号池添加一个小号",
+        "eg": "登陆账号 密码",
+        "need_ck": true,
+        "need_sk": false,
+        "need_admin": true
+      },
+      {
+        "name": "启动服务",
+        "desc": "每次重启机器人之后需要启动服务",
+        "eg": "启动服务",
+        "need_ck": true,
+        "need_sk": false,
+        "need_admin": true
+      },
+      {
+        "name": "重启服务",
+        "desc": "遇到某些问题可能需要重启服务",
+        "eg": "重启服务",
+        "need_ck": true,
+        "need_sk": false,
+        "need_admin": true
+      },
+      {
+        "name": "检查服务",
+        "desc": "遇到某些问题可能需要检查服务",
+        "eg": "检查服务",
+        "need_ck": true,
+        "need_sk": false,
+        "need_admin": true
+      },
+      {
+        "name": "好友总览",
+        "desc": "检查账号池中小号的好友列表",
+        "eg": "好友总览",
+        "need_ck": true,
+        "need_sk": false,
+        "need_admin": true
+      },
+      {
+        "name": "获取全部好友申请",
+        "desc": "检查账号池中小号的好友添加提醒",
+        "eg": "获取全部好友申请",
+        "need_ck": true,
+        "need_sk": false,
+        "need_admin": true
+      },
+      {
+        "name": "同意所有好友申请",
+        "desc": "同意账号池中小号的好友添加提醒",
+        "eg": "同意所有好友申请",
+        "need_ck": true,
+        "need_sk": false,
+        "need_admin": true
+      },
+      {
+        "name": "同意好友申请",
+        "desc": "同意账号池中小号的某个好友添加提醒",
+        "eg": "同意好友申请114514",
+        "need_ck": true,
+        "need_sk": false,
+        "need_admin": true
       }
     ]
   },
@@ -53,9 +143,9 @@
     "desc": "一些杂项服务",
     "data": [
       {
-        "name": "雀魂帮助",
+        "name": "帮助",
         "desc": "呼出该帮助界面",
-        "eg": "雀魂帮助",
+        "eg": "帮助",
         "need_ck": false,
         "need_sk": false,
         "need_admin": false

@@ -165,9 +165,8 @@ class MajsoulConnection:
                 category = active_state.category
                 mode_id = active_state.meta.mode_id
             else:
-                raise ValueError(
-                    "get_playing only accept AccountActiveState or AccountPlayingGame"
-                )
+                err = "only accept AccountActiveState or AccountPlayingGame"
+                raise ValueError(err)
 
             if category == 1:
                 type_name = "歹人场"
@@ -197,10 +196,11 @@ class MajsoulConnection:
                 if active_uuid and not friend.playing.game_uuid:
                     category, type_name, mode_id = get_playing(active_state)
 
-                    msg = f"{nick_name} 开始了 {type_name}"
+                    msg = f"{nick_name} 开始了 {type_name}\n"
 
                     rome_name = ModeId2Room.get(mode_id, "")
-                    msg += f" {rome_name} category: {category} mode_id: {mode_id}\n"
+                    msg += f" {rome_name} category: {category} "
+                    msg += f"mode_id: {mode_id}\n"
                     msg += f"对局id: {active_state.playing.game_uuid}"
                     # save game_uuid
                     if not await MajsPaipu.data_exist(uuid=active_uuid):
