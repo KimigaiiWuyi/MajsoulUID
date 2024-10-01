@@ -3,7 +3,7 @@ import struct
 import betterproto
 
 from ..lib import lq as liblq
-from .model import InflightRequest, MajsoulLiqiProto, MajsoulDecodedMessage
+from .model import InflightRequest, MajsoulDecodedMessage, MajsoulLiqiProto
 
 
 class MajsoulProtoCodec:
@@ -89,9 +89,7 @@ class MajsoulProtoCodec:
         )
 
         data = (
-            struct.pack(
-                "<BBB", self.REQUEST, current_index & 0xFF, current_index >> 8
-            )
+            struct.pack("<BBB", self.REQUEST, current_index & 0xFF, current_index >> 8)
             + msg
         )
 

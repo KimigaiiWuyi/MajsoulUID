@@ -1,13 +1,13 @@
-from gsuid_core.sv import SV
 from gsuid_core.bot import Bot
-from gsuid_core.models import Event
 from gsuid_core.logger import logger
+from gsuid_core.models import Event
+from gsuid_core.sv import SV
 from gsuid_core.utils.database.api import get_uid
 
-from .majsoul import manager
-from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
 from ..utils.database.models import MajsBind, MajsPush, MajsUser
+from ..utils.error_reply import UID_HINT
+from .majsoul import manager
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_friend_level_billboard = SV("雀魂好友排行榜")
@@ -15,10 +15,10 @@ majsoul_get_notify = SV("雀魂订阅推送")
 majsoul_add_account = SV("雀魂账号池", pm=0)
 majsoul_friend_manage = SV("雀魂好友管理", pm=0)
 
-EXSAMPLE = '''雀魂登陆 用户名, 密码
+EXSAMPLE = """雀魂登陆 用户名, 密码
 ⚠ 提示: 该命令将会使用账密进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
 ⚠ 请自行使用任何小号, 本插件不为账号被封禁承担任何责任！！
-'''
+"""
 
 
 @majsoul_add_account.on_command(("添加账号", "登陆", "登录"))
@@ -29,18 +29,16 @@ async def majsoul_add_at(bot: Bot, ev: Event):
 
     evt = evt.replace(",", " ").replace("，", " ")
 
-    if ' ' in evt:
+    if " " in evt:
         username, password = evt.split(" ")
         if not username or not password:
             return await bot.send("❌ 请输入有效的username和password!")
 
         connection = await manager.check_username_password(username, password)
         if isinstance(connection, bool):
-            return await bot.send(
-                "❌ 登陆失败, 请输入正确的username和password!"
-            )
+            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
     else:
-        return await bot.send(f'❌ 登陆失败!参考命令:\n{EXSAMPLE}')
+        return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
 
     friend_code = str(encode_account_id2(connection.account_id))
     if await MajsUser.data_exist(uid=connection.account_id):
@@ -127,7 +125,7 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
 
 @majsoul_notify.on_fullmatch(("推送启动", "启动推送", "服务启动", "启动服务"))
 async def majsoul_notify_command(bot: Bot, event: Event):
-    await bot.send('正在准备进行账号登陆中...可能需要一定时间!')
+    await bot.send("正在准备进行账号登陆中...可能需要一定时间!")
     conn = await manager.start()
     if isinstance(conn, str):
         return await bot.send(conn)
@@ -177,17 +175,13 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
         # get level info
         msg = "本群雀魂好友四麻排行榜\n"
         for friend in friends:
-            level_str = friend.level.formatAdjustedScoreWithTag(
-                friend.level.score
-            )
+            level_str = friend.level.formatAdjustedScoreWithTag()
             msg += f"{friend.nickname} {level_str}\n"
     else:
         friends.sort(key=lambda x: (x.level3.id, x.level3.score), reverse=True)
         msg = "本群雀魂好友三麻排行榜\n"
         for friend in friends:
-            level_str = friend.level3.formatAdjustedScoreWithTag(
-                friend.level3.score
-            )
+            level_str = friend.level3.formatAdjustedScoreWithTag()
             msg += f"{friend.nickname} {level_str}\n"
     await bot.send(msg)
 
