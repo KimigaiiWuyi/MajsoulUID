@@ -171,6 +171,8 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
         return await bot.send("未找到有效连接, 请先进行[雀魂推送启动]")
     # get friends
     friends = conn.friends
+    # 去重
+    friends = list(set(friends))
     if "四" in event.text:
         # sort by level.id and level.score
         friends.sort(key=lambda x: (x.level.id, x.level.score), reverse=True)

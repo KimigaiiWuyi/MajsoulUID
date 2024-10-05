@@ -292,10 +292,13 @@ class MajsoulConnection:
             else:
                 # maybe add friend
                 friend = MajsoulFriend(data.friend)
-                self.friends.append(friend)
-                meta_msg = f"账号成功添加好友 {friend.nickname}！"
-                if data.account_id in self.friend_apply_list:
-                    self.friend_apply_list.remove(data.account_id)
+                if friend not in self.friends:
+                    self.friends.append(friend)
+                    meta_msg = f"账号成功添加好友 {friend.nickname}！"
+                    if data.account_id in self.friend_apply_list:
+                        self.friend_apply_list.remove(data.account_id)
+                else:
+                    meta_msg = f"账号已存在好友 {friend.nickname}！"
         elif data.type == 2:
             # 删除好友
             for friend in self.friends:
@@ -566,7 +569,9 @@ class MajsoulConnection:
         friend_list = resp.friend_list.friends
         if isinstance(friend_list, Iterable):
             for friend in friend_list:
-                self.friends.append(MajsoulFriend(friend))
+                friend = MajsoulFriend(friend)
+                if friend not in self.friends:
+                    self.friends.append(friend)
         friend_apply_list = resp.friend_apply_list.applies
         if isinstance(friend_apply_list, Iterable):
             for apply in friend_apply_list:
