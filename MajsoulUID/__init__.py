@@ -1,3 +1,5 @@
 from gsuid_core.sv import Plugins
 
-Plugins(name="MajsoulUID", prefix="雀魂")
+Plugins(
+    name="MajsoulUID", force_prefix=['雀魂', 'qh'], allow_empty_prefix=False
+)

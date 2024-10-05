@@ -1,5 +1,3 @@
-# 导入一个用于处理国际化字符串的模块
-import math
 import gettext
 
 from .remote_const import (
@@ -92,6 +90,10 @@ class PlayerLevel:
         self.major_rank = self.getFullTag()
         self.minor_rank = self.getMinorRank()
         self.full_tag = f"{self.major_rank}{self.minor_rank}"
+
+        self.real_score = self.getVersionAdjustedScore(score)
+        self.real_display_score = self.formatAdjustedScore(score)
+        self.real_level_tag_with_score = self.formatAdjustedScoreWithTag(score)
 
     # 定义一个方法，返回等级的编号
     def toLevelId(self):
@@ -287,7 +289,7 @@ class PlayerLevel:
         # 如果主等级是Konten等级的前一级，即第九级
         if self._majorRank == LEVEL_KONTEN - 1:
             # 则返回分数除以100，向上取整，再乘以10，再加上200
-            return math.ceil(score / 100) * 10 + 200
+            return (score // 100) * 10 + 200
         # 否则，返回分数，表示没有调整
         return score
 
@@ -302,6 +304,12 @@ class PlayerLevel:
         # 否则，返回分数的字符串形式
         return str(score)
 
+    def GetMaxPointScoreDisplay(self) -> str:
+        max_point = self.getMaxPoint()
+        if self.isKonten():
+            return f"{max_point / 100:.1f}"
+        return str(max_point)
+
     # 定义一个方法，返回分数和等级标签的组合格式
     def formatAdjustedScoreWithTag(self, score):
         # 获取调整后的等级对象，根据分数的变化
@@ -311,23 +319,12 @@ class PlayerLevel:
 
     # 定义一个方法，返回分数的格式
     def formatAdjustedScore(self, score):
-        # 获取调整后的等级对象，根据分数的变化
-        level = self.getAdjustedLevel(score)
-        # 获取调整后的分数，用于处理Konten等级的前一级的特殊情况
-        score = self.getVersionAdjustedScore(score)
-        # 返回分数的显示格式，如果等级和自身相同，且分数小于0，则取0，否则取等级的起始分数
-        # 如果等级有最大分数，则在分数后面加上最大分数的显示格式
+        score_display = f"{self.getScoreDisplay(score)}"
+        if not self.getMaxPoint():
+            max_point_display = ""
+        else:
+            max_point_display = f"/{self.GetMaxPointScoreDisplay()}"
 
-        score_display = level.getScoreDisplay(
-            max(score, 0) if level.isSame(self) else level.getStartingPoint()
-        )
-        # 定义一个变量，存储最大分数的显示格式，如果有的话
-        max_point_display = (
-            f"/{level.getScoreDisplay(level.getMaxPoint())}"
-            if level.getMaxPoint()
-            else ""
-        )
-        # 返回分数和最大分数的组合
         return f"{score_display}{max_point_display}"
 
     def getFullTag(self):

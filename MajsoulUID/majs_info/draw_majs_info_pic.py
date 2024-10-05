@@ -21,6 +21,7 @@ star_full = Image.open(TEXTURE / "star_full.png").resize((32, 32))
 RANK_ALPHA = {2: 0.7, 3: 0.5, 4: 0.1}
 RANK_POS = {4: 321, 3: 242, 2: 160, 1: 73}
 W = (255, 255, 255)
+G = (193, 193, 193)
 
 
 @gs_cache()
@@ -68,8 +69,11 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
     if isinstance(record, int):
         record = []
 
-    level4 = PlayerLevel(data4["level"]["id"])
-    level3 = PlayerLevel(data3["level"]["id"])
+    level4_score = data4["level"]["score"] + data4["level"]["delta"]
+    level3_score = data3["level"]["score"] + data3["level"]["delta"]
+
+    level4 = PlayerLevel(data4["level"]["id"], level4_score)
+    level3 = PlayerLevel(data3["level"]["id"], level3_score)
 
     img = Image.open(TEXTURE / "bg.jpg")
     title = Image.open(TEXTURE / "title.png")
@@ -298,7 +302,9 @@ async def get_rank_icon(
     rong_rate = get_rate(extended["和牌率"])
     chong_rate = get_rate(extended["放铳率"])
 
-    rank_draw.text((324, 78), level.full_tag, W, majs_font(44), "mm")
+    rank_draw.text((296, 78), level.full_tag, W, majs_font(44), "mm")
+    rank_draw.text((460, 78), level.real_display_score, G, majs_font(28), "mm")
+
     rank_draw.text((282, 146), str(stats["count"]), W, majs_font(36), "lm")
     rank_draw.text((458, 146), avg_rank, W, majs_font(36), "lm")
 
