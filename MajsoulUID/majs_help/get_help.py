@@ -4,8 +4,8 @@ from pathlib import Path
 import aiofiles
 from PIL import Image
 from msgspec import json as msgjson
-from gsuid_core.sv import get_plugin_prefix
 from gsuid_core.help.model import PluginHelp
+from gsuid_core.sv import get_plugin_available_prefix
 from gsuid_core.help.draw_new_plugin_help import get_new_help
 
 from ..utils.image import get_footer
@@ -16,7 +16,7 @@ HELP_DATA = Path(__file__).parent / 'help.json'
 ICON_PATH = Path(__file__).parent / 'icon_path'
 TEXT_PATH = Path(__file__).parent / 'texture2d'
 
-PREFIX = get_plugin_prefix('MajsoulUID')
+PREFIX = get_plugin_available_prefix('MajsoulUID')
 
 
 async def get_help_data() -> Dict[str, PluginHelp]:

@@ -13,6 +13,11 @@ superuser: str = config_superusers[0] if config_superusers else ''
 defalut_id = str(master if master else superuser)
 
 CONFIG_DEFAULT: Dict[str, GSC] = {
+    "UseFlowerHistory": GsBoolConfig(
+        "对局历史使用花图替代折线图",
+        "对局历史使用花图替代折线图",
+        False,
+    ),
     'MajsIsPushActiveToMaster': GsBoolConfig(
         '是否向推送对象也推送订阅信息',
         '设置后将会向下面设置的推送对象也推送订阅信息',

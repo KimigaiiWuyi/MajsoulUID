@@ -10,8 +10,8 @@ from gsuid_core.utils.fonts.fonts import core_font as majs_font
 
 from ..utils.majs_api import majs_api
 from ..utils.api.remote import PlayerLevel
-from ..utils.majs_config import majs_config
 from ..utils.api.models import Stats, Extended
+from ..majs_config.majs_config import MAJS_CONFIG
 from ..utils.api.remote_const import player_stats_zero, player_extend_zero
 
 TEXTURE = Path(__file__).parent / "texture2d"
@@ -26,7 +26,7 @@ G = (193, 193, 193)
 
 @gs_cache()
 async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
-    MODE: bool = majs_config.get_config("use_flower_history").data
+    MODE: bool = MAJS_CONFIG.get_config("UseFlowerHistory").data
     data4 = await majs_api.get_player_stats(uid)
     data3 = await majs_api.get_player_stats(uid, "3")
 
