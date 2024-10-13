@@ -1,13 +1,13 @@
 import gettext
 
 from .remote_const import (
+    LEVEL_ALLOWED_MODES,
     LEVEL_KONTEN,
+    LEVEL_MAX_POINT_KONTEN,
+    LEVEL_MAX_POINTS,
     MODE_PENALTY,
     PLAYER_RANKS,
-    LEVEL_MAX_POINTS,
-    LEVEL_ALLOWED_MODES,
     PLAYER_RANKS_DETAIL,
-    LEVEL_MAX_POINT_KONTEN,
 )
 
 
@@ -97,9 +97,22 @@ class PlayerLevel:
 
     # 定义一个方法，返回等级的编号
     def toLevelId(self):
-        return (
-            self._numPlayerId * 10000 + self._majorRank * 100 + self._minorRank
-        )
+        return self._numPlayerId * 10000 + self._majorRank * 100 + self._minorRank
+
+    def get_tag(self) -> str:
+        label = PLAYER_RANKS[
+            LEVEL_KONTEN - 2 if self.isKonten() else self._majorRank - 1
+        ]
+        if self.minor_rank == LEVEL_KONTEN - 1:
+            return label
+        if self.minor_rank == 1:
+            return label + "一"
+        elif self.minor_rank == 2:
+            return label + "二"
+        elif self.minor_rank == 3:
+            return label + "三"
+        else:
+            raise ValueError(f"Unknown minor rank: {self.minor_rank}")
 
     # 定义一个方法，判断是否和另一个等级对象的主等级相同
     def isSameMajorRank(self, other):
@@ -125,10 +138,7 @@ class PlayerLevel:
     # 定义一个方法，判断是否允许某种游戏模式
     def isAllowedMode(self, mode):
         # 根据玩家编号和主等级，从一个常量列表中获取允许的游戏模式列表
-        return (
-            mode
-            in LEVEL_ALLOWED_MODES[self._numPlayerId * 100 + self._majorRank]
-        )
+        return mode in LEVEL_ALLOWED_MODES[self._numPlayerId * 100 + self._majorRank]
 
     # 定义一个方法，判断是否是Konten等级，即最高等级
     def isKonten(self):
@@ -166,9 +176,7 @@ class PlayerLevel:
             # 否则，返回一个常量，表示Konten等级的最大分数
             return LEVEL_MAX_POINT_KONTEN
         # 否则，根据主等级和次等级，从一个常量列表中获取对应的最大分数
-        return LEVEL_MAX_POINTS[
-            (self._majorRank - 1) * 3 + self._minorRank - 1
-        ]
+        return LEVEL_MAX_POINTS[(self._majorRank - 1) * 3 + self._minorRank - 1]
 
     # 定义一个方法，返回等级的惩罚分数，即失败时扣除的分数
     def getPenaltyPoint(self, mode):
@@ -177,9 +185,7 @@ class PlayerLevel:
             # 则返回0，表示没有惩罚
             return 0
         # 否则，根据游戏模式，主等级和次等级，从一个常量字典中获取对应的惩罚分数
-        return MODE_PENALTY[mode][
-            (self._majorRank - 1) * 3 + self._minorRank - 1
-        ]
+        return MODE_PENALTY[mode][(self._majorRank - 1) * 3 + self._minorRank - 1]
 
     # 定义一个方法，返回等级的起始分数，即升级到该等级时的分数
     def getStartingPoint(self):
@@ -208,9 +214,7 @@ class PlayerLevel:
             # 则主等级变为Konten等级，即第十级
             majorRank = LEVEL_KONTEN
         # 返回一个新的等级对象，使用相同的玩家编号，但不同的等级编号
-        return PlayerLevel(
-            level._numPlayerId * 10000 + majorRank * 100 + minorRank
-        )
+        return PlayerLevel(level._numPlayerId * 10000 + majorRank * 100 + minorRank)
 
     # 定义一个方法，返回等级的上一个等级对象
     def getPreviousLevel(self):
@@ -234,9 +238,7 @@ class PlayerLevel:
             # 则主等级变为Konten等级的前两级，即第八级
             majorRank = LEVEL_KONTEN - 2
         # 返回一个新的等级对象，使用相同的玩家编号，但不同的等级编号
-        return PlayerLevel(
-            level._numPlayerId * 10000 + majorRank * 100 + minorRank
-        )
+        return PlayerLevel(level._numPlayerId * 10000 + majorRank * 100 + minorRank)
 
     # 定义一个方法，返回等级的调整后的等级对象，根据分数的变化
     def getAdjustedLevel(self, score):
