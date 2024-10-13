@@ -1,41 +1,41 @@
-import hmac
-import uuid
-import random
 import asyncio
 import hashlib
-from typing import cast
+import hmac
+import random
+import uuid
 from collections.abc import Iterable
+from typing import cast
 
 import websockets.client
-from msgspec import convert
-from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
+from httpx import AsyncClient
+from msgspec import convert
 
-from .utils import getRes
 from ..lib import lq as liblq
-from ._level import MajsoulLevel
-from .codec import MajsoulProtoCodec
-from .majs_to_tenhou import toTenhou
-from .majsoul_friend import MajsoulFriend
-from .constants import HEADERS, ModeId2Room
 from ..majs_config.majs_config import MAJS_CONFIG
-from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
 from ..utils.api.remote import (
-    decode_log_id,
     decode_account_id,
+    decode_log_id,
     encode_account_id,
 )
+from ..utils.database.models import MajsPaipu, MajsPush, MajsUser
+from ._level import MajsoulLevel
+from .codec import MajsoulProtoCodec
+from .constants import HEADERS, ModeId2Room
+from .majs_to_tenhou import toTenhou
+from .majsoul_friend import MajsoulFriend
 from .model import (
-    MjsLog,
-    MjsLogItem,
     MajsoulConfig,
-    MajsoulResInfo,
+    MajsoulDecodedMessage,
     MajsoulLiqiProto,
+    MajsoulResInfo,
     MajsoulServerList,
     MajsoulVersionInfo,
-    MajsoulDecodedMessage,
+    MjsLog,
+    MjsLogItem,
 )
+from .utils import getRes
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 
@@ -52,9 +52,7 @@ class MajsoulConnection:
         self._ws = None
         self._req_events: dict[int, asyncio.Event] = {}
         self._res: dict[int, MajsoulDecodedMessage] = {}
-        self.clientVersionString = "web-" + versionInfo.version.replace(
-            ".w", ""
-        )
+        self.clientVersionString = "web-" + versionInfo.version.replace(".w", "")
         self.no_operation_counter = 0
         self.bg_tasks = []
         self.queue = asyncio.queues.Queue()
@@ -73,9 +71,7 @@ class MajsoulConnection:
             return False
         resp = cast(
             liblq.ResCommon,
-            await self.rpc_call(
-                ".lq.Lobby.heatbeat", {"no_operation_counter": 0}
-            ),
+            await self.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0}),
         )
         if resp.error.code:
             return False
@@ -105,9 +101,7 @@ class MajsoulConnection:
                     "",
                 )
         else:
-            logger.warning(
-                "[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!"
-            )
+            logger.warning("[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!")
 
     async def send_msg_to_user(self, target_user: str, msg):
         if MAJS_CONFIG.get_config("MajsIsPushActiveToMaster").data:
@@ -258,7 +252,7 @@ class MajsoulConnection:
                     record_result = game_record.head.result.players
                     for i, player in enumerate(record_result):
                         if player.seat == friend_seat:
-                            msg += f"最终得分为 {player.part_point_1} "
+                            msg += f"最终打点 {player.part_point_1} "
 
                             if i + 1 == 1:
                                 msg += "1st"
@@ -269,10 +263,7 @@ class MajsoulConnection:
                             elif i + 1 == 4:
                                 msg += "4th"
 
-                            if player.grading_score >= 0:
-                                msg += f" +{player.grading_score}pt\n"
-                            else:
-                                msg += f" {player.grading_score}pt\n"
+                            msg += f"得点 {player.grading_score}\n"
                             level_info = MajsoulLevel(
                                 friend_level_id
                             ).formatAdjustedScoreWithTag(
@@ -460,9 +451,7 @@ class MajsoulConnection:
         password: str,
         version_info: MajsoulVersionInfo,
     ):
-        password = hmac.new(
-            b"lailai", password.encode(), hashlib.sha256
-        ).hexdigest()
+        password = hmac.new(b"lailai", password.encode(), hashlib.sha256).hexdigest()
         resp = cast(
             liblq.ResLogin,
             await self.rpc_call(
@@ -703,8 +692,7 @@ async def createMajsoulConnection(
 
     serverListUrl = random.choice(ipDef.region_urls).url
     serverListUrl += (
-        "?service=ws-gateway&protocol=ws&ssl=true&rv="
-        + str(random.random())[2:]
+        "?service=ws-gateway&protocol=ws&ssl=true&rv=" + str(random.random())[2:]
     )
 
     resp = await AsyncClient(headers=HEADERS).get(serverListUrl)
@@ -775,13 +763,9 @@ class MajsoulManager:
             users = await MajsUser.get_all_user()
             for user in users:
                 try:
-                    conn = await createMajsoulConnection(
-                        access_token=user.cookie
-                    )
+                    conn = await createMajsoulConnection(access_token=user.cookie)
                 except ValueError as e:
-                    logger.warning(
-                        f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}"
-                    )
+                    logger.warning(f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}")
                     conn = await createMajsoulConnection(
                         username=user.account,
                         password=user.password,
