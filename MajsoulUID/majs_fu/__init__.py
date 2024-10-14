@@ -1,10 +1,10 @@
 import asyncio
 
-from async_timeout import timeout
-from gsuid_core.bot import Bot
-from gsuid_core.logger import logger
-from gsuid_core.models import Event
 from gsuid_core.sv import SV
+from gsuid_core.bot import Bot
+from async_timeout import timeout
+from gsuid_core.models import Event
+from gsuid_core.logger import logger
 from gsuid_core.utils.image.convert import convert_img
 
 from .fu import MahjongScoring
@@ -19,7 +19,9 @@ async def send_help_img(bot: Bot, ev: Event):
     mahjong_scoring.generate_problem()
     image = await mahjong_scoring.set_answer()
 
-    await bot.send("现在开始算符小游戏，你有60秒的时间回答问题，只需要回答数字即可。")
+    await bot.send(
+        "现在开始算符小游戏，你有60秒的时间回答问题，只需要回答数字即可。"
+    )
     await bot.send(await convert_img(image))
     try:
         async with timeout(60):

@@ -1,8 +1,8 @@
 import os
 import random
 
-from gsuid_core.utils.fonts.fonts import core_font as majs_font
 from PIL import Image, ImageDraw, ImageFont
+from gsuid_core.utils.fonts.fonts import core_font as majs_font
 
 
 class MahjongScoring:
@@ -35,7 +35,9 @@ class MahjongScoring:
     ) -> Image.Image:
         # 检查字体文件路径是否存在
         if not os.path.exists(font_path):
-            raise FileNotFoundError(f"The font file {font_path} was not found.")
+            raise FileNotFoundError(
+                f"The font file {font_path} was not found."
+            )
 
         # 加载麻将字体
         try:
@@ -53,8 +55,12 @@ class MahjongScoring:
         # 计算图像大小
         tile_width = 30  # 每个麻将牌的宽度
         tile_height = 50  # 每个麻将牌的高度
-        img_width = tile_width * len(hand_str) + honor_num * 10 + 10  # 图像宽度
-        img_height = tile_height + 50 if not include_answer else tile_height + 120
+        img_width = (
+            tile_width * len(hand_str) + honor_num * 10 + 10
+        )  # 图像宽度
+        img_height = (
+            tile_height + 50 if not include_answer else tile_height + 120
+        )
 
         # 创建白色背景的图像
         image = Image.new("RGB", (img_width, img_height), "white")
@@ -89,7 +95,9 @@ class MahjongScoring:
                     last_is_honor = False
                 cur_width += tile_spacing if i != 0 else 0
             if i == self.last_tile_pos:
-                draw.text((cur_width, 50), self.last_tile_str, font=font, fill="red")
+                draw.text(
+                    (cur_width, 50), self.last_tile_str, font=font, fill="red"
+                )
             else:
                 draw.text((cur_width, 50), tile, font=font, fill="black")
 
@@ -175,7 +183,9 @@ class MahjongScoring:
                 self.taken_tiles[t] += 1
                 self.taken_tiles[t + 1] += 1
                 self.taken_tiles[t + 2] += 1
-                self.hand.append(self.tiles[t] + self.tiles[t + 1] + self.tiles[t + 2])
+                self.hand.append(
+                    self.tiles[t] + self.tiles[t + 1] + self.tiles[t + 2]
+                )
                 self.shuntsu_amount += 1
             elif type_ == 1:  # 碰 (pon)
                 t = random.randint(0, 33)
@@ -198,7 +208,10 @@ class MahjongScoring:
                 j = 1
                 while j < ptr:
                     if len(self.hand[j]) == 4:
-                        self.hand[j], self.hand[ptr] = self.hand[ptr], self.hand[j]
+                        self.hand[j], self.hand[ptr] = (
+                            self.hand[ptr],
+                            self.hand[j],
+                        )
                         j -= 1
                         ptr -= 1
                     j += 1
@@ -206,7 +219,9 @@ class MahjongScoring:
         self.last_tile_from = random.randint(0, 4 - self.call_amount)
         while len(self.hand[self.last_tile_from]) > 3:
             self.last_tile_from = random.randint(0, 4 - self.call_amount)
-        self.last_tile = random.randint(0, len(self.hand[self.last_tile_from]) - 1)
+        self.last_tile = random.randint(
+            0, len(self.hand[self.last_tile_from]) - 1
+        )
         self.win_by = self.winning_style[random.randint(0, 1)]
 
     def calculate_score(self):
@@ -293,7 +308,9 @@ class MahjongScoring:
                             self.answer_in_number += 16
                         else:
                             self.answer[i + 1] = "么九暗槓 +32"
-                            self.hand[i] = "`" + self.hand[i][1] + self.hand[i][2] + "`"
+                            self.hand[i] = (
+                                "`" + self.hand[i][1] + self.hand[i][2] + "`"
+                            )
                             self.answer_in_number += 32
                     else:
                         if i > 4 - self.call_amount:
@@ -311,7 +328,9 @@ class MahjongScoring:
                             self.answer_in_number += 8
                         else:
                             self.answer[i + 1] = "中張暗槓 +16"
-                            self.hand[i] = "`" + self.hand[i][1] + self.hand[i][2] + "`"
+                            self.hand[i] = (
+                                "`" + self.hand[i][1] + self.hand[i][2] + "`"
+                            )
                             self.answer_in_number += 16
                 elif meld[0] == meld[1]:  # Pon (Pung)
                     if meld[0] in "1qa9olzxcvbnm":  # 么九
@@ -348,7 +367,9 @@ class MahjongScoring:
                     self.answer[i + 1] = "順子 +0"
                     if i > 4 - self.call_amount:
                         self.hand[i] = (
-                            self.rotated_tiles[self.tiles.index(self.hand[i][0])]
+                            self.rotated_tiles[
+                                self.tiles.index(self.hand[i][0])
+                            ]
                             + self.hand[i][1]
                             + self.hand[i][2]
                         )
@@ -420,12 +441,16 @@ class MahjongScoring:
             and self.shuntsu_amount >= 4
             and self.answer_in_number < 30
         ):
-            self.answer[6] += "<br>非平和情況下, 若進位後仍不足30符, 以30符計算"
+            self.answer[
+                6
+            ] += "<br>非平和情況下, 若進位後仍不足30符, 以30符計算"
             self.answer_in_number = 30
 
     async def set_answer(self):
         self.calculate_score()
-        print(f"风圈: {self.field}, 门风: {self.self}, 和牌方式: {self.win_by}")
+        print(
+            f"风圈: {self.field}, 门风: {self.self}, 和牌方式: {self.win_by}"
+        )
         print(f"手牌: {self.hand}")
         print(f"答案: {self.answer}")
         print(f"分数: {self.answer_in_number}")
