@@ -36,7 +36,9 @@ async def send_help_img(bot: Bot, ev: Event):
                         continue
                     result = await mahjong_scoring.check_answer(int(resp.text))
                     if not result:
-                        await bot.send("回答错误，正确答案是：")
+                        await bot.send(
+                            f"回答错误，正确符数为 {mahjong_scoring.answer_in_number}"
+                        )
                         await bot.send(
                             await convert_img(
                                 await mahjong_scoring.draw_problem_image(
@@ -44,8 +46,9 @@ async def send_help_img(bot: Bot, ev: Event):
                                 )
                             )
                         )
-                    await bot.send("回答正确！")
-                    await bot.send(await convert_img(result))
+                    else:
+                        await bot.send("回答正确！")
+                        await bot.send(await convert_img(result))
                     break
     except asyncio.TimeoutError:
         await bot.send("很遗憾，你没有在规定时间内回答问题。正确答案是：")
