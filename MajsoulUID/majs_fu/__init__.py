@@ -1,10 +1,10 @@
 import asyncio
 
-from gsuid_core.sv import SV
-from gsuid_core.bot import Bot
 from async_timeout import timeout
-from gsuid_core.models import Event
+from gsuid_core.bot import Bot
 from gsuid_core.logger import logger
+from gsuid_core.models import Event
+from gsuid_core.sv import SV
 from gsuid_core.utils.image.convert import convert_img
 
 from .fu import MahjongScoring
@@ -32,7 +32,6 @@ async def send_help_img(bot: Bot, ev: Event):
                         await bot.send("游戏已取消！")
                         return
                     if not resp.text.isdigit():
-                        await bot.send("请输入数字！")
                         continue
                     result = await mahjong_scoring.check_answer(int(resp.text))
                     if not result:
