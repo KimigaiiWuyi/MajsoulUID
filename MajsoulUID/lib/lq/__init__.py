@@ -2171,6 +2171,34 @@ class RecordGameAccountInfo(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class RecordListEntry(betterproto.Message):
+    version: int = betterproto.uint32_field(1)
+    uuid: str = betterproto.string_field(2)
+    start_time: int = betterproto.uint32_field(3)
+    end_time: int = betterproto.uint32_field(4)
+    tag: int = betterproto.uint32_field(5)
+    subtag: int = betterproto.uint32_field(6)
+    players: List["RecordPlayerResult"] = betterproto.message_field(7)
+
+
+@dataclass(eq=False, repr=False)
+class RecordPlayerResult(betterproto.Message):
+    rank: int = betterproto.uint32_field(1)
+    account_id: int = betterproto.uint32_field(2)
+    nickname: str = betterproto.string_field(3)
+    level: "AccountLevel" = betterproto.message_field(4)
+    level3: "AccountLevel" = betterproto.message_field(5)
+    pt: int = betterproto.int32_field(7)
+    point: int = betterproto.int32_field(8)
+    max_hu_type: int = betterproto.uint32_field(9)
+    action_liqi: int = betterproto.uint32_field(10)
+    action_rong: int = betterproto.uint32_field(11)
+    action_zimo: int = betterproto.uint32_field(12)
+    action_chong: int = betterproto.uint32_field(13)
+    verified: int = betterproto.uint32_field(14)
+
+
+@dataclass(eq=False, repr=False)
 class CustomizedContestGameStart(betterproto.Message):
     players: List["CustomizedContestGameStartItem"] = betterproto.message_field(1)
 
@@ -2842,6 +2870,86 @@ class AmuletUpgradeResult(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class QuestionnaireReward(betterproto.Message):
+    resource_id: int = betterproto.uint32_field(1)
+    count: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class QuestionnaireDetail(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    version_id: int = betterproto.uint32_field(2)
+    effective_time_start: int = betterproto.uint32_field(3)
+    effective_time_end: int = betterproto.uint32_field(4)
+    rewards: List["QuestionnaireReward"] = betterproto.message_field(5)
+    banner_title: str = betterproto.string_field(6)
+    title: str = betterproto.string_field(7)
+    announcement_title: str = betterproto.string_field(8)
+    announcement_content: str = betterproto.string_field(9)
+    final_text: str = betterproto.string_field(10)
+    questions: List["QuestionnaireQuestion"] = betterproto.message_field(11)
+
+
+@dataclass(eq=False, repr=False)
+class QuestionnaireQuestion(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    title: str = betterproto.string_field(2)
+    describe: str = betterproto.string_field(3)
+    type: str = betterproto.string_field(4)
+    sub_type: str = betterproto.string_field(5)
+    options: List["QuestionnaireQuestionQuestionOption"] = betterproto.message_field(6)
+    option_random_sort: bool = betterproto.bool_field(7)
+    require: bool = betterproto.bool_field(8)
+    max_choice: int = betterproto.uint32_field(9)
+    next_question: List["QuestionnaireQuestionNextQuestionData"] = (
+        betterproto.message_field(10)
+    )
+    matrix_row: List[str] = betterproto.string_field(11)
+
+
+@dataclass(eq=False, repr=False)
+class QuestionnaireQuestionQuestionOption(betterproto.Message):
+    label: str = betterproto.string_field(1)
+    value: str = betterproto.string_field(2)
+    allow_input: bool = betterproto.bool_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class QuestionnaireQuestionNextQuestionData(betterproto.Message):
+    target_question_id: int = betterproto.uint32_field(1)
+    conditions: List[
+        "QuestionnaireQuestionNextQuestionDataQuestionconditionWrapper"
+    ] = betterproto.message_field(10)
+
+
+@dataclass(eq=False, repr=False)
+class QuestionnaireQuestionNextQuestionDataQuestionCondition(betterproto.Message):
+    question_id: int = betterproto.uint32_field(1)
+    op: str = betterproto.string_field(2)
+    values: List[str] = betterproto.string_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class QuestionnaireQuestionNextQuestionDataQuestionconditionWrapper(
+    betterproto.Message
+):
+    conditions: List["QuestionnaireQuestionNextQuestionDataQuestionCondition"] = (
+        betterproto.message_field(1)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class QuestionnaireBrief(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    version_id: int = betterproto.uint32_field(2)
+    effective_time_start: int = betterproto.uint32_field(3)
+    effective_time_end: int = betterproto.uint32_field(4)
+    rewards: List["QuestionnaireReward"] = betterproto.message_field(5)
+    banner_title: str = betterproto.string_field(6)
+    title: str = betterproto.string_field(7)
+
+
+@dataclass(eq=False, repr=False)
 class ResConnectionInfo(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     client_endpoint: "NetworkEndpoint" = betterproto.message_field(2)
@@ -3262,6 +3370,41 @@ class ResGameRecordList(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ReqGameRecordListV2(betterproto.Message):
+    tag: int = betterproto.uint32_field(1)
+    begin_time: int = betterproto.uint32_field(2)
+    end_time: int = betterproto.uint32_field(3)
+    ranks: List[int] = betterproto.uint32_field(4)
+    modes: List[int] = betterproto.uint32_field(5)
+    max_hu_type: int = betterproto.uint32_field(6)
+    level_mode: List[int] = betterproto.uint32_field(7)
+
+
+@dataclass(eq=False, repr=False)
+class ResGameRecordListV2(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    iterator: str = betterproto.string_field(2)
+    iterator_expire: int = betterproto.uint32_field(3)
+    actual_begin_time: int = betterproto.uint32_field(4)
+    actual_end_time: int = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class ReqNextGameRecordList(betterproto.Message):
+    iterator: str = betterproto.string_field(1)
+    count: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResNextGameRecordList(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    next: bool = betterproto.bool_field(2)
+    entries: List["RecordListEntry"] = betterproto.message_field(3)
+    iterator_expire: int = betterproto.uint32_field(4)
+    next_end_time: int = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
 class ResCollectedGameRecordList(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     record_list: List["RecordCollectedData"] = betterproto.message_field(2)
@@ -3277,6 +3420,17 @@ class ReqGameRecordsDetail(betterproto.Message):
 class ResGameRecordsDetail(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     record_list: List["RecordGame"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqGameRecordsDetailV2(betterproto.Message):
+    uuid_list: List[str] = betterproto.string_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResGameRecordsDetailV2(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    entries: List["RecordListEntry"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -6590,8 +6744,316 @@ class ResFetchActivityRankActivityRankItem(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ReqFetchQuestionnaireList(betterproto.Message):
+    lang: str = betterproto.string_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchQuestionnaireList(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    list: List["QuestionnaireBrief"] = betterproto.message_field(2)
+    finished_list: List[int] = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFetchQuestionnaireDetail(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    lang: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchQuestionnaireDetail(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    detail: "QuestionnaireDetail" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
 class ReqSetVerifiedHidden(betterproto.Message):
     verified_hidden: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSubmitQuestionnaire(betterproto.Message):
+    questionnaire_id: int = betterproto.uint32_field(1)
+    questionnaire_version_id: int = betterproto.uint32_field(2)
+    answers: List["ReqSubmitQuestionnaireQuestionnaireAnswer"] = (
+        betterproto.message_field(3)
+    )
+    open_time: int = betterproto.uint32_field(4)
+    finish_time: int = betterproto.uint32_field(5)
+    client: str = betterproto.string_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSubmitQuestionnaireQuestionnaireAnswer(betterproto.Message):
+    question_id: int = betterproto.uint32_field(1)
+    values: List[
+        "ReqSubmitQuestionnaireQuestionnaireAnswerQuestionnaireAnswerValue"
+    ] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSubmitQuestionnaireQuestionnaireAnswerQuestionnaireAnswerValue(
+    betterproto.Message
+):
+    value: str = betterproto.string_field(1)
+    custom_input: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqAuthGame(betterproto.Message):
+    account_id: int = betterproto.uint32_field(1)
+    token: str = betterproto.string_field(2)
+    game_uuid: str = betterproto.string_field(3)
+    session: str = betterproto.string_field(4)
+    gift: str = betterproto.string_field(5)
+    vs: int = betterproto.uint32_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class ResAuthGame(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    players: List["PlayerGameView"] = betterproto.message_field(2)
+    seat_list: List[int] = betterproto.uint32_field(3)
+    is_game_start: bool = betterproto.bool_field(4)
+    game_config: "GameConfig" = betterproto.message_field(5)
+    ready_id_list: List[int] = betterproto.uint32_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class GameRestore(betterproto.Message):
+    snapshot: "GameSnapshot" = betterproto.message_field(1)
+    actions: List["ActionPrototype"] = betterproto.message_field(2)
+    passed_waiting_time: int = betterproto.uint32_field(3)
+    game_state: int = betterproto.uint32_field(4)
+    start_time: int = betterproto.uint32_field(5)
+    last_pause_time_ms: int = betterproto.uint32_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class ResEnterGame(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    is_end: bool = betterproto.bool_field(2)
+    step: int = betterproto.uint32_field(3)
+    game_restore: "GameRestore" = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSyncGame(betterproto.Message):
+    round_id: str = betterproto.string_field(1)
+    step: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResSyncGame(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    is_end: bool = betterproto.bool_field(2)
+    step: int = betterproto.uint32_field(3)
+    game_restore: "GameRestore" = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSelfOperation(betterproto.Message):
+    type: int = betterproto.uint32_field(1)
+    index: int = betterproto.uint32_field(2)
+    tile: str = betterproto.string_field(3)
+    cancel_operation: bool = betterproto.bool_field(4)
+    moqie: bool = betterproto.bool_field(5)
+    timeuse: int = betterproto.uint32_field(6)
+    tile_state: int = betterproto.int32_field(7)
+    change_tiles: List[str] = betterproto.string_field(8)
+    tile_states: List[int] = betterproto.int32_field(9)
+    gap_type: int = betterproto.uint32_field(10)
+
+
+@dataclass(eq=False, repr=False)
+class ReqChiPengGang(betterproto.Message):
+    type: int = betterproto.uint32_field(1)
+    index: int = betterproto.uint32_field(2)
+    cancel_operation: bool = betterproto.bool_field(3)
+    timeuse: int = betterproto.uint32_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class ReqBroadcastInGame(betterproto.Message):
+    content: str = betterproto.string_field(1)
+    except_self: bool = betterproto.bool_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqGmCommandInGaming(betterproto.Message):
+    json_data: str = betterproto.string_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResGamePlayerState(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    state_list: List["GamePlayerState"] = betterproto.enum_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqVoteGameEnd(betterproto.Message):
+    yes: bool = betterproto.bool_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResGameEndVote(betterproto.Message):
+    success: bool = betterproto.bool_field(1)
+    vote_cd_end_time: int = betterproto.uint32_field(2)
+    error: "Error" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqAuthObserve(betterproto.Message):
+    token: str = betterproto.string_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResStartObserve(betterproto.Message):
+    head: "GameLiveHead" = betterproto.message_field(1)
+    passed: "GameLiveSegment" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyNewGame(betterproto.Message):
+    game_uuid: str = betterproto.string_field(1)
+    player_list: List[str] = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyPlayerLoadGameReady(betterproto.Message):
+    ready_id_list: List[int] = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyGameBroadcast(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+    content: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyGameEndResult(betterproto.Message):
+    result: "GameEndResult" = betterproto.message_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyGameTerminate(betterproto.Message):
+    reason: str = betterproto.string_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyPlayerConnectionState(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+    state: "GamePlayerState" = betterproto.enum_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyAccountLevelChange(betterproto.Message):
+    origin: "AccountLevel" = betterproto.message_field(1)
+    final: "AccountLevel" = betterproto.message_field(2)
+    type: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyGameFinishReward(betterproto.Message):
+    mode_id: int = betterproto.uint32_field(1)
+    level_change: "NotifyGameFinishRewardLevelChange" = betterproto.message_field(2)
+    match_chest: "NotifyGameFinishRewardMatchChest" = betterproto.message_field(3)
+    main_character: "NotifyGameFinishRewardMainCharacter" = betterproto.message_field(4)
+    character_gift: "NotifyGameFinishRewardCharacterGift" = betterproto.message_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyGameFinishRewardLevelChange(betterproto.Message):
+    origin: "AccountLevel" = betterproto.message_field(1)
+    final: "AccountLevel" = betterproto.message_field(2)
+    type: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyGameFinishRewardMatchChest(betterproto.Message):
+    chest_id: int = betterproto.uint32_field(1)
+    origin: int = betterproto.uint32_field(2)
+    final: int = betterproto.uint32_field(3)
+    is_graded: bool = betterproto.bool_field(4)
+    rewards: List["RewardSlot"] = betterproto.message_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyGameFinishRewardMainCharacter(betterproto.Message):
+    level: int = betterproto.uint32_field(1)
+    exp: int = betterproto.uint32_field(2)
+    add: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyGameFinishRewardCharacterGift(betterproto.Message):
+    origin: int = betterproto.uint32_field(1)
+    final: int = betterproto.uint32_field(2)
+    add: int = betterproto.uint32_field(3)
+    is_graded: bool = betterproto.bool_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyActivityReward(betterproto.Message):
+    activity_reward: List["NotifyActivityRewardActivityReward"] = (
+        betterproto.message_field(1)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class NotifyActivityRewardActivityReward(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    rewards: List["RewardSlot"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyActivityPoint(betterproto.Message):
+    activity_points: List["NotifyActivityPointActivityPoint"] = (
+        betterproto.message_field(1)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class NotifyActivityPointActivityPoint(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    point: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyLeaderboardPoint(betterproto.Message):
+    leaderboard_points: List["NotifyLeaderboardPointLeaderboardPoint"] = (
+        betterproto.message_field(1)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class NotifyLeaderboardPointLeaderboardPoint(betterproto.Message):
+    leaderboard_id: int = betterproto.uint32_field(1)
+    point: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyGamePause(betterproto.Message):
+    paused: bool = betterproto.bool_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyEndGameVote(betterproto.Message):
+    results: List["NotifyEndGameVoteVoteResult"] = betterproto.message_field(1)
+    start_time: int = betterproto.uint32_field(2)
+    duration_time: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyEndGameVoteVoteResult(betterproto.Message):
+    account_id: int = betterproto.uint32_field(1)
+    yes: bool = betterproto.bool_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyObserveData(betterproto.Message):
+    unit: "GameLiveUnit" = betterproto.message_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -7364,262 +7826,6 @@ class RecordNoTile(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class PlayerLeaving(betterproto.Message):
     seat: int = betterproto.uint32_field(1)
-
-
-@dataclass(eq=False, repr=False)
-class ReqAuthGame(betterproto.Message):
-    account_id: int = betterproto.uint32_field(1)
-    token: str = betterproto.string_field(2)
-    game_uuid: str = betterproto.string_field(3)
-    session: str = betterproto.string_field(4)
-    gift: str = betterproto.string_field(5)
-    vs: int = betterproto.uint32_field(6)
-
-
-@dataclass(eq=False, repr=False)
-class ResAuthGame(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    players: List["PlayerGameView"] = betterproto.message_field(2)
-    seat_list: List[int] = betterproto.uint32_field(3)
-    is_game_start: bool = betterproto.bool_field(4)
-    game_config: "GameConfig" = betterproto.message_field(5)
-    ready_id_list: List[int] = betterproto.uint32_field(6)
-
-
-@dataclass(eq=False, repr=False)
-class GameRestore(betterproto.Message):
-    snapshot: "GameSnapshot" = betterproto.message_field(1)
-    actions: List["ActionPrototype"] = betterproto.message_field(2)
-    passed_waiting_time: int = betterproto.uint32_field(3)
-    game_state: int = betterproto.uint32_field(4)
-    start_time: int = betterproto.uint32_field(5)
-    last_pause_time_ms: int = betterproto.uint32_field(6)
-
-
-@dataclass(eq=False, repr=False)
-class ResEnterGame(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    is_end: bool = betterproto.bool_field(2)
-    step: int = betterproto.uint32_field(3)
-    game_restore: "GameRestore" = betterproto.message_field(4)
-
-
-@dataclass(eq=False, repr=False)
-class ReqSyncGame(betterproto.Message):
-    round_id: str = betterproto.string_field(1)
-    step: int = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class ResSyncGame(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    is_end: bool = betterproto.bool_field(2)
-    step: int = betterproto.uint32_field(3)
-    game_restore: "GameRestore" = betterproto.message_field(4)
-
-
-@dataclass(eq=False, repr=False)
-class ReqSelfOperation(betterproto.Message):
-    type: int = betterproto.uint32_field(1)
-    index: int = betterproto.uint32_field(2)
-    tile: str = betterproto.string_field(3)
-    cancel_operation: bool = betterproto.bool_field(4)
-    moqie: bool = betterproto.bool_field(5)
-    timeuse: int = betterproto.uint32_field(6)
-    tile_state: int = betterproto.int32_field(7)
-    change_tiles: List[str] = betterproto.string_field(8)
-    tile_states: List[int] = betterproto.int32_field(9)
-    gap_type: int = betterproto.uint32_field(10)
-
-
-@dataclass(eq=False, repr=False)
-class ReqChiPengGang(betterproto.Message):
-    type: int = betterproto.uint32_field(1)
-    index: int = betterproto.uint32_field(2)
-    cancel_operation: bool = betterproto.bool_field(3)
-    timeuse: int = betterproto.uint32_field(6)
-
-
-@dataclass(eq=False, repr=False)
-class ReqBroadcastInGame(betterproto.Message):
-    content: str = betterproto.string_field(1)
-    except_self: bool = betterproto.bool_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class ReqGmCommandInGaming(betterproto.Message):
-    json_data: str = betterproto.string_field(1)
-
-
-@dataclass(eq=False, repr=False)
-class ResGamePlayerState(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    state_list: List["GamePlayerState"] = betterproto.enum_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class ReqVoteGameEnd(betterproto.Message):
-    yes: bool = betterproto.bool_field(1)
-
-
-@dataclass(eq=False, repr=False)
-class ResGameEndVote(betterproto.Message):
-    success: bool = betterproto.bool_field(1)
-    vote_cd_end_time: int = betterproto.uint32_field(2)
-    error: "Error" = betterproto.message_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class ReqAuthObserve(betterproto.Message):
-    token: str = betterproto.string_field(1)
-
-
-@dataclass(eq=False, repr=False)
-class ResStartObserve(betterproto.Message):
-    head: "GameLiveHead" = betterproto.message_field(1)
-    passed: "GameLiveSegment" = betterproto.message_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyNewGame(betterproto.Message):
-    game_uuid: str = betterproto.string_field(1)
-    player_list: List[str] = betterproto.string_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyPlayerLoadGameReady(betterproto.Message):
-    ready_id_list: List[int] = betterproto.uint32_field(1)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyGameBroadcast(betterproto.Message):
-    seat: int = betterproto.uint32_field(1)
-    content: str = betterproto.string_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyGameEndResult(betterproto.Message):
-    result: "GameEndResult" = betterproto.message_field(1)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyGameTerminate(betterproto.Message):
-    reason: str = betterproto.string_field(1)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyPlayerConnectionState(betterproto.Message):
-    seat: int = betterproto.uint32_field(1)
-    state: "GamePlayerState" = betterproto.enum_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyAccountLevelChange(betterproto.Message):
-    origin: "AccountLevel" = betterproto.message_field(1)
-    final: "AccountLevel" = betterproto.message_field(2)
-    type: int = betterproto.uint32_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyGameFinishReward(betterproto.Message):
-    mode_id: int = betterproto.uint32_field(1)
-    level_change: "NotifyGameFinishRewardLevelChange" = betterproto.message_field(2)
-    match_chest: "NotifyGameFinishRewardMatchChest" = betterproto.message_field(3)
-    main_character: "NotifyGameFinishRewardMainCharacter" = betterproto.message_field(4)
-    character_gift: "NotifyGameFinishRewardCharacterGift" = betterproto.message_field(5)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyGameFinishRewardLevelChange(betterproto.Message):
-    origin: "AccountLevel" = betterproto.message_field(1)
-    final: "AccountLevel" = betterproto.message_field(2)
-    type: int = betterproto.uint32_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyGameFinishRewardMatchChest(betterproto.Message):
-    chest_id: int = betterproto.uint32_field(1)
-    origin: int = betterproto.uint32_field(2)
-    final: int = betterproto.uint32_field(3)
-    is_graded: bool = betterproto.bool_field(4)
-    rewards: List["RewardSlot"] = betterproto.message_field(5)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyGameFinishRewardMainCharacter(betterproto.Message):
-    level: int = betterproto.uint32_field(1)
-    exp: int = betterproto.uint32_field(2)
-    add: int = betterproto.uint32_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyGameFinishRewardCharacterGift(betterproto.Message):
-    origin: int = betterproto.uint32_field(1)
-    final: int = betterproto.uint32_field(2)
-    add: int = betterproto.uint32_field(3)
-    is_graded: bool = betterproto.bool_field(4)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyActivityReward(betterproto.Message):
-    activity_reward: List["NotifyActivityRewardActivityReward"] = (
-        betterproto.message_field(1)
-    )
-
-
-@dataclass(eq=False, repr=False)
-class NotifyActivityRewardActivityReward(betterproto.Message):
-    activity_id: int = betterproto.uint32_field(1)
-    rewards: List["RewardSlot"] = betterproto.message_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyActivityPoint(betterproto.Message):
-    activity_points: List["NotifyActivityPointActivityPoint"] = (
-        betterproto.message_field(1)
-    )
-
-
-@dataclass(eq=False, repr=False)
-class NotifyActivityPointActivityPoint(betterproto.Message):
-    activity_id: int = betterproto.uint32_field(1)
-    point: int = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyLeaderboardPoint(betterproto.Message):
-    leaderboard_points: List["NotifyLeaderboardPointLeaderboardPoint"] = (
-        betterproto.message_field(1)
-    )
-
-
-@dataclass(eq=False, repr=False)
-class NotifyLeaderboardPointLeaderboardPoint(betterproto.Message):
-    leaderboard_id: int = betterproto.uint32_field(1)
-    point: int = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyGamePause(betterproto.Message):
-    paused: bool = betterproto.bool_field(1)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyEndGameVote(betterproto.Message):
-    results: List["NotifyEndGameVoteVoteResult"] = betterproto.message_field(1)
-    start_time: int = betterproto.uint32_field(2)
-    duration_time: int = betterproto.uint32_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyEndGameVoteVoteResult(betterproto.Message):
-    account_id: int = betterproto.uint32_field(1)
-    yes: bool = betterproto.bool_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class NotifyObserveData(betterproto.Message):
-    unit: "GameLiveUnit" = betterproto.message_field(1)
 
 
 class LobbyStub(betterproto.ServiceStub):
@@ -8507,6 +8713,40 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def fetch_game_record_list_v2(
+        self,
+        req_game_record_list_v2: "ReqGameRecordListV2",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResGameRecordListV2":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchGameRecordListV2",
+            req_game_record_list_v2,
+            ResGameRecordListV2,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_next_game_record_list(
+        self,
+        req_next_game_record_list: "ReqNextGameRecordList",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResNextGameRecordList":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchNextGameRecordList",
+            req_next_game_record_list,
+            ResNextGameRecordList,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
     async def fetch_collected_game_record_list(
         self,
         req_common: "ReqCommon",
@@ -8536,6 +8776,23 @@ class LobbyStub(betterproto.ServiceStub):
             "/lq.Lobby/fetchGameRecordsDetail",
             req_game_records_detail,
             ResGameRecordsDetail,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_game_records_detail_v2(
+        self,
+        req_game_records_detail_v2: "ReqGameRecordsDetailV2",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResGameRecordsDetailV2":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchGameRecordsDetailV2",
+            req_game_records_detail_v2,
+            ResGameRecordsDetailV2,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -13522,6 +13779,57 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def fetch_questionnaire_list(
+        self,
+        req_fetch_questionnaire_list: "ReqFetchQuestionnaireList",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchQuestionnaireList":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchQuestionnaireList",
+            req_fetch_questionnaire_list,
+            ResFetchQuestionnaireList,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_questionnaire_detail(
+        self,
+        req_fetch_questionnaire_detail: "ReqFetchQuestionnaireDetail",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchQuestionnaireDetail":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchQuestionnaireDetail",
+            req_fetch_questionnaire_detail,
+            ResFetchQuestionnaireDetail,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def submit_questionnaire(
+        self,
+        req_submit_questionnaire: "ReqSubmitQuestionnaire",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCommon":
+        return await self._unary_unary(
+            "/lq.Lobby/submitQuestionnaire",
+            req_submit_questionnaire,
+            ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
 
 class FastTestStub(betterproto.ServiceStub):
     async def auth_game(
@@ -14026,6 +14334,16 @@ class LobbyBase(ServiceBase):
     ) -> "ResGameRecordList":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def fetch_game_record_list_v2(
+        self, req_game_record_list_v2: "ReqGameRecordListV2"
+    ) -> "ResGameRecordListV2":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_next_game_record_list(
+        self, req_next_game_record_list: "ReqNextGameRecordList"
+    ) -> "ResNextGameRecordList":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def fetch_collected_game_record_list(
         self, req_common: "ReqCommon"
     ) -> "ResCollectedGameRecordList":
@@ -14034,6 +14352,11 @@ class LobbyBase(ServiceBase):
     async def fetch_game_records_detail(
         self, req_game_records_detail: "ReqGameRecordsDetail"
     ) -> "ResGameRecordsDetail":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_game_records_detail_v2(
+        self, req_game_records_detail_v2: "ReqGameRecordsDetailV2"
+    ) -> "ResGameRecordsDetailV2":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def add_collected_game_record(
@@ -15408,6 +15731,21 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def fetch_questionnaire_list(
+        self, req_fetch_questionnaire_list: "ReqFetchQuestionnaireList"
+    ) -> "ResFetchQuestionnaireList":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_questionnaire_detail(
+        self, req_fetch_questionnaire_detail: "ReqFetchQuestionnaireDetail"
+    ) -> "ResFetchQuestionnaireDetail":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def submit_questionnaire(
+        self, req_submit_questionnaire: "ReqSubmitQuestionnaire"
+    ) -> "ResCommon":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def __rpc_fetch_connection_info(
         self, stream: "grpclib.server.Stream[ReqCommon, ResConnectionInfo]"
     ) -> None:
@@ -15775,6 +16113,21 @@ class LobbyBase(ServiceBase):
         response = await self.fetch_game_record_list(request)
         await stream.send_message(response)
 
+    async def __rpc_fetch_game_record_list_v2(
+        self, stream: "grpclib.server.Stream[ReqGameRecordListV2, ResGameRecordListV2]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_game_record_list_v2(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_next_game_record_list(
+        self,
+        stream: "grpclib.server.Stream[ReqNextGameRecordList, ResNextGameRecordList]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_next_game_record_list(request)
+        await stream.send_message(response)
+
     async def __rpc_fetch_collected_game_record_list(
         self, stream: "grpclib.server.Stream[ReqCommon, ResCollectedGameRecordList]"
     ) -> None:
@@ -15788,6 +16141,14 @@ class LobbyBase(ServiceBase):
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_game_records_detail(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_game_records_detail_v2(
+        self,
+        stream: "grpclib.server.Stream[ReqGameRecordsDetailV2, ResGameRecordsDetailV2]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_game_records_detail_v2(request)
         await stream.send_message(response)
 
     async def __rpc_add_collected_game_record(
@@ -17955,6 +18316,29 @@ class LobbyBase(ServiceBase):
         response = await self.set_verified_hidden(request)
         await stream.send_message(response)
 
+    async def __rpc_fetch_questionnaire_list(
+        self,
+        stream: "grpclib.server.Stream[ReqFetchQuestionnaireList, ResFetchQuestionnaireList]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_questionnaire_list(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_questionnaire_detail(
+        self,
+        stream: "grpclib.server.Stream[ReqFetchQuestionnaireDetail, ResFetchQuestionnaireDetail]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_questionnaire_detail(request)
+        await stream.send_message(response)
+
+    async def __rpc_submit_questionnaire(
+        self, stream: "grpclib.server.Stream[ReqSubmitQuestionnaire, ResCommon]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.submit_questionnaire(request)
+        await stream.send_message(response)
+
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
         return {
             "/lq.Lobby/fetchConnectionInfo": grpclib.const.Handler(
@@ -18269,6 +18653,18 @@ class LobbyBase(ServiceBase):
                 ReqGameRecordList,
                 ResGameRecordList,
             ),
+            "/lq.Lobby/fetchGameRecordListV2": grpclib.const.Handler(
+                self.__rpc_fetch_game_record_list_v2,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqGameRecordListV2,
+                ResGameRecordListV2,
+            ),
+            "/lq.Lobby/fetchNextGameRecordList": grpclib.const.Handler(
+                self.__rpc_fetch_next_game_record_list,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqNextGameRecordList,
+                ResNextGameRecordList,
+            ),
             "/lq.Lobby/fetchCollectedGameRecordList": grpclib.const.Handler(
                 self.__rpc_fetch_collected_game_record_list,
                 grpclib.const.Cardinality.UNARY_UNARY,
@@ -18280,6 +18676,12 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqGameRecordsDetail,
                 ResGameRecordsDetail,
+            ),
+            "/lq.Lobby/fetchGameRecordsDetailV2": grpclib.const.Handler(
+                self.__rpc_fetch_game_records_detail_v2,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqGameRecordsDetailV2,
+                ResGameRecordsDetailV2,
             ),
             "/lq.Lobby/addCollectedGameRecord": grpclib.const.Handler(
                 self.__rpc_add_collected_game_record,
@@ -20037,6 +20439,24 @@ class LobbyBase(ServiceBase):
                 self.__rpc_set_verified_hidden,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqSetVerifiedHidden,
+                ResCommon,
+            ),
+            "/lq.Lobby/fetchQuestionnaireList": grpclib.const.Handler(
+                self.__rpc_fetch_questionnaire_list,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchQuestionnaireList,
+                ResFetchQuestionnaireList,
+            ),
+            "/lq.Lobby/fetchQuestionnaireDetail": grpclib.const.Handler(
+                self.__rpc_fetch_questionnaire_detail,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchQuestionnaireDetail,
+                ResFetchQuestionnaireDetail,
+            ),
+            "/lq.Lobby/submitQuestionnaire": grpclib.const.Handler(
+                self.__rpc_submit_questionnaire,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSubmitQuestionnaire,
                 ResCommon,
             ),
         }
