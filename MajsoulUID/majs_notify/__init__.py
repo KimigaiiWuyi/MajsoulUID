@@ -175,17 +175,21 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
     friends = list(set(friends))
     if "四" in event.text:
         # sort by level.id and level.score
-        friends.sort(key=lambda x: (x.level.id, x.level.score), reverse=True)
+        friends.sort(key=lambda x: (x.level.id, x.level_score), reverse=True)
         # get level info
         msg = "本群雀魂好友四麻排行榜\n"
         for friend in friends:
-            level_str = friend.level.formatAdjustedScoreWithTag()
+            level_str = friend.level.formatAdjustedScoreWithTag(
+                friend.level_score
+            )
             msg += f"{friend.nickname} {level_str}\n"
     else:
-        friends.sort(key=lambda x: (x.level3.id, x.level3.score), reverse=True)
+        friends.sort(key=lambda x: (x.level3.id, x.level3_score), reverse=True)
         msg = "本群雀魂好友三麻排行榜\n"
         for friend in friends:
-            level_str = friend.level3.formatAdjustedScoreWithTag()
+            level_str = friend.level3.formatAdjustedScoreWithTag(
+                friend.level3_score
+            )
             msg += f"{friend.nickname} {level_str}\n"
     await bot.send(msg)
 
