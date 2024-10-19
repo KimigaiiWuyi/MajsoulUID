@@ -196,11 +196,13 @@ class MajsoulConnection:
                 if active_uuid and not friend.playing.game_uuid:
                     category, type_name, mode_id = get_playing(active_state)
 
-                    msg = f"{nick_name} 开始了 {type_name}\n"
+                    # msg = f"{nick_name} 开始了 {type_name}\n"
 
-                    rome_name = ModeId2Room.get(mode_id, "")
-                    msg += f" {rome_name} category: {category} "
-                    msg += f"mode_id: {mode_id}\n"
+                    room_name = ModeId2Room.get(mode_id, "")
+                    if room_name:
+                        msg = f"{nick_name} 开始了在 {room_name} 的对局\n"
+                    else:
+                        msg = f"{nick_name} 开始了在 {type_name} 的对局\n"
                     msg += f"对局id: {active_state.playing.game_uuid}"
                     # save game_uuid
                     if not await MajsPaipu.data_exist(uuid=active_uuid):
@@ -210,16 +212,91 @@ class MajsoulConnection:
                             paipu_type=category,
                             paipu_type_name=type_name,
                         )
+
                 elif not active_state.playing and friend.playing:
                     category, type_name, mode_id = get_playing(friend.playing)
 
                     mode_id = friend.playing.meta.mode_id
                     room_name = ModeId2Room.get(mode_id, "")
-                    msg = f"{nick_name} 结束了在 {room_name} 的 {type_name} 对局\n"
+                    if room_name:
+                        msg = f"{nick_name} 结束了在 {room_name} 的对局\n"
+                    else:
+                        msg = f"{nick_name} 结束了在 {type_name} 的对局\n"
                     uuid = friend.playing.game_uuid
                     encode_aid = encode_account_id(friend.account_id)
                     url = f"{PP_HOST}{uuid}_a{encode_aid}"
-                    msg += f"牌谱为 {url}\n"
+
+                    # check 三麻 or 四麻
+                    is_sanma = False
+                    if "三" in room_name:
+                        is_sanma = True
+
+                    game_record = cast(
+                        liblq.ResGameRecord,
+                        await self.rpc_call(
+                            ".lq.Lobby.fetchGameRecord",
+                            {
+                                "game_uuid": uuid,
+                                "client_version_string": self.clientVersionString,
+                            },
+                        ),
+                    )
+
+                    # check if game_record is valid
+                    if game_record.error.code:
+                        logger.error(
+                            f"获取牌谱失败: {game_record.error}, retrying"
+                        )
+                        # sleep 1s
+                        await asyncio.sleep(1)
+                        # retry 1 time
+                        game_record = cast(
+                            liblq.ResGameRecord,
+                            await self.rpc_call(
+                                ".lq.Lobby.fetchGameRecord",
+                                {
+                                    "game_uuid": uuid,
+                                    "client_version_string": self.clientVersionString,
+                                },
+                            ),
+                        )
+                        if game_record.error.code:
+                            logger.error(f"获取牌谱失败: {game_record.error}")
+                            msg += "获取牌谱失败\n"
+                            msg += f"对局id: {uuid}"
+                            msg += f"对局牌谱:{url}"
+                            friend.change_state(active_state)
+                            await self.send_msg_to_user(str(target_user), msg)
+                            continue
+
+                    accounts = game_record.head.accounts
+                    friend_seat = 0
+                    friend_level_id = 0
+                    friend_score = 0
+                    for account in accounts:
+                        if account.account_id == friend.account_id:
+                            friend_seat = account.seat
+                            if is_sanma:
+                                friend_level_id = account.level3.id
+                                friend_score = account.level3.score
+                            else:
+                                friend_level_id = account.level.id
+                                friend_score = account.level.score
+                            break
+                    record_result = game_record.head.result.players
+                    for i, player in enumerate(record_result):
+                        if player.seat == friend_seat:
+                            msg += f"排名:{i + 1} 最终打点:{player.part_point_1} 得点:{player.grading_score}\n"
+
+                            level_info = MajsoulLevel(
+                                friend_level_id
+                            ).formatAdjustedScoreWithTag(
+                                friend_score + player.grading_score
+                            )
+                            msg += f"当前段位:{level_info}\n"
+                            break
+
+                    msg += f"对局牌谱:{url}"
                     if not await MajsPaipu.data_exist(uuid=active_uuid):
                         await MajsPaipu.insert_data(
                             account_id=str(friend.account_id),
@@ -240,40 +317,6 @@ class MajsoulConnection:
         msg = ""
         for friend in self.friends:
             if friend.account_id == target_user:
-                nick_name = friend.nickname
-                msg = ""
-                # check level change
-                changed_level = MajsoulLevel(changed_base.level)
-                changed_level3 = MajsoulLevel(changed_base.level3)
-                if changed_level.id != friend.level.id:
-                    level_info = changed_level.get_tag()
-                    msg = f"{nick_name} 的四麻段位更新为 {level_info}\n"
-                if changed_level3.id != friend.level3.id:
-                    level_info = changed_level.get_tag()
-                    msg = f"{nick_name} 的三麻段位更新为 {level_info}\n"
-
-                changed_score = changed_base.level.score
-                changed_score3 = changed_base.level3.score
-                if changed_score != friend.level.score:
-                    # 四麻
-                    level_info = changed_level.formatAdjustedScoreWithTag()
-                    score_change = changed_score - friend.level.score
-
-                    msg += f"四麻段位信息: {level_info}\n"
-                    if score_change >= 0:
-                        msg += f"增加了 {score_change}"
-                    else:
-                        msg += f"减少了 {-score_change}"
-                elif changed_score3 != friend.level3.score:
-                    # 三麻
-                    level_info = changed_level3.formatAdjustedScoreWithTag()
-                    score_change = changed_score3 - friend.level3.score
-                    msg += f"三麻段位信息: {level_info}\n"
-                    if score_change >= 0:
-                        msg += f"增加了 {score_change}"
-                    else:
-                        msg += f"减少了 {-score_change}"
-
                 # set friend base
                 friend.change_base(changed_base)
         if msg:

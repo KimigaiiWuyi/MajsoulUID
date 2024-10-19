@@ -101,6 +101,21 @@ class PlayerLevel:
             self._numPlayerId * 10000 + self._majorRank * 100 + self._minorRank
         )
 
+    def get_tag(self) -> str:
+        label = PLAYER_RANKS[
+            LEVEL_KONTEN - 2 if self.isKonten() else self._majorRank - 1
+        ]
+        if self.minor_rank == LEVEL_KONTEN - 1:
+            return label
+        if self.minor_rank == 1:
+            return label + "一"
+        elif self.minor_rank == 2:
+            return label + "二"
+        elif self.minor_rank == 3:
+            return label + "三"
+        else:
+            raise ValueError(f"Unknown minor rank: {self.minor_rank}")
+
     # 定义一个方法，判断是否和另一个等级对象的主等级相同
     def isSameMajorRank(self, other):
         return self._majorRank == other._majorRank
