@@ -257,7 +257,12 @@ class NotifyNewComment(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class NotifyRollingNotice(betterproto.Message):
-    notice: List["RollingNotice"] = betterproto.message_field(1)
+    pass
+
+
+@dataclass(eq=False, repr=False)
+class NotifyMaintainNotice(betterproto.Message):
+    pass
 
 
 @dataclass(eq=False, repr=False)
@@ -1894,12 +1899,17 @@ class CommentItem(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class RollingNotice(betterproto.Message):
-    id: int = betterproto.uint32_field(1)
     content: str = betterproto.string_field(2)
     start_time: int = betterproto.uint32_field(3)
     end_time: int = betterproto.uint32_field(4)
     repeat_interval: int = betterproto.uint32_field(5)
-    lang: str = betterproto.string_field(6)
+    repeat_time: List[int] = betterproto.uint32_field(7)
+    repeat_type: int = betterproto.uint32_field(8)
+
+
+@dataclass(eq=False, repr=False)
+class MaintainNotice(betterproto.Message):
+    maintain_time: int = betterproto.uint32_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -3953,8 +3963,20 @@ class ReqUpdateReadComment(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class ReqRollingNotice(betterproto.Message):
-    notice: List["RollingNotice"] = betterproto.message_field(1)
+class ResFetchRollingNotice(betterproto.Message):
+    error: "Error" = betterproto.message_field(2)
+    notice: "RollingNotice" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchMaintainNotice(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    notice: "MaintainNotice" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFetchRollingNotice(betterproto.Message):
+    lang: str = betterproto.string_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -6116,13 +6138,13 @@ class ResFetchInfo(betterproto.Message):
     mod_nickname_time: "ResModNicknameTime" = betterproto.message_field(22)
     misc: "ResMisc" = betterproto.message_field(23)
     announcement: "ResAnnouncement" = betterproto.message_field(24)
-    rolling_notice: "ReqRollingNotice" = betterproto.message_field(25)
     activity_list: "ResActivityList" = betterproto.message_field(26)
     character_info: "ResCharacterInfo" = betterproto.message_field(27)
     all_common_views: "ResAllcommonViews" = betterproto.message_field(28)
     collected_game_record_list: "ResCollectedGameRecordList" = (
         betterproto.message_field(29)
     )
+    maintain_notice: "ResFetchMaintainNotice" = betterproto.message_field(30)
 
 
 @dataclass(eq=False, repr=False)
@@ -9786,16 +9808,33 @@ class LobbyStub(betterproto.ServiceStub):
 
     async def fetch_rolling_notice(
         self,
+        req_fetch_rolling_notice: "ReqFetchRollingNotice",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchRollingNotice":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchRollingNotice",
+            req_fetch_rolling_notice,
+            ResFetchRollingNotice,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_maintain_notice(
+        self,
         req_common: "ReqCommon",
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ReqRollingNotice":
+    ) -> "ResFetchMaintainNotice":
         return await self._unary_unary(
-            "/lq.Lobby/fetchRollingNotice",
+            "/lq.Lobby/fetchMaintainNotice",
             req_common,
-            ReqRollingNotice,
+            ResFetchMaintainNotice,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14610,7 +14649,14 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fetch_rolling_notice(self, req_common: "ReqCommon") -> "ReqRollingNotice":
+    async def fetch_rolling_notice(
+        self, req_fetch_rolling_notice: "ReqFetchRollingNotice"
+    ) -> "ResFetchRollingNotice":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_maintain_notice(
+        self, req_common: "ReqCommon"
+    ) -> "ResFetchMaintainNotice":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_server_time(self, req_common: "ReqCommon") -> "ResServerTime":
@@ -16571,10 +16617,18 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fetch_rolling_notice(
-        self, stream: "grpclib.server.Stream[ReqCommon, ReqRollingNotice]"
+        self,
+        stream: "grpclib.server.Stream[ReqFetchRollingNotice, ResFetchRollingNotice]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_rolling_notice(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_maintain_notice(
+        self, stream: "grpclib.server.Stream[ReqCommon, ResFetchMaintainNotice]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_maintain_notice(request)
         await stream.send_message(response)
 
     async def __rpc_fetch_server_time(
@@ -19034,8 +19088,14 @@ class LobbyBase(ServiceBase):
             "/lq.Lobby/fetchRollingNotice": grpclib.const.Handler(
                 self.__rpc_fetch_rolling_notice,
                 grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchRollingNotice,
+                ResFetchRollingNotice,
+            ),
+            "/lq.Lobby/fetchMaintainNotice": grpclib.const.Handler(
+                self.__rpc_fetch_maintain_notice,
+                grpclib.const.Cardinality.UNARY_UNARY,
                 ReqCommon,
-                ReqRollingNotice,
+                ResFetchMaintainNotice,
             ),
             "/lq.Lobby/fetchServerTime": grpclib.const.Handler(
                 self.__rpc_fetch_server_time,
