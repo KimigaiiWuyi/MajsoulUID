@@ -74,6 +74,34 @@ async def majsoul_add_at(bot: Bot, ev: Event):
     await bot.send(msg)
 
 
+@majsoul_get_notify.on_command(("取消订阅"))
+async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
+    uid = await get_uid(bot, ev, MajsBind)
+    if uid is None:
+        return await bot.send(UID_HINT)
+
+    if await MajsPush.data_exist(uid=uid):
+        data = await MajsPush.select_data_by_uid(uid)
+        if data and data.push_id == 'off':
+            return await bot.send('[majs] 你已经关闭了订阅信息!')
+        elif data is None:
+            return await bot.send('[majs] 你尚未有订阅信息, 无法取消!')
+        else:
+            push_id = 'off'
+            retcode = await MajsPush.update_data_by_uid(
+                uid,
+                ev.bot_id,
+                push_id='off',
+            )
+            if retcode == 0:
+                logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
+                return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
+            else:
+                return await bot.send("[majs] 推送订阅失败！")
+    else:
+        return await bot.send('[majs] 你尚未有订阅信息, 无法取消!')
+
+
 @majsoul_get_notify.on_command(("订阅"))
 async def majsoul_get_notify_command(bot: Bot, ev: Event):
     conn = await manager.start()
