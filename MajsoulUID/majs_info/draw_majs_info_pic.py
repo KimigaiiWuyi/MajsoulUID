@@ -10,6 +10,7 @@ from gsuid_core.utils.fonts.fonts import core_font as majs_font
 
 from ..utils.majs_api import majs_api
 from ..utils.api.remote import PlayerLevel
+from ..utils.image import get_bg, get_footer
 from ..utils.api.models import Stats, Extended
 from ..majs_config.majs_config import MAJS_CONFIG
 from ..utils.api.remote_const import player_stats_zero, player_extend_zero
@@ -22,6 +23,21 @@ RANK_ALPHA = {2: 0.7, 3: 0.5, 4: 0.1}
 RANK_POS = {4: 321, 3: 242, 2: 160, 1: 73}
 W = (255, 255, 255)
 G = (193, 193, 193)
+
+
+async def draw_title(msg: str):
+    title = Image.open(TEXTURE / "title.png")
+    title_draw = ImageDraw.Draw(title)
+
+    title_draw.text(
+        (504, 435),
+        msg,
+        W,
+        majs_font(30),
+        "mm",
+    )
+
+    return title
 
 
 @gs_cache()
@@ -75,24 +91,16 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
     level4 = PlayerLevel(data4["level"]["id"], level4_score)
     level3 = PlayerLevel(data3["level"]["id"], level3_score)
 
-    img = Image.open(TEXTURE / "bg.jpg")
-    title = Image.open(TEXTURE / "title.png")
+    img = get_bg()
     detail_bg = Image.open(TEXTURE / "detail_bg.png")
     mid = Image.open(TEXTURE / "mid.png")
 
     detail_draw = ImageDraw.Draw(detail_bg)
-    title_draw = ImageDraw.Draw(title)
     mid_draw = ImageDraw.Draw(mid)
 
     mid_draw.text((500, 40), _mode, W, majs_font(30), "mm")
 
-    title_draw.text(
-        (504, 435),
-        f'{data["nickname"]} · UID {uid}',
-        W,
-        majs_font(30),
-        "mm",
-    )
+    title = await draw_title(f'{data["nickname"]} · UID {uid}')
     img.paste(title, (0, 0), title)
 
     zm_rate = get_rate(extended["自摸率"])
@@ -213,7 +221,7 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
             "mm",
         )
 
-    footer = Image.open(TEXTURE / "footer.png")
+    footer = get_footer()
 
     rank4_icon = await get_rank_icon(level4, data4, extended4, "4")
     rank3_icon = await get_rank_icon(level3, data3, extended3, "3")
@@ -280,21 +288,41 @@ async def get_char_card():
     return char_bg
 
 
+async def get_rank_img(
+    major_rank: str, minor_rank: int, mode: str = "4", size: int = 156
+):
+    img = Image.new('RGBA', (156, 156))
+
+    rank_icon = Image.open(TEXTURE / f"{major_rank}_{mode}.png")
+    rank_icon = rank_icon.resize((128, 128)).convert("RGBA")
+
+    img.paste(rank_icon, (14, 7), rank_icon)
+
+    if major_rank != "魂天":
+        for i in range(3):
+            if minor_rank > i:
+                img.paste(star_full, (26 + i * 38, 118), star_full)
+            else:
+                img.paste(star_empty, (26 + i * 38, 118), star_empty)
+
+    if size != 156:
+        img = img.resize((size, size))
+
+    return img
+
+
 async def get_rank_icon(
     level: PlayerLevel, stats: Stats, extended: Extended, mode: str = "4"
 ):
     rankbg = Image.open(TEXTURE / "rank_bg.png")
-    rank_icon = Image.open(TEXTURE / f"{level.major_rank}_{mode}.png")
-    rank_icon = rank_icon.resize((128, 128)).convert("RGBA")
+    rank_icon = await get_rank_img(
+        level.major_rank,
+        level.minor_rank,
+        mode,
+        156,
+    )
 
-    rankbg.paste(rank_icon, (65, 30), rank_icon)
-
-    if level.major_rank != "魂天":
-        for i in range(3):
-            if level.minor_rank > i:
-                rankbg.paste(star_full, (82 + i * 30, 138), star_full)
-            else:
-                rankbg.paste(star_empty, (82 + i * 30, 138), star_empty)
+    rankbg.paste(rank_icon, (51, 28), rank_icon)
 
     rank_draw = ImageDraw.Draw(rankbg)
     avg_rank = "{:.2f}".format(stats["avg_rank"])

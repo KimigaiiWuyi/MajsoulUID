@@ -1,8 +1,8 @@
 from ..utils.api.remote_const import (
     LEVEL_KONTEN,
     MODE_PENALTY,
-    PLAYER_RANKS,
     LEVEL_MAX_POINTS,
+    PLAYER_RANKS_DETAIL,
     LEVEL_MAX_POINT_KONTEN,
 )
 
@@ -26,10 +26,14 @@ class MajsoulLevel:
     def is_konten(self) -> bool:
         return self.major_rank >= LEVEL_KONTEN - 1
 
-    def get_tag(self) -> str:
-        label = PLAYER_RANKS[
+    def get_label(self):
+        label = PLAYER_RANKS_DETAIL[
             LEVEL_KONTEN - 2 if self.is_konten() else self.major_rank - 1
         ]
+        return label
+
+    def get_tag(self) -> str:
+        label = self.get_label()
         if self.minor_rank == LEVEL_KONTEN - 1:
             return label
         if self.minor_rank == 1:

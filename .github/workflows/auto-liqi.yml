@@ -30,7 +30,7 @@ jobs:
         run: npm install -g protobufjs protobufjs-cli
 
       - name: Run get_liqi.py
-        run: python ./MajsoulUID/utils/get_liqi.py
+        run: python ./MajsoulUID/utils/proto/get_liqi.py
 
       - name: Generate liqi.proto from liqi.json
         run: pbjs -t proto3 liqi.json > liqi.proto

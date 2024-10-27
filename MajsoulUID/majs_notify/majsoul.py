@@ -231,13 +231,14 @@ class MajsoulConnection:
                     if "三" in room_name:
                         is_sanma = True
 
+                    cvs = self.clientVersionString
                     game_record = cast(
                         liblq.ResGameRecord,
                         await self.rpc_call(
                             ".lq.Lobby.fetchGameRecord",
                             {
                                 "game_uuid": uuid,
-                                "client_version_string": self.clientVersionString,
+                                "client_version_string": cvs,
                             },
                         ),
                     )
@@ -250,13 +251,14 @@ class MajsoulConnection:
                         # sleep 1s
                         await asyncio.sleep(1)
                         # retry 1 time
+                        cvs = self.clientVersionString
                         game_record = cast(
                             liblq.ResGameRecord,
                             await self.rpc_call(
                                 ".lq.Lobby.fetchGameRecord",
                                 {
                                     "game_uuid": uuid,
-                                    "client_version_string": self.clientVersionString,
+                                    "client_version_string": cvs,
                                 },
                             ),
                         )
@@ -286,7 +288,9 @@ class MajsoulConnection:
                     record_result = game_record.head.result.players
                     for i, player in enumerate(record_result):
                         if player.seat == friend_seat:
-                            msg += f"排名:{i + 1} 最终打点:{player.part_point_1} 得点:{player.grading_score}\n"
+                            msg += f"排名:{i + 1} "
+                            msg += f"最终打点:{player.part_point_1} "
+                            msg += f"得点:{player.grading_score}\n"
 
                             level_info = MajsoulLevel(
                                 friend_level_id
@@ -798,7 +802,7 @@ class MajsoulManager:
                         f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}"
                     )
                     conn = await createMajsoulConnection(
-                        username=user.account,
+                        username=user.username,
                         password=user.password,
                     )
 

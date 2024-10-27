@@ -7,6 +7,7 @@ from gsuid_core.utils.database.api import get_uid
 from .majsoul import manager
 from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
+from .draw_friend_rank import draw_friend_rank_img
 from ..utils.database.models import MajsBind, MajsPush, MajsUser
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
@@ -95,7 +96,9 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
             )
             if retcode == 0:
                 logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
-                return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
+                return await bot.send(
+                    f"[majs] 修改推送订阅成功！当前值：{push_id}"
+                )
             else:
                 return await bot.send("[majs] 推送订阅失败！")
     else:
@@ -201,9 +204,22 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
     friends = conn.friends
     # 去重
     friends = list(set(friends))
-    if "四" in event.text:
+    if "三" in event.text:
+        friends.sort(key=lambda x: (x.level3.id, x.level3_score), reverse=True)
+        msg = await draw_friend_rank_img(friends, '3')
+        '''
+        msg = "本群雀魂好友三麻排行榜\n"
+        for friend in friends:
+            level_str = friend.level3.formatAdjustedScoreWithTag(
+                friend.level3_score
+            )
+            msg += f"{friend.nickname} {level_str}\n"
+        '''
+    else:
         # sort by level.id and level.score
         friends.sort(key=lambda x: (x.level.id, x.level_score), reverse=True)
+        msg = await draw_friend_rank_img(friends, '4')
+        '''
         # get level info
         msg = "本群雀魂好友四麻排行榜\n"
         for friend in friends:
@@ -211,14 +227,7 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
                 friend.level_score
             )
             msg += f"{friend.nickname} {level_str}\n"
-    else:
-        friends.sort(key=lambda x: (x.level3.id, x.level3_score), reverse=True)
-        msg = "本群雀魂好友三麻排行榜\n"
-        for friend in friends:
-            level_str = friend.level3.formatAdjustedScoreWithTag(
-                friend.level3_score
-            )
-            msg += f"{friend.nickname} {level_str}\n"
+        '''
     await bot.send(msg)
 
 

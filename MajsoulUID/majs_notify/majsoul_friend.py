@@ -7,6 +7,7 @@ class MajsoulFriend:
         self.player = friend
         self.account_id = friend.base.account_id
         self.nickname = friend.base.nickname
+        self.avatar_id = friend.base.avatar_id
 
         self.level = MajsoulLevel(friend.base.level.id)
         self.level_score = friend.base.level.score
