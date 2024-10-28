@@ -1,16 +1,16 @@
-from typing import Optional, Type, TypeVar
+from typing import Type, TypeVar, Optional
 
+from sqlmodel import Field, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from gsuid_core.utils.database.startup import exec_list
+from gsuid_core.webconsole.mount_app import PageSchema, GsAdminModel, site
 from gsuid_core.utils.database.base_models import (
-    BaseIDModel,
     Bind,
     Push,
     User,
+    BaseIDModel,
     with_session,
 )
-from gsuid_core.utils.database.startup import exec_list
-from gsuid_core.webconsole.mount_app import GsAdminModel, PageSchema, site
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import Field, select
 
 T_MajsPaipu = TypeVar("T_MajsPaipu", bound="MajsPaipu")
 

@@ -1,17 +1,17 @@
-import email_validator
 import httpx
-from gsuid_core.bot import Bot
-from gsuid_core.logger import logger
-from gsuid_core.models import Event
+import email_validator
 from gsuid_core.sv import SV
-from gsuid_core.utils.database.api import get_uid
+from gsuid_core.bot import Bot
+from gsuid_core.models import Event
 from pydantic import validate_email
+from gsuid_core.logger import logger
+from gsuid_core.utils.database.api import get_uid
 
-from ..utils.api.remote import encode_account_id2
-from ..utils.database.models import MajsBind, MajsPush, MajsUser
-from ..utils.error_reply import UID_HINT
-from .draw_friend_rank import draw_friend_rank_img
 from .majsoul import manager
+from ..utils.error_reply import UID_HINT
+from ..utils.api.remote import encode_account_id2
+from .draw_friend_rank import draw_friend_rank_img
+from ..utils.database.models import MajsBind, MajsPush, MajsUser
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_friend_level_billboard = SV("雀魂好友排行榜")
@@ -144,7 +144,9 @@ async def majsoul_add_at(bot: Bot, ev: Event):
             0,
         )
         if isinstance(connection, bool):
-            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
+            return await bot.send(
+                "❌ 登陆失败, 请输入正确的username和password!"
+            )
     else:
         return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
 
@@ -201,7 +203,9 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
             )
             if retcode == 0:
                 logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
-                return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
+                return await bot.send(
+                    f"[majs] 修改推送订阅成功！当前值：{push_id}"
+                )
             else:
                 return await bot.send("[majs] 推送订阅失败！")
     else:
