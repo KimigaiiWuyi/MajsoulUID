@@ -832,8 +832,7 @@ async def fetchMajsoulInfo(URL_BASE: str):
     serverList = convert(resp.json(), MajsoulServerList)
 
     server = random.choice(serverList.servers)
-    if server.find("maj-soul") > -1 or server.find("mahjongsoul") > -1:
-        server += "/gateway"
+    server += "/gateway"
 
     return server, pbDef, pbVersion, version_info
 
