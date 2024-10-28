@@ -1,41 +1,42 @@
-import hmac
-import uuid
-import random
 import asyncio
 import hashlib
-from typing import cast
+import hmac
+import random
+import uuid
 from collections.abc import Iterable
+from typing import cast
 
+import httpx
 import websockets.client
-from msgspec import convert
-from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
+from httpx import AsyncClient
+from msgspec import convert
 
-from .utils import getRes
 from ..lib import lq as liblq
-from ._level import MajsoulLevel
-from .codec import MajsoulProtoCodec
-from .majs_to_tenhou import toTenhou
-from .majsoul_friend import MajsoulFriend
-from .constants import HEADERS, ModeId2Room
 from ..majs_config.majs_config import MAJS_CONFIG
-from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
 from ..utils.api.remote import (
-    decode_log_id,
     decode_account_id,
+    decode_log_id,
     encode_account_id,
 )
+from ..utils.database.models import MajsPaipu, MajsPush, MajsUser
+from ._level import MajsoulLevel
+from .codec import MajsoulProtoCodec
+from .constants import HEADERS, ModeId2Room
+from .majs_to_tenhou import toTenhou
+from .majsoul_friend import MajsoulFriend
 from .model import (
-    MjsLog,
-    MjsLogItem,
     MajsoulConfig,
-    MajsoulResInfo,
+    MajsoulDecodedMessage,
     MajsoulLiqiProto,
+    MajsoulResInfo,
     MajsoulServerList,
     MajsoulVersionInfo,
-    MajsoulDecodedMessage,
+    MjsLog,
+    MjsLogItem,
 )
+from .utils import getRes
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 
@@ -44,6 +45,7 @@ class MajsoulConnection:
     def __init__(
         self,
         server: str,
+        login_type: int,
         codec: MajsoulProtoCodec,
         versionInfo: MajsoulVersionInfo,
     ):
@@ -52,9 +54,7 @@ class MajsoulConnection:
         self._ws = None
         self._req_events: dict[int, asyncio.Event] = {}
         self._res: dict[int, MajsoulDecodedMessage] = {}
-        self.clientVersionString = "web-" + versionInfo.version.replace(
-            ".w", ""
-        )
+        self.clientVersionString = "web-" + versionInfo.version.replace(".w", "")
         self.no_operation_counter = 0
         self.bg_tasks = []
         self.queue = asyncio.queues.Queue()
@@ -63,6 +63,7 @@ class MajsoulConnection:
         self.friends: list[MajsoulFriend] = []
         self.friend_apply_list: list[int] = []
         self.random_key = str(uuid.uuid4())
+        self.login_type = login_type
 
         self.manual_login_username = ""
         self.manual_login_password = ""
@@ -73,9 +74,7 @@ class MajsoulConnection:
             return False
         resp = cast(
             liblq.ResCommon,
-            await self.rpc_call(
-                ".lq.Lobby.heatbeat", {"no_operation_counter": 0}
-            ),
+            await self.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0}),
         )
         if resp.error.code:
             return False
@@ -105,9 +104,7 @@ class MajsoulConnection:
                     "",
                 )
         else:
-            logger.warning(
-                "[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!"
-            )
+            logger.warning("[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!")
 
     async def send_msg_to_user(self, target_user: str, msg):
         if MAJS_CONFIG.get_config("MajsIsPushActiveToMaster").data:
@@ -196,8 +193,6 @@ class MajsoulConnection:
                 if active_uuid and not friend.playing.game_uuid:
                     category, type_name, mode_id = get_playing(active_state)
 
-                    # msg = f"{nick_name} 开始了 {type_name}\n"
-
                     room_name = ModeId2Room.get(mode_id, "")
                     if room_name:
                         msg = f"{nick_name} 开始了在 {room_name} 的对局\n"
@@ -245,9 +240,18 @@ class MajsoulConnection:
 
                     # check if game_record is valid
                     if game_record.error.code:
-                        logger.error(
-                            f"获取牌谱失败: {game_record.error}, retrying"
-                        )
+                        # check is_online before send message
+                        if not active_state.is_online:
+                            friend.change_state(active_state)
+                            if not await MajsPaipu.data_exist(uuid=active_uuid):
+                                await MajsPaipu.insert_data(
+                                    account_id=str(friend.account_id),
+                                    uuid=active_uuid,
+                                    paipu_type=category,
+                                    paipu_type_name=type_name,
+                                )
+                            return
+                        logger.error(f"获取牌谱失败: {game_record.error}, retrying")
                         # sleep 1s
                         await asyncio.sleep(1)
                         # retry 1 time
@@ -292,12 +296,13 @@ class MajsoulConnection:
                             msg += f"最终打点:{player.part_point_1} "
                             msg += f"得点:{player.grading_score}\n"
 
-                            level_info = MajsoulLevel(
-                                friend_level_id
-                            ).formatAdjustedScoreWithTag(
-                                friend_score + player.grading_score
-                            )
-                            msg += f"当前段位:{level_info}\n"
+                            if category == 2:
+                                level_info = MajsoulLevel(
+                                    friend_level_id
+                                ).formatAdjustedScoreWithTag(
+                                    friend_score + player.grading_score
+                                )
+                                msg += f"当前段位:{level_info}\n"
                             break
 
                     msg += f"对局牌谱:{url}"
@@ -473,15 +478,101 @@ class MajsoulConnection:
             raise ConnectionError("Connection is broken")
         return True
 
+    def encode_p(self, password: str):
+        return hmac.new(b"lailai", password.encode(), hashlib.sha256).hexdigest()
+
+    async def jp_login(
+        self,
+        uid: str,
+        code: str,
+        version_info: MajsoulVersionInfo,
+    ):
+        resp = cast(
+            liblq.ResOauth2Auth,
+            await self.rpc_call(
+                ".lq.Lobby.oauth2Auth",
+                {
+                    "type": 7,
+                    "code": code,
+                    "uid": uid,
+                    "clientVersionString": self.clientVersionString,
+                },
+            ),
+        )
+        logger.info(f"OAuth2 Auth: {resp}")
+        if resp.error.code:
+            raise ValueError(f"Failed to oauth2Auth: {resp}")
+        access_token = resp.access_token
+        resp = cast(
+            liblq.ResOauth2Check,
+            await self.rpc_call(
+                ".lq.Lobby.oauth2Check",
+                {"type": 7, "access_token": access_token},
+            ),
+        )
+        logger.info(f"OAuth2 Check: {resp}")
+        if not resp.has_account:
+            await asyncio.sleep(2)
+            resp = cast(
+                liblq.ResOauth2Check,
+                await self.rpc_call(
+                    ".lq.Lobby.oauth2Check",
+                    {"type": 7, "access_token": access_token},
+                ),
+            )
+        if not resp.has_account:
+            raise ValueError("Failed to check account")
+
+        resp = cast(
+            liblq.ResLogin,
+            await self.rpc_call(
+                ".lq.Lobby.oauth2Login",
+                {
+                    "type": 7,
+                    "access_token": access_token,
+                    "reconnect": False,
+                    "device": {
+                        "platform": "pc",
+                        "hardware": "pc",
+                        "os": "windows",
+                        "os_version": "win10",
+                        "is_browser": True,
+                        "software": "Chrome",
+                        "sale_platform": "web",
+                    },
+                    "random_key": self.random_key,
+                    "client_version": {"resource": version_info.version},
+                    "currency_platforms": [1, 3, 5, 9, 12],
+                    "client_version_string": self.clientVersionString,
+                    "gen_access_token": False,
+                    "tag": "jp",
+                },
+            ),
+        )
+        if not resp.account_id:
+            raise ValueError("Failed to login")
+        self.account_id = resp.account_id
+        self.nick_name = resp.account.nickname
+
+        resp = cast(
+            liblq.ResCommon,
+            await self.rpc_call(
+                ".lq.Lobby.loginBeat",
+                {"contract": "DF2vkXCnfeXp4WoGSBGNcJBufZiMN3UP"},
+            ),
+        )
+        if resp.error.code:
+            raise ValueError(f"Failed to loginBeat: {resp}")
+        logger.info("Connection ready")
+        self.access_token = access_token
+
     async def manual_login(
         self,
         username: str,
         password: str,
         version_info: MajsoulVersionInfo,
     ):
-        password = hmac.new(
-            b"lailai", password.encode(), hashlib.sha256
-        ).hexdigest()
+        password = self.encode_p(password)
         resp = cast(
             liblq.ResLogin,
             await self.rpc_call(
@@ -695,47 +786,56 @@ class MajsoulConnection:
         return tenhou_log
 
 
-async def createMajsoulConnection(
-    username: str = "",
-    password: str = "",
-    access_token: str = "",
-):
+async def fetchMajsoulInfo(URL_BASE: str):
     version_info = convert(
-        await getRes("version.json", bust_cache=True),
+        await getRes(URL_BASE, "version.json", bust_cache=True),
         MajsoulVersionInfo,
     )
     resInfo = convert(
-        await getRes(f"resversion{version_info.version}.json"),
+        await getRes(URL_BASE, f"resversion{version_info.version}.json"),
         MajsoulResInfo,
     )
     pbVersion = resInfo.res["res/proto/liqi.json"].prefix
     pbDef = convert(
-        await getRes(f"{pbVersion}/res/proto/liqi.json"),
+        await getRes(URL_BASE, f"{pbVersion}/res/proto/liqi.json"),
         MajsoulLiqiProto,
     )
     _path = f'{resInfo.res["config.json"].prefix}/config.json'
     config = convert(
-        await getRes(_path),
+        await getRes(URL_BASE, _path),
         MajsoulConfig,
     )
     ipDef = next(filter(lambda x: x.name == "player", config.ip))
 
     serverListUrl = random.choice(ipDef.region_urls).url
     serverListUrl += (
-        "?service=ws-gateway&protocol=ws&ssl=true&rv="
-        + str(random.random())[2:]
+        "?service=ws-gateway&protocol=ws&ssl=true&rv=" + str(random.random())[2:]
     )
 
-    resp = await AsyncClient(headers=HEADERS).get(serverListUrl)
+    headers = HEADERS.copy()
+    headers["Referer"] = URL_BASE
+    resp = await AsyncClient(headers=headers).get(serverListUrl)
     resp.raise_for_status()
     serverList = convert(resp.json(), MajsoulServerList)
 
     server = random.choice(serverList.servers)
-    if server.find("maj-soul") > -1:
+    if server.find("maj-soul") > -1 or server.find("mahjongsoul") > -1:
         server += "/gateway"
 
+    return server, pbDef, pbVersion, version_info
+
+
+async def createMajsoulConnection(
+    username: str = "",
+    password: str = "",
+    access_token: str = "",
+):
+    URL_BASE = "https://game.maj-soul.com/"
+
+    server, pbDef, pbVersion, version_info = await fetchMajsoulInfo(URL_BASE)
+
     codec = MajsoulProtoCodec(pbDef, pbVersion)
-    conn = MajsoulConnection(f"wss://{server}", codec, version_info)
+    conn = MajsoulConnection(f"wss://{server}", 0, codec, version_info)
     await conn.connect()
 
     logger.info("Connection established, sending heartbeat")
@@ -775,14 +875,56 @@ async def createMajsoulConnection(
     return conn
 
 
+async def createYostarMajsoulConnection(uid: str, code: str, lang: str):
+    URL_BASE = (
+        "https://game.mahjongsoul.com/"
+        if lang == "jp"
+        else "https://mahjongsoul.game.yo-star.com/"
+    )
+
+    server, pbDef, pbVersion, version_info = await fetchMajsoulInfo(URL_BASE)
+
+    codec = MajsoulProtoCodec(pbDef, pbVersion)
+    conn = MajsoulConnection(f"wss://{server}", 7, codec, version_info)
+    await conn.connect()
+
+    logger.info("Connection established, sending heartbeat")
+    _ = await conn.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0})
+    logger.info(f"Authenticating ({version_info.version})")
+
+    await conn.jp_login(uid, code, version_info)
+
+    await conn.create_heatbeat_task()
+
+    return conn
+
+
 class MajsoulManager:
     def __init__(self):
         # maybe we need to support multiple connections in the future
         self.conn: list[MajsoulConnection] = []
 
-    async def check_username_password(self, username: str, password: str):
+    async def check_username_password(
+        self,
+        username: str,
+        password: str,
+        access_token: str,
+        login_type: int,
+    ):
         try:
-            conn = await createMajsoulConnection(username, password)
+            conn = await createMajsoulConnection(username, password, access_token)
+        except ValueError as e:
+            logger.error(e)
+            return False
+        return conn
+
+    async def check_yostar_login(self, uid: str, code: str, lang: str):
+        try:
+            conn = await createYostarMajsoulConnection(
+                uid,
+                code,
+                lang,
+            )
         except ValueError as e:
             logger.error(e)
             return False
@@ -793,21 +935,63 @@ class MajsoulManager:
             # get all accounts
             users = await MajsUser.get_all_user()
             for user in users:
-                try:
-                    conn = await createMajsoulConnection(
-                        access_token=user.cookie
-                    )
-                except ValueError as e:
-                    logger.warning(
-                        f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}"
-                    )
-                    conn = await createMajsoulConnection(
-                        username=user.username,
-                        password=user.password,
-                    )
+                if user.login_type == 0:
+                    try:
+                        conn = await createMajsoulConnection(access_token=user.cookie)
+                    except ValueError as e:
+                        logger.warning(
+                            f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}"
+                        )
+                        conn = await createMajsoulConnection(
+                            username=user.username,
+                            password=user.password,
+                        )
 
-                self.conn.append(conn)
-                await conn.fetchInfo()
+                    self.conn.append(conn)
+                    await conn.fetchInfo()
+                elif user.login_type == 7:
+                    URL_BASE = (
+                        "https://game.mahjongsoul.com/"
+                        if user.lang == "jp"
+                        else "https://mahjongsoul.game.yo-star.com/"
+                    )
+                    headers = {
+                        "Content-Type": "application/json; charset=utf-8",
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+                        "Referer": URL_BASE,
+                        "Origin": URL_BASE,
+                    }
+                    sess = httpx.AsyncClient(headers=headers, verify=False)
+                    url = "https://passport.mahjongsoul.com/user/login"
+                    payload = {
+                        "uid": user.uid,
+                        "token": user.token,
+                        "deviceId": f"web|{user.uid}",
+                    }
+                    response = await sess.post(url, json=payload)
+                    if response.status_code == 200:
+                        res = response.json()
+                        if res["result"] == 0:
+                            code = res["accessToken"]
+                        else:
+                            logger.error(res)
+                            return "❌ JP Yostar token已失效, 请重新登录！"
+                    else:
+                        logger.error(response.text)
+                        return "❌ JP Yostar token已失效, 请重新登录！"
+
+                    try:
+                        conn = await createYostarMajsoulConnection(
+                            user.uid,
+                            code,
+                            user.lang,
+                        )
+                    except ValueError as e:
+                        logger.warning(f"[majs] Yostar token已失效, 请重新登录！\n{e}")
+                        return "❌ Yostar token已失效, 请重新登录！"
+
+                    self.conn.append(conn)
+                    await conn.fetchInfo()
         return self.conn[0]
 
     async def restart(self):

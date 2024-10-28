@@ -1,15 +1,17 @@
-import random
 import hashlib
+import random
 from pathlib import Path
 
 from httpx import AsyncClient
 
-from .constants import HEADERS, URL_BASE
+from .constants import HEADERS
 
 HTTPX_CLIENT = AsyncClient(headers=HEADERS)
 
 
-async def getRes(path: str, bust_cache: bool = False):
+async def getRes(URL_BASE: str, path: str, bust_cache: bool = False):
+    HTTPX_CLIENT.headers["Referer"] = URL_BASE
+
     url = (
         f"{URL_BASE}/1/{path}"
         if URL_BASE == "https://game.maj-soul.com/"

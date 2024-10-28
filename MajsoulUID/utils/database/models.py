@@ -1,16 +1,16 @@
-from typing import Type, TypeVar, Optional
+from typing import Optional, Type, TypeVar
 
-from sqlmodel import Field, select
-from sqlalchemy.ext.asyncio import AsyncSession
-from gsuid_core.utils.database.startup import exec_list
-from gsuid_core.webconsole.mount_app import PageSchema, GsAdminModel, site
 from gsuid_core.utils.database.base_models import (
+    BaseIDModel,
     Bind,
     Push,
     User,
-    BaseIDModel,
     with_session,
 )
+from gsuid_core.utils.database.startup import exec_list
+from gsuid_core.webconsole.mount_app import GsAdminModel, PageSchema, site
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import Field, select
 
 T_MajsPaipu = TypeVar("T_MajsPaipu", bound="MajsPaipu")
 
@@ -67,8 +67,13 @@ class MajsUser(User, table=True):
     uid: Optional[str] = Field(default=None, title="雀魂UID")
     username: str = Field(default="", title="昵称")
     friend_code: str = Field(default="", title="好友码")
+
+    lang: str = Field(default="zh", title="语言")
+    login_type: int = Field(default=0, title="登录类型")
+
     account: str = Field(default="", title="账号")
     password: str = Field(default="", title="密码")
+    token: str = Field(default="", title="Token For JP Account")
 
     @classmethod
     @with_session
@@ -87,6 +92,15 @@ class MajsUser(User, table=True):
         uid: str,
     ) -> Optional[str]:
         return await cls.get_user_attr_by_uid(uid, "password")
+
+    @classmethod
+    @with_session
+    async def get_token(
+        cls: Type["MajsUser"],
+        session: AsyncSession,
+        uid: str,
+    ) -> Optional[str]:
+        return await cls.get_user_attr_by_uid(uid, "token")
 
 
 @site.register_admin
