@@ -3,11 +3,11 @@ import email_validator
 from gsuid_core.sv import SV
 from gsuid_core.bot import Bot
 from gsuid_core.models import Event
-from pydantic import validate_email
 from gsuid_core.logger import logger
 from gsuid_core.utils.database.api import get_uid
 
 from .majsoul import manager
+from .constants import USER_AGENT
 from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
 from .draw_friend_rank import draw_friend_rank_img
@@ -25,24 +25,27 @@ EXSAMPLE = """雀魂登陆 用户名, 密码
 ⚠ 请自行使用任何小号, 本插件不为账号被封禁承担任何责任！！
 """
 
-EXSAMPLE_JP_EN = """雀魂Yostar登陆日服 邮箱
+EXSAMPLE_JP_EN = """雀魂登陆日服 邮箱
 ⚠ 提示: 该命令将会使用邮箱进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
 ⚠ 请自行使用任何小号, 本插件不为账号被封禁承担任何责任！！
 """
 
 
-@majsoul_yostar_login.on_command(("登陆日服", "登陆美服"))
+@majsoul_yostar_login.on_command(
+    ("登录美服", "登录日服", "登陆日服", "登陆美服")
+)
 async def majsoul_jp_login_command(bot: Bot, ev: Event):
     url = "https://passport.mahjongsoul.com/account/auth_request"
     headers = {
         "Content-Type": "application/json; charset=utf-8",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+        "User-Agent": USER_AGENT,
         "Referer": "https://game.mahjongsoul.com/",
         "Origin": "https://game.mahjongsoul.com",
     }
     evt = ev.text.strip()
     try:
-        email = email_validator.validate_email(evt).normalized
+        email_v = email_validator.validate_email(evt)
+        email = email_v.normalized  # type: ignore[reportAttributeAccessIssue]
     except email_validator.EmailNotValidError:
         return await bot.send("❌ 请输入有效的email!")
 
@@ -93,11 +96,15 @@ async def majsoul_jp_login_command(bot: Bot, ev: Event):
         logger.error(response.text)
         return await bot.send("❌ 登陆失败!")
 
-    connection = await manager.check_yostar_login(
-        uid,
-        code,
-        lang,
-    )
+    try:
+        connection = await manager.check_yostar_login(
+            uid,
+            code,
+            lang,
+        )
+    except ConnectionRefusedError:
+        return await bot.send("❌ 登陆失败, 可能是网络原因, 请检查控制台!")
+
     if isinstance(connection, bool):
         return await bot.send("❌ 登陆失败, 请检查登录信息!")
 
@@ -123,8 +130,12 @@ async def majsoul_jp_login_command(bot: Bot, ev: Event):
             login_type=7,
         )
 
+    msg = f"🥰成功向账号池添加{lang}账号！\n"
+    msg += f"当前雀魂账号ID: {connection.account_id}, 昵称: {connection.nick_name}"
+    await bot.send(msg)
 
-@majsoul_add_account.on_command(("添加账号", "登陆", "登录"))
+
+@majsoul_add_account.on_command(("添加账号", "登陆国服", "登录国服"))
 async def majsoul_add_at(bot: Bot, ev: Event):
     evt = ev.text.strip()
     if not evt:
@@ -176,7 +187,7 @@ async def majsoul_add_at(bot: Bot, ev: Event):
     if isinstance(conn, str):
         return await bot.send(conn)
 
-    msg = "🥰成功向账号池添加账号！尝试自动连接中...\n"
+    msg = "🥰成功向账号池添加国服账号！尝试自动连接中...\n"
 
     msg += f"当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name}"
     await bot.send(msg)
@@ -289,15 +300,21 @@ async def majsoul_notify_reset_command(bot: Bot, event: Event):
 
 @majsoul_notify.on_fullmatch(("检查服务", "检查订阅服务"))
 async def majsoul_notify_check_command(bot: Bot, event: Event):
-    conn = manager.get_conn()
-    if conn is None:
+    conns = manager.get_all_conn()
+    if not conns:
         return await bot.send("未找到有效连接, 请先进行[雀魂推送启动]")
 
-    if await conn.check_alive():
-        msg = "雀魂服务连接正常！\n"
-        msg += f"当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name}"
-    else:
-        msg = "雀魂服务连接失败, 请先进行[雀魂重启订阅服务]"
+    for conn in conns:
+        msg_list = []
+        if await conn.check_alive():
+            a = f"✅ 当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name}"
+        else:
+            a = f"❌ 当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name} 账号登录态失效!"
+            a += '请使用[雀魂重启订阅服务]'
+
+        msg_list.append(a)
+
+    msg = "\n".join(msg_list)
     await bot.send(msg)
 
 
@@ -314,27 +331,9 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
     if "三" in event.text:
         friends.sort(key=lambda x: (x.level3.id, x.level3_score), reverse=True)
         msg = await draw_friend_rank_img(friends, "3")
-        """
-        msg = "本群雀魂好友三麻排行榜\n"
-        for friend in friends:
-            level_str = friend.level3.formatAdjustedScoreWithTag(
-                friend.level3_score
-            )
-            msg += f"{friend.nickname} {level_str}\n"
-        """
     else:
-        # sort by level.id and level.score
         friends.sort(key=lambda x: (x.level.id, x.level_score), reverse=True)
         msg = await draw_friend_rank_img(friends, "4")
-        """
-        # get level info
-        msg = "本群雀魂好友四麻排行榜\n"
-        for friend in friends:
-            level_str = friend.level.formatAdjustedScoreWithTag(
-                friend.level_score
-            )
-            msg += f"{friend.nickname} {level_str}\n"
-        """
     await bot.send(msg)
 
 

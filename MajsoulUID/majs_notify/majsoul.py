@@ -8,10 +8,10 @@ from collections.abc import Iterable
 
 import httpx
 import websockets.client
-from msgspec import convert
 from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
+from msgspec import ValidationError, convert
 
 from .utils import getRes
 from ..lib import lq as liblq
@@ -19,8 +19,8 @@ from ._level import MajsoulLevel
 from .codec import MajsoulProtoCodec
 from .majs_to_tenhou import toTenhou
 from .majsoul_friend import MajsoulFriend
-from .constants import HEADERS, ModeId2Room
 from ..majs_config.majs_config import MAJS_CONFIG
+from .constants import HEADERS, USER_AGENT, ModeId2Room
 from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
 from ..utils.api.remote import (
     decode_log_id,
@@ -32,6 +32,7 @@ from .model import (
     MjsLogItem,
     MajsoulConfig,
     MajsoulResInfo,
+    MajsoulUSConfig,
     MajsoulLiqiProto,
     MajsoulServerList,
     MajsoulVersionInfo,
@@ -448,6 +449,10 @@ class MajsoulConnection:
 
         return res.payload
 
+    async def error_handler(self, error: liblq.Error):
+        logger.error(f"[majs] {self.account_id} Connection lost: {error}")
+        await manager.restart()
+
     async def create_heatbeat_task(self):
         # create a new task to keep the connection alive, 300s heartbeat
         async def heartbeat():
@@ -461,8 +466,7 @@ class MajsoulConnection:
                 )
                 # check if the connection is still alive
                 if resp.error.code:
-                    logger.error(f"[majs] Connection lost: {resp.error}")
-                    await manager.restart()
+                    await self.error_handler(resp.error)
                 resp = cast(
                     liblq.ResCommon,
                     await self.rpc_call(
@@ -471,8 +475,7 @@ class MajsoulConnection:
                     ),
                 )
                 if resp.error.code:
-                    logger.error(f"[majs] Heartbeat failed: {resp.error}")
-                    await manager.restart()
+                    await self.error_handler(resp.error)
 
         task = asyncio.create_task(heartbeat())
         self.bg_tasks.append(task)
@@ -813,10 +816,18 @@ async def fetchMajsoulInfo(URL_BASE: str):
         MajsoulLiqiProto,
     )
     _path = f'{resInfo.res["config.json"].prefix}/config.json'
-    config = convert(
-        await getRes(URL_BASE, _path),
-        MajsoulConfig,
-    )
+    obj = await getRes(URL_BASE, _path)
+    try:
+        config = convert(
+            obj,
+            MajsoulUSConfig,
+        )
+    except ValidationError:
+        config = convert(
+            obj,
+            MajsoulConfig,
+        )
+
     ipDef = next(filter(lambda x: x.name == "player", config.ip))
 
     serverListUrl = random.choice(ipDef.region_urls).url
@@ -942,6 +953,7 @@ class MajsoulManager:
         except ValueError as e:
             logger.error(e)
             return False
+        self.conn.append(conn)
         return conn
 
     async def start(self):
@@ -973,7 +985,7 @@ class MajsoulManager:
                     )
                     headers = {
                         "Content-Type": "application/json; charset=utf-8",
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+                        "User-Agent": USER_AGENT,
                         "Referer": URL_BASE,
                         "Origin": URL_BASE,
                     }
@@ -1023,7 +1035,14 @@ class MajsoulManager:
         return await self.start()
 
     def get_conn(self):
-        return self.conn[0]
+        conns = self.get_all_conn()
+        if conns:
+            return conns[0]
+        return None
+        return self.get_all_conn()[0]
+
+    def get_all_conn(self):
+        return self.conn
 
     async def is_online(self):
         if self.conn is []:

@@ -1,7 +1,9 @@
 import random
 import hashlib
+from typing import Dict
 from pathlib import Path
 
+import aiofiles
 from httpx import AsyncClient
 
 from .constants import HEADERS
@@ -9,7 +11,7 @@ from .constants import HEADERS
 HTTPX_CLIENT = AsyncClient(headers=HEADERS)
 
 
-async def getRes(URL_BASE: str, path: str, bust_cache: bool = False):
+async def getRes(URL_BASE: str, path: str, bust_cache: bool = False) -> Dict:
     HTTPX_CLIENT.headers["Referer"] = URL_BASE
 
     url = (
@@ -28,6 +30,6 @@ async def getRes(URL_BASE: str, path: str, bust_cache: bool = False):
 
     resp = await HTTPX_CLIENT.get(url)
     resp.raise_for_status()
-    with open(cache_file, "wb") as f:
-        f.write(resp.content)
-        return resp.json()
+    async with aiofiles.open(cache_file, "wb") as f:
+        await f.write(resp.content)
+    return resp.json()
