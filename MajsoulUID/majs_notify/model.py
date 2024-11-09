@@ -1,3 +1,5 @@
+from typing import List
+
 import betterproto
 from msgspec import Struct
 
@@ -51,17 +53,20 @@ class MajsoulRegionUrl(Struct):
     url: str
 
 
-class MajsoulConfigIp(Struct):
+class MajsoulUSConfigIp(Struct):
     contest_chat_url: str
     dhs_url: str
     name: str
+    region_urls: List[MajsoulRegionUrl]
+
+
+class MajsoulConfigIp(MajsoulUSConfigIp):
     prefix_url: str
-    region_urls: list[MajsoulRegionUrl]
     system_email_url: str
 
 
 class MajsoulConfig(Struct):
-    ip: list[MajsoulConfigIp]
+    ip: List[MajsoulConfigIp]
     goods_sheleve_id: str
     emergency_url: str
     awsc_sdk_js: str
@@ -74,8 +79,17 @@ class MajsoulConfig(Struct):
     fb_sdk_js: str
 
 
+class MajsoulUSConfig(Struct):
+    ip: List[MajsoulUSConfigIp]
+    yo_service_url: List[str]
+    goods_sheleve_id: str
+    awsc_sdk_js: str
+    nec_sdk_js: str
+    tracker_url: str
+
+
 class MajsoulServerList(Struct):
-    servers: list[str]
+    servers: List[str]
 
 
 class MajsoulDecodedMessage(Struct):
@@ -98,4 +112,4 @@ class MjsLogItem(Struct):
 
 class MjsLog(Struct):
     head: RecordGame
-    data: list[MjsLogItem]
+    data: List[MjsLogItem]

@@ -1,3 +1,5 @@
+import httpx
+import email_validator
 from gsuid_core.sv import SV
 from gsuid_core.bot import Bot
 from gsuid_core.models import Event
@@ -5,6 +7,7 @@ from gsuid_core.logger import logger
 from gsuid_core.utils.database.api import get_uid
 
 from .majsoul import manager
+from .constants import USER_AGENT
 from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
 from .draw_friend_rank import draw_friend_rank_img
@@ -15,14 +18,124 @@ majsoul_friend_level_billboard = SV("雀魂好友排行榜")
 majsoul_get_notify = SV("雀魂订阅推送")
 majsoul_add_account = SV("雀魂账号池", pm=0)
 majsoul_friend_manage = SV("雀魂好友管理", pm=0)
+majsoul_yostar_login = SV("雀魂Yostar登陆", pm=0)
 
 EXSAMPLE = """雀魂登陆 用户名, 密码
 ⚠ 提示: 该命令将会使用账密进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
 ⚠ 请自行使用任何小号, 本插件不为账号被封禁承担任何责任！！
 """
 
+EXSAMPLE_JP_EN = """雀魂登陆日服 邮箱
+⚠ 提示: 该命令将会使用邮箱进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
+⚠ 请自行使用任何小号, 本插件不为账号被封禁承担任何责任！！
+"""
 
-@majsoul_add_account.on_command(("添加账号", "登陆", "登录"))
+
+@majsoul_yostar_login.on_command(
+    ("登录美服", "登录日服", "登陆日服", "登陆美服")
+)
+async def majsoul_jp_login_command(bot: Bot, ev: Event):
+    url = "https://passport.mahjongsoul.com/account/auth_request"
+    headers = {
+        "Content-Type": "application/json; charset=utf-8",
+        "User-Agent": USER_AGENT,
+        "Referer": "https://game.mahjongsoul.com/",
+        "Origin": "https://game.mahjongsoul.com",
+    }
+    evt = ev.text.strip()
+    try:
+        email_v = email_validator.validate_email(evt)
+        email = email_v.normalized  # type: ignore[reportAttributeAccessIssue]
+    except email_validator.EmailNotValidError:
+        return await bot.send("❌ 请输入有效的email!")
+
+    lang = "ja" if "日" in ev.command else "en"
+    sess = httpx.AsyncClient(headers=headers, verify=False)
+    payload = {"account": email, "lang": lang}
+    response = await sess.post(url, json=payload)
+    if response.status_code == 200:
+        res = response.json()
+        if res["result"] == 0:
+            await bot.send("🥰 验证邮件已发送，请查收!")
+        else:
+            logger.error(res)
+            return await bot.send("❌ 发送验证邮件失败!")
+    else:
+        logger.error(response.text)
+        return await bot.send("❌ 发送验证邮件失败!")
+    code = await bot.receive_resp("请输入验证码:")
+    if code is None or not code.text.isdigit():
+        return await bot.send("你输入了错误的格式!")
+
+    url = "https://passport.mahjongsoul.com/account/auth_submit"
+    payload = {"account": email, "code": code.text}
+    response = await sess.post(url, json=payload)
+    if response.status_code == 200:
+        res = response.json()
+        if res["result"] == 0:
+            uid = res["uid"]
+            token = res["token"]
+        else:
+            logger.error(res)
+            return await bot.send("❌ 登陆失败!")
+    else:
+        logger.error(response.text)
+        return await bot.send("❌ 登陆失败!")
+
+    url = "https://passport.mahjongsoul.com/user/login"
+    payload = {"uid": uid, "token": token, "deviceId": f"web|{uid}"}
+    response = await sess.post(url, json=payload)
+    if response.status_code == 200:
+        res = response.json()
+        if res["result"] == 0:
+            code = res["accessToken"]
+        else:
+            logger.error(res)
+            return await bot.send("❌ 登陆失败!")
+    else:
+        logger.error(response.text)
+        return await bot.send("❌ 登陆失败!")
+
+    try:
+        connection = await manager.check_yostar_login(
+            uid,
+            code,
+            lang,
+        )
+    except ConnectionRefusedError:
+        return await bot.send("❌ 登陆失败, 可能是网络原因, 请检查控制台!")
+
+    if isinstance(connection, bool):
+        return await bot.send("❌ 登陆失败, 请检查登录信息!")
+
+    friend_code = str(encode_account_id2(connection.account_id))
+    if await MajsUser.data_exist(uid=connection.account_id):
+        await MajsUser.update_data_by_data(
+            {"uid": str(connection.account_id)},
+            {
+                "cookie": connection.access_token,
+                "friend_code": friend_code,
+                "token": token,
+            },
+        )
+    else:
+        await MajsUser.insert_data(
+            ev.user_id,
+            ev.bot_id,
+            uid=str(connection.account_id),
+            cookie=connection.access_token,
+            friend_code=friend_code,
+            token=token,
+            lang=lang,
+            login_type=7,
+        )
+
+    msg = f"🥰成功向账号池添加{lang}账号！\n"
+    msg += f"当前雀魂账号ID: {connection.account_id}, 昵称: {connection.nick_name}"
+    await bot.send(msg)
+
+
+@majsoul_add_account.on_command(("添加账号", "登陆国服", "登录国服"))
 async def majsoul_add_at(bot: Bot, ev: Event):
     evt = ev.text.strip()
     if not evt:
@@ -35,7 +148,12 @@ async def majsoul_add_at(bot: Bot, ev: Event):
         if not username or not password:
             return await bot.send("❌ 请输入有效的username和password!")
 
-        connection = await manager.check_username_password(username, password)
+        connection = await manager.check_username_password(
+            username,
+            password,
+            "",
+            0,
+        )
         if isinstance(connection, bool):
             return await bot.send(
                 "❌ 登陆失败, 请输入正确的username和password!"
@@ -69,7 +187,7 @@ async def majsoul_add_at(bot: Bot, ev: Event):
     if isinstance(conn, str):
         return await bot.send(conn)
 
-    msg = "🥰成功向账号池添加账号！尝试自动连接中...\n"
+    msg = "🥰成功向账号池添加国服账号！尝试自动连接中...\n"
 
     msg += f"当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name}"
     await bot.send(msg)
@@ -83,16 +201,16 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
 
     if await MajsPush.data_exist(uid=uid):
         data = await MajsPush.select_data_by_uid(uid)
-        if data and data.push_id == 'off':
-            return await bot.send('[majs] 你已经关闭了订阅信息!')
+        if data and data.push_id == "off":
+            return await bot.send("[majs] 你已经关闭了订阅信息!")
         elif data is None:
-            return await bot.send('[majs] 你尚未有订阅信息, 无法取消!')
+            return await bot.send("[majs] 你尚未有订阅信息, 无法取消!")
         else:
-            push_id = 'off'
+            push_id = "off"
             retcode = await MajsPush.update_data_by_uid(
                 uid,
                 ev.bot_id,
-                push_id='off',
+                push_id="off",
             )
             if retcode == 0:
                 logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
@@ -102,7 +220,7 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
             else:
                 return await bot.send("[majs] 推送订阅失败！")
     else:
-        return await bot.send('[majs] 你尚未有订阅信息, 无法取消!')
+        return await bot.send("[majs] 你尚未有订阅信息, 无法取消!")
 
 
 @majsoul_get_notify.on_command(("订阅"))
@@ -182,15 +300,21 @@ async def majsoul_notify_reset_command(bot: Bot, event: Event):
 
 @majsoul_notify.on_fullmatch(("检查服务", "检查订阅服务"))
 async def majsoul_notify_check_command(bot: Bot, event: Event):
-    conn = manager.get_conn()
-    if conn is None:
+    conns = manager.get_all_conn()
+    if not conns:
         return await bot.send("未找到有效连接, 请先进行[雀魂推送启动]")
 
-    if await conn.check_alive():
-        msg = "雀魂服务连接正常！\n"
-        msg += f"当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name}"
-    else:
-        msg = "雀魂服务连接失败, 请先进行[雀魂重启订阅服务]"
+    for conn in conns:
+        msg_list = []
+        if await conn.check_alive():
+            a = f"✅ 当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name}"
+        else:
+            a = f"❌ 当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name} 账号登录态失效!"
+            a += '请使用[雀魂重启订阅服务]'
+
+        msg_list.append(a)
+
+    msg = "\n".join(msg_list)
     await bot.send(msg)
 
 
@@ -206,28 +330,10 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
     friends = list(set(friends))
     if "三" in event.text:
         friends.sort(key=lambda x: (x.level3.id, x.level3_score), reverse=True)
-        msg = await draw_friend_rank_img(friends, '3')
-        '''
-        msg = "本群雀魂好友三麻排行榜\n"
-        for friend in friends:
-            level_str = friend.level3.formatAdjustedScoreWithTag(
-                friend.level3_score
-            )
-            msg += f"{friend.nickname} {level_str}\n"
-        '''
+        msg = await draw_friend_rank_img(friends, "3")
     else:
-        # sort by level.id and level.score
         friends.sort(key=lambda x: (x.level.id, x.level_score), reverse=True)
-        msg = await draw_friend_rank_img(friends, '4')
-        '''
-        # get level info
-        msg = "本群雀魂好友四麻排行榜\n"
-        for friend in friends:
-            level_str = friend.level.formatAdjustedScoreWithTag(
-                friend.level_score
-            )
-            msg += f"{friend.nickname} {level_str}\n"
-        '''
+        msg = await draw_friend_rank_img(friends, "4")
     await bot.send(msg)
 
 

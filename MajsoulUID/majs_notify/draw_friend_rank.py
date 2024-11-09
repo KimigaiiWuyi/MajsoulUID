@@ -17,7 +17,7 @@ TEXT_PATH = Path(__file__).parent / 'texture2d'
 
 
 async def draw_friend_rank_img(friends: List[MajsoulFriend], mode: str = '4'):
-    friends = friends[:10]
+    friends = friends[:14]
     img = crop_center_img(get_bg(), 1000, 600 + len(friends) * 153)
     title = await draw_title(f'雀魂好友{mode}麻排行榜')
     img.paste(title, (0, 0), title)

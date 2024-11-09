@@ -31,7 +31,10 @@ class MahjongScoring:
         self.last_tile_pos = -1
 
     async def draw_problem_image(self, include_answer=False) -> Image.Image:
-        font = ImageFont.truetype(Path(__file__).parent / "mj.otf", 40)
+        font = ImageFont.truetype(
+            str(Path(__file__).parent / "mj.otf"),
+            40,
+        )
 
         hand_str = "".join(self.hand)
 
@@ -59,7 +62,7 @@ class MahjongScoring:
             xy=((5, 5)),
             text=f"风圈: {self.field}, 门风: {self.self}, 和牌方式: {self.win_by}",
             font=majs_font(24),
-            align="m",
+            align="center",
             fill="black",
         )
 
@@ -291,7 +294,7 @@ class MahjongScoring:
                                 + self.rotated_tiles[
                                     self.tiles.index(self.hand[i][rand_num])
                                 ]
-                                + self.hand[i][rand_num + 1 :]
+                                + self.hand[i][rand_num + 1 :]  # noqa:E203
                             )
                             self.answer_in_number += 16
                         else:
@@ -311,7 +314,7 @@ class MahjongScoring:
                                 + self.rotated_tiles[
                                     self.tiles.index(self.hand[i][rand_num])
                                 ]
-                                + self.hand[i][rand_num + 1 :]
+                                + self.hand[i][rand_num + 1 :]  # noqa:E203
                             )
                             self.answer_in_number += 8
                         else:
@@ -330,7 +333,7 @@ class MahjongScoring:
                                 + self.rotated_tiles[
                                     self.tiles.index(self.hand[i][rand_num])
                                 ]
-                                + self.hand[i][rand_num + 1 :]
+                                + self.hand[i][rand_num + 1 :]  # noqa:E203
                             )
                             self.answer_in_number += 4
                         else:
@@ -345,7 +348,7 @@ class MahjongScoring:
                                 + self.rotated_tiles[
                                     self.tiles.index(self.hand[i][rand_num])
                                 ]
-                                + self.hand[i][rand_num + 1 :]
+                                + self.hand[i][rand_num + 1 :]  # noqa:E203
                             )
                             self.answer_in_number += 2
                         else:

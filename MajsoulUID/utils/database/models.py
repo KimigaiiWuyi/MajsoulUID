@@ -18,6 +18,10 @@ exec_list.append('ALTER TABLE MajsUser ADD COLUMN username TEXT DEFAULT ""')
 exec_list.append('ALTER TABLE MajsUser ADD COLUMN password TEXT DEFAULT ""')
 exec_list.append('ALTER TABLE MajsUser ADD COLUMN account TEXT DEFAULT ""')
 
+exec_list.append('ALTER TABLE MajsUser ADD COLUMN token TEXT DEFAULT ""')
+exec_list.append('ALTER TABLE MajsUser ADD COLUMN lang TEXT DEFAULT "zh"')
+exec_list.append('ALTER TABLE MajsUser ADD COLUMN login_type INT DEFAULT 0')
+
 
 class MajsPaipu(BaseIDModel, table=True):
     account_id: str = Field(default="", title="雀魂账号ID")
@@ -67,8 +71,13 @@ class MajsUser(User, table=True):
     uid: Optional[str] = Field(default=None, title="雀魂UID")
     username: str = Field(default="", title="昵称")
     friend_code: str = Field(default="", title="好友码")
+
+    lang: str = Field(default="zh", title="语言")
+    login_type: int = Field(default=0, title="登录类型")
+
     account: str = Field(default="", title="账号")
     password: str = Field(default="", title="密码")
+    token: str = Field(default="", title="Token For JP Account")
 
     @classmethod
     @with_session
@@ -87,6 +96,15 @@ class MajsUser(User, table=True):
         uid: str,
     ) -> Optional[str]:
         return await cls.get_user_attr_by_uid(uid, "password")
+
+    @classmethod
+    @with_session
+    async def get_token(
+        cls: Type["MajsUser"],
+        session: AsyncSession,
+        uid: str,
+    ) -> Optional[str]:
+        return await cls.get_user_attr_by_uid(uid, "token")
 
 
 @site.register_admin
