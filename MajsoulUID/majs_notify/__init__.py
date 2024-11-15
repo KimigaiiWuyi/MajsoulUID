@@ -1,17 +1,21 @@
-import httpx
+import asyncio
+import random
+from urllib.parse import parse_qs, urlparse
+
 import email_validator
-from gsuid_core.sv import SV
+import httpx
 from gsuid_core.bot import Bot
-from gsuid_core.models import Event
 from gsuid_core.logger import logger
+from gsuid_core.models import Event
+from gsuid_core.sv import SV
 from gsuid_core.utils.database.api import get_uid
 
-from .majsoul import manager
-from .constants import USER_AGENT
-from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
-from .draw_friend_rank import draw_friend_rank_img
 from ..utils.database.models import MajsBind, MajsPush, MajsUser
+from ..utils.error_reply import UID_HINT
+from .constants import USER_AGENT
+from .draw_friend_rank import draw_friend_rank_img
+from .majsoul import manager
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_friend_level_billboard = SV("雀魂好友排行榜")
@@ -19,6 +23,8 @@ majsoul_get_notify = SV("雀魂订阅推送")
 majsoul_add_account = SV("雀魂账号池", pm=0)
 majsoul_friend_manage = SV("雀魂好友管理", pm=0)
 majsoul_yostar_login = SV("雀魂Yostar登陆", pm=0)
+
+majsoul_review = SV("雀魂牌谱Review")
 
 EXSAMPLE = """雀魂登陆 用户名, 密码
 ⚠ 提示: 该命令将会使用账密进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
@@ -31,9 +37,53 @@ EXSAMPLE_JP_EN = """雀魂登陆日服 邮箱
 """
 
 
-@majsoul_yostar_login.on_command(
-    ("登录美服", "登录日服", "登陆日服", "登陆美服")
-)
+@majsoul_review.on_command("牌谱Review")
+async def majsoul_review_command(bot: Bot, ev: Event):
+    paipu_url = ev.text.strip()
+    parsed_url = urlparse(paipu_url)
+
+    query_params = parse_qs(parsed_url.query)
+
+    paipu_value = query_params.get("paipu")
+    if paipu_value:
+        desired_string = paipu_value[0]
+    else:
+        return await bot.send("❌ 请输入有效的牌谱URL!")
+    conns = manager.get_all_conn()
+    if not conns:
+        return await bot.send("❌ 未找到有效连接, 请先进行[雀魂推送启动]")
+    conn = random.choice(conns)
+    tenhou_log = await conn.fetchLogs(desired_string)
+    sess = httpx.AsyncClient(verify=False)
+    url = "https://majsoul.wget.es/review"
+    player_id = tenhou_log.get("_target_actor", 0)
+    payload = {
+        "type": "tenhou",
+        "player_id": player_id,
+        "data": tenhou_log,
+    }
+
+    response = await sess.post(url, json=payload)
+    response.raise_for_status()
+    task_id = response.json()["task_id"]
+
+    url = f"https://majsoul.wget.es/review/{task_id}"
+    # 轮询这个地址
+    for _ in range(10):
+        response = await sess.get(url)
+        response.raise_for_status()
+        res = response.json()
+        if res.get("review"):
+            break
+        await asyncio.sleep(1)
+    else:
+        return await bot.send("❌ 未找到有效的Review信息!")
+
+    rating: float = res["review"]["rating"]
+    await bot.send(f"🥰 paipu: {paipu_url}\nrating: {rating:.2f}")
+
+
+@majsoul_yostar_login.on_command(("登录美服", "登录日服", "登陆日服", "登陆美服"))
 async def majsoul_jp_login_command(bot: Bot, ev: Event):
     url = "https://passport.mahjongsoul.com/account/auth_request"
     headers = {
@@ -155,9 +205,7 @@ async def majsoul_add_at(bot: Bot, ev: Event):
             0,
         )
         if isinstance(connection, bool):
-            return await bot.send(
-                "❌ 登陆失败, 请输入正确的username和password!"
-            )
+            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
     else:
         return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
 
@@ -214,9 +262,7 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
             )
             if retcode == 0:
                 logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
-                return await bot.send(
-                    f"[majs] 修改推送订阅成功！当前值：{push_id}"
-                )
+                return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
             else:
                 return await bot.send("[majs] 推送订阅失败！")
     else:
@@ -310,7 +356,7 @@ async def majsoul_notify_check_command(bot: Bot, event: Event):
             a = f"✅ 当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name}"
         else:
             a = f"❌ 当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name} 账号登录态失效!"
-            a += '请使用[雀魂重启订阅服务]'
+            a += "请使用[雀魂重启订阅服务]"
 
         msg_list.append(a)
 

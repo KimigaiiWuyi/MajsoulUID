@@ -1,22 +1,22 @@
 import json
-from pathlib import Path
-from datetime import datetime
-from typing import Any, Dict, cast
 from collections.abc import Sequence
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, cast
 
-from .model import MjsLog, MjsLogItem
 from ..lib.lq import (
     HuleInfo,
-    RecordHule,
-    RecordBaBei,
-    RecordLiuJu,
-    RecordNoTile,
-    RecordDealTile,
-    RecordNewRound,
-    RecordChiPengGang,
-    RecordDiscardTile,
     RecordAnGangAddGang,
+    RecordBaBei,
+    RecordChiPengGang,
+    RecordDealTile,
+    RecordDiscardTile,
+    RecordHule,
+    RecordLiuJu,
+    RecordNewRound,
+    RecordNoTile,
 )
+from .model import MjsLog, MjsLogItem
 
 cfg: Dict = {}
 
@@ -74,9 +74,7 @@ TSUMOGIRI = 60  # tenhou tsumogiri symbol
 
 # global variables - don't touch
 ALLOW_KIRIAGE = False  # potentially allow this to be true
-TSUMOLOSSOFF = (
-    False  # sanma tsumo loss, is set true for sanma when tsumo loss off
-)
+TSUMOLOSSOFF = False  # sanma tsumo loss, is set true for sanma when tsumo loss off
 
 
 def pad_right(a: list[int], _l: int, f: int):
@@ -291,22 +289,14 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
                     + tlround(0.5 * liable_for * YSCORE[OYA][KO])
                 )
                 for i in range(kyoku.nplayers):
-                    if (
-                        liable_seat != i
-                        and h.seat != i
-                        and kyoku.nplayers >= i
-                    ):
+                    if liable_seat != i and h.seat != i and kyoku.nplayers >= i:
                         delta[i] += (
                             hb
                             + liable_for * YSCORE[OYA][KO]
                             + tlround(0.5 * liable_for * YSCORE[OYA][KO])
                         )
-                if (
-                    kyoku.nplayers == 3
-                ):  # dealer gets north's payment from liable
-                    delta[h.seat] += (
-                        0 if TSUMOLOSSOFF else liable_for * YSCORE[OYA][KO]
-                    )
+                if kyoku.nplayers == 3:  # dealer gets north's payment from liable
+                    delta[h.seat] += 0 if TSUMOLOSSOFF else liable_for * YSCORE[OYA][KO]
             else:  # non-dealer tsumo
                 delta[liable_seat] -= (
                     (kyoku.nplayers - 2) * hb
@@ -314,11 +304,7 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
                     + tlround(0.5 * liable_for * YSCORE[KO][KO])
                 )
                 for i in range(kyoku.nplayers):
-                    if (
-                        liable_seat != i
-                        and h.seat != i
-                        and kyoku.nplayers >= i
-                    ):
+                    if liable_seat != i and h.seat != i and kyoku.nplayers >= i:
                         if kyoku.dealerseat == i:
                             delta[i] += (
                                 hb
@@ -351,33 +337,19 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
     # score string
     fuhan = f"{h.fu}{RUNES['fu'][NAMEPREF]}{h.count}{RUNES['han'][NAMEPREF]}"
     if h.yiman:
-        res.append(
-            f"{fuhan if SHOWFU else ''}{RUNES['yakuman'][NAMEPREF]}{points}"
-        )
+        res.append(f"{fuhan if SHOWFU else ''}{RUNES['yakuman'][NAMEPREF]}{points}")
     elif h.count >= 13:
         _a = f"{fuhan if SHOWFU else ''}"
         _b = f"{RUNES['kazoeyakuman'][NAMEPREF]}"
         res.append(f"{_a}{_b}")
     elif h.count >= 11:
-        res.append(
-            f"{fuhan if SHOWFU else ''}{RUNES['sanbaiman'][NAMEPREF]}{points}"
-        )
+        res.append(f"{fuhan if SHOWFU else ''}{RUNES['sanbaiman'][NAMEPREF]}{points}")
     elif h.count >= 8:
-        res.append(
-            f"{fuhan if SHOWFU else ''}{RUNES['baiman'][NAMEPREF]}{points}"
-        )
+        res.append(f"{fuhan if SHOWFU else ''}{RUNES['baiman'][NAMEPREF]}{points}")
     elif h.count >= 6:
-        res.append(
-            f"{fuhan if SHOWFU else ''}{RUNES['haneman'][NAMEPREF]}{points}"
-        )
-    elif (
-        h.count >= 5
-        or (h.count >= 4 and h.fu >= 40)
-        or (h.count >= 3 and h.fu >= 70)
-    ):
-        res.append(
-            f"{fuhan if SHOWFU else ''}{RUNES['mangan'][NAMEPREF]}{points}"
-        )
+        res.append(f"{fuhan if SHOWFU else ''}{RUNES['haneman'][NAMEPREF]}{points}")
+    elif h.count >= 5 or (h.count >= 4 and h.fu >= 40) or (h.count >= 3 and h.fu >= 70):
+        res.append(f"{fuhan if SHOWFU else ''}{RUNES['mangan'][NAMEPREF]}{points}")
     elif ALLOW_KIRIAGE and (
         (h.count == 4 and h.fu == 30) or (h.count == 3 and h.fu == 60)
     ):
@@ -391,7 +363,7 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
         name_jp = cfg["fan"]["fan"]["map_"][str(e.id)]["name_jp"]
         name_en = cfg["fan"]["fan"]["map_"][str(e.id)]["name_en"]
         if h.yiman:
-            _a = f'{name_jp if JPNAME == NAMEPREF else name_en}'
+            _a = f"{name_jp if JPNAME == NAMEPREF else name_en}"
             _b = f"({RUNES['yakuman'][JPNAME]})"
             res.append(f"{_a}{_b}")
         else:
@@ -404,9 +376,7 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
 
 # Sekinin barai tiles
 WINDS = list(map(lambda e: tm2t(e), ["1z", "2z", "3z", "4z"]))
-DRAGS = list(
-    map(lambda e: tm2t(e), ["5z", "6z", "7z", "0z"])
-)  # 0z represents aka haku
+DRAGS = list(map(lambda e: tm2t(e), ["5z", "6z", "7z", "0z"]))  # 0z represents aka haku
 
 
 def relativeseating(seat0: int, seat1: int):
@@ -500,9 +470,7 @@ def generatelog(mjslog: list[MjsLogItem]):
                     if not isinstance(calltiles[0], int):
                         raise ValueError("Daiminkan tile is not an integer")
                     kyoku.countpao(calltiles[0], e.seat, kyoku.ldseat)
-                    calltiles.insert(
-                        3 if idx == 2 else idx, "m" + str(calltiles.pop())
-                    )
+                    calltiles.insert(3 if idx == 2 else idx, "m" + str(calltiles.pop()))
                     tmp = ""
                     for data in calltiles:
                         tmp += str(data)
@@ -523,14 +491,8 @@ def generatelog(mjslog: list[MjsLogItem]):
                 if e.type == 3:  # Ankan
                     kyoku.countpao(til, e.seat, -1)
                     ankantiles = [
-                        t
-                        for t in kyoku.haipais[e.seat]
-                        if deaka(t) == deaka(til)
-                    ] + [
-                        t
-                        for t in kyoku.draws[e.seat]
-                        if deaka(int(t)) == deaka(til)
-                    ]
+                        t for t in kyoku.haipais[e.seat] if deaka(t) == deaka(til)
+                    ] + [t for t in kyoku.draws[e.seat] if deaka(int(t)) == deaka(til)]
                     til = str(ankantiles.pop())
                     tmp = ""
                     for data in ankantiles:
@@ -543,14 +505,9 @@ def generatelog(mjslog: list[MjsLogItem]):
                         w
                         for w in kyoku.draws[e.seat]
                         if isinstance(w, str)
-                        and (
-                            "p" + str(deaka(til)) in w
-                            or "p" + str(makeaka(til)) in w
-                        )
+                        and ("p" + str(deaka(til)) in w or "p" + str(makeaka(til)) in w)
                     ]
-                    kyoku.discards[e.seat].append(
-                        nakis[0].replace("p", "k" + str(til))
-                    )
+                    kyoku.discards[e.seat].append(nakis[0].replace("p", "k" + str(til)))
                     kyoku.nkan += 1
 
             case "RecordBaBei":
@@ -569,13 +526,9 @@ def generatelog(mjslog: list[MjsLogItem]):
 
                 entry = kyoku.dump([])
                 if e.type == 1:
-                    entry.append(
-                        [RUNES["kyuushukyuuhai"][NAMEPREF]]
-                    )  # Kyuushukyuhai
+                    entry.append([RUNES["kyuushukyuuhai"][NAMEPREF]])  # Kyuushukyuhai
                 elif e.type == 2:
-                    entry.append(
-                        [RUNES["suufonrenda"][NAMEPREF]]
-                    )  # Suufon renda
+                    entry.append([RUNES["suufonrenda"][NAMEPREF]])  # Suufon renda
                 elif kyoku.nriichi == 4:
                     entry.append([RUNES["suuchariichi"][NAMEPREF]])  # 4 riichi
                 elif kyoku.nkan >= 4:
@@ -701,13 +654,13 @@ def toTenhou(record: MjsLog) -> dict[str, Any]:
     res["dan"] = [""] * 4
     for e in record.head.accounts:
         if JPNAME == NAMEPREF:
-            res["dan"][e.seat] = cfg["level_definition"]["level_definition"][
-                "map_"
-            ][str(e.level.id)]["full_name_jp"]
+            res["dan"][e.seat] = cfg["level_definition"]["level_definition"]["map_"][
+                str(e.level.id)
+            ]["full_name_jp"]
         else:
-            res["dan"][e.seat] = cfg["level_definition"]["level_definition"][
-                "map_"
-            ][str(e.level.id)]["full_name_en"]
+            res["dan"][e.seat] = cfg["level_definition"]["level_definition"]["map_"][
+                str(e.level.id)
+            ]["full_name_en"]
 
     res["rate"] = [0] * 4
     for e in record.head.accounts:
@@ -738,18 +691,4 @@ def toTenhou(record: MjsLog) -> dict[str, Any]:
         ),
     ]
 
-    # if VERBOSELOG:
-    #     res["mjshead"] = record.head
-    #     res["mjslog"] = mjslog
-    #     res["mjsrecordtypes"] = [e["__class__"]["name"] for e in mjslog]
-
     return res
-
-
-# with open("mjslog copy.json", "r", encoding="utf8") as f:
-#     mjslog = json.load(f)
-
-# data = parse(mjslog)
-
-# with open("output_py.json", "w", encoding="utf8") as f:
-#     json.dump(data, f, ensure_ascii=False, indent=4)
