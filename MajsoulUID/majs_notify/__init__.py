@@ -85,7 +85,7 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     ) * 100
     await bot.send(
         f"🥰 牌谱Review信息:\n"
-        f"Rating: {rating:.3f}%\n"
+        f"Rating: {rating:.3f}\n"
         f"Matches/Total: {res["review"]["total_matches"]}/{res["review"]["total_reviewed"]} = {matches_total:.3f}%"
     )
 
