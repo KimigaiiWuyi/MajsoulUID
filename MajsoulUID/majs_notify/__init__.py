@@ -79,8 +79,15 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     else:
         return await bot.send("❌ 未找到有效的Review信息!")
 
-    rating: float = res["review"]["rating"]
-    await bot.send(f"🥰 paipu: {paipu_url}\nrating: {rating:.2f}")
+    rating: float = res["review"]["rating"] * 100
+    matches_total = (
+        res["review"]["total_matches"] / res["review"]["total_reviewed"]
+    ) * 100
+    await bot.send(
+        f"🥰 牌谱Review信息:\n"
+        f"Rating: {rating:.3f}%\n"
+        f"Matches/Total: {res["review"]["total_matches"]}/{res["review"]["total_reviewed"]} = {matches_total:.3f}%"
+    )
 
 
 @majsoul_yostar_login.on_command(("登录美服", "登录日服", "登陆日服", "登陆美服"))
