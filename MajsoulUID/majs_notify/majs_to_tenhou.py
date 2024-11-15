@@ -492,7 +492,11 @@ def generatelog(mjslog: list[MjsLogItem]):
                     kyoku.countpao(til, e.seat, -1)
                     ankantiles = [
                         t for t in kyoku.haipais[e.seat] if deaka(t) == deaka(til)
-                    ] + [t for t in kyoku.draws[e.seat] if deaka(int(t)) == deaka(til)]
+                    ] + [
+                        t
+                        for t in kyoku.draws[e.seat]
+                        if isinstance(t, int) and deaka(t) == deaka(til)
+                    ]
                     til = str(ankantiles.pop())
                     tmp = ""
                     for data in ankantiles:
