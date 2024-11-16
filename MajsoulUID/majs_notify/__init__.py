@@ -109,12 +109,13 @@ async def majsoul_review_command(bot: Bot, ev: Event):
                 else:
                     continue
 
+    bad_move_count = bad_move_up_count + bad_move_down_count
     await bot.send(
-        f"🥰 牌谱Review信息:\n"
+        f"🥰 Review Info:\n"
         f"Rating: {rating:.3f}\n"
         f"Matches/Total: {res["review"]["total_matches"]}/{res["review"]["total_reviewed"]} = {matches_total:.3f}%"
-        f"BadMove: {bad_move_up_count+bad_move_down_count}\n"
-        f"BadMoveRatio: {bad_move_up_count+bad_move_down_count}/{res["review"]["total_reviewed"]}"
+        f"BadMove: {bad_move_count}\n"
+        f"BadMoveRatio: {bad_move_count}/{res["review"]["total_reviewed"]} = {bad_move_count/res["review"]["total_reviewed"]:.3f}%"
     )
 
 
