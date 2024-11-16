@@ -1,3 +1,7 @@
+import random
+import asyncio
+from urllib.parse import parse_qs, urlparse
+
 import httpx
 import email_validator
 from gsuid_core.sv import SV
@@ -20,6 +24,8 @@ majsoul_add_account = SV("雀魂账号池", pm=0)
 majsoul_friend_manage = SV("雀魂好友管理", pm=0)
 majsoul_yostar_login = SV("雀魂Yostar登陆", pm=0)
 
+majsoul_review = SV("雀魂牌谱Review")
+
 EXSAMPLE = """雀魂登陆 用户名, 密码
 ⚠ 提示: 该命令将会使用账密进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
 ⚠ 请自行使用任何小号, 本插件不为账号被封禁承担任何责任！！
@@ -29,6 +35,91 @@ EXSAMPLE_JP_EN = """雀魂登陆日服 邮箱
 ⚠ 提示: 该命令将会使用邮箱进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
 ⚠ 请自行使用任何小号, 本插件不为账号被封禁承担任何责任！！
 """
+
+
+@majsoul_review.on_command(("牌谱Review", "牌谱review", "Review", "review"))
+async def majsoul_review_command(bot: Bot, ev: Event):
+    paipu_url = ev.text.strip()
+    parsed_url = urlparse(paipu_url)
+
+    query_params = parse_qs(parsed_url.query)
+
+    paipu_value = query_params.get("paipu")
+    if paipu_value:
+        desired_string = paipu_value[0]
+    else:
+        return await bot.send("❌ 请输入有效的牌谱URL!")
+    conns = manager.get_all_conn()
+    if not conns:
+        return await bot.send("❌ 未找到有效连接, 请先进行[雀魂推送启动]")
+    conn = random.choice(conns)
+    tenhou_log = await conn.fetchLogs(desired_string)
+    sess = httpx.AsyncClient(verify=False)
+    url = [
+        "http://183.36.37.120:62800/review",
+        "https://majsoul.wget.es/review",
+    ]
+    chosen_url = random.choice(url)
+    player_id = tenhou_log.get("_target_actor", 0)
+    payload = {
+        "type": "tenhou",
+        "player_id": player_id,
+        "data": tenhou_log,
+    }
+
+    response = await sess.post(chosen_url, json=payload)
+    response.raise_for_status()
+    task_id = response.json()["task_id"]
+
+    url = f"{chosen_url}/{task_id}"
+    for _ in range(10):
+        response = await sess.get(url)
+        response.raise_for_status()
+        res = response.json()
+        if res.get("review"):
+            break
+        await asyncio.sleep(1)
+    else:
+        return await bot.send("❌ 未找到有效的Review信息!")
+
+    rating: float = res["review"]["rating"] * 100
+    matches_total = (
+        res["review"]["total_matches"] / res["review"]["total_reviewed"]
+    ) * 100
+    bad_move_up_count = 0
+    bad_move_down_count = 0
+
+    for kyoku in res["review"]["kyokus"]:
+        # cur_kyoku = kyoku["kyoku"]
+        # cur_honba = kyoku["honba"]
+
+        # print("--------------------")
+        # print(f"Kyoku {cur_kyoku} Honba {cur_honba}")
+
+        for entry in kyoku["entries"]:
+            if entry["is_equal"]:
+                continue
+
+            actual = entry["actual"]
+
+            for _, detail in enumerate(entry["details"]):
+                if actual != detail["action"]:
+                    continue
+                if detail["prob"] <= 0.05:
+                    bad_move_up_count += 1
+                elif 0.05 < detail["prob"] <= 0.1:
+                    bad_move_down_count += 1
+                else:
+                    continue
+
+    bad_move_count = bad_move_up_count + bad_move_down_count
+    await bot.send(
+        f"🥰 Review Info:\n"
+        f"Rating: {rating:.3f}\n"
+        f"Matches/Total: {res["review"]["total_matches"]}/{res["review"]["total_reviewed"]} = {matches_total:.3f}%\n"
+        f"BadMove: {bad_move_count}\n"
+        f"BadMoveRatio: {bad_move_count}/{res["review"]["total_reviewed"]} = {(bad_move_count/res["review"]["total_reviewed"])* 100:.3f}%"
+    )
 
 
 @majsoul_yostar_login.on_command(
@@ -310,7 +401,7 @@ async def majsoul_notify_check_command(bot: Bot, event: Event):
             a = f"✅ 当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name}"
         else:
             a = f"❌ 当前雀魂账号ID: {conn.account_id}, 昵称: {conn.nick_name} 账号登录态失效!"
-            a += '请使用[雀魂重启订阅服务]'
+            a += "请使用[雀魂重启订阅服务]"
 
         msg_list.append(a)
 

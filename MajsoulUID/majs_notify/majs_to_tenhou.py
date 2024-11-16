@@ -391,7 +391,7 @@ def parsehule(h: HuleInfo, kyoku: Kyoku, is_head_bump: bool):
         name_jp = cfg["fan"]["fan"]["map_"][str(e.id)]["name_jp"]
         name_en = cfg["fan"]["fan"]["map_"][str(e.id)]["name_en"]
         if h.yiman:
-            _a = f'{name_jp if JPNAME == NAMEPREF else name_en}'
+            _a = f"{name_jp if JPNAME == NAMEPREF else name_en}"
             _b = f"({RUNES['yakuman'][JPNAME]})"
             res.append(f"{_a}{_b}")
         else:
@@ -529,7 +529,7 @@ def generatelog(mjslog: list[MjsLogItem]):
                     ] + [
                         t
                         for t in kyoku.draws[e.seat]
-                        if deaka(int(t)) == deaka(til)
+                        if isinstance(t, int) and deaka(t) == deaka(til)
                     ]
                     til = str(ankantiles.pop())
                     tmp = ""
@@ -738,18 +738,4 @@ def toTenhou(record: MjsLog) -> dict[str, Any]:
         ),
     ]
 
-    # if VERBOSELOG:
-    #     res["mjshead"] = record.head
-    #     res["mjslog"] = mjslog
-    #     res["mjsrecordtypes"] = [e["__class__"]["name"] for e in mjslog]
-
     return res
-
-
-# with open("mjslog copy.json", "r", encoding="utf8") as f:
-#     mjslog = json.load(f)
-
-# data = parse(mjslog)
-
-# with open("output_py.json", "w", encoding="utf8") as f:
-#     json.dump(data, f, ensure_ascii=False, indent=4)
