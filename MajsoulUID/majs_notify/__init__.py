@@ -37,7 +37,7 @@ EXSAMPLE_JP_EN = """雀魂登陆日服 邮箱
 """
 
 
-@majsoul_review.on_command("牌谱Review")
+@majsoul_review.on_command(("牌谱Review", "牌谱review", "Review", "review"))
 async def majsoul_review_command(bot: Bot, ev: Event):
     paipu_url = ev.text.strip()
     parsed_url = urlparse(paipu_url)
@@ -55,7 +55,8 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     conn = random.choice(conns)
     tenhou_log = await conn.fetchLogs(desired_string)
     sess = httpx.AsyncClient(verify=False)
-    url = "https://majsoul.wget.es/review"
+    url = ["http://183.36.37.120:62800/review", "https://majsoul.wget.es/review"]
+    chosen_url = random.choice(url)
     player_id = tenhou_log.get("_target_actor", 0)
     payload = {
         "type": "tenhou",
@@ -63,12 +64,11 @@ async def majsoul_review_command(bot: Bot, ev: Event):
         "data": tenhou_log,
     }
 
-    response = await sess.post(url, json=payload)
+    response = await sess.post(chosen_url, json=payload)
     response.raise_for_status()
     task_id = response.json()["task_id"]
 
-    url = f"https://majsoul.wget.es/review/{task_id}"
-    # 轮询这个地址
+    url = f"{chosen_url}/{task_id}"
     for _ in range(10):
         response = await sess.get(url)
         response.raise_for_status()
@@ -83,10 +83,38 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     matches_total = (
         res["review"]["total_matches"] / res["review"]["total_reviewed"]
     ) * 100
+    bad_move_up_count = 0
+    bad_move_down_count = 0
+
+    for kyoku in res["review"]:
+        # cur_kyoku = kyoku["kyoku"]
+        # cur_honba = kyoku["honba"]
+
+        # print("--------------------")
+        # print(f"Kyoku {cur_kyoku} Honba {cur_honba}")
+
+        for entry in kyoku["entries"]:
+            if entry["is_equal"]:
+                continue
+
+            actual = entry["actual"]
+
+            for _, detail in enumerate(entry["details"]):
+                if actual != detail["action"]:
+                    continue
+                if detail["prob"] <= 0.05:
+                    bad_move_up_count += 1
+                elif 0.05 < detail["prob"] <= 0.1:
+                    bad_move_down_count += 1
+                else:
+                    continue
+
     await bot.send(
         f"🥰 牌谱Review信息:\n"
         f"Rating: {rating:.3f}\n"
         f"Matches/Total: {res["review"]["total_matches"]}/{res["review"]["total_reviewed"]} = {matches_total:.3f}%"
+        f"BadMove: {bad_move_up_count+bad_move_down_count}\n"
+        f"BadMoveRatio: {bad_move_up_count+bad_move_down_count}/{res["review"]["total_reviewed"]}"
     )
 
 
