@@ -11,4 +11,4 @@ CHARACTOR_PATH = EXTEND_RES / 'charactor'
 
 for i in [EXTEND_RES, CHARACTOR_PATH]:
     if not i.exists():
-        i.mkdir()
+        i.mkdir(parents=True)
