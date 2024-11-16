@@ -86,7 +86,7 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     bad_move_up_count = 0
     bad_move_down_count = 0
 
-    for kyoku in res["review"]:
+    for kyoku in res["review"]["kyokus"]:
         # cur_kyoku = kyoku["kyoku"]
         # cur_honba = kyoku["honba"]
 
