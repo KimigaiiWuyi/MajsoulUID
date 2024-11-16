@@ -1,21 +1,21 @@
-import random
 import asyncio
+import random
 from urllib.parse import parse_qs, urlparse
 
-import httpx
 import email_validator
-from gsuid_core.sv import SV
+import httpx
 from gsuid_core.bot import Bot
-from gsuid_core.models import Event
 from gsuid_core.logger import logger
+from gsuid_core.models import Event
+from gsuid_core.sv import SV
 from gsuid_core.utils.database.api import get_uid
 
-from .majsoul import manager
-from .constants import USER_AGENT
-from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
-from .draw_friend_rank import draw_friend_rank_img
 from ..utils.database.models import MajsBind, MajsPush, MajsUser
+from ..utils.error_reply import UID_HINT
+from .constants import USER_AGENT
+from .draw_friend_rank import draw_friend_rank_img
+from .majsoul import manager
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_friend_level_billboard = SV("雀魂好友排行榜")
@@ -118,7 +118,7 @@ async def majsoul_review_command(bot: Bot, ev: Event):
         f"Rating: {rating:.3f}\n"
         f"Matches/Total: {res["review"]["total_matches"]}/{res["review"]["total_reviewed"]} = {matches_total:.3f}%\n"
         f"BadMove: {bad_move_count}\n"
-        f"BadMoveRatio: {bad_move_count}/{res["review"]["total_reviewed"]} = {bad_move_count/res["review"]["total_reviewed"]:.3f}%"
+        f"BadMoveRatio: {bad_move_count}/{res["review"]["total_reviewed"]} = {(res["review"]["total_reviewed"]/bad_move_count)* 100:.3f}%"
     )
 
 
