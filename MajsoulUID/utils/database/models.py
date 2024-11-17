@@ -20,7 +20,7 @@ exec_list.append('ALTER TABLE MajsUser ADD COLUMN account TEXT DEFAULT ""')
 
 exec_list.append('ALTER TABLE MajsUser ADD COLUMN token TEXT DEFAULT ""')
 exec_list.append('ALTER TABLE MajsUser ADD COLUMN lang TEXT DEFAULT "zh"')
-exec_list.append('ALTER TABLE MajsUser ADD COLUMN login_type INT DEFAULT 0')
+exec_list.append("ALTER TABLE MajsUser ADD COLUMN login_type INT DEFAULT 0")
 
 
 class MajsPaipu(BaseIDModel, table=True):

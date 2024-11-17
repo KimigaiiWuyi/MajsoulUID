@@ -122,9 +122,7 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     )
 
 
-@majsoul_yostar_login.on_command(
-    ("登录美服", "登录日服", "登陆日服", "登陆美服")
-)
+@majsoul_yostar_login.on_command(("登录美服", "登录日服", "登陆日服", "登陆美服"))
 async def majsoul_jp_login_command(bot: Bot, ev: Event):
     url = "https://passport.mahjongsoul.com/account/auth_request"
     headers = {
@@ -246,9 +244,7 @@ async def majsoul_add_at(bot: Bot, ev: Event):
             0,
         )
         if isinstance(connection, bool):
-            return await bot.send(
-                "❌ 登陆失败, 请输入正确的username和password!"
-            )
+            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
     else:
         return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
 
@@ -305,9 +301,7 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
             )
             if retcode == 0:
                 logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
-                return await bot.send(
-                    f"[majs] 修改推送订阅成功！当前值：{push_id}"
-                )
+                return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
             else:
                 return await bot.send("[majs] 推送订阅失败！")
     else:
