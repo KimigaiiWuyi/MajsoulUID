@@ -116,9 +116,9 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     await bot.send(
         f"🥰 Review Info:\n"
         f"Rating: {rating:.3f}\n"
-        f"Matches/Total: {res["review"]["total_matches"]}/{res["review"]["total_reviewed"]} = {matches_total:.3f}%\n"
+        f"Matches/Total: {res['review']['total_matches']}/{res['review']['total_reviewed']} = {matches_total:.3f}%\n"
         f"BadMove: {bad_move_count}\n"
-        f"BadMoveRatio: {bad_move_count}/{res["review"]["total_reviewed"]} = {(bad_move_count/res["review"]["total_reviewed"])* 100:.3f}%"
+        f"BadMoveRatio: {bad_move_count}/{res['review']['total_reviewed']} = {(bad_move_count/res['review']['total_reviewed'])* 100:.3f}%"
     )
 
 
