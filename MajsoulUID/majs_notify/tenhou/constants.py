@@ -33,7 +33,11 @@ RUNES = {
     "nagashimangan": ["流し満貫", "Nagashi Mangan", "Mangan at Draw"],
     "suukaikan": ["四開槓", "Suukaikan", "Four Kan Abortion"],
     "sanchahou": ["三家和", "Sanchahou", "Three Ron Abortion"],
-    "kyuushukyuuhai": ["九種九牌", "Kyuushu Kyuuhai", "Nine Terminal Abortion"],
+    "kyuushukyuuhai": [
+        "九種九牌",
+        "Kyuushu Kyuuhai",
+        "Nine Terminal Abortion",
+    ],
     "suufonrenda": ["四風連打", "Suufon Renda", "Four Wind Abortion"],
     "suuchariichi": ["四家立直", "Suucha Riichi", "Four Riichi Abortion"],
     # scoring
