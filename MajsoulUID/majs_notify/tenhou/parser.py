@@ -144,15 +144,14 @@ class MajsoulPaipuParser:
             datetime.fromtimestamp(record.head.end_time).strftime("%Y-%m-%d %H:%M:%S"),
         ]
 
-        converter = MajsoulPaipuParser(tsumoloss_off=tsumoloss_off)
         for item in record.data:
-            self.feed(item)
+            self.handle(item)
 
-            res["log"] = [e.dump() for e in converter.getvalue()]
+            res["log"] = [kyoku.dump() for kyoku in self.kyokus]
 
         return res
 
-    def feed(self, log: MjsLogItem):
+    def handle(self, log: MjsLogItem):
         match log.name:
             case "RecordNewRound":
                 self._handle_new_round(cast(RecordNewRound, log.data))
@@ -555,6 +554,3 @@ class MajsoulPaipuParser:
 
         self.kyokus.append(self.cur)
         self.cur = None
-
-    def getvalue(self) -> list[Kyoku]:
-        return self.kyokus
