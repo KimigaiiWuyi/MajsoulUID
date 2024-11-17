@@ -1,10 +1,10 @@
-from dataclasses import dataclass
 from enum import IntEnum
-from typing import NamedTuple, Optional, Protocol, Sequence, Union
+from dataclasses import dataclass
+from typing import Union, Optional, Protocol, Sequence, NamedTuple
 
 from .cfg import cfg
-from .constants import JPNAME, RUNES, TSUMOGIRI
 from .utils import pad_list
+from .constants import RUNES, JPNAME, TSUMOGIRI
 
 
 class TileType(IntEnum):
@@ -376,7 +376,11 @@ class Kyoku:
     result: Optional[KyokuResult] = None
 
     def dump(self):
-        entry = [self.round, self.initscores, [t.encode_tenhou() for t in self.doras]]
+        entry = [
+            self.round,
+            self.initscores,
+            [t.encode_tenhou() for t in self.doras],
+        ]
 
         if isinstance(self.result, Agari):
             entry.append([t.encode_tenhou() for t in self.result.uras])

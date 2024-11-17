@@ -1,47 +1,49 @@
-from datetime import datetime
 from math import ceil
 from typing import cast
+from datetime import datetime
 
+from .cfg import cfg
+from ..model import MjsLog, MjsLogItem
+from .utils import pad_list, relative_seating
+from .constants import RUNES, JPNAME, YSCORE, DAISANGEN, DAISUUSHI
 from ...lib.lq import (
     HuleInfo,
-    RecordAnGangAddGang,
-    RecordBaBei,
-    RecordChiPengGang,
-    RecordDealTile,
-    RecordDiscardTile,
     RecordHule,
+    RecordBaBei,
     RecordLiuJu,
-    RecordNewRound,
     RecordNoTile,
+    RecordDealTile,
+    RecordNewRound,
+    RecordChiPengGang,
+    RecordDiscardTile,
+    RecordAnGangAddGang,
 )
-from ..model import MjsLog, MjsLogItem
-from .cfg import cfg
-from .constants import DAISANGEN, DAISUUSHI, JPNAME, RUNES, YSCORE
 from .model import (
-    Agari,
-    AgariPoint,
-    AnkanSymbol,
-    ChiSymbol,
-    DaiminkanSymbol,
-    DiscardSymbol,
-    KakanSymbol,
-    Kyoku,
-    PeSymbol,
-    PonSymbol,
-    Round,
-    Ryukyoku,
-    SingleAgari,
-    SpecialRyukyoku,
     Tile,
-    TileType,
     Yaku,
+    Agari,
+    Kyoku,
+    Round,
+    PeSymbol,
+    Ryukyoku,
+    TileType,
+    ChiSymbol,
+    PonSymbol,
+    AgariPoint,
     ZeroSymbol,
+    AnkanSymbol,
+    KakanSymbol,
+    SingleAgari,
+    DiscardSymbol,
+    DaiminkanSymbol,
+    SpecialRyukyoku,
 )
-from .utils import pad_list, relative_seating
 
 
 class MajsoulPaipuParser:
-    def __init__(self, *, tsumoloss_off: bool = False, allow_kigiage: bool = False):
+    def __init__(
+        self, *, tsumoloss_off: bool = False, allow_kigiage: bool = False
+    ):
         self.kyokus = []
 
         self.tsumoloss_off = tsumoloss_off
@@ -76,14 +78,16 @@ class MajsoulPaipuParser:
             ruledisp += RUNES["friendly"][JPNAME]  # "Friendly"
             nakas = record.head.config.mode.detail_rule.dora_count
             tsumoloss_off = (
-                nplayers == 3 and not record.head.config.mode.detail_rule.have_zimosun
+                nplayers == 3
+                and not record.head.config.mode.detail_rule.have_zimosun
             )
         elif record.head.config.meta.contest_uid:  # tourney
             lobby = f": {record.head.config.meta.contest_uid}"
             ruledisp += RUNES["tournament"][JPNAME]  # "Tournament"
             nakas = record.head.config.mode.detail_rule.dora_count
             tsumoloss_off = (
-                nplayers == 3 and not record.head.config.mode.detail_rule.have_zimosun
+                nplayers == 3
+                and not record.head.config.mode.detail_rule.have_zimosun
             )
 
         if record.head.config.mode.mode == 1:
@@ -95,7 +99,12 @@ class MajsoulPaipuParser:
             record.head.config.meta.mode_id == 0
             and record.head.config.mode.detail_rule.dora_count == 0
         ):
-            res["rule"] = {"disp": ruledisp, "aka53": 0, "aka52": 0, "aka51": 0}
+            res["rule"] = {
+                "disp": ruledisp,
+                "aka53": 0,
+                "aka52": 0,
+                "aka51": 0,
+            }
         else:
             res["rule"] = {
                 "disp": ruledisp,
@@ -111,14 +120,16 @@ class MajsoulPaipuParser:
         # ranks
         res["dan"] = [""] * nplayers
         for e in record.head.accounts:
-            res["dan"][e.seat] = cfg["level_definition"]["level_definition"]["map_"][
-                str(e.level.id)
-            ]["full_name_jp"]
+            res["dan"][e.seat] = cfg["level_definition"]["level_definition"][
+                "map_"
+            ][str(e.level.id)]["full_name_jp"]
 
         # level score, no real analog to rate
         res["rate"] = [0] * nplayers
         for e in record.head.accounts:
-            res["rate"][e.seat] = e.level.score  # level score, closest thing to rate
+            res["rate"][
+                e.seat
+            ] = e.level.score  # level score, closest thing to rate
 
         # sex
         res["sx"] = ["C"] * nplayers
@@ -141,7 +152,9 @@ class MajsoulPaipuParser:
         # optional title - why not give the room and put the timestamp here
         res["title"] = [
             ruledisp + lobby,
-            datetime.fromtimestamp(record.head.end_time).strftime("%Y-%m-%d %H:%M:%S"),
+            datetime.fromtimestamp(record.head.end_time).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
         ]
 
         converter = MajsoulPaipuParser(tsumoloss_off=tsumoloss_off)
@@ -163,7 +176,9 @@ class MajsoulPaipuParser:
             case "RecordChiPengGang":
                 self._handle_chi_peng_gang(cast(RecordChiPengGang, log.data))
             case "RecordAnGangAddGang":
-                self._handle_an_gang_add_gang(cast(RecordAnGangAddGang, log.data))
+                self._handle_an_gang_add_gang(
+                    cast(RecordAnGangAddGang, log.data)
+                )
             case "RecordBaBei":
                 self._handle_ba_bei(cast(RecordBaBei, log.data))
             case "RecordLiuJu":
@@ -180,13 +195,16 @@ class MajsoulPaipuParser:
             nplayers=len(log.scores),
             round=Round(4 * log.chang + log.ju, log.ben, log.liqibang),
             initscores=pad_list(list(log.scores), 4, 0),
-            doras=[Tile.parse(log.dora)]
-            if log.dora
-            else [Tile.parse(t) for t in log.doras],
+            doras=(
+                [Tile.parse(log.dora)]
+                if log.dora
+                else [Tile.parse(t) for t in log.doras]
+            ),
             draws=[[] for i in range(4)],
             discards=[[] for i in range(4)],
             haipais=[
-                [Tile.parse(t) for t in getattr(log, f"tiles{i}")] for i in range(4)
+                [Tile.parse(t) for t in getattr(log, f"tiles{i}")]
+                for i in range(4)
             ],
         )
 
@@ -197,9 +215,7 @@ class MajsoulPaipuParser:
         # information we need, but can 't expect in every record
         self.dealerseat = log.ju
         self.ldseat = -1  # who dealt the last tile
-        self.nriichi = (
-            0  # number of current riichis - needed for scores, abort workaround
-        )
+        self.nriichi = 0  # number of current riichis - needed for scores, abort workaround
         self.priichi = False
         self.nkan = 0  # number of current kans - only for abort workaround
 
@@ -324,7 +340,9 @@ class MajsoulPaipuParser:
                     sy.tile == tile or sy.tile == tile.deaka()
                 ):
                     self.cur.discards[log.seat].append(
-                        KakanSymbol(sy.a, sy.b, sy.tile, tile, sy.feeder_relative)
+                        KakanSymbol(
+                            sy.a, sy.b, sy.tile, tile, sy.feeder_relative
+                        )
                     )
                     self.nkan += 1
                     break
@@ -390,7 +408,9 @@ class MajsoulPaipuParser:
         if self.cur is None:
             raise RuntimeError("deal tile before new round")
         # tenhou log viewer requires 点, 飜) or 役満) to end strings, rest of scoring string is entirely optional
-        delta = []  # we need to compute the delta ourselves to handle double/triple ron
+        delta = (
+            []
+        )  # we need to compute the delta ourselves to handle double/triple ron
         points = None
 
         # riichi stick points, -1 means already taken
@@ -456,10 +476,16 @@ class MajsoulPaipuParser:
                 )
         else:
             delta = [0] * self.cur.nplayers
-            delta[hule.seat] = rp + (self.cur.nplayers - 1) * hb + hule.point_rong
-            delta[self.ldseat] = -(self.cur.nplayers - 1) * hb - hule.point_rong
+            delta[hule.seat] = (
+                rp + (self.cur.nplayers - 1) * hb + hule.point_rong
+            )
+            delta[self.ldseat] = (
+                -(self.cur.nplayers - 1) * hb - hule.point_rong
+            )
             points = AgariPoint(ron=hule.point_rong, oya=hule.qinjia)
-            self.nriichi = -1  # mark the sticks as taken, in case of double ron
+            self.nriichi = (
+                -1
+            )  # mark the sticks as taken, in case of double ron
 
         # sekinin barai payments
         #     treat pao as the liable player paying back the other players - safe for multiple yakuman
@@ -467,7 +493,9 @@ class MajsoulPaipuParser:
         if pao:
             # this is how tenhou does it - doesn't really seem to matter to akochan or tenhou.net/5
 
-            if hule.zimo:  # liable player needs to payback n yakuman tsumo payments
+            if (
+                hule.zimo
+            ):  # liable player needs to payback n yakuman tsumo payments
                 if hule.qinjia:  # dealer tsumo
                     # should treat tsumo loss as ron, luckily all yakuman values round safely for north bisection
                     delta[liableseat] -= (
@@ -484,13 +512,17 @@ class MajsoulPaipuParser:
                             delta[i] += (
                                 hb
                                 + liablefor * YSCORE[0][1]
-                                + self._tlround(0.5 * liablefor * (YSCORE[0][1]))
+                                + self._tlround(
+                                    0.5 * liablefor * (YSCORE[0][1])
+                                )
                             )
                     if (
                         self.cur.nplayers == 3
                     ):  # dealer should get north's payment from liable
                         delta[hule.seat] += (
-                            liablefor * YSCORE[0][1] if not self.tsumoloss_off else 0
+                            liablefor * YSCORE[0][1]
+                            if not self.tsumoloss_off
+                            else 0
                         )
                 else:  # non-dealer tsumo
                     delta[liableseat] -= (
@@ -508,13 +540,17 @@ class MajsoulPaipuParser:
                                 delta[i] += (
                                     hb
                                     + liablefor * YSCORE[1][0]
-                                    + self._tlround(0.5 * liablefor * YSCORE[1][1])
+                                    + self._tlround(
+                                        0.5 * liablefor * YSCORE[1][1]
+                                    )
                                 )  # ^^same 1st
                             else:
                                 delta[i] += (
                                     hb
                                     + liablefor * YSCORE[1][1]
-                                    + self._tlround(0.5 * liablefor * YSCORE[1][1])
+                                    + self._tlround(
+                                        0.5 * liablefor * YSCORE[1][1]
+                                    )
                                 )  # ^^same 1st
             else:  # ron
                 # liable seat pays the deal-in seat 1/2 yakuman + full honba
