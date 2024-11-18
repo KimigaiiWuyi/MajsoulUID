@@ -1,23 +1,23 @@
-import time
-import random
 import asyncio
+import random
+import time
 from typing import Dict
 from urllib.parse import parse_qs, urlparse
 
-import httpx
 import email_validator
-from gsuid_core.sv import SV
+import httpx
 from gsuid_core.bot import Bot
-from gsuid_core.models import Event
 from gsuid_core.logger import logger
+from gsuid_core.models import Event
+from gsuid_core.sv import SV
 from gsuid_core.utils.database.api import get_uid
 
-from .majsoul import manager
-from .constants import USER_AGENT
-from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
-from .draw_friend_rank import draw_friend_rank_img
 from ..utils.database.models import MajsBind, MajsPush, MajsUser
+from ..utils.error_reply import UID_HINT
+from .constants import USER_AGENT
+from .draw_friend_rank import draw_friend_rank_img
+from .majsoul import manager
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_friend_level_billboard = SV("雀魂好友排行榜")
@@ -120,13 +120,15 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     response.raise_for_status()
     task_id = response.json()["task_id"]
 
-    for _ in range(10):
+    for _ in range(15):
         response = await sess.get(f"{url}/review/{task_id}")
         response.raise_for_status()
         res = response.json()
-        if res.get("review"):
+        if res.get("status") == "working" or res.get("status") == "pending":
+            logger.info(f"Review Task {task_id} is working...")
+            await asyncio.sleep(1)
+        elif res.get("review"):
             break
-        await asyncio.sleep(1.5)
     else:
         return await bot.send("❌ 未找到有效的Review信息!")
 
@@ -170,9 +172,7 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     )
 
 
-@majsoul_yostar_login.on_command(
-    ("登录美服", "登录日服", "登陆日服", "登陆美服")
-)
+@majsoul_yostar_login.on_command(("登录美服", "登录日服", "登陆日服", "登陆美服"))
 async def majsoul_jp_login_command(bot: Bot, ev: Event):
     url = "https://passport.mahjongsoul.com/account/auth_request"
     headers = {
@@ -294,9 +294,7 @@ async def majsoul_add_at(bot: Bot, ev: Event):
             0,
         )
         if isinstance(connection, bool):
-            return await bot.send(
-                "❌ 登陆失败, 请输入正确的username和password!"
-            )
+            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
     else:
         return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
 
@@ -353,9 +351,7 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
             )
             if retcode == 0:
                 logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
-                return await bot.send(
-                    f"[majs] 修改推送订阅成功！当前值：{push_id}"
-                )
+                return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
             else:
                 return await bot.send("[majs] 推送订阅失败！")
     else:
