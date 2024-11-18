@@ -1,43 +1,43 @@
-import hmac
-import uuid
-import random
 import asyncio
 import hashlib
-from typing import cast
+import hmac
+import random
+import uuid
 from collections.abc import Iterable
+from typing import cast
 
 import httpx
 import websockets.client
-from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
+from httpx import AsyncClient
 from msgspec import ValidationError, convert
 
-from .utils import getRes
 from ..lib import lq as liblq
-from ._level import MajsoulLevel
-from .codec import MajsoulProtoCodec
-from .majsoul_friend import MajsoulFriend
-from .tenhou.parser import MajsoulPaipuParser
 from ..majs_config.majs_config import MAJS_CONFIG
-from .constants import HEADERS, USER_AGENT, ModeId2Room
-from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
 from ..utils.api.remote import (
-    decode_log_id,
     decode_account_id,
+    decode_log_id,
     encode_account_id,
 )
+from ..utils.database.models import MajsPaipu, MajsPush, MajsUser
+from ._level import MajsoulLevel
+from .codec import MajsoulProtoCodec
+from .constants import HEADERS, USER_AGENT, ModeId2Room
+from .majsoul_friend import MajsoulFriend
 from .model import (
+    MajsoulConfig,
+    MajsoulDecodedMessage,
+    MajsoulLiqiProto,
+    MajsoulResInfo,
+    MajsoulServerList,
+    MajsoulUSConfig,
+    MajsoulVersionInfo,
     MjsLog,
     MjsLogItem,
-    MajsoulConfig,
-    MajsoulResInfo,
-    MajsoulUSConfig,
-    MajsoulLiqiProto,
-    MajsoulServerList,
-    MajsoulVersionInfo,
-    MajsoulDecodedMessage,
 )
+from .tenhou.parser import MajsoulPaipuParser
+from .utils import getRes
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 
@@ -55,9 +55,7 @@ class MajsoulConnection:
         self._ws = None
         self._req_events: dict[int, asyncio.Event] = {}
         self._res: dict[int, MajsoulDecodedMessage] = {}
-        self.clientVersionString = "web-" + versionInfo.version.replace(
-            ".w", ""
-        )
+        self.clientVersionString = "web-" + versionInfo.version.replace(".w", "")
         self.no_operation_counter = 0
         self.bg_tasks = []
         self.queue = asyncio.queues.Queue()
@@ -77,9 +75,7 @@ class MajsoulConnection:
             return False
         resp = cast(
             liblq.ResCommon,
-            await self.rpc_call(
-                ".lq.Lobby.heatbeat", {"no_operation_counter": 0}
-            ),
+            await self.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0}),
         )
         if resp.error.code:
             return False
@@ -109,9 +105,7 @@ class MajsoulConnection:
                     "",
                 )
         else:
-            logger.warning(
-                "[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!"
-            )
+            logger.warning("[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!")
 
     async def send_msg_to_user(self, target_user: str, msg):
         if MAJS_CONFIG.get_config("MajsIsPushActiveToMaster").data:
@@ -250,9 +244,7 @@ class MajsoulConnection:
                         # check is_online before send message
                         if not active_state.is_online:
                             friend.change_state(active_state)
-                            if not await MajsPaipu.data_exist(
-                                uuid=active_uuid
-                            ):
+                            if not await MajsPaipu.data_exist(uuid=active_uuid):
                                 await MajsPaipu.insert_data(
                                     account_id=str(friend.account_id),
                                     uuid=active_uuid,
@@ -260,9 +252,7 @@ class MajsoulConnection:
                                     paipu_type_name=type_name,
                                 )
                             return
-                        logger.error(
-                            f"获取牌谱失败: {game_record.error}, retrying"
-                        )
+                        logger.error(f"获取牌谱失败: {game_record.error}, retrying")
                         # sleep 1s
                         await asyncio.sleep(1)
                         # retry 1 time
@@ -492,9 +482,7 @@ class MajsoulConnection:
         return True
 
     def encode_p(self, password: str):
-        return hmac.new(
-            b"lailai", password.encode(), hashlib.sha256
-        ).hexdigest()
+        return hmac.new(b"lailai", password.encode(), hashlib.sha256).hexdigest()
 
     async def jp_login(
         self,
@@ -792,6 +780,9 @@ class MajsoulConnection:
             record=MjsLog(logs.head, action_list)
         )
 
+        print("target_id", target_id)
+        print("logs.head.accounts", logs.head.accounts)
+
         if target_id is not None:
             for acc in logs.head.accounts:
                 if acc.account_id == target_id:
@@ -832,8 +823,7 @@ async def fetchMajsoulInfo(URL_BASE: str):
 
     serverListUrl = random.choice(ipDef.region_urls).url
     serverListUrl += (
-        "?service=ws-gateway&protocol=ws&ssl=true&rv="
-        + str(random.random())[2:]
+        "?service=ws-gateway&protocol=ws&ssl=true&rv=" + str(random.random())[2:]
     )
 
     headers = HEADERS.copy()
@@ -935,9 +925,7 @@ class MajsoulManager:
         login_type: int,
     ):
         try:
-            conn = await createMajsoulConnection(
-                username, password, access_token
-            )
+            conn = await createMajsoulConnection(username, password, access_token)
         except ValueError as e:
             logger.error(e)
             return False
@@ -963,9 +951,7 @@ class MajsoulManager:
             for user in users:
                 if user.login_type == 0:
                     try:
-                        conn = await createMajsoulConnection(
-                            access_token=user.cookie
-                        )
+                        conn = await createMajsoulConnection(access_token=user.cookie)
                     except ValueError as e:
                         logger.warning(
                             f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}"
@@ -1015,9 +1001,7 @@ class MajsoulManager:
                             user.lang,
                         )
                     except ValueError as e:
-                        logger.warning(
-                            f"[majs] Yostar token已失效, 请重新登录！\n{e}"
-                        )
+                        logger.warning(f"[majs] Yostar token已失效, 请重新登录！\n{e}")
                         return "❌ Yostar token已失效, 请重新登录！"
 
                     self.conn.append(conn)
