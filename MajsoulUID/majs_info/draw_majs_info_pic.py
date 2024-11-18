@@ -291,7 +291,7 @@ async def get_char_card():
 async def get_rank_img(
     major_rank: str, minor_rank: int, mode: str = "4", size: int = 156
 ):
-    img = Image.new('RGBA', (156, 156))
+    img = Image.new("RGBA", (156, 156))
 
     rank_icon = Image.open(TEXTURE / f"{major_rank}_{mode}.png")
     rank_icon = rank_icon.resize((128, 128)).convert("RGBA")

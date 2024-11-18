@@ -17,15 +17,15 @@ from .utils import getRes
 from ..lib import lq as liblq
 from ._level import MajsoulLevel
 from .codec import MajsoulProtoCodec
-from .majs_to_tenhou import toTenhou
 from .majsoul_friend import MajsoulFriend
+from .tenhou.parser import MajsoulPaipuParser
 from ..majs_config.majs_config import MAJS_CONFIG
 from .constants import HEADERS, USER_AGENT, ModeId2Room
 from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
 from ..utils.api.remote import (
     decode_log_id,
-    decode_account_id,
     encode_account_id,
+    decode_account_id2,
 )
 from .model import (
     MjsLog,
@@ -753,7 +753,7 @@ class MajsoulConnection:
         target_id = None
         if len(seps) >= 2:
             if seps[1][0] == "a":
-                target_id = decode_account_id(int(seps[1][1:]))
+                target_id = decode_account_id2(int(seps[1][1:]))
             else:
                 target_id = int(seps[1])
 
@@ -788,9 +788,12 @@ class MajsoulConnection:
                     item = MjsLogItem(name=name, data=msg)
                     action_list.append(item)
 
-        mjslog = MjsLog(logs.head, action_list)
+        tenhou_log = MajsoulPaipuParser().handle_game_record(
+            record=MjsLog(logs.head, action_list)
+        )
 
-        tenhou_log = toTenhou(mjslog)
+        print("target_id", target_id)
+        print("logs.head.accounts", logs.head.accounts)
 
         if target_id is not None:
             for acc in logs.head.accounts:

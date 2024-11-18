@@ -1,5 +1,7 @@
+import time
 import random
 import asyncio
+from typing import Dict
 from urllib.parse import parse_qs, urlparse
 
 import httpx
@@ -37,6 +39,49 @@ EXSAMPLE_JP_EN = """雀魂登陆日服 邮箱
 """
 
 
+async def check_url(tag: str, url: str):
+    async with httpx.AsyncClient() as client:
+        try:
+            start_time = time.time()
+            response = await client.get(f"{url}/status")
+            elapsed_time = time.time() - start_time
+            if response.status_code == 200:
+                if response.json().get("status") == "ok":
+                    logger.debug(f"{tag} {url} 延时: {elapsed_time}")
+                    return tag, url, elapsed_time
+                else:
+                    logger.info(f"{tag} {url} 未超时但失效...")
+                    return tag, url, float("inf")
+            else:
+                logger.info(f"{tag} {url} 超时...")
+                return tag, url, float("inf")
+        except httpx.ConnectError:
+            logger.info(f"{tag} {url} 超时...")
+            return tag, url, float("inf")
+
+
+async def find_fastest_url(urls: Dict[str, str]):
+    tasks = []
+    for tag in urls:
+        tasks.append(asyncio.create_task(check_url(tag, urls[tag])))
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    fastest_tag: str = ""
+    fastest_url: str = ""
+    fastest_time = float("inf")
+
+    for result in results:
+        if isinstance(result, (Exception, BaseException)):
+            continue
+        tag, url, elapsed_time = result
+        if elapsed_time < fastest_time:
+            fastest_url = url
+            fastest_time = elapsed_time
+            fastest_tag = tag
+
+    return fastest_tag, fastest_url
+
+
 @majsoul_review.on_command(("牌谱Review", "牌谱review", "Review", "review"))
 async def majsoul_review_command(bot: Bot, ev: Event):
     paipu_url = ev.text.strip()
@@ -55,11 +100,15 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     conn = random.choice(conns)
     tenhou_log = await conn.fetchLogs(desired_string)
     sess = httpx.AsyncClient(verify=False)
-    url = [
-        "http://183.36.37.120:62800/review",
-        "https://majsoul.wget.es/review",
-    ]
-    chosen_url = random.choice(url)
+
+    urls = {
+        "[wegt]": "https://majsoul.wget.es",
+        "[cn]": "http://183.36.37.120:62800",
+    }
+
+    tag, url = await find_fastest_url(urls)
+    logger.info(f"Fastest Review URL: {tag} {url}")
+
     player_id = tenhou_log.get("_target_actor", 0)
     payload = {
         "type": "tenhou",
@@ -67,18 +116,19 @@ async def majsoul_review_command(bot: Bot, ev: Event):
         "data": tenhou_log,
     }
 
-    response = await sess.post(chosen_url, json=payload)
+    response = await sess.post(f"{url}/review", json=payload)
     response.raise_for_status()
     task_id = response.json()["task_id"]
 
-    url = f"{chosen_url}/{task_id}"
-    for _ in range(10):
-        response = await sess.get(url)
+    for _ in range(15):
+        response = await sess.get(f"{url}/review/{task_id}")
         response.raise_for_status()
         res = response.json()
-        if res.get("review"):
+        if res.get("status") == "working" or res.get("status") == "pending":
+            logger.info(f"Review Task {task_id} is working...")
+            await asyncio.sleep(1)
+        elif res.get("review"):
             break
-        await asyncio.sleep(1)
     else:
         return await bot.send("❌ 未找到有效的Review信息!")
 
@@ -116,9 +166,9 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     await bot.send(
         f"🥰 Review Info:\n"
         f"Rating: {rating:.3f}\n"
-        f"Matches/Total: {res["review"]["total_matches"]}/{res["review"]["total_reviewed"]} = {matches_total:.3f}%\n"
+        f"Matches/Total: {res['review']['total_matches']}/{res['review']['total_reviewed']} = {matches_total:.3f}%\n"
         f"BadMove: {bad_move_count}\n"
-        f"BadMoveRatio: {bad_move_count}/{res["review"]["total_reviewed"]} = {(bad_move_count/res["review"]["total_reviewed"])* 100:.3f}%"
+        f"BadMoveRatio: {bad_move_count}/{res['review']['total_reviewed']} = {(bad_move_count/res['review']['total_reviewed'])* 100:.3f}%"
     )
 
 

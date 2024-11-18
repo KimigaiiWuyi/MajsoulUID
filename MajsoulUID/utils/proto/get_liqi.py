@@ -39,10 +39,10 @@ def get_res_prefix(version):
     )
     res = req.json()["res"]
     for k in res:
-        if 'extendRes/charactor' in k:
+        if "extendRes/charactor" in k:
             d[k] = res[k]["prefix"]
 
-    with open(path / "extendRes.json", "w", encoding='utf-8') as f:
+    with open(path / "extendRes.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(d, indent=4, ensure_ascii=False))
 
 
@@ -78,23 +78,23 @@ def get_code_js(code):
 
 
 def main():
-    print('开始获取版本prefix')
+    print("开始获取版本prefix")
     version = get_version()
     prefix = get_prefix(version["version"])
     print(prefix)
 
-    print('开始获取Resprefix')
+    print("开始获取Resprefix")
     sleep(1)
     get_res_prefix(version["version"])
 
-    print('开始获取lqc.lqbin')
+    print("开始获取lqc.lqbin")
     if (path / "lqc.lqbin").exists():
         lqc_data = (path / "lqc.lqbin").read_bytes()
     else:
         lqc_data = get_lqc(prefix)
     load_lqc_lqbin(lqc_data)
 
-    print('开始获取liqi')
+    print("开始获取liqi")
     liqi = get_liqi(prefix)
     with open("liqi.json", "w") as f:
         f.write(liqi)
@@ -104,8 +104,8 @@ def main():
 
 
 def to_camel_case(snake_str: str):
-    components = snake_str.split('_')
-    return ''.join(x.capitalize() for x in components)
+    components = snake_str.split("_")
+    return "".join(x.capitalize() for x in components)
 
 
 def contains_bytes(data: Dict):
@@ -130,7 +130,7 @@ def load_lqc_lqbin(lqc_lqbin: bytes):
         # 'ItemDefinitionCharacter',
         # 'CharacterSkin',
         # 'ChestChestShop',
-        'ItemDefinitionSkin'
+        "ItemDefinitionSkin"
     ]
 
     for data in sd.datas:
@@ -139,7 +139,7 @@ def load_lqc_lqbin(lqc_lqbin: bytes):
         model_name = to_camel_case(table_name) + to_camel_case(sheet_name)
         print(model_name)
 
-        if not (model_name in n):
+        if model_name not in n:
             continue
 
         if model_name in globals():
@@ -157,16 +157,16 @@ def load_lqc_lqbin(lqc_lqbin: bytes):
             if model_name not in lqc:
                 lqc[model_name] = []
 
-            _id_to_skin[ud['id']] = ud
+            _id_to_skin[ud["id"]] = ud
 
             lqc[model_name].append(ud)
 
-    '''
+    """
     with open(path / "lqc.json", "w", encoding='utf-8') as f:
         f.write(json.dumps(lqc, indent=4, ensure_ascii=False))
-    '''
+    """
 
-    with open(path / "lqc.json", "w", encoding='utf-8') as f:
+    with open(path / "lqc.json", "w", encoding="utf-8") as f:
         f.write(json.dumps(_id_to_skin, indent=4, ensure_ascii=False))
 
 
