@@ -16,7 +16,7 @@ from msgspec import ValidationError, convert
 from ..lib import lq as liblq
 from ..majs_config.majs_config import MAJS_CONFIG
 from ..utils.api.remote import (
-    decode_account_id,
+    decode_account_id2,
     decode_log_id,
     encode_account_id,
 )
@@ -741,7 +741,7 @@ class MajsoulConnection:
         target_id = None
         if len(seps) >= 2:
             if seps[1][0] == "a":
-                target_id = decode_account_id(int(seps[1][1:]))
+                target_id = decode_account_id2(int(seps[1][1:]))
             else:
                 target_id = int(seps[1])
 
