@@ -43,8 +43,7 @@ async def check_url(tag: str, url: str):
     async with httpx.AsyncClient() as client:
         try:
             start_time = time.time()
-            url = f"{url}/status"
-            response = await client.get(url)
+            response = await client.get(f"{url}/status")
             elapsed_time = time.time() - start_time
             if response.status_code == 200:
                 if response.json().get("status") == "ok":
