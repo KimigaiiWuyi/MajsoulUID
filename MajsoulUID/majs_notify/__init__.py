@@ -1,21 +1,23 @@
-import random
 import asyncio
+import random
+import time
+from typing import Dict
 from urllib.parse import parse_qs, urlparse
 
-import httpx
 import email_validator
-from gsuid_core.sv import SV
+import httpx
 from gsuid_core.bot import Bot
-from gsuid_core.models import Event
 from gsuid_core.logger import logger
+from gsuid_core.models import Event
+from gsuid_core.sv import SV
 from gsuid_core.utils.database.api import get_uid
 
-from .majsoul import manager
-from .constants import USER_AGENT
-from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
-from .draw_friend_rank import draw_friend_rank_img
 from ..utils.database.models import MajsBind, MajsPush, MajsUser
+from ..utils.error_reply import UID_HINT
+from .constants import USER_AGENT
+from .draw_friend_rank import draw_friend_rank_img
+from .majsoul import manager
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_friend_level_billboard = SV("雀魂好友排行榜")
@@ -37,6 +39,50 @@ EXSAMPLE_JP_EN = """雀魂登陆日服 邮箱
 """
 
 
+async def check_url(tag: str, url: str):
+    async with httpx.AsyncClient() as client:
+        try:
+            start_time = time.time()
+            url = f"{url}/status"
+            response = await client.get(url)
+            elapsed_time = time.time() - start_time
+            if response.status_code == 200:
+                if response.json().get("status") == "ok":
+                    logger.debug(f"{tag} {url} 延时: {elapsed_time}")
+                    return tag, url, elapsed_time
+                else:
+                    logger.info(f"{tag} {url} 未超时但失效...")
+                    return tag, url, float("inf")
+            else:
+                logger.info(f"{tag} {url} 超时...")
+                return tag, url, float("inf")
+        except httpx.ConnectError:
+            logger.info(f"{tag} {url} 超时...")
+            return tag, url, float("inf")
+
+
+async def find_fastest_url(urls: Dict[str, str]):
+    tasks = []
+    for tag in urls:
+        tasks.append(asyncio.create_task(check_url(tag, urls[tag])))
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    fastest_tag: str = ""
+    fastest_url: str = ""
+    fastest_time = float("inf")
+
+    for result in results:
+        if isinstance(result, (Exception, BaseException)):
+            continue
+        tag, url, elapsed_time = result
+        if elapsed_time < fastest_time:
+            fastest_url = url
+            fastest_time = elapsed_time
+            fastest_tag = tag
+
+    return fastest_tag, fastest_url
+
+
 @majsoul_review.on_command(("牌谱Review", "牌谱review", "Review", "review"))
 async def majsoul_review_command(bot: Bot, ev: Event):
     paipu_url = ev.text.strip()
@@ -55,11 +101,15 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     conn = random.choice(conns)
     tenhou_log = await conn.fetchLogs(desired_string)
     sess = httpx.AsyncClient(verify=False)
-    url = [
-        "http://183.36.37.120:62800/review",
-        "https://majsoul.wget.es/review",
-    ]
-    chosen_url = random.choice(url)
+
+    urls = {
+        "[wegt]": "https://majsoul.wget.es",
+        "[cn]": "http://183.36.37.120:62800",
+    }
+
+    tag, url = await find_fastest_url(urls)
+    logger.info(f"Fastest Review URL: {tag} {url}")
+
     player_id = tenhou_log.get("_target_actor", 0)
     payload = {
         "type": "tenhou",
@@ -67,18 +117,17 @@ async def majsoul_review_command(bot: Bot, ev: Event):
         "data": tenhou_log,
     }
 
-    response = await sess.post(chosen_url, json=payload)
+    response = await sess.post(f"{url}/review", json=payload)
     response.raise_for_status()
     task_id = response.json()["task_id"]
 
-    url = f"{chosen_url}/{task_id}"
     for _ in range(10):
-        response = await sess.get(url)
+        response = await sess.get(f"{url}/review/{task_id}")
         response.raise_for_status()
         res = response.json()
         if res.get("review"):
             break
-        await asyncio.sleep(1)
+        await asyncio.sleep(1.5)
     else:
         return await bot.send("❌ 未找到有效的Review信息!")
 
@@ -122,9 +171,7 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     )
 
 
-@majsoul_yostar_login.on_command(
-    ("登录美服", "登录日服", "登陆日服", "登陆美服")
-)
+@majsoul_yostar_login.on_command(("登录美服", "登录日服", "登陆日服", "登陆美服"))
 async def majsoul_jp_login_command(bot: Bot, ev: Event):
     url = "https://passport.mahjongsoul.com/account/auth_request"
     headers = {
@@ -246,9 +293,7 @@ async def majsoul_add_at(bot: Bot, ev: Event):
             0,
         )
         if isinstance(connection, bool):
-            return await bot.send(
-                "❌ 登陆失败, 请输入正确的username和password!"
-            )
+            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
     else:
         return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
 
@@ -305,9 +350,7 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
             )
             if retcode == 0:
                 logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
-                return await bot.send(
-                    f"[majs] 修改推送订阅成功！当前值：{push_id}"
-                )
+                return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
             else:
                 return await bot.send("[majs] 推送订阅失败！")
     else:
