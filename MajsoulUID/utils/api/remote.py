@@ -16,7 +16,7 @@ def encode_account_id(account_id: int) -> int:
 
 
 def decode_account_id2(id: int) -> int:
-    return ((id - 1358437 ^ 86216345) - 1117113) / 7
+    return int(((id - 1358437 ^ 86216345) - 1117113) / 7)
 
 
 def decode_account_id(id: int) -> int:
