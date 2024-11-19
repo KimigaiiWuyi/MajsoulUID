@@ -124,22 +124,25 @@ async def majsoul_review_command(bot: Bot, ev: Event):
         response = await sess.get(f"{url}/review/{task_id}")
         response.raise_for_status()
         res = response.json()
-        if res.get("status") == "working" or res.get("status") == "pending":
+        status = res["status"]
+        if status == "working" or status == "pending":
             logger.info(f"Review Task {task_id} is working...")
             await asyncio.sleep(1)
-        elif res.get("review"):
+        elif status == "finished":
+            logger.info(f"Review Task {task_id} is finished!")
             break
     else:
         return await bot.send("❌ 未找到有效的Review信息!")
 
-    rating: float = res["review"]["rating"] * 100
+    review_data = res["result"]["review"]
+    rating: float = review_data["rating"] * 100
     matches_total = (
-        res["review"]["total_matches"] / res["review"]["total_reviewed"]
+        review_data["total_matches"] / review_data["total_reviewed"]
     ) * 100
     bad_move_up_count = 0
     bad_move_down_count = 0
 
-    for kyoku in res["review"]["kyokus"]:
+    for kyoku in review_data["kyokus"]:
         # cur_kyoku = kyoku["kyoku"]
         # cur_honba = kyoku["honba"]
 
@@ -165,10 +168,10 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     bad_move_count = bad_move_up_count + bad_move_down_count
 
     Rating = f"{rating:.3f}"
-    total_matches = f"{res['review']['total_matches']}"
-    total_reviewed: int = res['review']['total_reviewed']
+    total_matches = f"{review_data['total_matches']}"
+    total_reviewed: int = review_data["total_reviewed"]
     matches = f"{total_matches}/{total_reviewed}"
-    total = f'{matches_total:.3f}%'
+    total = f"{matches_total:.3f}%"
 
     bad_move_ratio = f"{bad_move_count}/{total_reviewed}"
     bad_move_percent = f"{(bad_move_count / total_reviewed) * 100:.3f}%"
