@@ -3,7 +3,7 @@ import uuid
 import random
 import asyncio
 import hashlib
-from typing import cast
+from typing import List, cast
 from collections.abc import Iterable
 
 import httpx
@@ -490,6 +490,14 @@ class MajsoulConnection:
         if self._ws is None:
             raise ConnectionError("Connection is broken")
         return True
+
+    def remove_duplicate_friends(self):
+        friends: List[MajsoulFriend] = []
+        for friend in self.friends:
+            if friend.account_id not in friends:
+                friends.append(friend)
+        self.friends = friends
+        return friends
 
     def encode_p(self, password: str):
         return hmac.new(

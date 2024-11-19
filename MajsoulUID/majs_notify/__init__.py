@@ -163,12 +163,22 @@ async def majsoul_review_command(bot: Bot, ev: Event):
                     continue
 
     bad_move_count = bad_move_up_count + bad_move_down_count
+
+    Rating = f"{rating:.3f}"
+    total_matches = f"{res['review']['total_matches']}"
+    total_reviewed: int = res['review']['total_reviewed']
+    matches = f"{total_matches}/{total_reviewed}"
+    total = f'{matches_total:.3f}%'
+
+    bad_move_ratio = f"{bad_move_count}/{total_reviewed}"
+    bad_move_percent = f"{(bad_move_count / total_reviewed) * 100:.3f}%"
+
     await bot.send(
         f"🥰 Review Info:\n"
-        f"Rating: {rating:.3f}\n"
-        f"Matches/Total: {res['review']['total_matches']}/{res['review']['total_reviewed']} = {matches_total:.3f}%\n"
+        f"Rating: {Rating}\n"
+        f"Matches/Total: {matches} = {total}\n"
         f"BadMove: {bad_move_count}\n"
-        f"BadMoveRatio: {bad_move_count}/{res['review']['total_reviewed']} = {(bad_move_count/res['review']['total_reviewed'])* 100:.3f}%"
+        f"BadMoveRatio: {bad_move_ratio} = {bad_move_percent}"
     )
 
 
@@ -465,10 +475,9 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
     conn = manager.get_conn()
     if conn is None:
         return await bot.send("未找到有效连接, 请先进行[雀魂推送启动]")
-    # get friends
-    friends = conn.friends
+
     # 去重
-    friends = list(set(friends))
+    friends = conn.remove_duplicate_friends()
     if "三" in event.text:
         friends.sort(key=lambda x: (x.level3.id, x.level3_score), reverse=True)
         msg = await draw_friend_rank_img(friends, "3")

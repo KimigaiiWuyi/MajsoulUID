@@ -55,7 +55,7 @@ class MajsoulPaipuParser:
         lobby = ""  # usually 0, is the custom lobby number
         nplayers = len(record.head.result.players)
         nakas = nplayers - 1  # default
-        tsumoloss_off = False
+        # tsumoloss_off = False
 
         res["ver"] = "2.3"  # mlog version number
         res["ref"] = (
@@ -74,22 +74,26 @@ class MajsoulPaipuParser:
                 str(record.head.config.meta.mode_id)
             ]["room_name_jp"]
         elif record.head.config.meta.room_id:  # friendly
-            lobby = f": {record.head.config.meta.room_id}"  # can set room number as lobby number
+            # can set room number as lobby number
+            lobby = f": {record.head.config.meta.room_id}"
             ruledisp += RUNES["friendly"][JPNAME]  # "Friendly"
             nakas = record.head.config.mode.detail_rule.dora_count
+            '''
             tsumoloss_off = (
                 nplayers == 3
                 and not record.head.config.mode.detail_rule.have_zimosun
             )
+            '''
         elif record.head.config.meta.contest_uid:  # tourney
             lobby = f": {record.head.config.meta.contest_uid}"
             ruledisp += RUNES["tournament"][JPNAME]  # "Tournament"
             nakas = record.head.config.mode.detail_rule.dora_count
+            '''
             tsumoloss_off = (
                 nplayers == 3
                 and not record.head.config.mode.detail_rule.have_zimosun
             )
-
+            '''
         if record.head.config.mode.mode == 1:
             ruledisp += RUNES["tonpuu"][JPNAME]  # " East"
         elif record.head.config.mode.mode == 2:
@@ -113,7 +117,9 @@ class MajsoulPaipuParser:
                 "aka51": 1 if nplayers == 4 else 0,
             }
 
-        # tenhou custom lobby - could be tourney id or friendly room for mjs. appending to title instead to avoid 3->C etc. in tenhou.net/5
+        # tenhou custom lobby
+        # could be tourney id or friendly room for
+        # mjs. appending to title instead to avoid 3->C etc. in tenhou.net/5
         res["lobby"] = 0
 
         # autism to fix logs with AI
@@ -213,10 +219,15 @@ class MajsoulPaipuParser:
 
         # information we need, but can 't expect in every record
         self.dealerseat = log.ju
-        self.ldseat = -1  # who dealt the last tile
-        self.nriichi = 0  # number of current riichis - needed for scores, abort workaround
+
+        # who dealt the last tile
+        self.ldseat = -1
+        # number of current riichis - needed for scores, abort workaround
+        self.nriichi = 0
+
         self.priichi = False
-        self.nkan = 0  # number of current kans - only for abort workaround
+        # number of current kans - only for abort workaround
+        self.nkan = 0
 
         # 计算包牌
         self.nowinds = [
@@ -377,7 +388,9 @@ class MajsoulPaipuParser:
         if self.cur is None:
             raise RuntimeError("no tile before new round")
         delta = [0, 0, 0, 0]
-        # NOTE: mjs wll not give delta_scores if everyone is (no)ten - TODO: minimize the autism
+
+        # NOTE: mjs wll not give delta_scores if everyone is (no)ten
+        # TODO: minimize the autism
         if (
             log.scores[0].delta_scores is not None
             and len(log.scores[0].delta_scores) != 0
@@ -406,7 +419,9 @@ class MajsoulPaipuParser:
     def _parse_hu_le(self, hule: HuleInfo) -> SingleAgari:
         if self.cur is None:
             raise RuntimeError("deal tile before new round")
-        # tenhou log viewer requires 点, 飜) or 役満) to end strings, rest of scoring string is entirely optional
+
+        # tenhou log viewer requires 点, 飜) or 役満) to end strings
+        # rest of scoring string is entirely optional
         delta = (
             []
         )  # we need to compute the delta ourselves to handle double/triple ron
@@ -440,7 +455,7 @@ class MajsoulPaipuParser:
 
         if hule.zimo:
             # ko-oya payment for non-dealer tsumo
-            # delta  = [...new Array(kyoku.nplayers)].map(()=> (-hb - h.point_zimo_xian));
+            # delta  = [...new Array(kyoku.nplayers)].map(()=> (-hb - h.point_zimo_xian)); # noqa: E501
             delta = [
                 -hb
                 - hule.point_zimo_xian
@@ -487,16 +502,20 @@ class MajsoulPaipuParser:
             )  # mark the sticks as taken, in case of double ron
 
         # sekinin barai payments
-        #     treat pao as the liable player paying back the other players - safe for multiple yakuman
+        # treat pao as the liable player paying back
+        # the other players - safe for multiple yakuman
 
         if pao:
-            # this is how tenhou does it - doesn't really seem to matter to akochan or tenhou.net/5
+            # this is how tenhou does it
+            # doesn't really seem to matter to akochan or tenhou.net/5
 
             if (
                 hule.zimo
             ):  # liable player needs to payback n yakuman tsumo payments
                 if hule.qinjia:  # dealer tsumo
-                    # should treat tsumo loss as ron, luckily all yakuman values round safely for north bisection
+                    # should treat tsumo loss as ron
+                    # luckily all yakuman values round safely for
+                    # north bisection
                     delta[liableseat] -= (
                         2 * hb
                         + liablefor * 2 * YSCORE[0][1]
@@ -551,12 +570,14 @@ class MajsoulPaipuParser:
                                         0.5 * liablefor * YSCORE[1][1]
                                     )
                                 )  # ^^same 1st
-            else:  # ron
+            # ron
+            else:
                 # liable seat pays the deal-in seat 1/2 yakuman + full honba
-                delta[liableseat] -= (
+                # TODO: Type
+                delta[liableseat] -= (  # type: ignore
                     self.cur.nplayers - 1
                 ) * hb + 0.5 * liablefor * YSCORE[0 if hule.qinjia else 1][2]
-                delta[self.ldseat] += (
+                delta[self.ldseat] += (  # type: ignore
                     self.cur.nplayers - 1
                 ) * hb + 0.5 * liablefor * YSCORE[0 if hule.qinjia else 1][2]
 

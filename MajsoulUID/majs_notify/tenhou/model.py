@@ -1,10 +1,12 @@
 from enum import IntEnum
 from dataclasses import dataclass
-from typing import Union, Optional, Protocol, Sequence, NamedTuple
+from typing import List, Union, Optional, Protocol, Sequence, NamedTuple
 
 from .cfg import cfg
 from .utils import pad_list
 from .constants import RUNES, JPNAME, TSUMOGIRI
+
+AnyList = List[Union[int, str]]
 
 
 class TileType(IntEnum):
@@ -89,7 +91,10 @@ class ChiSymbol(NamedTuple):
     tile: Tile
 
     def encode_tenhou(self) -> str:
-        return f"c{self.tile.encode_tenhou()}{self.a.encode_tenhou()}{self.b.encode_tenhou()}"
+        tile = self.tile.encode_tenhou()
+        a = self.a.encode_tenhou()
+        b = self.b.encode_tenhou()
+        return f"c{tile}{a}{b}"
 
 
 class PonSymbol(NamedTuple):
@@ -271,9 +276,11 @@ class Yaku:
 
     def name(self, round: Round, seat: int) -> str:
         if self.id == 10:
-            return f"{RUNES['jikaze'][JPNAME]} {RUNES[self.WIND[(seat + round.kyoku) % 4]][JPNAME]}"
+            _b = RUNES[self.WIND[(seat + round.kyoku) % 4]][JPNAME]
+            return f"{RUNES['jikaze'][JPNAME]} {_b}"
         if self.id == 11:
-            return f"{RUNES['bakaze'][JPNAME]} {RUNES[self.WIND[round.kyoku // 4]][JPNAME]}"
+            _b = RUNES[self.WIND[round.kyoku // 4]][JPNAME]
+            return f"{RUNES['bakaze'][JPNAME]} {_b}"
         elif self.id == 18:
             return RUNES["dabururiichi"][JPNAME]
         else:
@@ -303,22 +310,26 @@ class Agari:
     round: Round
 
     def dump(self) -> Sequence:
-        li = [RUNES["agari"][JPNAME]]
+        li: List[Union[str, List]] = [RUNES["agari"][JPNAME]]
 
         for agari in self.agari:
             li.append(pad_list(agari.delta, 4, 0))
 
-            res = [agari.seat, agari.ldseat, agari.paoseat]
+            res: AnyList = [agari.seat, agari.ldseat, agari.paoseat]
 
             if agari.tsumo:
+                tsumo = agari.point.tsumo
+                point_jpname = RUNES['points'][JPNAME]
                 if agari.oya:
-                    point = f"{agari.point.tsumo}{RUNES['points'][JPNAME]}{RUNES['all'][JPNAME]}"
+                    point = f"{tsumo}{point_jpname}{RUNES['all'][JPNAME]}"
                 else:
-                    point = f"{agari.point.tsumo}-{agari.point.tsumo_oya}{RUNES['points'][JPNAME]}"
+                    point = f"{tsumo}-{agari.point.tsumo_oya}{point_jpname}"
             else:
                 point = f"{agari.point.ron}{RUNES['points'][JPNAME]}"
 
-            fuhan = f"{agari.fu}{RUNES['fu'][JPNAME]}{agari.han}{RUNES['han'][JPNAME]}"
+            fu = f"{agari.fu}{RUNES['fu'][JPNAME]}"
+            han = f"{agari.han}{RUNES['han'][JPNAME]}"
+            fuhan = f"{fu}{han}"
 
             point_level = agari.point.level
             if point_level == AgariPointLevel.yakuman:
