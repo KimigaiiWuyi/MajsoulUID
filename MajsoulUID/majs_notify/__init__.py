@@ -116,19 +116,19 @@ async def majsoul_review_command(bot: Bot, ev: Event):
         "data": tenhou_log,
     }
 
-    response = await sess.post(f"{url}/review", json=payload)
+    response = await sess.post(f"{url}/review?type=Tenhou", json=payload)
     response.raise_for_status()
     task_id = response.json()["task_id"]
 
     for _ in range(15):
-        response = await sess.get(f"{url}/review/{task_id}")
+        response = await sess.get(f"{url}/review", params={"task": task_id})
         response.raise_for_status()
         res = response.json()
         status = res["status"]
-        if status == "working" or status == "pending":
+        if status == "working":
             logger.info(f"Review Task {task_id} is working...")
             await asyncio.sleep(1)
-        elif status == "finished":
+        elif status == "done":
             logger.info(f"Review Task {task_id} is finished!")
             break
     else:
