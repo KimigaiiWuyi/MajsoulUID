@@ -1,7 +1,7 @@
 import time
 import random
 import asyncio
-from typing import Dict
+from typing import Dict, List, Tuple
 from urllib.parse import parse_qs, urlparse
 
 import httpx
@@ -46,7 +46,7 @@ async def check_url(tag: str, url: str):
             response = await client.get(f"{url}/status")
             elapsed_time = time.time() - start_time
             if response.status_code == 200:
-                if response.json().get("status") == "ok":
+                if response.json() == "ok":
                     logger.debug(f"{tag} {url} 延时: {elapsed_time}")
                     return tag, url, elapsed_time
                 else:
@@ -60,26 +60,20 @@ async def check_url(tag: str, url: str):
             return tag, url, float("inf")
 
 
-async def find_fastest_url(urls: Dict[str, str]):
+async def find_fastest_url(
+    urls: Dict[str, str]
+) -> List[Tuple[str, str, float]]:
     tasks = []
     for tag in urls:
         tasks.append(asyncio.create_task(check_url(tag, urls[tag])))
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
-    fastest_tag: str = ""
-    fastest_url: str = ""
-    fastest_time = float("inf")
 
-    for result in results:
-        if isinstance(result, (Exception, BaseException)):
-            continue
-        tag, url, elapsed_time = result
-        if elapsed_time < fastest_time:
-            fastest_url = url
-            fastest_time = elapsed_time
-            fastest_tag = tag
-
-    return fastest_tag, fastest_url
+    return [
+        result
+        for result in results
+        if not isinstance(result, (Exception, BaseException))
+    ]
 
 
 @majsoul_review.on_command(("牌谱Review", "牌谱review", "Review", "review"))
@@ -106,10 +100,20 @@ async def majsoul_review_command(bot: Bot, ev: Event):
         "[cn]": "http://183.36.37.120:62800",
     }
 
-    tag, url = await find_fastest_url(urls)
-    if url == "":
-        tag = "[wegt]"
-        url = "https://majsoul.wget.es"
+    result = await find_fastest_url(urls)
+    # Prefer [wegt] first if available
+    tag, url = "", ""
+    for result_tag, result_url, elapsed_time in result:
+        if result_tag == "[wegt]" and elapsed_time != float("inf"):
+            tag, url = result_tag, result_url
+            break
+    else:
+        for result_tag, result_url, elapsed_time in result:
+            if elapsed_time != float("inf"):
+                tag, url = result_tag, result_url
+                break
+        else:
+            return await bot.send("❌ 未找到有效的Review接口!")
 
     logger.info(f"Fastest Review URL: {tag} {url}")
 
@@ -138,7 +142,7 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     else:
         return await bot.send("❌ 未找到有效的Review信息!")
 
-    review_data = res["result"]["review"]
+    review_data = res["data"]["review"]
     rating: float = review_data["rating"] * 100
     matches_total = (
         review_data["total_matches"] / review_data["total_reviewed"]
