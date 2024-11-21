@@ -107,6 +107,10 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     }
 
     tag, url = await find_fastest_url(urls)
+    if url == "":
+        tag = "[wegt]"
+        url = "https://majsoul.wget.es"
+
     logger.info(f"Fastest Review URL: {tag} {url}")
 
     player_id = tenhou_log.get("_target_actor", 0)
