@@ -46,7 +46,7 @@ async def check_url(tag: str, url: str):
             response = await client.get(f"{url}/status")
             elapsed_time = time.time() - start_time
             if response.status_code == 200:
-                if response.text == "ok":
+                if response.json() == "ok":
                     logger.debug(f"{tag} {url} 延时: {elapsed_time}")
                     return tag, url, elapsed_time
                 else:
