@@ -1,7 +1,4 @@
-import time
 import random
-import asyncio
-from typing import Dict, List, Tuple
 from urllib.parse import parse_qs, urlparse
 
 import httpx
@@ -12,23 +9,26 @@ from gsuid_core.models import Event
 from gsuid_core.logger import logger
 from gsuid_core.utils.database.api import get_uid
 
-from .majsoul import manager
 from .constants import USER_AGENT
 from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
 from .draw_friend_rank import draw_friend_rank_img
+from .draw_review_info import draw_review_info_img
+from .majsoul import manager, get_paipu_by_game_id
+from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
+from .tenhou.review import review_tenhou, get_review_result
 from ..utils.database.models import MajsBind, MajsPush, MajsUser
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
-majsoul_friend_level_billboard = SV("雀魂好友排行榜")
-majsoul_get_notify = SV("雀魂订阅推送")
 majsoul_add_account = SV("雀魂账号池", pm=0)
 majsoul_friend_manage = SV("雀魂好友管理", pm=0)
 majsoul_yostar_login = SV("雀魂Yostar登陆", pm=0)
 
+majsoul_friend_level_billboard = SV("雀魂好友排行榜")
+majsoul_get_notify = SV("雀魂订阅推送")
 majsoul_review = SV("雀魂牌谱Review")
 
-EXSAMPLE = """雀魂登陆 用户名, 密码
+EXSAMPLE = """雀魂登陆国服 用户名, 密码
 ⚠ 提示: 该命令将会使用账密进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
 ⚠ 请自行使用任何小号, 本插件不为账号被封禁承担任何责任！！
 """
@@ -37,43 +37,6 @@ EXSAMPLE_JP_EN = """雀魂登陆日服 邮箱
 ⚠ 提示: 该命令将会使用邮箱进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
 ⚠ 请自行使用任何小号, 本插件不为账号被封禁承担任何责任！！
 """
-
-
-async def check_url(tag: str, url: str):
-    async with httpx.AsyncClient() as client:
-        try:
-            start_time = time.time()
-            response = await client.get(f"{url}/status")
-            elapsed_time = time.time() - start_time
-            if response.status_code == 200:
-                if response.json() == "ok":
-                    logger.debug(f"{tag} {url} 延时: {elapsed_time}")
-                    return tag, url, elapsed_time
-                else:
-                    logger.info(f"{tag} {url} 未超时但失效...")
-                    return tag, url, float("inf")
-            else:
-                logger.info(f"{tag} {url} 超时...")
-                return tag, url, float("inf")
-        except httpx.ConnectError:
-            logger.info(f"{tag} {url} 超时...")
-            return tag, url, float("inf")
-
-
-async def find_fastest_url(
-    urls: Dict[str, str]
-) -> List[Tuple[str, str, float]]:
-    tasks = []
-    for tag in urls:
-        tasks.append(asyncio.create_task(check_url(tag, urls[tag])))
-
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-
-    return [
-        result
-        for result in results
-        if not isinstance(result, (Exception, BaseException))
-    ]
 
 
 @majsoul_review.on_command(("牌谱Review", "牌谱review", "Review", "review"))
@@ -88,109 +51,31 @@ async def majsoul_review_command(bot: Bot, ev: Event):
         desired_string = paipu_value[0]
     else:
         return await bot.send("❌ 请输入有效的牌谱URL!")
-    conns = manager.get_all_conn()
-    if not conns:
-        return await bot.send("❌ 未找到有效连接, 请先进行[雀魂推送启动]")
-    conn = random.choice(conns)
-    tenhou_log = await conn.fetchLogs(desired_string)
-    sess = httpx.AsyncClient(verify=False)
 
-    urls = {
-        "[wegt]": "https://majsoul.wget.es",
-        "[cn]": "http://183.36.37.120:62800",
-    }
+    path1 = PAIPU_PATH / f"{desired_string} - raw.json"
+    path2 = PAIPU_PATH / f"{desired_string} - review.json"
 
-    result = await find_fastest_url(urls)
-    # Prefer [wegt] first if available
-    tag, url = "", ""
-    for result_tag, result_url, elapsed_time in result:
-        if result_tag == "[wegt]" and elapsed_time != float("inf"):
-            tag, url = result_tag, result_url
-            break
+    if not (path1.exists() and path2.exists()):
+        conns = manager.get_all_conn()
+        if not conns:
+            return await bot.send("❌ 未找到有效连接, 请先进行[雀魂推送启动]")
+        conn = random.choice(conns)
+        tenhou_log = await conn.fetchLogs(desired_string)
     else:
-        for result_tag, result_url, elapsed_time in result:
-            if elapsed_time != float("inf"):
-                tag, url = result_tag, result_url
-                break
-        else:
-            return await bot.send("❌ 未找到有效的Review接口!")
+        tenhou_log = await get_paipu_by_game_id(desired_string)
 
-    logger.info(f"Fastest Review URL: {tag} {url}")
+    if not tenhou_log:
+        return await bot.send("❌ 未找到有效牌谱!")
 
-    player_id = tenhou_log.get("_target_actor", 0)
-    payload = {
-        "type": "tenhou",
-        "player_id": player_id,
-        "data": tenhou_log,
-    }
-
-    response = await sess.post(f"{url}/review?type=Tenhou", json=payload)
-    response.raise_for_status()
-    task_id = response.json()["task_id"]
-
-    for _ in range(15):
-        response = await sess.get(f"{url}/review", params={"task": task_id})
-        response.raise_for_status()
-        res = response.json()
-        status = res["status"]
-        if status == "working":
-            logger.info(f"Review Task {task_id} is working...")
-            await asyncio.sleep(1)
-        elif status == "done":
-            logger.info(f"Review Task {task_id} is finished!")
-            break
+    res = await review_tenhou(tenhou_log)
+    if isinstance(res, str):
+        return await bot.send(res)
+    if False:
+        review_result = await get_review_result(res)
     else:
-        return await bot.send("❌ 未找到有效的Review信息!")
-
-    review_data = res["data"]["review"]
-    rating: float = review_data["rating"] * 100
-    matches_total = (
-        review_data["total_matches"] / review_data["total_reviewed"]
-    ) * 100
-    bad_move_up_count = 0
-    bad_move_down_count = 0
-
-    for kyoku in review_data["kyokus"]:
-        # cur_kyoku = kyoku["kyoku"]
-        # cur_honba = kyoku["honba"]
-
-        # print("--------------------")
-        # print(f"Kyoku {cur_kyoku} Honba {cur_honba}")
-
-        for entry in kyoku["entries"]:
-            if entry["is_equal"]:
-                continue
-
-            actual = entry["actual"]
-
-            for _, detail in enumerate(entry["details"]):
-                if actual != detail["action"]:
-                    continue
-                if detail["prob"] <= 0.05:
-                    bad_move_up_count += 1
-                elif 0.05 < detail["prob"] <= 0.1:
-                    bad_move_down_count += 1
-                else:
-                    continue
-
-    bad_move_count = bad_move_up_count + bad_move_down_count
-
-    Rating = f"{rating:.3f}"
-    total_matches = f"{review_data['total_matches']}"
-    total_reviewed: int = review_data["total_reviewed"]
-    matches = f"{total_matches}/{total_reviewed}"
-    total = f"{matches_total:.3f}%"
-
-    bad_move_ratio = f"{bad_move_count}/{total_reviewed}"
-    bad_move_percent = f"{(bad_move_count / total_reviewed) * 100:.3f}%"
-
-    await bot.send(
-        f"🥰 Review Info:\n"
-        f"Rating: {Rating}\n"
-        f"Matches/Total: {matches} = {total}\n"
-        f"BadMove: {bad_move_count}\n"
-        f"BadMoveRatio: {bad_move_ratio} = {bad_move_percent}"
-    )
+        for i in range(10):
+            review_result = await draw_review_info_img(res, i)
+            await bot.send(review_result)
 
 
 @majsoul_yostar_login.on_command(

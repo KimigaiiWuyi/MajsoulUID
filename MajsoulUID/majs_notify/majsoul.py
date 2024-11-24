@@ -1,4 +1,5 @@
 import hmac
+import json
 import uuid
 import random
 import asyncio
@@ -7,6 +8,7 @@ from typing import List, cast
 from collections.abc import Iterable
 
 import httpx
+import aiofiles
 import websockets.client
 from httpx import AsyncClient
 from gsuid_core.gss import gss
@@ -20,6 +22,7 @@ from .codec import MajsoulProtoCodec
 from .majsoul_friend import MajsoulFriend
 from .tenhou.parser import MajsoulPaipuParser
 from ..majs_config.majs_config import MAJS_CONFIG
+from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
 from .constants import HEADERS, USER_AGENT, ModeId2Room
 from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
 from ..utils.api.remote import (
@@ -40,6 +43,30 @@ from .model import (
 )
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
+
+
+def process_dict(obj):
+    if isinstance(obj, dict):
+        return {key: process_dict(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [process_dict(item) for item in obj]
+    elif hasattr(obj, "__dict__"):
+        return process_dict(obj.__dict__)
+    elif isinstance(obj, (int, float, str, bool, type(None))):
+        return obj
+    elif isinstance(obj, bytes):
+        return str(obj)
+    else:
+        logger.warning(f"Unsupported type: {type(obj)}")
+        return str(obj)
+
+
+async def get_paipu_by_game_id(game_id: str):
+    path = PAIPU_PATH / f"{game_id} - raw.json"
+    if path.exists():
+        async with aiofiles.open(path, "r", encoding="utf-8") as f:
+            data = json.loads(await f.read())
+            return data
 
 
 class MajsoulConnection:
@@ -752,6 +779,10 @@ class MajsoulConnection:
         return resp
 
     async def fetchLogs(self, game_id: str):
+        data = await get_paipu_by_game_id(game_id)
+        if data:
+            return data
+
         seps = game_id.split("_")
         log_id = seps[0]
 
@@ -800,14 +831,32 @@ class MajsoulConnection:
             record=MjsLog(logs.head, action_list)
         )
 
-        print("target_id", target_id)
-        print("logs.head.accounts", logs.head.accounts)
+        tenhou_log['head'] = process_dict(logs.head.__dict__)
+        tenhou_log['game_id'] = game_id
+        tenhou_log['log_id'] = log_id
+        tenhou_log['target_id'] = target_id
+
+        logger.info(f"[Majsoul] target_id: {target_id}")
+        logger.info(f"[Majsoul] logs.head.accounts: {logs.head.accounts}")
 
         if target_id is not None:
             for acc in logs.head.accounts:
                 if acc.account_id == target_id:
                     tenhou_log["_target_actor"] = acc.seat
                     break
+
+        async with aiofiles.open(
+            PAIPU_PATH / f"{game_id} - raw.json",
+            "w",
+            encoding="utf-8",
+        ) as f:
+            await f.write(
+                json.dumps(
+                    dict(tenhou_log),
+                    ensure_ascii=False,
+                    indent=4,
+                    )
+                )
 
         return tenhou_log
 
