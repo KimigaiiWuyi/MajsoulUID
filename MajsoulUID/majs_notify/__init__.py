@@ -147,14 +147,11 @@ async def majsoul_jp_login_command(bot: Bot, ev: Event):
             code,
             lang,
         )
-    except MajsoulMaintenanceError as e:
-        msg = f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
-        return await bot.send(msg)
     except ConnectionRefusedError:
         return await bot.send("❌ 登陆失败, 可能是网络原因, 请检查控制台!")
 
-    if isinstance(connection, MajsoulMaintenanceError):
-        return await bot.send(f"❌ 登陆失败! context: {connection}")
+    if isinstance(connection, str):
+        return await bot.send(connection)
 
     if isinstance(connection, bool):
         return await bot.send("❌ 登陆失败, 请检查登录信息!")
@@ -199,23 +196,18 @@ async def majsoul_add_at(bot: Bot, ev: Event):
         if not username or not password:
             return await bot.send("❌ 请输入有效的username和password!")
 
-        try:
-            connection = await manager.check_username_password(
-                username,
-                password,
-                "",
-                0,
-            )
-        except MajsoulMaintenanceError as e:
-            msg = f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
-            return await bot.send(msg)
+        connection = await manager.check_username_password(
+            username,
+            password,
+            "",
+            0,
+        )
+        if isinstance(connection, str):
+            return await bot.send(connection)
         if isinstance(connection, bool):
             return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
     else:
         return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
-
-    if isinstance(connection, MajsoulMaintenanceError):
-        return await bot.send(f"❌ 登陆失败! context: {connection}")
 
     friend_code = str(encode_account_id2(connection.account_id))
     if await MajsUser.data_exist(uid=connection.account_id):
@@ -240,6 +232,9 @@ async def majsoul_add_at(bot: Bot, ev: Event):
         )
 
     conn = await manager.start()
+    if isinstance(conn, MajsoulMaintenanceError):
+        msg = f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {conn}"
+        return await bot.send(msg)
     if isinstance(conn, str):
         return await bot.send(conn)
 

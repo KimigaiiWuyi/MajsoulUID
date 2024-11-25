@@ -993,8 +993,7 @@ class MajsoulManager:
         try:
             conn = await createMajsoulConnection(username, password, access_token)
         except MajsoulMaintenanceError as e:
-            logger.error(e)
-            return e
+            return f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
         except ValueError as e:
             logger.error(e)
             return False
@@ -1008,8 +1007,7 @@ class MajsoulManager:
                 lang,
             )
         except MajsoulMaintenanceError as e:
-            logger.error(e)
-            return e
+            return f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
         except ValueError as e:
             logger.error(e)
             return False
@@ -1024,6 +1022,8 @@ class MajsoulManager:
                 if user.login_type == 0:
                     try:
                         conn = await createMajsoulConnection(access_token=user.cookie)
+                    except MajsoulMaintenanceError as e:
+                        return f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
                     except ValueError as e:
                         logger.warning(
                             f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}"
