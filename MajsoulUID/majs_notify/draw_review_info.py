@@ -88,7 +88,9 @@ async def draw_review_info_img(data: dict, kyoku_id: int = 0):
         actual_dehai: str = actual['pai'] if 'pai' in actual else ''
 
         ai_str = f"AI选择: {_type_map.get(ai_type, '未知')} {ai_dehai}"
-        actual_str = f"你选择: {_type_map.get(actual_type, '未知')} {actual_dehai}"
+        actual_str = (
+            f"你选择: {_type_map.get(actual_type, '未知')} {actual_dehai}"
+        )
         cond_str = f"{ai_str}  |  {actual_str}"
 
         if actual_type == 'hora':
@@ -187,25 +189,21 @@ async def draw_review_info_img(data: dict, kyoku_id: int = 0):
                 _fuuro_pai_img = Image.open(PAI_PATH / f'{_fuuro_pai}.png')
                 _fuuro_pai_img = _fuuro_pai_img.resize((57, 91))
                 if (
-                    (rotate == 3 and pindex == len(pais) - 1) or
-                    (rotate == 1 and pindex == 0) or
-                    (rotate == 2 and pindex == 1)
+                    (rotate == 3 and pindex == len(pais) - 1)
+                    or (rotate == 1 and pindex == 0)
+                    or (rotate == 2 and pindex == 1)
                 ):
                     _fuuro_pai_img = _fuuro_pai_img.rotate(90, expand=True)
                     _fuuro_y = 155
                     x_tile -= 34
                     en_bg.paste(
-                        _fuuro_pai_img,
-                        (x_tile, _fuuro_y),
-                        _fuuro_pai_img
+                        _fuuro_pai_img, (x_tile, _fuuro_y), _fuuro_pai_img
                     )
                     x_tile -= 46
                 else:
                     _fuuro_y = 121
                     en_bg.paste(
-                        _fuuro_pai_img,
-                        (x_tile, _fuuro_y),
-                        _fuuro_pai_img
+                        _fuuro_pai_img, (x_tile, _fuuro_y), _fuuro_pai_img
                     )
                     x_tile -= 57
 
@@ -220,11 +218,7 @@ async def draw_review_info_img(data: dict, kyoku_id: int = 0):
         else:
             _x = 1400
 
-        img.paste(
-            en_bg,
-            (_x, 900 + ((index % h_num) * 255)),
-            en_bg
-        )
+        img.paste(en_bg, (_x, 900 + ((index % h_num) * 255)), en_bg)
 
     img = add_footer(img)
     r = await convert_img(img)

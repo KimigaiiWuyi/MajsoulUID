@@ -45,6 +45,10 @@ from .model import (
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 
 
+class MajsoulMaintenanceError(Exception):
+    pass
+
+
 def process_dict(obj):
     if isinstance(obj, dict):
         return {key: process_dict(value) for key, value in obj.items()}
@@ -831,10 +835,10 @@ class MajsoulConnection:
             record=MjsLog(logs.head, action_list)
         )
 
-        tenhou_log['head'] = process_dict(logs.head.__dict__)
-        tenhou_log['game_id'] = game_id
-        tenhou_log['log_id'] = log_id
-        tenhou_log['target_id'] = target_id
+        tenhou_log["head"] = process_dict(logs.head.__dict__)
+        tenhou_log["game_id"] = game_id
+        tenhou_log["log_id"] = log_id
+        tenhou_log["target_id"] = target_id
 
         logger.info(f"[Majsoul] target_id: {target_id}")
         logger.info(f"[Majsoul] logs.head.accounts: {logs.head.accounts}")
@@ -855,8 +859,8 @@ class MajsoulConnection:
                     dict(tenhou_log),
                     ensure_ascii=False,
                     indent=4,
-                    )
                 )
+            )
 
         return tenhou_log
 
@@ -902,10 +906,17 @@ async def fetchMajsoulInfo(URL_BASE: str):
     resp.raise_for_status()
     serverList = convert(resp.json(), MajsoulServerList)
 
-    server = random.choice(serverList.servers)
-    server += "/gateway"
+    if serverList.maintenance:
+        raise MajsoulMaintenanceError(
+            serverList.maintenance.message_i18n[0].context
+        )
+    else:
+        assert serverList.servers
 
-    return server, pbDef, pbVersion, version_info
+        server = random.choice(serverList.servers)
+        server += "/gateway"
+
+        return server, pbDef, pbVersion, version_info
 
 
 async def createMajsoulConnection(
@@ -998,6 +1009,8 @@ class MajsoulManager:
             conn = await createMajsoulConnection(
                 username, password, access_token
             )
+        except MajsoulMaintenanceError as e:
+            return f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
         except ValueError as e:
             logger.error(e)
             return False
@@ -1010,6 +1023,8 @@ class MajsoulManager:
                 code,
                 lang,
             )
+        except MajsoulMaintenanceError as e:
+            return f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
         except ValueError as e:
             logger.error(e)
             return False
@@ -1025,6 +1040,10 @@ class MajsoulManager:
                     try:
                         conn = await createMajsoulConnection(
                             access_token=user.cookie
+                        )
+                    except MajsoulMaintenanceError as e:
+                        return (
+                            f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
                         )
                     except ValueError as e:
                         logger.warning(

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 import betterproto
 from msgspec import Struct
@@ -88,8 +88,18 @@ class MajsoulUSConfig(Struct):
     tracker_url: str
 
 
+class MaintenanceMessageI18n(Struct):
+    lang: str
+    context: str
+
+
+class MajsoulMaintenance(Struct):
+    message_i18n: List[MaintenanceMessageI18n]
+
+
 class MajsoulServerList(Struct):
-    servers: List[str]
+    servers: Union[List[str], None] = None
+    maintenance: Union[MajsoulMaintenance, None] = None
 
 
 class MajsoulDecodedMessage(Struct):

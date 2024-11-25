@@ -14,10 +14,10 @@ from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
 from .draw_friend_rank import draw_friend_rank_img
 from .draw_review_info import draw_review_info_img
-from .majsoul import manager, get_paipu_by_game_id
 from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
 from .tenhou.review import review_tenhou, get_review_result
 from ..utils.database.models import MajsBind, MajsPush, MajsUser
+from .majsoul import MajsoulMaintenanceError, manager, get_paipu_by_game_id
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_add_account = SV("雀魂账号池", pm=0)
@@ -152,6 +152,9 @@ async def majsoul_jp_login_command(bot: Bot, ev: Event):
     except ConnectionRefusedError:
         return await bot.send("❌ 登陆失败, 可能是网络原因, 请检查控制台!")
 
+    if isinstance(connection, str):
+        return await bot.send(connection)
+
     if isinstance(connection, bool):
         return await bot.send("❌ 登陆失败, 请检查登录信息!")
 
@@ -201,6 +204,8 @@ async def majsoul_add_at(bot: Bot, ev: Event):
             "",
             0,
         )
+        if isinstance(connection, str):
+            return await bot.send(connection)
         if isinstance(connection, bool):
             return await bot.send(
                 "❌ 登陆失败, 请输入正确的username和password!"
@@ -231,6 +236,9 @@ async def majsoul_add_at(bot: Bot, ev: Event):
         )
 
     conn = await manager.start()
+    if isinstance(conn, MajsoulMaintenanceError):
+        msg = f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {conn}"
+        return await bot.send(msg)
     if isinstance(conn, str):
         return await bot.send(conn)
 
