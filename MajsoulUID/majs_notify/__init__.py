@@ -1,23 +1,23 @@
 import random
 from urllib.parse import parse_qs, urlparse
 
-import httpx
 import email_validator
-from gsuid_core.sv import SV
+import httpx
 from gsuid_core.bot import Bot
-from gsuid_core.models import Event
 from gsuid_core.logger import logger
+from gsuid_core.models import Event
+from gsuid_core.sv import SV
 from gsuid_core.utils.database.api import get_uid
 
-from .constants import USER_AGENT
-from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
+from ..utils.database.models import MajsBind, MajsPush, MajsUser
+from ..utils.error_reply import UID_HINT
+from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
+from .constants import USER_AGENT
 from .draw_friend_rank import draw_friend_rank_img
 from .draw_review_info import draw_review_info_img
-from .majsoul import manager, get_paipu_by_game_id
-from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
-from .tenhou.review import review_tenhou, get_review_result
-from ..utils.database.models import MajsBind, MajsPush, MajsUser
+from .majsoul import MajsoulMaintenanceError, get_paipu_by_game_id, manager
+from .tenhou.review import get_review_result, review_tenhou
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_add_account = SV("雀魂账号池", pm=0)
@@ -78,9 +78,7 @@ async def majsoul_review_command(bot: Bot, ev: Event):
             await bot.send(review_result)
 
 
-@majsoul_yostar_login.on_command(
-    ("登录美服", "登录日服", "登陆日服", "登陆美服")
-)
+@majsoul_yostar_login.on_command(("登录美服", "登录日服", "登陆日服", "登陆美服"))
 async def majsoul_jp_login_command(bot: Bot, ev: Event):
     url = "https://passport.mahjongsoul.com/account/auth_request"
     headers = {
@@ -149,8 +147,14 @@ async def majsoul_jp_login_command(bot: Bot, ev: Event):
             code,
             lang,
         )
+    except MajsoulMaintenanceError as e:
+        msg = f"❌ 登陆失败, 雀魂服务器正在维护中! context: {e}"
+        return await bot.send(msg)
     except ConnectionRefusedError:
         return await bot.send("❌ 登陆失败, 可能是网络原因, 请检查控制台!")
+
+    if isinstance(connection, MajsoulMaintenanceError):
+        return await bot.send(f"❌ 登陆失败! context: {connection}")
 
     if isinstance(connection, bool):
         return await bot.send("❌ 登陆失败, 请检查登录信息!")
@@ -195,18 +199,23 @@ async def majsoul_add_at(bot: Bot, ev: Event):
         if not username or not password:
             return await bot.send("❌ 请输入有效的username和password!")
 
-        connection = await manager.check_username_password(
-            username,
-            password,
-            "",
-            0,
-        )
-        if isinstance(connection, bool):
-            return await bot.send(
-                "❌ 登陆失败, 请输入正确的username和password!"
+        try:
+            connection = await manager.check_username_password(
+                username,
+                password,
+                "",
+                0,
             )
+        except MajsoulMaintenanceError as e:
+            msg = f"❌ 登陆失败, 雀魂服务器正在维护中! context: {e}"
+            return await bot.send(msg)
+        if isinstance(connection, bool):
+            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
     else:
         return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
+
+    if isinstance(connection, MajsoulMaintenanceError):
+        return await bot.send(f"❌ 登陆失败! context: {connection}")
 
     friend_code = str(encode_account_id2(connection.account_id))
     if await MajsUser.data_exist(uid=connection.account_id):
@@ -261,9 +270,7 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
             )
             if retcode == 0:
                 logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
-                return await bot.send(
-                    f"[majs] 修改推送订阅成功！当前值：{push_id}"
-                )
+                return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
             else:
                 return await bot.send("[majs] 推送订阅失败！")
     else:
