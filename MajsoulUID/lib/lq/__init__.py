@@ -88,12 +88,12 @@ class NotifyRoomPlayerDressingAccountDressingState(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class NotifyRoomPlayerUpdate(betterproto.Message):
-    update_list: List["PlayerBaseView"] = betterproto.message_field(1)
-    remove_list: List[int] = betterproto.uint32_field(2)
     owner_id: int = betterproto.uint32_field(3)
     robot_count: int = betterproto.uint32_field(4)
-    player_list: List["PlayerBaseView"] = betterproto.message_field(5)
+    player_list: List["PlayerGameView"] = betterproto.message_field(5)
     seq: int = betterproto.uint32_field(6)
+    robots: List["PlayerGameView"] = betterproto.message_field(7)
+    positions: List[int] = betterproto.uint32_field(8)
 
 
 @dataclass(eq=False, repr=False)
@@ -659,6 +659,7 @@ class AccountUpdate(betterproto.Message):
         16
     )
     month_ticket: "AccountUpdateMonthTicketUpdate" = betterproto.message_field(17)
+    main_character: "AccountUpdateMainCharacterUpdate" = betterproto.message_field(18)
 
 
 @dataclass(eq=False, repr=False)
@@ -742,6 +743,12 @@ class AccountUpdateMonthTicketUpdate(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class AccountUpdateMainCharacterUpdate(betterproto.Message):
+    character_id: int = betterproto.uint32_field(1)
+    skin_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
 class GameMetaData(betterproto.Message):
     room_id: int = betterproto.uint32_field(1)
     mode_id: int = betterproto.uint32_field(2)
@@ -753,6 +760,12 @@ class AccountPlayingGame(betterproto.Message):
     game_uuid: str = betterproto.string_field(1)
     category: int = betterproto.uint32_field(2)
     meta: "GameMetaData" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class RandomCharacter(betterproto.Message):
+    character_id: int = betterproto.uint32_field(1)
+    skin_id: int = betterproto.uint32_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -893,6 +906,7 @@ class GameDetailRule(betterproto.Message):
     enable_baopai_extend_settings: int = betterproto.uint32_field(69)
     yongchang_mode: int = betterproto.uint32_field(70)
     hunzhiyiji_mode: int = betterproto.uint32_field(71)
+    wanxiangxiuluo_mode: int = betterproto.uint32_field(72)
 
 
 @dataclass(eq=False, repr=False)
@@ -909,6 +923,8 @@ class Room(betterproto.Message):
     tournament_id: int = betterproto.uint32_field(10)
     seq: int = betterproto.uint32_field(11)
     pre_rule: str = betterproto.string_field(12)
+    robots: List["PlayerGameView"] = betterproto.message_field(13)
+    positions: List[int] = betterproto.uint32_field(14)
 
 
 @dataclass(eq=False, repr=False)
@@ -2163,6 +2179,7 @@ class RecordGame(betterproto.Message):
     config: "GameConfig" = betterproto.message_field(5)
     accounts: List["RecordGameAccountInfo"] = betterproto.message_field(11)
     result: "GameEndResult" = betterproto.message_field(12)
+    robots: List["RecordGameAccountInfo"] = betterproto.message_field(13)
 
 
 @dataclass(eq=False, repr=False)
@@ -2333,6 +2350,7 @@ class GameFinalSnapshot(betterproto.Message):
     account_views: List["PlayerGameView"] = betterproto.message_field(12)
     final_players: List["GameFinalSnapshotFinalPlayer"] = betterproto.message_field(13)
     afk_info: List["GameFinalSnapshotAfkInfo"] = betterproto.message_field(14)
+    robot_views: List["PlayerGameView"] = betterproto.message_field(15)
 
 
 @dataclass(eq=False, repr=False)
@@ -2590,6 +2608,8 @@ class VoteData(betterproto.Message):
 class ActivityBuffData(betterproto.Message):
     buff_id: int = betterproto.uint32_field(1)
     level: int = betterproto.uint32_field(5)
+    count: int = betterproto.uint32_field(6)
+    update_time: int = betterproto.uint32_field(7)
 
 
 @dataclass(eq=False, repr=False)
@@ -3292,13 +3312,18 @@ class ReqRoomStart(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class ReqRoomKick(betterproto.Message):
-    account_id: int = betterproto.uint32_field(1)
+class ReqRoomKickPlayer(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
 
 
 @dataclass(eq=False, repr=False)
 class ReqModifyRoom(betterproto.Message):
     robot_count: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ReqAddRoomRobot(betterproto.Message):
+    position: int = betterproto.uint32_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -4499,6 +4524,19 @@ class ResCreateSteamOrder(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     order_id: str = betterproto.string_field(2)
     platform_order_id: str = betterproto.string_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResRandomCharacter(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    enabled: bool = betterproto.bool_field(2)
+    pool: List["RandomCharacter"] = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqRandomCharacter(betterproto.Message):
+    enabled: bool = betterproto.bool_field(1)
+    pool: List["RandomCharacter"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -6145,6 +6183,21 @@ class ResFetchInfo(betterproto.Message):
         betterproto.message_field(29)
     )
     maintain_notice: "ResFetchMaintainNotice" = betterproto.message_field(30)
+    random_character: "ResRandomCharacter" = betterproto.message_field(31)
+    maintenance_info: "ResFetchServerMaintenanceInfo" = betterproto.message_field(32)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchServerMaintenanceInfo(betterproto.Message):
+    function_maintenance: List[
+        "ResFetchServerMaintenanceInfoServerFunctionMaintenanceInfo"
+    ] = betterproto.message_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchServerMaintenanceInfoServerFunctionMaintenanceInfo(betterproto.Message):
+    name: str = betterproto.string_field(1)
+    open: bool = betterproto.bool_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -6840,6 +6893,7 @@ class ResAuthGame(betterproto.Message):
     is_game_start: bool = betterproto.bool_field(4)
     game_config: "GameConfig" = betterproto.message_field(5)
     ready_id_list: List[int] = betterproto.uint32_field(6)
+    robots: List["PlayerGameView"] = betterproto.message_field(7)
 
 
 @dataclass(eq=False, repr=False)
@@ -7342,6 +7396,8 @@ class HuleInfo(betterproto.Message):
     baopai_seats: List[int] = betterproto.uint32_field(22)
     lines: List[str] = betterproto.string_field(23)
     tianming_bonus: int = betterproto.uint32_field(24)
+    baida_changed: List[str] = betterproto.string_field(25)
+    hu_tile_bai_da_changed: str = betterproto.string_field(26)
 
 
 @dataclass(eq=False, repr=False)
@@ -7987,6 +8043,23 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def fetch_server_maintenance_info(
+        self,
+        req_common: "ReqCommon",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchServerMaintenanceInfo":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchServerMaintenanceInfo",
+            req_common,
+            ResFetchServerMaintenanceInfo,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
     async def email_login(
         self,
         req_email_login: "ReqEmailLogin",
@@ -8497,17 +8570,17 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
-    async def kick_player(
+    async def room_kick_player(
         self,
-        req_room_kick: "ReqRoomKick",
+        req_room_kick_player: "ReqRoomKickPlayer",
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
     ) -> "ResCommon":
         return await self._unary_unary(
-            "/lq.Lobby/kickPlayer",
-            req_room_kick,
+            "/lq.Lobby/roomKickPlayer",
+            req_room_kick_player,
             ResCommon,
             timeout=timeout,
             deadline=deadline,
@@ -8525,6 +8598,23 @@ class LobbyStub(betterproto.ServiceStub):
         return await self._unary_unary(
             "/lq.Lobby/modifyRoom",
             req_modify_room,
+            ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def add_room_robot(
+        self,
+        req_add_room_robot: "ReqAddRoomRobot",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCommon":
+        return await self._unary_unary(
+            "/lq.Lobby/addRoomRobot",
+            req_add_room_robot,
             ResCommon,
             timeout=timeout,
             deadline=deadline,
@@ -9869,6 +9959,40 @@ class LobbyStub(betterproto.ServiceStub):
             "/lq.Lobby/fetchPlatformProducts",
             req_platform_billing_products,
             ResPlatformBillingProducts,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_random_character(
+        self,
+        req_common: "ReqCommon",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResRandomCharacter":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchRandomCharacter",
+            req_common,
+            ResRandomCharacter,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def set_random_character(
+        self,
+        req_random_character: "ReqRandomCharacter",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCommon":
+        return await self._unary_unary(
+            "/lq.Lobby/setRandomCharacter",
+            req_random_character,
+            ResCommon,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14193,6 +14317,11 @@ class LobbyBase(ServiceBase):
     async def login_success(self, req_common: "ReqCommon") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def fetch_server_maintenance_info(
+        self, req_common: "ReqCommon"
+    ) -> "ResFetchServerMaintenanceInfo":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def email_login(self, req_email_login: "ReqEmailLogin") -> "ResLogin":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -14313,10 +14442,17 @@ class LobbyBase(ServiceBase):
     async def start_room(self, req_room_start: "ReqRoomStart") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def kick_player(self, req_room_kick: "ReqRoomKick") -> "ResCommon":
+    async def room_kick_player(
+        self, req_room_kick_player: "ReqRoomKickPlayer"
+    ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def modify_room(self, req_modify_room: "ReqModifyRoom") -> "ResCommon":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def add_room_robot(
+        self, req_add_room_robot: "ReqAddRoomRobot"
+    ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def match_game(
@@ -14665,6 +14801,16 @@ class LobbyBase(ServiceBase):
     async def fetch_platform_products(
         self, req_platform_billing_products: "ReqPlatformBillingProducts"
     ) -> "ResPlatformBillingProducts":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_random_character(
+        self, req_common: "ReqCommon"
+    ) -> "ResRandomCharacter":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def set_random_character(
+        self, req_random_character: "ReqRandomCharacter"
+    ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def cancel_google_play_order(
@@ -15848,6 +15994,13 @@ class LobbyBase(ServiceBase):
         response = await self.login_success(request)
         await stream.send_message(response)
 
+    async def __rpc_fetch_server_maintenance_info(
+        self, stream: "grpclib.server.Stream[ReqCommon, ResFetchServerMaintenanceInfo]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_server_maintenance_info(request)
+        await stream.send_message(response)
+
     async def __rpc_email_login(
         self, stream: "grpclib.server.Stream[ReqEmailLogin, ResLogin]"
     ) -> None:
@@ -16059,11 +16212,11 @@ class LobbyBase(ServiceBase):
         response = await self.start_room(request)
         await stream.send_message(response)
 
-    async def __rpc_kick_player(
-        self, stream: "grpclib.server.Stream[ReqRoomKick, ResCommon]"
+    async def __rpc_room_kick_player(
+        self, stream: "grpclib.server.Stream[ReqRoomKickPlayer, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
-        response = await self.kick_player(request)
+        response = await self.room_kick_player(request)
         await stream.send_message(response)
 
     async def __rpc_modify_room(
@@ -16071,6 +16224,13 @@ class LobbyBase(ServiceBase):
     ) -> None:
         request = await stream.recv_message()
         response = await self.modify_room(request)
+        await stream.send_message(response)
+
+    async def __rpc_add_room_robot(
+        self, stream: "grpclib.server.Stream[ReqAddRoomRobot, ResCommon]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.add_room_robot(request)
         await stream.send_message(response)
 
     async def __rpc_match_game(
@@ -16644,6 +16804,20 @@ class LobbyBase(ServiceBase):
     ) -> None:
         request = await stream.recv_message()
         response = await self.fetch_platform_products(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_random_character(
+        self, stream: "grpclib.server.Stream[ReqCommon, ResRandomCharacter]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_random_character(request)
+        await stream.send_message(response)
+
+    async def __rpc_set_random_character(
+        self, stream: "grpclib.server.Stream[ReqRandomCharacter, ResCommon]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.set_random_character(request)
         await stream.send_message(response)
 
     async def __rpc_cancel_google_play_order(
@@ -18443,6 +18617,12 @@ class LobbyBase(ServiceBase):
                 ReqCommon,
                 ResCommon,
             ),
+            "/lq.Lobby/fetchServerMaintenanceInfo": grpclib.const.Handler(
+                self.__rpc_fetch_server_maintenance_info,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqCommon,
+                ResFetchServerMaintenanceInfo,
+            ),
             "/lq.Lobby/emailLogin": grpclib.const.Handler(
                 self.__rpc_email_login,
                 grpclib.const.Cardinality.UNARY_UNARY,
@@ -18623,16 +18803,22 @@ class LobbyBase(ServiceBase):
                 ReqRoomStart,
                 ResCommon,
             ),
-            "/lq.Lobby/kickPlayer": grpclib.const.Handler(
-                self.__rpc_kick_player,
+            "/lq.Lobby/roomKickPlayer": grpclib.const.Handler(
+                self.__rpc_room_kick_player,
                 grpclib.const.Cardinality.UNARY_UNARY,
-                ReqRoomKick,
+                ReqRoomKickPlayer,
                 ResCommon,
             ),
             "/lq.Lobby/modifyRoom": grpclib.const.Handler(
                 self.__rpc_modify_room,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqModifyRoom,
+                ResCommon,
+            ),
+            "/lq.Lobby/addRoomRobot": grpclib.const.Handler(
+                self.__rpc_add_room_robot,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqAddRoomRobot,
                 ResCommon,
             ),
             "/lq.Lobby/matchGame": grpclib.const.Handler(
@@ -19108,6 +19294,18 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqPlatformBillingProducts,
                 ResPlatformBillingProducts,
+            ),
+            "/lq.Lobby/fetchRandomCharacter": grpclib.const.Handler(
+                self.__rpc_fetch_random_character,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqCommon,
+                ResRandomCharacter,
+            ),
+            "/lq.Lobby/setRandomCharacter": grpclib.const.Handler(
+                self.__rpc_set_random_character,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqRandomCharacter,
+                ResCommon,
             ),
             "/lq.Lobby/cancelGooglePlayOrder": grpclib.const.Handler(
                 self.__rpc_cancel_google_play_order,
