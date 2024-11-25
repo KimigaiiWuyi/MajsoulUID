@@ -148,7 +148,7 @@ async def majsoul_jp_login_command(bot: Bot, ev: Event):
             lang,
         )
     except MajsoulMaintenanceError as e:
-        msg = f"❌ 登陆失败, 雀魂服务器正在维护中! context: {e}"
+        msg = f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
         return await bot.send(msg)
     except ConnectionRefusedError:
         return await bot.send("❌ 登陆失败, 可能是网络原因, 请检查控制台!")
@@ -207,7 +207,7 @@ async def majsoul_add_at(bot: Bot, ev: Event):
                 0,
             )
         except MajsoulMaintenanceError as e:
-            msg = f"❌ 登陆失败, 雀魂服务器正在维护中! context: {e}"
+            msg = f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
             return await bot.send(msg)
         if isinstance(connection, bool):
             return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
