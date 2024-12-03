@@ -359,6 +359,7 @@ async def majsoul_notify_check_command(bot: Bot, event: Event):
     if not conns:
         return await bot.send("未找到有效连接, 请先进行[雀魂推送启动]")
 
+    msg_list = []
     for conn in conns:
         msg_list = []
         if await conn.check_alive():

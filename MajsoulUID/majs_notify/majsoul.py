@@ -4,7 +4,7 @@ import uuid
 import random
 import asyncio
 import hashlib
-from typing import List, cast
+from typing import cast
 from collections.abc import Iterable
 
 import httpx
@@ -523,12 +523,10 @@ class MajsoulConnection:
         return True
 
     def remove_duplicate_friends(self):
-        friends: List[MajsoulFriend] = []
-        for friend in self.friends:
-            if friend.account_id not in friends:
-                friends.append(friend)
-        self.friends = friends
-        return friends
+        # friends: List[MajsoulFriend] = []
+        unique_friends = {friend.account_id: friend for friend in self.friends}
+        self.friends = list(unique_friends.values())
+        return self.friends
 
     def encode_p(self, password: str):
         return hmac.new(
@@ -1124,7 +1122,7 @@ class MajsoulManager:
         return self.conn
 
     async def is_online(self):
-        if self.conn is []:
+        if self.conn == []:
             return False
         return await self.conn[0].check_alive()
 
