@@ -4,7 +4,7 @@ import uuid
 import random
 import asyncio
 import hashlib
-from typing import List, cast
+from typing import cast
 from collections.abc import Iterable
 
 import httpx
