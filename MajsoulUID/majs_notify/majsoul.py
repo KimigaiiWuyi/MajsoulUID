@@ -3,9 +3,9 @@ import hashlib
 import hmac
 import json
 import random
+from typing import cast
 import uuid
 from collections.abc import Iterable
-from typing import List, cast
 
 import aiofiles
 import httpx
@@ -1099,7 +1099,7 @@ class MajsoulManager:
         return self.conn
 
     async def is_online(self):
-        if self.conn is []:
+        if self.conn == []:
             return False
         return await self.conn[0].check_alive()
 
