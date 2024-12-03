@@ -73,8 +73,8 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     if False:
         review_result = await get_review_result(res)
     else:
-        for i in range(10):
-            review_result = await draw_review_info_img(res, i)
+        for i in range(len(res["data"]["review"]["kyokus"])):
+            review_result = await draw_review_info_img(tenhou_log, res, i)
             await bot.send(review_result)
 
 
