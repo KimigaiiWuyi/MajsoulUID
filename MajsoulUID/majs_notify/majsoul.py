@@ -523,12 +523,10 @@ class MajsoulConnection:
         return True
 
     def remove_duplicate_friends(self):
-        friends: List[MajsoulFriend] = []
-        for friend in self.friends:
-            if friend.account_id not in friends:
-                friends.append(friend)
-        self.friends = friends
-        return friends
+        # friends: List[MajsoulFriend] = []
+        unique_friends = {friend.nickname: friend for friend in self.friends}
+        self.friends = list(unique_friends.values())
+        return self.friends
 
     def encode_p(self, password: str):
         return hmac.new(
