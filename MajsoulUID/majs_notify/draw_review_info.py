@@ -14,13 +14,6 @@ from ..utils.image import get_bg, add_footer
 TEXT_PATH = Path(__file__).parent / 'texture2d_review'
 PAI_PATH = TEXT_PATH / 'pai'
 
-kyoku_map = {
-    0: '东',
-    1: '南',
-    2: '西',
-    3: '北',
-}
-
 _type_map = {
     'dahai': '打',
     'ankan': '暗杠',
@@ -29,6 +22,7 @@ _type_map = {
     'reach': '立直',
     'ronpinfu': '加飘',
     'daburi': '打切',
+    'hora': '胡',
     'none': '放弃',
 }
 
@@ -53,11 +47,18 @@ def get_color(rate: float):
         color = (255, 0, 0)
     elif rate <= 0.75:
         color = (255, 161, 0)
-    elif rate >= 0.91:
+    elif rate >= 0.86:
         color = (74, 255, 0)
     else:
         color = (255, 255, 255)
     return color
+
+
+def kyoku_to_string(kyoku: int) -> str:
+    rounds = ["东", "南", "西", "北"]
+    wind = kyoku // 4
+    number = kyoku % 4 + 1
+    return f"{rounds[wind]}{number}局"
 
 
 async def draw_review_info_img(
@@ -71,8 +72,10 @@ async def draw_review_info_img(
     except IndexError:
         return f"该Game未存在该局ID：{kyoku_id}"
 
-    kyoku: int = kyokus["kyoku"] % 4
-    kyoku_str = kyoku_map[kyoku]
+    kyoku_str = kyoku_to_string(kyokus["kyoku"])
+    honba_str = f'{kyokus["honba"]}本场'
+
+    kh = f'{kyoku_str} {honba_str}'
 
     w, h = 2800, 964 + 100
 
@@ -87,7 +90,7 @@ async def draw_review_info_img(
     spliter_draw = ImageDraw.Draw(spliter)
     spliter_draw.text(
         (1400, 35),
-        f"【{kyoku_str}{kyokus['honba']+1}局】",
+        f"【{kh}】",
         font=majs_font(50),
         fill=(255, 255, 255),
         anchor='mm',
@@ -130,6 +133,7 @@ async def draw_review_info_img(
         actual: dict = en['actual']
         now_pai: str = en['tile']
         last_actor: int = en['last_actor']
+        is_equal: bool = en['is_equal']
 
         if 'actor' in actual:
             actor_id: int = actual['actor']
@@ -157,12 +161,12 @@ async def draw_review_info_img(
             frame = mo_frame
             frame_str = '自己摸到'
 
-        if ai == actual:
+        if is_equal:
             en_bg = Image.open(TEXT_PATH / 'yes.png')
             now_matches += 1
         else:
             for proba in en['details']:
-                if proba['action'] == actual and proba['prob'] >= 0.6:
+                if proba['action'] == actual and proba['prob'] >= 0.3:
                     en_bg = Image.open(TEXT_PATH / 'warning.png')
                     now_warning += 1
                     break
@@ -195,6 +199,9 @@ async def draw_review_info_img(
                 actual_pai = list(find_ting_tiles(tehai).keys())[0]
             else:
                 actual_pai = actual['pai']
+        elif actual_type == 'ryukyoku':
+            actual_pai = 'none'
+            frame_str = '流局'
         elif actual_type != 'none':
             actual_pai = actual['pai']
         else:
@@ -209,6 +216,8 @@ async def draw_review_info_img(
                 ai_pai = list(find_ting_tiles(tehai).keys())[0]
             else:
                 ai_pai = ai['pai']
+        elif ai_type == 'ryukyoku':
+            ai_pai = 'none'
         elif ai_type != 'none':
             ai_pai = ai['pai']
         else:
@@ -222,10 +231,6 @@ async def draw_review_info_img(
 
             hai_img = Image.open(PAI_PATH / f'{hai}.png')
 
-            if hai == ai_pai and not is_ai:
-                hai_img.paste(ai_frame, (0, 0), ai_frame)
-                is_ai = True
-
             if hai == actual_pai and not is_actual:
                 y -= 28
                 en_bg_draw.text(
@@ -236,6 +241,18 @@ async def draw_review_info_img(
                     anchor='mm',
                 )
                 is_actual = True
+
+            if hai == ai_pai and not is_ai:
+                hai_img.paste(ai_frame, (0, 0), ai_frame)
+                if not is_ai and not is_equal:
+                    en_bg_draw.text(
+                        (128 + x_tile, 236),
+                        "▲ AI",
+                        font=majs_font(24),
+                        fill=(255, 255, 255),
+                        anchor='mm',
+                    )
+                is_ai = True
 
             en_bg.paste(hai_img, (88 + x_tile, y), hai_img)
             x_tile += 81
@@ -284,7 +301,7 @@ async def draw_review_info_img(
         now_hai_img.paste(frame, (0, 0), frame)
         en_bg.paste(now_hai_img, (1265, 83), now_hai_img)
         en_bg_draw.text(
-            (1265, 236),
+            (1307, 236),
             frame_str,
             font=majs_font(24),
             fill=(255, 255, 255),
