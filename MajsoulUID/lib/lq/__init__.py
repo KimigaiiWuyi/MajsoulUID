@@ -376,6 +376,7 @@ class NotifyGameFinishRewardV2(betterproto.Message):
     character_gift: "NotifyGameFinishRewardV2CharacterGift" = betterproto.message_field(
         5
     )
+    badges: List["BadgeAchieveProgress"] = betterproto.message_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -491,11 +492,22 @@ class AntiAddiction(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class HighestHuRecord(betterproto.Message):
+    fanshu: int = betterproto.uint32_field(1)
+    doranum: int = betterproto.uint32_field(2)
+    title: str = betterproto.string_field(3)
+    hands: List[str] = betterproto.string_field(4)
+    ming: List[str] = betterproto.string_field(5)
+    hupai: str = betterproto.string_field(6)
+    title_id: int = betterproto.uint32_field(7)
+
+
+@dataclass(eq=False, repr=False)
 class AccountMahjongStatistic(betterproto.Message):
     final_position_counts: List[int] = betterproto.uint32_field(1)
     recent_round: "AccountMahjongStatisticRoundSummary" = betterproto.message_field(2)
     recent_hu: "AccountMahjongStatisticHuSummary" = betterproto.message_field(3)
-    highest_hu: "AccountMahjongStatisticHighestHuRecord" = betterproto.message_field(4)
+    highest_hu: "HighestHuRecord" = betterproto.message_field(4)
     recent_20_hu_summary: "AccountMahjongStatisticLiqi20Summary" = (
         betterproto.message_field(6)
     )
@@ -520,17 +532,6 @@ class AccountMahjongStatisticHuSummary(betterproto.Message):
     total_count: int = betterproto.uint32_field(1)
     dora_round_count: int = betterproto.uint32_field(2)
     total_fan: int = betterproto.uint32_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class AccountMahjongStatisticHighestHuRecord(betterproto.Message):
-    fanshu: int = betterproto.uint32_field(1)
-    doranum: int = betterproto.uint32_field(2)
-    title: str = betterproto.string_field(3)
-    hands: List[str] = betterproto.string_field(4)
-    ming: List[str] = betterproto.string_field(5)
-    hupai: str = betterproto.string_field(6)
-    title_id: int = betterproto.uint32_field(7)
 
 
 @dataclass(eq=False, repr=False)
@@ -575,6 +576,14 @@ class ViewSlot(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class FavoriteHu(betterproto.Message):
+    category: int = betterproto.uint32_field(1)
+    type: int = betterproto.uint32_field(2)
+    hu: "HighestHuRecord" = betterproto.message_field(3)
+    mode: int = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
 class Account(betterproto.Message):
     account_id: int = betterproto.uint32_field(1)
     nickname: str = betterproto.string_field(2)
@@ -603,9 +612,11 @@ class Account(betterproto.Message):
     )
     verified: int = betterproto.uint32_field(26)
     challenge_levels: List["AccountChallengeLevel"] = betterproto.message_field(27)
-    achievement_count: List["AccountAchievementCount"] = betterproto.message_field(28)
     frozen_state: int = betterproto.uint32_field(29)
+    achievement_count: List["AccountAchievementCount"] = betterproto.message_field(28)
     loading_image: List[int] = betterproto.uint32_field(30)
+    favorite_hu: List["FavoriteHu"] = betterproto.message_field(34)
+    badges: List["AccountBadge"] = betterproto.message_field(35)
 
 
 @dataclass(eq=False, repr=False)
@@ -631,6 +642,13 @@ class AccountChallengeLevel(betterproto.Message):
 class AccountAchievementCount(betterproto.Message):
     rare: int = betterproto.uint32_field(1)
     count: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AccountBadge(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    achieved_time: int = betterproto.uint32_field(2)
+    achieved_counter: int = betterproto.uint32_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -660,6 +678,7 @@ class AccountUpdate(betterproto.Message):
     )
     month_ticket: "AccountUpdateMonthTicketUpdate" = betterproto.message_field(17)
     main_character: "AccountUpdateMainCharacterUpdate" = betterproto.message_field(18)
+    badge: "AccountUpdateBadgeUpdate" = betterproto.message_field(19)
 
 
 @dataclass(eq=False, repr=False)
@@ -746,6 +765,11 @@ class AccountUpdateMonthTicketUpdate(betterproto.Message):
 class AccountUpdateMainCharacterUpdate(betterproto.Message):
     character_id: int = betterproto.uint32_field(1)
     skin_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AccountUpdateBadgeUpdate(betterproto.Message):
+    progresses: List["BadgeAchieveProgress"] = betterproto.message_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -1056,6 +1080,14 @@ class AchievementProgress(betterproto.Message):
     achieved: bool = betterproto.bool_field(3)
     rewarded: bool = betterproto.bool_field(4)
     achieved_time: int = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class BadgeAchieveProgress(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    counter: int = betterproto.uint32_field(2)
+    achieved_counter: int = betterproto.uint32_field(3)
+    achieved_time: int = betterproto.uint32_field(4)
 
 
 @dataclass(eq=False, repr=False)
@@ -4922,6 +4954,7 @@ class ResMisc(betterproto.Message):
     faiths: List["ResMiscMiscFaithData"] = betterproto.message_field(3)
     verified_hidden: int = betterproto.uint32_field(4)
     verified_value: int = betterproto.uint32_field(5)
+    disable_room_random_bot_char: int = betterproto.uint32_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -6876,6 +6909,111 @@ class ReqSubmitQuestionnaireQuestionnaireAnswerQuestionnaireAnswerValue(
 
 
 @dataclass(eq=False, repr=False)
+class ReqSetFriendRoomRandomBotChar(betterproto.Message):
+    disable_random_char: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFetchAccountGameHuRecords(betterproto.Message):
+    uuid: str = betterproto.string_field(1)
+    category: int = betterproto.uint32_field(2)
+    type: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchAccountGameHuRecords(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    records: List["ResFetchAccountGameHuRecordsGameHuRecords"] = (
+        betterproto.message_field(2)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchAccountGameHuRecordsGameHuRecords(betterproto.Message):
+    chang: int = betterproto.uint32_field(1)
+    ju: int = betterproto.uint32_field(2)
+    ben: int = betterproto.uint32_field(3)
+    title_id: int = betterproto.uint32_field(4)
+    hands: List[str] = betterproto.string_field(5)
+    ming: List[str] = betterproto.string_field(6)
+    hupai: str = betterproto.string_field(7)
+    hu_fans: List[int] = betterproto.uint32_field(8)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFetchAccountInfoExtra(betterproto.Message):
+    account_id: int = betterproto.uint32_field(1)
+    category: int = betterproto.uint32_field(2)
+    type: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchAccountInfoExtra(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    recent_games: List["ResFetchAccountInfoExtraAccountInfoGameRecord"] = (
+        betterproto.message_field(2)
+    )
+    hu_type_details: List["ResFetchAccountInfoExtraGameHuTypeDetail"] = (
+        betterproto.message_field(3)
+    )
+    game_rank_details: List["ResFetchAccountInfoExtraAccountGameRankDetail"] = (
+        betterproto.message_field(4)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchAccountInfoExtraAccountInfoGameRecord(betterproto.Message):
+    uuid: str = betterproto.string_field(1)
+    start_time: int = betterproto.uint32_field(2)
+    end_time: int = betterproto.uint32_field(3)
+    tag: int = betterproto.uint32_field(4)
+    sub_tag: int = betterproto.uint32_field(5)
+    rank: int = betterproto.uint32_field(6)
+    final_point: int = betterproto.uint32_field(7)
+    results: List["ResFetchAccountInfoExtraAccountInfoGameRecordAccountGameResult"] = (
+        betterproto.message_field(8)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchAccountInfoExtraAccountInfoGameRecordAccountGameResult(
+    betterproto.Message
+):
+    rank: int = betterproto.uint32_field(1)
+    account_id: int = betterproto.uint32_field(2)
+    nickname: str = betterproto.string_field(3)
+    verified: int = betterproto.uint32_field(4)
+    grading_score: int = betterproto.int32_field(5)
+    final_point: int = betterproto.int32_field(6)
+    seat: int = betterproto.uint32_field(7)
+    level: "AccountLevel" = betterproto.message_field(8)
+    level3: "AccountLevel" = betterproto.message_field(9)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchAccountInfoExtraGameHuTypeDetail(betterproto.Message):
+    type: int = betterproto.uint32_field(1)
+    count: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchAccountInfoExtraAccountGameRankDetail(betterproto.Message):
+    rank: int = betterproto.uint32_field(1)
+    count: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSetAccountFavoriteHu(betterproto.Message):
+    mode: int = betterproto.uint32_field(1)
+    category: int = betterproto.uint32_field(2)
+    type: int = betterproto.uint32_field(3)
+    uuid: str = betterproto.string_field(4)
+    chang: int = betterproto.uint32_field(5)
+    ju: int = betterproto.uint32_field(6)
+    ben: int = betterproto.uint32_field(7)
+
+
+@dataclass(eq=False, repr=False)
 class ReqAuthGame(betterproto.Message):
     account_id: int = betterproto.uint32_field(1)
     token: str = betterproto.string_field(2)
@@ -7037,6 +7175,7 @@ class NotifyGameFinishReward(betterproto.Message):
     match_chest: "NotifyGameFinishRewardMatchChest" = betterproto.message_field(3)
     main_character: "NotifyGameFinishRewardMainCharacter" = betterproto.message_field(4)
     character_gift: "NotifyGameFinishRewardCharacterGift" = betterproto.message_field(5)
+    badges: List["BadgeAchieveProgress"] = betterproto.message_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -11834,6 +11973,23 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def complete_random_activity_task_batch(
+        self,
+        req_complete_activity_task_batch: "ReqCompleteActivityTaskBatch",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCommon":
+        return await self._unary_unary(
+            "/lq.Lobby/completeRandomActivityTaskBatch",
+            req_complete_activity_task_batch,
+            ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
     async def receive_activity_flip_task(
         self,
         req_receive_activity_flip_task: "ReqReceiveActivityFlipTask",
@@ -13993,6 +14149,74 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def set_friend_room_random_bot_char(
+        self,
+        req_set_friend_room_random_bot_char: "ReqSetFriendRoomRandomBotChar",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCommon":
+        return await self._unary_unary(
+            "/lq.Lobby/setFriendRoomRandomBotChar",
+            req_set_friend_room_random_bot_char,
+            ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_account_game_hu_records(
+        self,
+        req_fetch_account_game_hu_records: "ReqFetchAccountGameHuRecords",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchAccountGameHuRecords":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchAccountGameHuRecords",
+            req_fetch_account_game_hu_records,
+            ResFetchAccountGameHuRecords,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_account_info_extra(
+        self,
+        req_fetch_account_info_extra: "ReqFetchAccountInfoExtra",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchAccountInfoExtra":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchAccountInfoExtra",
+            req_fetch_account_info_extra,
+            ResFetchAccountInfoExtra,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def set_account_favorite_hu(
+        self,
+        req_set_account_favorite_hu: "ReqSetAccountFavoriteHu",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCommon":
+        return await self._unary_unary(
+            "/lq.Lobby/setAccountFavoriteHu",
+            req_set_account_favorite_hu,
+            ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
 
 class FastTestStub(betterproto.ServiceStub):
     async def auth_game(
@@ -15331,6 +15555,11 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def complete_random_activity_task_batch(
+        self, req_complete_activity_task_batch: "ReqCompleteActivityTaskBatch"
+    ) -> "ResCommon":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def receive_activity_flip_task(
         self, req_receive_activity_flip_task: "ReqReceiveActivityFlipTask"
     ) -> "ResReceiveActivityFlipTask":
@@ -15935,6 +16164,26 @@ class LobbyBase(ServiceBase):
 
     async def submit_questionnaire(
         self, req_submit_questionnaire: "ReqSubmitQuestionnaire"
+    ) -> "ResCommon":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def set_friend_room_random_bot_char(
+        self, req_set_friend_room_random_bot_char: "ReqSetFriendRoomRandomBotChar"
+    ) -> "ResCommon":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_account_game_hu_records(
+        self, req_fetch_account_game_hu_records: "ReqFetchAccountGameHuRecords"
+    ) -> "ResFetchAccountGameHuRecords":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_account_info_extra(
+        self, req_fetch_account_info_extra: "ReqFetchAccountInfoExtra"
+    ) -> "ResFetchAccountInfoExtra":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def set_account_favorite_hu(
+        self, req_set_account_favorite_hu: "ReqSetAccountFavoriteHu"
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -17616,6 +17865,13 @@ class LobbyBase(ServiceBase):
         response = await self.complete_random_activity_task(request)
         await stream.send_message(response)
 
+    async def __rpc_complete_random_activity_task_batch(
+        self, stream: "grpclib.server.Stream[ReqCompleteActivityTaskBatch, ResCommon]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.complete_random_activity_task_batch(request)
+        await stream.send_message(response)
+
     async def __rpc_receive_activity_flip_task(
         self,
         stream: "grpclib.server.Stream[ReqReceiveActivityFlipTask, ResReceiveActivityFlipTask]",
@@ -18565,6 +18821,36 @@ class LobbyBase(ServiceBase):
     ) -> None:
         request = await stream.recv_message()
         response = await self.submit_questionnaire(request)
+        await stream.send_message(response)
+
+    async def __rpc_set_friend_room_random_bot_char(
+        self, stream: "grpclib.server.Stream[ReqSetFriendRoomRandomBotChar, ResCommon]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.set_friend_room_random_bot_char(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_account_game_hu_records(
+        self,
+        stream: "grpclib.server.Stream[ReqFetchAccountGameHuRecords, ResFetchAccountGameHuRecords]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_account_game_hu_records(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_account_info_extra(
+        self,
+        stream: "grpclib.server.Stream[ReqFetchAccountInfoExtra, ResFetchAccountInfoExtra]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_account_info_extra(request)
+        await stream.send_message(response)
+
+    async def __rpc_set_account_favorite_hu(
+        self, stream: "grpclib.server.Stream[ReqSetAccountFavoriteHu, ResCommon]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.set_account_favorite_hu(request)
         await stream.send_message(response)
 
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
@@ -19955,6 +20241,12 @@ class LobbyBase(ServiceBase):
                 ReqCompleteActivityTask,
                 ResCommon,
             ),
+            "/lq.Lobby/completeRandomActivityTaskBatch": grpclib.const.Handler(
+                self.__rpc_complete_random_activity_task_batch,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqCompleteActivityTaskBatch,
+                ResCommon,
+            ),
             "/lq.Lobby/receiveActivityFlipTask": grpclib.const.Handler(
                 self.__rpc_receive_activity_flip_task,
                 grpclib.const.Cardinality.UNARY_UNARY,
@@ -20715,6 +21007,30 @@ class LobbyBase(ServiceBase):
                 self.__rpc_submit_questionnaire,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqSubmitQuestionnaire,
+                ResCommon,
+            ),
+            "/lq.Lobby/setFriendRoomRandomBotChar": grpclib.const.Handler(
+                self.__rpc_set_friend_room_random_bot_char,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSetFriendRoomRandomBotChar,
+                ResCommon,
+            ),
+            "/lq.Lobby/fetchAccountGameHuRecords": grpclib.const.Handler(
+                self.__rpc_fetch_account_game_hu_records,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchAccountGameHuRecords,
+                ResFetchAccountGameHuRecords,
+            ),
+            "/lq.Lobby/fetchAccountInfoExtra": grpclib.const.Handler(
+                self.__rpc_fetch_account_info_extra,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchAccountInfoExtra,
+                ResFetchAccountInfoExtra,
+            ),
+            "/lq.Lobby/setAccountFavoriteHu": grpclib.const.Handler(
+                self.__rpc_set_account_favorite_hu,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSetAccountFavoriteHu,
                 ResCommon,
             ),
         }
