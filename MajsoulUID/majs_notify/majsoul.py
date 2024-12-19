@@ -4,8 +4,8 @@ import uuid
 import random
 import asyncio
 import hashlib
-from typing import cast
 from collections.abc import Iterable
+from typing import Dict, Union, cast
 
 import httpx
 import aiofiles
@@ -65,7 +65,7 @@ def process_dict(obj):
         return str(obj)
 
 
-async def get_paipu_by_game_id(game_id: str):
+async def get_paipu_by_game_id(game_id: str) -> Union[Dict, None]:
     path = PAIPU_PATH / f"{game_id} - raw.json"
     if path.exists():
         async with aiofiles.open(path, "r", encoding="utf-8") as f:

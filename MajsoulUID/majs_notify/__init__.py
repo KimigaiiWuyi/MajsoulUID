@@ -10,6 +10,7 @@ from gsuid_core.logger import logger
 from gsuid_core.utils.database.api import get_uid
 
 from .constants import USER_AGENT
+from .draw_frame import render_frame
 from ..utils.error_reply import UID_HINT
 from ..utils.api.remote import encode_account_id2
 from .draw_friend_rank import draw_friend_rank_img
@@ -76,6 +77,36 @@ async def majsoul_review_command(bot: Bot, ev: Event):
         for i in range(len(res["data"]["review"]["kyokus"])):
             review_result = await draw_review_info_img(tenhou_log, res, i)
             await bot.send(review_result)
+
+
+@majsoul_review.on_command(("场况", "牌谱详情"))
+async def majsoul_render_log(bot: Bot, ev: Event):
+    et = ev.text.strip().replace('，', ',').replace(",", " ")
+    paipu_command = et.split(" ")
+    if len(paipu_command) != 3:
+        return await bot.send('❌ 请输入有效的格式!\n例如：雀魂场况 241118 10 5')
+
+    paipu_id = paipu_command[0]
+    kyoku_id = int(paipu_command[1])
+    meguru_id = int(paipu_command[2])
+
+    for path in PAIPU_PATH.iterdir():
+        if path.name.startswith(paipu_id) and path.name.endswith("- raw.json"):
+            paipu_id = path.stem[:-6].strip()
+            paipu = await get_paipu_by_game_id(paipu_id)
+            break
+    else:
+        return await bot.send("❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]")
+
+    if paipu is None:
+        return await bot.send("❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]")
+
+    res = await review_tenhou(paipu)
+    if isinstance(res, str):
+        return await bot.send(res)
+
+    im = await render_frame(res, paipu, kyoku_id, meguru_id)
+    await bot.send(im)
 
 
 @majsoul_yostar_login.on_command(
@@ -434,4 +465,5 @@ async def majsoul_friend_apply_command(bot: Bot, event: Event):
         return await bot.send("未找到有效连接, 请先进行[雀魂推送启动]")
     apply = int(event.text.strip())
     await conn.acceptFriendApply(apply)
+    await bot.send("已同意好友申请")
     await bot.send("已同意好友申请")

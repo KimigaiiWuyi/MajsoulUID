@@ -57,7 +57,7 @@ async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
 
     sess = httpx.AsyncClient(verify=False)
     urls = {
-        "[wegt]": "https://majsoul.wget.es",
+        # "[wegt]": "https://majsoul.wget.es",
         "[cn]": "http://183.36.37.120:62800",
     }
 
