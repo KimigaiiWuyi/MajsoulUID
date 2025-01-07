@@ -3,7 +3,7 @@ from typing import List, Union
 
 
 def split_list(lst: str):
-    return [lst[i:i+2] for i in range(0, len(lst), 2)]
+    return [lst[i : i + 2] for i in range(0, len(lst), 2)]
 
 
 def sort_list(lst: List[List[int]], now_seat: int, pos: int):
@@ -34,13 +34,13 @@ def sort_list(lst: List[List[int]], now_seat: int, pos: int):
 
 def n2p(number: int):
     if 47 >= number >= 41:
-        return 'ESWNPFC'[number-41]
+        return 'ESWNPFC'[number - 41]
     elif 39 >= number >= 31:
-        return [f'{i}s' for i in range(1, 10)][number-31]
+        return [f'{i}s' for i in range(1, 10)][number - 31]
     elif 29 >= number >= 21:
-        return [f'{i}p' for i in range(1, 10)][number-21]
+        return [f'{i}p' for i in range(1, 10)][number - 21]
     elif 19 >= number >= 11:
-        return [f'{i}m' for i in range(1, 10)][number-11]
+        return [f'{i}m' for i in range(1, 10)][number - 11]
     elif number == 51:
         return '5mr'
     elif number == 52:
@@ -62,8 +62,7 @@ class MeguruLog:
         self.dora_list = log[2]
         self.uradora_list = log[3]
         self.player_state = [
-            [log[4 + i * 3], log[5 + i * 3], log[6 + i * 3]]
-            for i in range(4)
+            [log[4 + i * 3], log[5 + i * 3], log[6 + i * 3]] for i in range(4)
         ]
         self.frame = []
 

@@ -84,7 +84,9 @@ async def majsoul_render_log(bot: Bot, ev: Event):
     et = ev.text.strip().replace('，', ',').replace(",", " ")
     paipu_command = et.split(" ")
     if len(paipu_command) != 3:
-        return await bot.send('❌ 请输入有效的格式!\n例如：雀魂场况 241118 10 5')
+        return await bot.send(
+            '❌ 请输入有效的格式!\n例如：雀魂场况 241118 10 5'
+        )
 
     paipu_id = paipu_command[0]
     kyoku_id = int(paipu_command[1])
@@ -96,10 +98,14 @@ async def majsoul_render_log(bot: Bot, ev: Event):
             paipu = await get_paipu_by_game_id(paipu_id)
             break
     else:
-        return await bot.send("❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]")
+        return await bot.send(
+            "❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]"
+        )
 
     if paipu is None:
-        return await bot.send("❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]")
+        return await bot.send(
+            "❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]"
+        )
 
     res = await review_tenhou(paipu)
     if isinstance(res, str):
