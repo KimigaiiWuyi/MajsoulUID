@@ -450,6 +450,11 @@ class NotifyLeaderboardPointV2LeaderboardPoint(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class NotifySeerReport(betterproto.Message):
+    report: "SeerBrief" = betterproto.message_field(1)
+
+
+@dataclass(eq=False, repr=False)
 class Error(betterproto.Message):
     code: int = betterproto.uint32_field(1)
     u32_params: List[int] = betterproto.uint32_field(2)
@@ -1356,8 +1361,8 @@ class AccountActivityUpdate(betterproto.Message):
     village_data: List["ActivityVillageData"] = betterproto.message_field(10)
     festival_data: List["ActivityFestivalData"] = betterproto.message_field(11)
     island_data: List["ActivityIslandData"] = betterproto.message_field(12)
-    amulet_data: List["ActivityAmuletData"] = betterproto.message_field(13)
     story_data: List["ActivityStoryData"] = betterproto.message_field(14)
+    choose_up_data: List["ActivityChooseUpData"] = betterproto.message_field(15)
 
 
 @dataclass(eq=False, repr=False)
@@ -1539,13 +1544,13 @@ class ActivityIslandData(betterproto.Message):
 class AmuletEffectData(betterproto.Message):
     id: int = betterproto.uint32_field(1)
     uid: int = betterproto.uint32_field(2)
-    store: List[int] = betterproto.int32_field(3)
+    store: List[int] = betterproto.int64_field(3)
 
 
 @dataclass(eq=False, repr=False)
 class AmuletBuffData(betterproto.Message):
     id: int = betterproto.uint32_field(1)
-    store: List[int] = betterproto.int32_field(3)
+    store: List[int] = betterproto.int64_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -1553,6 +1558,7 @@ class AmuletGameShopGoods(betterproto.Message):
     id: int = betterproto.uint32_field(1)
     sold: bool = betterproto.bool_field(2)
     goods_id: int = betterproto.uint32_field(3)
+    price: int = betterproto.uint32_field(4)
 
 
 @dataclass(eq=False, repr=False)
@@ -1586,6 +1592,7 @@ class AmuletGameShopData(betterproto.Message):
     effect_list: List[int] = betterproto.uint32_field(2)
     shop_refresh_count: int = betterproto.uint32_field(3)
     refresh_price: int = betterproto.uint32_field(4)
+    next_goods_id: int = betterproto.uint32_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -1609,6 +1616,10 @@ class AmuletGameUpdateData(betterproto.Message):
     used_desktop: List[int] = betterproto.uint32_field(34)
     highest_hu: "ActivityAmuletHuRecord" = betterproto.message_field(35)
     records: "ActivityAmuletRecord" = betterproto.message_field(36)
+    reward_pack: List[int] = betterproto.uint32_field(37)
+    reward_effect: List[int] = betterproto.uint32_field(38)
+    tile_score: List["AmuletGameTileScoreData"] = betterproto.message_field(43)
+    reward_pack_id: int = betterproto.uint32_field(47)
 
 
 @dataclass(eq=False, repr=False)
@@ -1617,6 +1628,12 @@ class AmuletGameRecordData(betterproto.Message):
     int_value: int = betterproto.int32_field(2)
     str_value: str = betterproto.string_field(3)
     int_arr_value: List[int] = betterproto.int32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletGameTileScoreData(betterproto.Message):
+    tile: str = betterproto.string_field(1)
+    score: str = betterproto.string_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -1657,6 +1674,13 @@ class AmuletGameData(betterproto.Message):
     highest_hu: "ActivityAmuletHuRecord" = betterproto.message_field(39)
     total_consumed_coin: int = betterproto.uint32_field(40)
     boss_buff_id: List[int] = betterproto.uint32_field(41)
+    locked_tile: List[int] = betterproto.uint32_field(42)
+    tile_score: List["AmuletGameTileScoreData"] = betterproto.message_field(43)
+    locked_tile_count: int = betterproto.uint32_field(44)
+    reward_pack: List[int] = betterproto.uint32_field(45)
+    reward_effect: List[int] = betterproto.uint32_field(46)
+    reward_pack_id: int = betterproto.uint32_field(47)
+    total_change_tile_count: int = betterproto.uint32_field(48)
 
 
 @dataclass(eq=False, repr=False)
@@ -1687,8 +1711,8 @@ class ActivityAmuletRecord(betterproto.Message):
 class ActivityAmuletHuRecord(betterproto.Message):
     point: str = betterproto.string_field(1)
     pai: str = betterproto.string_field(2)
-    fan: int = betterproto.uint64_field(3)
-    base: int = betterproto.uint64_field(4)
+    fan: str = betterproto.string_field(3)
+    base: str = betterproto.string_field(4)
 
 
 @dataclass(eq=False, repr=False)
@@ -1699,12 +1723,18 @@ class ActivityAmuletIllustratedBookData(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ActivityAmuletTaskData(betterproto.Message):
+    progress: List["TaskProgress"] = betterproto.message_field(1)
+
+
+@dataclass(eq=False, repr=False)
 class ActivityAmuletData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     game: "AmuletGameData" = betterproto.message_field(2)
     version: int = betterproto.uint32_field(3)
     upgrade: "ActivityAmuletUpgradeData" = betterproto.message_field(4)
     illustrated_book: "ActivityAmuletIllustratedBookData" = betterproto.message_field(5)
+    task: "ActivityAmuletTaskData" = betterproto.message_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -1748,6 +1778,14 @@ class UnlockedStoryData(betterproto.Message):
 class ActivityStoryData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     unlocked_story: List["UnlockedStoryData"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityChooseUpData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    chest_id: int = betterproto.uint32_field(2)
+    selection: int = betterproto.uint32_field(3)
+    is_end: int = betterproto.uint32_field(4)
 
 
 @dataclass(eq=False, repr=False)
@@ -2247,6 +2285,7 @@ class RecordPlayerResult(betterproto.Message):
     nickname: str = betterproto.string_field(3)
     level: "AccountLevel" = betterproto.message_field(4)
     level3: "AccountLevel" = betterproto.message_field(5)
+    seat: int = betterproto.uint32_field(6)
     pt: int = betterproto.int32_field(7)
     point: int = betterproto.int32_field(8)
     max_hu_type: int = betterproto.uint32_field(9)
@@ -2851,7 +2890,7 @@ class AmuletTile(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class AmuletFan(betterproto.Message):
     id: int = betterproto.uint32_field(1)
-    val: int = betterproto.int32_field(2)
+    val: int = betterproto.int64_field(2)
     count: int = betterproto.uint32_field(3)
     yiman: bool = betterproto.bool_field(4)
 
@@ -2872,29 +2911,43 @@ class AmuletMingInfo(betterproto.Message):
 class AmuletActivityHookEffect(betterproto.Message):
     add_dora: List[int] = betterproto.uint32_field(1)
     add_tian_dora: List[str] = betterproto.string_field(3)
-    add_effect: List[int] = betterproto.uint32_field(4)
+    add_effect: List["AmuletActivityHookEffectAmuletActivityAddHookEffect"] = (
+        betterproto.message_field(4)
+    )
     remove_effect: List[int] = betterproto.uint32_field(5)
     add_buff: List[int] = betterproto.uint32_field(6)
     remove_buff: List[int] = betterproto.uint32_field(7)
     add_coin: int = betterproto.int32_field(9)
     tile_replace: List["AmuletReplace"] = betterproto.message_field(11)
-    add_fan: int = betterproto.int64_field(12)
-    add_base: int = betterproto.int64_field(13)
+    add_fan: str = betterproto.string_field(12)
+    add_base: str = betterproto.string_field(13)
     modify_fan: List["AmuletFan"] = betterproto.message_field(14)
     id: int = betterproto.uint32_field(15)
     modify_dora: bool = betterproto.bool_field(16)
     uid: int = betterproto.uint32_field(17)
     add_show_tile: List[int] = betterproto.uint32_field(18)
     add_dora_count: int = betterproto.int32_field(19)
+    add_dora_no_hook: List[int] = betterproto.uint32_field(20)
+    add_coin_no_hook: int = betterproto.int32_field(21)
+    add_tile_score: List["AmuletGameTileScoreData"] = betterproto.message_field(22)
+    add_tile_score_no_hook: List["AmuletGameTileScoreData"] = betterproto.message_field(
+        23
+    )
+
+
+@dataclass(eq=False, repr=False)
+class AmuletActivityHookEffectAmuletActivityAddHookEffect(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    uid: int = betterproto.uint32_field(2)
 
 
 @dataclass(eq=False, repr=False)
 class AmuletHuleInfo(betterproto.Message):
     tile: int = betterproto.uint32_field(1)
     fan_list: List["AmuletFan"] = betterproto.message_field(2)
-    fan: int = betterproto.uint64_field(3)
+    fan: str = betterproto.string_field(3)
     point: str = betterproto.string_field(4)
-    base: int = betterproto.uint64_field(5)
+    base: str = betterproto.string_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -2917,9 +2970,21 @@ class AmuletDealTileResult(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class AmuletDiscardTileResult(betterproto.Message):
+    tile: int = betterproto.uint32_field(1)
+    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletStartGameResult(betterproto.Message):
+    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
+
+
+@dataclass(eq=False, repr=False)
 class AmuletRoundResult(betterproto.Message):
     hu_result: "AmuletHuleOperateResult" = betterproto.message_field(2)
     deal_result: "AmuletDealTileResult" = betterproto.message_field(4)
+    discard_result: "AmuletDiscardTileResult" = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -2929,6 +2994,7 @@ class AmuletUpgradeResult(betterproto.Message):
     level_coin: int = betterproto.uint32_field(3)
     shop: "AmuletGameShopData" = betterproto.message_field(4)
     hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
+    reward_pack: List[int] = betterproto.uint32_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -2950,6 +3016,7 @@ class QuestionnaireDetail(betterproto.Message):
     announcement_content: str = betterproto.string_field(9)
     final_text: str = betterproto.string_field(10)
     questions: List["QuestionnaireQuestion"] = betterproto.message_field(11)
+    type: int = betterproto.uint32_field(12)
 
 
 @dataclass(eq=False, repr=False)
@@ -3009,6 +3076,55 @@ class QuestionnaireBrief(betterproto.Message):
     rewards: List["QuestionnaireReward"] = betterproto.message_field(5)
     banner_title: str = betterproto.string_field(6)
     title: str = betterproto.string_field(7)
+    type: int = betterproto.uint32_field(8)
+
+
+@dataclass(eq=False, repr=False)
+class SeerReport(betterproto.Message):
+    uuid: str = betterproto.string_field(1)
+    events: List["SeerEvent"] = betterproto.message_field(2)
+    rounds: List["SeerRound"] = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class SeerEvent(betterproto.Message):
+    record_index: int = betterproto.int32_field(1)
+    seer_index: int = betterproto.int32_field(2)
+    recommends: List["SeerRecommend"] = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class SeerRecommend(betterproto.Message):
+    seat: int = betterproto.int32_field(1)
+    predictions: List["SeerPrediction"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class SeerPrediction(betterproto.Message):
+    action: int = betterproto.int32_field(1)
+    score: int = betterproto.int32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class SeerRound(betterproto.Message):
+    chang: int = betterproto.uint32_field(1)
+    ju: int = betterproto.uint32_field(2)
+    ben: int = betterproto.uint32_field(3)
+    player_scores: List["SeerScore"] = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class SeerScore(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+    rating: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class SeerBrief(betterproto.Message):
+    uuid: str = betterproto.string_field(1)
+    state: int = betterproto.uint32_field(2)
+    expire_time: int = betterproto.uint32_field(3)
+    player_scores: List["SeerScore"] = betterproto.message_field(4)
 
 
 @dataclass(eq=False, repr=False)
@@ -3693,6 +3809,7 @@ class ReqOpenManualItem(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ReqOpenRandomRewardItem(betterproto.Message):
     item_id: int = betterproto.uint32_field(1)
+    count: int = betterproto.uint32_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -4644,6 +4761,7 @@ class ReqOpenChest(betterproto.Message):
     chest_id: int = betterproto.uint32_field(1)
     count: int = betterproto.uint32_field(2)
     use_ticket: bool = betterproto.bool_field(3)
+    choose_up_activity_id: int = betterproto.uint32_field(4)
 
 
 @dataclass(eq=False, repr=False)
@@ -5187,8 +5305,8 @@ class ResAccountActivityData(betterproto.Message):
     village_data: List["ActivityVillageData"] = betterproto.message_field(25)
     festival_data: List["ActivityFestivalData"] = betterproto.message_field(26)
     island_data: List["ActivityIslandData"] = betterproto.message_field(27)
-    amulet_data: List["ActivityAmuletData"] = betterproto.message_field(28)
     story_data: List["ActivityStoryData"] = betterproto.message_field(29)
+    choose_up_data: List["ActivityChooseUpData"] = betterproto.message_field(30)
 
 
 @dataclass(eq=False, repr=False)
@@ -6218,6 +6336,13 @@ class ResFetchInfo(betterproto.Message):
     maintain_notice: "ResFetchMaintainNotice" = betterproto.message_field(30)
     random_character: "ResRandomCharacter" = betterproto.message_field(31)
     maintenance_info: "ResFetchServerMaintenanceInfo" = betterproto.message_field(32)
+    seer_info: "ResFetchSeerInfo" = betterproto.message_field(33)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchSeerInfo(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    remain_count: int = betterproto.uint32_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -6603,6 +6728,30 @@ class ResGenerateContestManagerLoginCode(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ReqAmuletActivityFetchInfo(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResAmuletActivityFetchInfo(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    data: "ActivityAmuletData" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqAmuletActivityFetchBrief(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResAmuletActivityFetchBrief(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    upgrade: "ActivityAmuletUpgradeData" = betterproto.message_field(4)
+    illustrated_book: "ActivityAmuletIllustratedBookData" = betterproto.message_field(5)
+    task: "ActivityAmuletTaskData" = betterproto.message_field(6)
+
+
+@dataclass(eq=False, repr=False)
 class ReqAmuletActivityStartGame(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
 
@@ -6630,6 +6779,8 @@ class ResAmuletActivityOperate(betterproto.Message):
     upgraded: bool = betterproto.bool_field(6)
     failed: bool = betterproto.bool_field(7)
     game_update: "AmuletGameUpdateData" = betterproto.message_field(8)
+    discard_result: "AmuletDiscardTileResult" = betterproto.message_field(9)
+    start_result: "AmuletStartGameResult" = betterproto.message_field(10)
 
 
 @dataclass(eq=False, repr=False)
@@ -6701,6 +6852,8 @@ class ResAmuletActivitySellEffect(betterproto.Message):
     effect_list: List["AmuletEffectData"] = betterproto.message_field(3)
     game_update: "AmuletGameUpdateData" = betterproto.message_field(4)
     remain_change_tile_count: int = betterproto.uint32_field(5)
+    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(6)
+    shop: "AmuletGameShopData" = betterproto.message_field(7)
 
 
 @dataclass(eq=False, repr=False)
@@ -6738,6 +6891,8 @@ class ResAmuletActivitySelectFreeEffect(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     game_update: "AmuletGameUpdateData" = betterproto.message_field(3)
     remain_change_tile_count: int = betterproto.uint32_field(4)
+    locked_tile: List[int] = betterproto.uint32_field(5)
+    locked_tile_count: int = betterproto.uint32_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -6775,6 +6930,31 @@ class ReqAmuletActivitySetSkillLevel(betterproto.Message):
 class ResAmuletActivityMaintainInfo(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     mode: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqAmuletActivitySelectRewardPack(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResAmuletActivitySelectRewardPack(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    game_update: "AmuletGameUpdateData" = betterproto.message_field(2)
+    shop: "AmuletGameShopData" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqAmuletActivityReceiveTaskReward(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    task_list: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResAmuletActivityReceiveTaskReward(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    task: "ActivityAmuletTaskData" = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -6854,6 +7034,7 @@ class ResFetchActivityRankActivityRankItem(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ReqFetchQuestionnaireList(betterproto.Message):
     lang: str = betterproto.string_field(1)
+    channel: str = betterproto.string_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -6867,6 +7048,7 @@ class ResFetchQuestionnaireList(betterproto.Message):
 class ReqFetchQuestionnaireDetail(betterproto.Message):
     id: int = betterproto.uint32_field(1)
     lang: str = betterproto.string_field(2)
+    channel: str = betterproto.string_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -7011,6 +7193,41 @@ class ReqSetAccountFavoriteHu(betterproto.Message):
     chang: int = betterproto.uint32_field(5)
     ju: int = betterproto.uint32_field(6)
     ben: int = betterproto.uint32_field(7)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFetchSeerReport(betterproto.Message):
+    uuid: str = betterproto.string_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchSeerReport(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    report: "SeerReport" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqCreateSeerReport(betterproto.Message):
+    uuid: str = betterproto.string_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResCreateSeerReport(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    seer_report: "SeerBrief" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchSeerReportList(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    seer_report_list: List["SeerBrief"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSelectChestChooseUp(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    selection: int = betterproto.uint32_field(2)
+    chest_id: int = betterproto.uint32_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -13707,6 +13924,40 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def amulet_activity_fetch_info(
+        self,
+        req_amulet_activity_fetch_info: "ReqAmuletActivityFetchInfo",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResAmuletActivityFetchInfo":
+        return await self._unary_unary(
+            "/lq.Lobby/amuletActivityFetchInfo",
+            req_amulet_activity_fetch_info,
+            ResAmuletActivityFetchInfo,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def amulet_activity_fetch_brief(
+        self,
+        req_amulet_activity_fetch_brief: "ReqAmuletActivityFetchBrief",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResAmuletActivityFetchBrief":
+        return await self._unary_unary(
+            "/lq.Lobby/amuletActivityFetchBrief",
+            req_amulet_activity_fetch_brief,
+            ResAmuletActivityFetchBrief,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
     async def amulet_activity_start_game(
         self,
         req_amulet_activity_start_game: "ReqAmuletActivityStartGame",
@@ -13962,6 +14213,40 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def amulet_activity_select_reward_pack(
+        self,
+        req_amulet_activity_select_reward_pack: "ReqAmuletActivitySelectRewardPack",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResAmuletActivitySelectRewardPack":
+        return await self._unary_unary(
+            "/lq.Lobby/amuletActivitySelectRewardPack",
+            req_amulet_activity_select_reward_pack,
+            ResAmuletActivitySelectRewardPack,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def amulet_activity_receive_task_reward(
+        self,
+        req_amulet_activity_receive_task_reward: "ReqAmuletActivityReceiveTaskReward",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResAmuletActivityReceiveTaskReward":
+        return await self._unary_unary(
+            "/lq.Lobby/amuletActivityReceiveTaskReward",
+            req_amulet_activity_receive_task_reward,
+            ResAmuletActivityReceiveTaskReward,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
     async def story_activity_unlock(
         self,
         req_story_activity_unlock: "ReqStoryActivityUnlock",
@@ -14212,6 +14497,91 @@ class LobbyStub(betterproto.ServiceStub):
             "/lq.Lobby/setAccountFavoriteHu",
             req_set_account_favorite_hu,
             ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_seer_report(
+        self,
+        req_fetch_seer_report: "ReqFetchSeerReport",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchSeerReport":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchSeerReport",
+            req_fetch_seer_report,
+            ResFetchSeerReport,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def create_seer_report(
+        self,
+        req_create_seer_report: "ReqCreateSeerReport",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCreateSeerReport":
+        return await self._unary_unary(
+            "/lq.Lobby/createSeerReport",
+            req_create_seer_report,
+            ResCreateSeerReport,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_seer_report_list(
+        self,
+        req_common: "ReqCommon",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchSeerReportList":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchSeerReportList",
+            req_common,
+            ResFetchSeerReportList,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_seer_info(
+        self,
+        req_common: "ReqCommon",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchSeerInfo":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchSeerInfo",
+            req_common,
+            ResFetchSeerInfo,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def select_chest_choose_up_activity(
+        self,
+        req_select_chest_choose_up: "ReqSelectChestChooseUp",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ReqCommon":
+        return await self._unary_unary(
+            "/lq.Lobby/selectChestChooseUpActivity",
+            req_select_chest_choose_up,
+            ReqCommon,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -16032,6 +16402,16 @@ class LobbyBase(ServiceBase):
     ) -> "ResGenerateContestManagerLoginCode":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def amulet_activity_fetch_info(
+        self, req_amulet_activity_fetch_info: "ReqAmuletActivityFetchInfo"
+    ) -> "ResAmuletActivityFetchInfo":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def amulet_activity_fetch_brief(
+        self, req_amulet_activity_fetch_brief: "ReqAmuletActivityFetchBrief"
+    ) -> "ResAmuletActivityFetchBrief":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def amulet_activity_start_game(
         self, req_amulet_activity_start_game: "ReqAmuletActivityStartGame"
     ) -> "ResAmuletActivityStartGame":
@@ -16106,6 +16486,18 @@ class LobbyBase(ServiceBase):
     async def amulet_activity_maintain_info(
         self, req_common: "ReqCommon"
     ) -> "ResAmuletActivityMaintainInfo":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def amulet_activity_select_reward_pack(
+        self,
+        req_amulet_activity_select_reward_pack: "ReqAmuletActivitySelectRewardPack",
+    ) -> "ResAmuletActivitySelectRewardPack":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def amulet_activity_receive_task_reward(
+        self,
+        req_amulet_activity_receive_task_reward: "ReqAmuletActivityReceiveTaskReward",
+    ) -> "ResAmuletActivityReceiveTaskReward":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def story_activity_unlock(
@@ -16185,6 +16577,29 @@ class LobbyBase(ServiceBase):
     async def set_account_favorite_hu(
         self, req_set_account_favorite_hu: "ReqSetAccountFavoriteHu"
     ) -> "ResCommon":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_seer_report(
+        self, req_fetch_seer_report: "ReqFetchSeerReport"
+    ) -> "ResFetchSeerReport":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def create_seer_report(
+        self, req_create_seer_report: "ReqCreateSeerReport"
+    ) -> "ResCreateSeerReport":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_seer_report_list(
+        self, req_common: "ReqCommon"
+    ) -> "ResFetchSeerReportList":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_seer_info(self, req_common: "ReqCommon") -> "ResFetchSeerInfo":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def select_chest_choose_up_activity(
+        self, req_select_chest_choose_up: "ReqSelectChestChooseUp"
+    ) -> "ReqCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def __rpc_fetch_connection_info(
@@ -18623,6 +19038,22 @@ class LobbyBase(ServiceBase):
         response = await self.generate_contest_manager_login_code(request)
         await stream.send_message(response)
 
+    async def __rpc_amulet_activity_fetch_info(
+        self,
+        stream: "grpclib.server.Stream[ReqAmuletActivityFetchInfo, ResAmuletActivityFetchInfo]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.amulet_activity_fetch_info(request)
+        await stream.send_message(response)
+
+    async def __rpc_amulet_activity_fetch_brief(
+        self,
+        stream: "grpclib.server.Stream[ReqAmuletActivityFetchBrief, ResAmuletActivityFetchBrief]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.amulet_activity_fetch_brief(request)
+        await stream.send_message(response)
+
     async def __rpc_amulet_activity_start_game(
         self,
         stream: "grpclib.server.Stream[ReqAmuletActivityStartGame, ResAmuletActivityStartGame]",
@@ -18739,6 +19170,22 @@ class LobbyBase(ServiceBase):
         response = await self.amulet_activity_maintain_info(request)
         await stream.send_message(response)
 
+    async def __rpc_amulet_activity_select_reward_pack(
+        self,
+        stream: "grpclib.server.Stream[ReqAmuletActivitySelectRewardPack, ResAmuletActivitySelectRewardPack]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.amulet_activity_select_reward_pack(request)
+        await stream.send_message(response)
+
+    async def __rpc_amulet_activity_receive_task_reward(
+        self,
+        stream: "grpclib.server.Stream[ReqAmuletActivityReceiveTaskReward, ResAmuletActivityReceiveTaskReward]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.amulet_activity_receive_task_reward(request)
+        await stream.send_message(response)
+
     async def __rpc_story_activity_unlock(
         self, stream: "grpclib.server.Stream[ReqStoryActivityUnlock, ResCommon]"
     ) -> None:
@@ -18851,6 +19298,41 @@ class LobbyBase(ServiceBase):
     ) -> None:
         request = await stream.recv_message()
         response = await self.set_account_favorite_hu(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_seer_report(
+        self, stream: "grpclib.server.Stream[ReqFetchSeerReport, ResFetchSeerReport]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_seer_report(request)
+        await stream.send_message(response)
+
+    async def __rpc_create_seer_report(
+        self, stream: "grpclib.server.Stream[ReqCreateSeerReport, ResCreateSeerReport]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.create_seer_report(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_seer_report_list(
+        self, stream: "grpclib.server.Stream[ReqCommon, ResFetchSeerReportList]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_seer_report_list(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_seer_info(
+        self, stream: "grpclib.server.Stream[ReqCommon, ResFetchSeerInfo]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_seer_info(request)
+        await stream.send_message(response)
+
+    async def __rpc_select_chest_choose_up_activity(
+        self, stream: "grpclib.server.Stream[ReqSelectChestChooseUp, ReqCommon]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.select_chest_choose_up_activity(request)
         await stream.send_message(response)
 
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
@@ -20853,6 +21335,18 @@ class LobbyBase(ServiceBase):
                 ReqCommon,
                 ResGenerateContestManagerLoginCode,
             ),
+            "/lq.Lobby/amuletActivityFetchInfo": grpclib.const.Handler(
+                self.__rpc_amulet_activity_fetch_info,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqAmuletActivityFetchInfo,
+                ResAmuletActivityFetchInfo,
+            ),
+            "/lq.Lobby/amuletActivityFetchBrief": grpclib.const.Handler(
+                self.__rpc_amulet_activity_fetch_brief,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqAmuletActivityFetchBrief,
+                ResAmuletActivityFetchBrief,
+            ),
             "/lq.Lobby/amuletActivityStartGame": grpclib.const.Handler(
                 self.__rpc_amulet_activity_start_game,
                 grpclib.const.Cardinality.UNARY_UNARY,
@@ -20943,6 +21437,18 @@ class LobbyBase(ServiceBase):
                 ReqCommon,
                 ResAmuletActivityMaintainInfo,
             ),
+            "/lq.Lobby/amuletActivitySelectRewardPack": grpclib.const.Handler(
+                self.__rpc_amulet_activity_select_reward_pack,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqAmuletActivitySelectRewardPack,
+                ResAmuletActivitySelectRewardPack,
+            ),
+            "/lq.Lobby/amuletActivityReceiveTaskReward": grpclib.const.Handler(
+                self.__rpc_amulet_activity_receive_task_reward,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqAmuletActivityReceiveTaskReward,
+                ResAmuletActivityReceiveTaskReward,
+            ),
             "/lq.Lobby/storyActivityUnlock": grpclib.const.Handler(
                 self.__rpc_story_activity_unlock,
                 grpclib.const.Cardinality.UNARY_UNARY,
@@ -21032,6 +21538,36 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqSetAccountFavoriteHu,
                 ResCommon,
+            ),
+            "/lq.Lobby/fetchSeerReport": grpclib.const.Handler(
+                self.__rpc_fetch_seer_report,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchSeerReport,
+                ResFetchSeerReport,
+            ),
+            "/lq.Lobby/createSeerReport": grpclib.const.Handler(
+                self.__rpc_create_seer_report,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqCreateSeerReport,
+                ResCreateSeerReport,
+            ),
+            "/lq.Lobby/fetchSeerReportList": grpclib.const.Handler(
+                self.__rpc_fetch_seer_report_list,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqCommon,
+                ResFetchSeerReportList,
+            ),
+            "/lq.Lobby/fetchSeerInfo": grpclib.const.Handler(
+                self.__rpc_fetch_seer_info,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqCommon,
+                ResFetchSeerInfo,
+            ),
+            "/lq.Lobby/selectChestChooseUpActivity": grpclib.const.Handler(
+                self.__rpc_select_chest_choose_up_activity,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSelectChestChooseUp,
+                ReqCommon,
             ),
         }
 
