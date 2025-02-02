@@ -87,9 +87,7 @@ def draw_en_bg(en: dict, index: int, _actor_id: int):
     actual_dehai: str = actual['pai'] if 'pai' in actual else ''
 
     ai_str = f"AI选择: {_type_map.get(ai_type, '未知')} {ai_dehai}"
-    actual_str = (
-        f"你选择: {_type_map.get(actual_type, '未知')} {actual_dehai}"
-    )
+    actual_str = f"你选择: {_type_map.get(actual_type, '未知')} {actual_dehai}"
     cond_str = f"{ai_str}  |  {actual_str}"
 
     if actual_type == 'hora':
@@ -224,15 +222,11 @@ def draw_en_bg(en: dict, index: int, _actor_id: int):
                 _fuuro_pai_img = _fuuro_pai_img.rotate(90, expand=True)
                 _fuuro_y = 155
                 x_tile -= 34
-                en_bg.paste(
-                    _fuuro_pai_img, (x_tile, _fuuro_y), _fuuro_pai_img
-                )
+                en_bg.paste(_fuuro_pai_img, (x_tile, _fuuro_y), _fuuro_pai_img)
                 x_tile -= 46
             else:
                 _fuuro_y = 121
-                en_bg.paste(
-                    _fuuro_pai_img, (x_tile, _fuuro_y), _fuuro_pai_img
-                )
+                en_bg.paste(_fuuro_pai_img, (x_tile, _fuuro_y), _fuuro_pai_img)
                 x_tile -= 57
 
         x_tile -= 10

@@ -59,8 +59,7 @@ async def render_frame(res: Dict, paipu: Dict, kyoku_id: int, meguru_id: int):
     changed_mg = {}
     for player_id in mg:
         changed_mg[player_id] = {
-            n2p(int(k)): mg[player_id][k]
-            for k in mg[player_id]
+            n2p(int(k)): mg[player_id][k] for k in mg[player_id]
         }
 
     with open('meguru.json', 'w', encoding='utf-8') as f:
@@ -98,11 +97,7 @@ async def render_frame(res: Dict, paipu: Dict, kyoku_id: int, meguru_id: int):
             'mm',
         )
         score_img = score_img.rotate(90 * pindex, expand=True)
-        frame.paste(
-            score_img,
-            list(score.keys())[pindex],
-            score_img
-        )
+        frame.paste(score_img, list(score.keys())[pindex], score_img)
 
         pais = changed_mg[player_id]
         for index, pai in enumerate(pais):
@@ -127,11 +122,7 @@ async def render_frame(res: Dict, paipu: Dict, kyoku_id: int, meguru_id: int):
 
             angle = 90 * pindex
             pai_img = pai_img.rotate(angle, expand=True)
-            frame.paste(
-                pai_img,
-                box,
-                pai_img
-            )
+            frame.paste(pai_img, box, pai_img)
 
     img.paste(frame, (0, 256), frame)
 
