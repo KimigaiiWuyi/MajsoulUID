@@ -3,7 +3,7 @@ from typing import List, Union
 
 
 def split_list(lst: str):
-    return [lst[i : i + 2] for i in range(0, len(lst), 2)]
+    return [lst[i : i + 2] for i in range(0, len(lst), 2)]  # noqa:E203
 
 
 def sort_list(lst: List[List[int]], now_seat: int, pos: int):

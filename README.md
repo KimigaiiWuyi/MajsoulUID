@@ -3,15 +3,11 @@
 <p align="center">
   <a href="https://github.com/KimigaiiWuyi/MajsoulUID"><img src="https://s11.ax1x.com/2024/01/07/pFSmJdf.png" width="256" height="256" alt="MajsoulUID"></a>
 </p>
-<h1 align = "center">MajsoulUID 0.1</h1>
+<h1 align = "center">MajsoulUID 0.2</h1>
 <h4 align = "center">🚧支持QQ群/频道、OneBot、微信、KOOK、Tg、飞书、DoDo、米游社、Discord的雀魂Bot插件🚧</h4>
 <div align = "center">
         <a href="http://docs.gsuid.gbots.work/#/" target="_blank">安装文档</a>
 </div>
-
-
-
-
 
 ## 丨安装提醒
 
@@ -25,6 +21,8 @@
 
 ## 丨功能
 
+支持 国服 & 美服 & 日服
+
 <details><summary>绑定切换删除UID - 命令: 雀魂绑定UID、雀魂删除UID、雀魂切换UID</summary><p>
 还没有图
 </p></details>
@@ -35,6 +33,18 @@
 
 <details><summary>基本信息汇总 - 命令: 雀魂查询</summary><p>
 <a><img src="https://s2.loli.net/2024/01/01/2duNwXGexjivtIT.jpg"></a>
+</p></details>
+
+<details><summary>AI牌谱分析 - 命令: 雀魂牌谱review</summary><p>
+<a><img src="https://s2.loli.net/2025/02/05/jYcQdOpuUB8A5JH.jpg"></a>
+</p></details>
+
+<details><summary>帮助 - 命令: 雀魂帮助</summary><p>
+<a><img src="https://s2.loli.net/2025/02/05/dZepHXKBP43vkMA.jpg"></a>
+</p></details>
+
+<details><summary>好友排行榜 - 命令: 雀魂排行榜</summary><p>
+有图，自行探索
 </p></details>
 
 ## 丨感谢
