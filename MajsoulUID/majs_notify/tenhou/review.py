@@ -32,7 +32,7 @@ async def check_url(tag: str, url: str):
 
 
 async def find_fastest_url(
-    urls: Dict[str, str]
+    urls: Dict[str, str],
 ) -> List[Tuple[str, str, float]]:
     tasks = []
     for tag in urls:
