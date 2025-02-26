@@ -3125,6 +3125,7 @@ class SeerBrief(betterproto.Message):
     state: int = betterproto.uint32_field(2)
     expire_time: int = betterproto.uint32_field(3)
     player_scores: List["SeerScore"] = betterproto.message_field(4)
+    create_time: int = betterproto.uint32_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -6343,6 +6344,8 @@ class ResFetchInfo(betterproto.Message):
 class ResFetchSeerInfo(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     remain_count: int = betterproto.uint32_field(2)
+    date_limit: int = betterproto.uint32_field(3)
+    expire_time: int = betterproto.uint32_field(4)
 
 
 @dataclass(eq=False, repr=False)
