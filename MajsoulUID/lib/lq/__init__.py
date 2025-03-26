@@ -4832,11 +4832,14 @@ class ResCharacterInfo(betterproto.Message):
     rewarded_endings: List[int] = betterproto.uint32_field(8)
     character_sort: List[int] = betterproto.uint32_field(9)
     hidden_characters: List[int] = betterproto.uint32_field(10)
+    other_character_sort: List[int] = betterproto.uint32_field(11)
 
 
 @dataclass(eq=False, repr=False)
 class ReqUpdateCharacterSort(betterproto.Message):
     sort: List[int] = betterproto.uint32_field(1)
+    other_sort: List[int] = betterproto.uint32_field(2)
+    hidden_characters: List[int] = betterproto.uint32_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -4921,6 +4924,7 @@ class ReqSaveCommonViews(betterproto.Message):
     views: List["ViewSlot"] = betterproto.message_field(1)
     save_index: int = betterproto.uint32_field(2)
     is_use: int = betterproto.uint32_field(3)
+    name: str = betterproto.string_field(4)
 
 
 @dataclass(eq=False, repr=False)
@@ -4932,6 +4936,7 @@ class ReqCommonViews(betterproto.Message):
 class ResCommonViews(betterproto.Message):
     error: "Error" = betterproto.message_field(2)
     views: List["ViewSlot"] = betterproto.message_field(1)
+    name: str = betterproto.string_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -4945,6 +4950,7 @@ class ResAllcommonViews(betterproto.Message):
 class ResAllcommonViewsViews(betterproto.Message):
     values: List["ViewSlot"] = betterproto.message_field(1)
     index: int = betterproto.uint32_field(2)
+    name: str = betterproto.string_field(3)
 
 
 @dataclass(eq=False, repr=False)
