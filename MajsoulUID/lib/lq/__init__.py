@@ -2,7 +2,7 @@
 # sources: liqi.proto
 # plugin: python-betterproto
 # This file has been @generated
-
+import builtins
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
@@ -452,6 +452,12 @@ class NotifyLeaderboardPointV2LeaderboardPoint(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class NotifySeerReport(betterproto.Message):
     report: "SeerBrief" = betterproto.message_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyConnectionShutdown(betterproto.Message):
+    reason: int = betterproto.uint32_field(1)
+    close_at: int = betterproto.uint32_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -936,6 +942,7 @@ class GameDetailRule(betterproto.Message):
     yongchang_mode: int = betterproto.uint32_field(70)
     hunzhiyiji_mode: int = betterproto.uint32_field(71)
     wanxiangxiuluo_mode: int = betterproto.uint32_field(72)
+    beishuizhizhan_mode: int = betterproto.uint32_field(73)
 
 
 @dataclass(eq=False, repr=False)
@@ -1363,6 +1370,7 @@ class AccountActivityUpdate(betterproto.Message):
     island_data: List["ActivityIslandData"] = betterproto.message_field(12)
     story_data: List["ActivityStoryData"] = betterproto.message_field(14)
     choose_up_data: List["ActivityChooseUpData"] = betterproto.message_field(15)
+    simulation_v2_data: List["SimulationV2Data"] = betterproto.message_field(16)
 
 
 @dataclass(eq=False, repr=False)
@@ -1500,6 +1508,16 @@ class ActivityFestivalData(betterproto.Message):
     proposal_list: List["FestivalProposalData"] = betterproto.message_field(3)
     event_list: List[int] = betterproto.uint32_field(4)
     buy_record: "SignedTimeCounterData" = betterproto.message_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2Data(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    season: "SimulationV2SeasonData" = betterproto.message_field(2)
+    highest_score: int = betterproto.int32_field(3)
+    upgrade: "SimulationV2Ability" = betterproto.message_field(4)
+    event_pool: List[int] = betterproto.uint32_field(5)
+    season_count: int = betterproto.uint32_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -1917,6 +1935,7 @@ class AccountActiveState(betterproto.Message):
 class Friend(betterproto.Message):
     base: "PlayerBaseView" = betterproto.message_field(1)
     state: "AccountActiveState" = betterproto.message_field(2)
+    remark: str = betterproto.string_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -2363,6 +2382,7 @@ class GameRoundHuData(betterproto.Message):
     li_dora_count: int = betterproto.uint32_field(11)
     babei_count: int = betterproto.uint32_field(12)
     xuan_shang_count: int = betterproto.uint32_field(13)
+    pai_left_count: int = betterproto.uint32_field(14)
 
 
 @dataclass(eq=False, repr=False)
@@ -2380,6 +2400,13 @@ class GameRoundHuDataFan(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class GameRoundPlayerFangChongInfo(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+    tile: str = betterproto.string_field(2)
+    pai_left_count: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
 class GameRoundPlayerResult(betterproto.Message):
     type: int = betterproto.uint32_field(1)
     hands: List[str] = betterproto.string_field(2)
@@ -2389,6 +2416,9 @@ class GameRoundPlayerResult(betterproto.Message):
     is_liujumanguan: bool = betterproto.bool_field(6)
     lian_zhuang: int = betterproto.uint32_field(7)
     hu: "GameRoundHuData" = betterproto.message_field(8)
+    fangchongs: List["GameRoundPlayerFangChongInfo"] = betterproto.message_field(9)
+    liqi_fangchong: bool = betterproto.bool_field(10)
+    liqi_failed: bool = betterproto.bool_field(11)
 
 
 @dataclass(eq=False, repr=False)
@@ -3034,6 +3064,7 @@ class QuestionnaireQuestion(betterproto.Message):
         betterproto.message_field(10)
     )
     matrix_row: List[str] = betterproto.string_field(11)
+    option_random_sort_index: int = betterproto.int32_field(12)
 
 
 @dataclass(eq=False, repr=False)
@@ -3126,6 +3157,250 @@ class SeerBrief(betterproto.Message):
     expire_time: int = betterproto.uint32_field(3)
     player_scores: List["SeerScore"] = betterproto.message_field(4)
     create_time: int = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2SeasonData(betterproto.Message):
+    round: int = betterproto.uint32_field(1)
+    ability: "SimulationV2Ability" = betterproto.message_field(2)
+    effect_list: List["SimulationV2Effect"] = betterproto.message_field(3)
+    match: "SimulationV2Match" = betterproto.message_field(4)
+    event: "SimulationV2Event" = betterproto.message_field(5)
+    event_history: List["SimulationV2EventHistory"] = betterproto.message_field(6)
+    record: "SimulationV2Record" = betterproto.message_field(7)
+    total_score: int = betterproto.int32_field(8)
+    match_history: List["SimulationV2MatchRecord"] = betterproto.message_field(9)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2PlayerRecord(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    main: bool = betterproto.bool_field(2)
+    score: int = betterproto.int32_field(3)
+    rank: int = betterproto.uint32_field(4)
+    seat: int = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2MatchRecord(betterproto.Message):
+    players: List["SimulationV2PlayerRecord"] = betterproto.message_field(1)
+    round: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2EventHistory(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    round: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2Event(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    selections: List["SimulationV2EventSimulationV2EventSelection"] = (
+        betterproto.message_field(2)
+    )
+    next_round: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2EventSimulationV2EventSelection(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    results: List[
+        "SimulationV2EventSimulationV2EventSelectionSimulationV2EventResult"
+    ] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2EventSimulationV2EventSelectionSimulationV2EventResult(
+    betterproto.Message
+):
+    id: int = betterproto.uint32_field(1)
+    weight: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2Ability(betterproto.Message):
+    luk: int = betterproto.uint32_field(1)
+    tec: int = betterproto.uint32_field(2)
+    ins: int = betterproto.uint32_field(3)
+    int: builtins.int = betterproto.uint32_field(4)
+    res: builtins.int = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2Buff(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    round: int = betterproto.uint32_field(2)
+    store: List[int] = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2Effect(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2MatchInfo(betterproto.Message):
+    chang: int = betterproto.uint32_field(1)
+    ju: int = betterproto.uint32_field(2)
+    ben: int = betterproto.uint32_field(3)
+    gong: int = betterproto.uint32_field(4)
+    remain: int = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2Record(betterproto.Message):
+    hu_count: int = betterproto.uint32_field(1)
+    chong_count: int = betterproto.uint32_field(2)
+    highest_hu: int = betterproto.uint32_field(3)
+    rank: List[int] = betterproto.uint32_field(4)
+    round_count: int = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2MatchHistory(betterproto.Message):
+    type: int = betterproto.uint32_field(1)
+    remain: int = betterproto.uint32_field(2)
+    score_modify: List[int] = betterproto.int32_field(3)
+    round_start: "SimulationV2MatchHistoryRoundStartArgs" = betterproto.message_field(4)
+    riichi: "SimulationV2MatchHistoryRiichiArgs" = betterproto.message_field(5)
+    fulu: "SimulationV2MatchHistoryFuluArgs" = betterproto.message_field(6)
+    hule: List["SimulationV2MatchHistoryHuleArgs"] = betterproto.message_field(7)
+    push_ting: "SimulationV2MatchHistoryPushTingArgs" = betterproto.message_field(8)
+    find_ting: "SimulationV2MatchHistoryFindTingArgs" = betterproto.message_field(9)
+    liuju: "SimulationV2MatchHistoryLiujuArgs" = betterproto.message_field(10)
+    story: "SimulationV2MatchHistoryStoryArgs" = betterproto.message_field(11)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2MatchHistoryRoundStartArgs(betterproto.Message):
+    info: "SimulationV2MatchInfo" = betterproto.message_field(1)
+    scores: List[int] = betterproto.int32_field(2)
+    ting: int = betterproto.uint32_field(3)
+    effected_buff_list: List[int] = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2MatchHistoryRiichiArgs(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2MatchHistoryFuluArgs(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+    ting: int = betterproto.uint32_field(2)
+    fulu: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2MatchHistoryHuleArgs(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+    zimo: bool = betterproto.bool_field(2)
+    chong_seat: int = betterproto.uint32_field(3)
+    point: int = betterproto.int32_field(4)
+    fan: int = betterproto.int32_field(5)
+    score_modify: List[int] = betterproto.int32_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2MatchHistoryPushTingArgs(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+    ting: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2MatchHistoryFindTingArgs(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+    target: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2MatchHistoryLiujuArgs(betterproto.Message):
+    ting: List[int] = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2MatchHistoryStoryArgs(betterproto.Message):
+    story_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2Match(betterproto.Message):
+    info: "SimulationV2MatchInfo" = betterproto.message_field(1)
+    players: List["SimulationV2MatchSimulationV2Player"] = betterproto.message_field(2)
+    history: List["SimulationV2MatchHistory"] = betterproto.message_field(3)
+    rank: List[int] = betterproto.uint32_field(4)
+    is_match_end: bool = betterproto.bool_field(5)
+    actions: List["SimulationActionData"] = betterproto.message_field(6)
+    buff_list: List["SimulationV2Buff"] = betterproto.message_field(9)
+    is_first_round: bool = betterproto.bool_field(10)
+    last_event_remain: int = betterproto.uint32_field(11)
+    effected_buff_list: List[int] = betterproto.uint32_field(12)
+    triggered_story: List[int] = betterproto.uint32_field(13)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationV2MatchSimulationV2Player(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    main: bool = betterproto.bool_field(2)
+    ting: int = betterproto.uint32_field(4)
+    score: int = betterproto.int32_field(5)
+    fulu: int = betterproto.uint32_field(6)
+    riichi: bool = betterproto.bool_field(7)
+    find_ting: List[int] = betterproto.uint32_field(8)
+    seat: int = betterproto.uint32_field(9)
+    con_push_ting: int = betterproto.uint32_field(10)
+    con_keep_ting: int = betterproto.uint32_field(11)
+    ippatsu: bool = betterproto.bool_field(12)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationActionData(betterproto.Message):
+    type: int = betterproto.uint32_field(1)
+    riichi: "SimulationActionDataActionRiichiData" = betterproto.message_field(2)
+    hule: "SimulationActionDataActionHuleData" = betterproto.message_field(3)
+    fulu: "SimulationActionDataActionFuluData" = betterproto.message_field(4)
+    discard_tile: "SimulationActionDataActionDiscardData" = betterproto.message_field(5)
+    deal_tile: "SimulationActionDataActionDealTileData" = betterproto.message_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationActionDataActionRiichiData(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationActionDataActionHuleData(betterproto.Message):
+    hule: List["SimulationActionDataActionHuleDataHuleInfo"] = (
+        betterproto.message_field(1)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class SimulationActionDataActionHuleDataHuleInfo(betterproto.Message):
+    fan: int = betterproto.uint32_field(1)
+    zimo: bool = betterproto.bool_field(2)
+    point: int = betterproto.uint32_field(3)
+    oya: bool = betterproto.bool_field(4)
+    player: int = betterproto.uint32_field(5)
+    chong: int = betterproto.uint32_field(6)
+    toutiao: bool = betterproto.bool_field(7)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationActionDataActionFuluData(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationActionDataActionDiscardData(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+    riichi: bool = betterproto.bool_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class SimulationActionDataActionDealTileData(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -6344,6 +6619,7 @@ class ResFetchInfo(betterproto.Message):
     random_character: "ResRandomCharacter" = betterproto.message_field(31)
     maintenance_info: "ResFetchServerMaintenanceInfo" = betterproto.message_field(32)
     seer_info: "ResFetchSeerInfo" = betterproto.message_field(33)
+    annual_report_info: "ResFetchAnnualReportInfo" = betterproto.message_field(34)
 
 
 @dataclass(eq=False, repr=False)
@@ -7240,6 +7516,143 @@ class ReqSelectChestChooseUp(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ReqGenerateAnnualReportToken(betterproto.Message):
+    lang: str = betterproto.string_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResGenerateAnnualReportToken(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    token: str = betterproto.string_field(2)
+    url: str = betterproto.string_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchAnnualReportInfo(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    start_time: int = betterproto.uint32_field(2)
+    end_time: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqRemarkFriend(betterproto.Message):
+    account_id: int = betterproto.uint32_field(1)
+    remark: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSimV2ActivityFetchInfo(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResSimV2ActivityFetchInfo(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    data: "SimulationV2Data" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSimV2ActivityStartSeason(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResSimV2ActivityStartSeason(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    season: "SimulationV2SeasonData" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSimV2ActivityTrain(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    ability: int = betterproto.uint32_field(2)
+    skip: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResSimV2ActivityTrain(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    event: "SimulationV2Event" = betterproto.message_field(2)
+    ability: "SimulationV2Ability" = betterproto.message_field(3)
+    round: int = betterproto.uint32_field(4)
+    effect_list: List["SimulationV2Effect"] = betterproto.message_field(5)
+    train_result: int = betterproto.uint32_field(6)
+    is_end: bool = betterproto.bool_field(7)
+    record: "SimulationV2Record" = betterproto.message_field(8)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSimV2ActivitySelectEvent(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    selection_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResSimV2ActivitySelectEvent(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    event: "SimulationV2Event" = betterproto.message_field(2)
+    ability: "SimulationV2Ability" = betterproto.message_field(3)
+    match: "SimulationV2Match" = betterproto.message_field(4)
+    effect_list: List["SimulationV2Effect"] = betterproto.message_field(5)
+    round: int = betterproto.uint32_field(7)
+    is_end: bool = betterproto.bool_field(8)
+    result_id: int = betterproto.uint32_field(9)
+    record: "SimulationV2Record" = betterproto.message_field(10)
+    effected_buff_list: List[int] = betterproto.uint32_field(11)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSimV2ActivityStartMatch(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResSimV2ActivityStartMatch(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    event: "SimulationV2Event" = betterproto.message_field(2)
+    match: "SimulationV2Match" = betterproto.message_field(4)
+    effect_list: List["SimulationV2Effect"] = betterproto.message_field(5)
+    is_match_end: bool = betterproto.bool_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSimV2ActivityEndMatch(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResSimV2ActivityEndMatch(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    round: int = betterproto.uint32_field(2)
+    is_end: bool = betterproto.bool_field(3)
+    record: "SimulationV2Record" = betterproto.message_field(4)
+    total_score: int = betterproto.int32_field(5)
+    match_history: List["SimulationV2MatchRecord"] = betterproto.message_field(6)
+    rewards: List["ResSimV2ActivityEndMatchSimulationV2MatchReward"] = (
+        betterproto.message_field(7)
+    )
+    effect_list: List["SimulationV2Effect"] = betterproto.message_field(8)
+    ability: "SimulationV2Ability" = betterproto.message_field(9)
+
+
+@dataclass(eq=False, repr=False)
+class ResSimV2ActivityEndMatchSimulationV2MatchReward(betterproto.Message):
+    type: int = betterproto.uint32_field(1)
+    params: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSimV2ActivityGiveUp(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSimV2ActivitySetUpgrade(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    upgrade: "SimulationV2Ability" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
 class ReqAuthGame(betterproto.Message):
     account_id: int = betterproto.uint32_field(1)
     token: str = betterproto.string_field(2)
@@ -7726,6 +8139,7 @@ class LiQiSuccess(betterproto.Message):
     score: int = betterproto.int32_field(2)
     liqibang: int = betterproto.uint32_field(3)
     failed: bool = betterproto.bool_field(4)
+    liqi_type_beishuizhizhan: int = betterproto.uint32_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -7943,6 +8357,7 @@ class ActionDiscardTile(betterproto.Message):
     liqibang: int = betterproto.uint32_field(14)
     yongchang: "YongchangInfo" = betterproto.message_field(25)
     hun_zhi_yi_ji_info: "HunZhiYiJiBuffInfo" = betterproto.message_field(26)
+    liqi_type_beishuizhizhan: int = betterproto.uint32_field(27)
 
 
 @dataclass(eq=False, repr=False)
@@ -7960,6 +8375,7 @@ class RecordDiscardTile(betterproto.Message):
     muyu: "MuyuInfo" = betterproto.message_field(12)
     yongchang: "YongchangInfo" = betterproto.message_field(13)
     hun_zhi_yi_ji_info: "HunZhiYiJiBuffInfo" = betterproto.message_field(14)
+    liqi_type_beishuizhizhan: int = betterproto.uint32_field(27)
 
 
 @dataclass(eq=False, repr=False)
@@ -8269,6 +8685,46 @@ class RecordNoTile(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class PlayerLeaving(betterproto.Message):
     seat: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ReqRequestConnection(betterproto.Message):
+    type: int = betterproto.uint32_field(2)
+    route_id: int = betterproto.uint32_field(3)
+    timestamp: int = betterproto.uint64_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ResRequestConnection(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    timestamp: int = betterproto.uint64_field(2)
+    result: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqRequestRouteChange(betterproto.Message):
+    before: int = betterproto.uint32_field(1)
+    route_id: int = betterproto.uint32_field(2)
+    type: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResRequestRouteChange(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    result: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqHeartbeat(betterproto.Message):
+    timestamp: int = betterproto.uint64_field(1)
+    no_operation_counter: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResHeartbeat(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    delta: int = betterproto.int64_field(2)
+    timestamp: int = betterproto.uint64_field(3)
 
 
 class LobbyStub(betterproto.ServiceStub):
@@ -14596,6 +15052,193 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def generate_annual_report_token(
+        self,
+        req_generate_annual_report_token: "ReqGenerateAnnualReportToken",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResGenerateAnnualReportToken":
+        return await self._unary_unary(
+            "/lq.Lobby/generateAnnualReportToken",
+            req_generate_annual_report_token,
+            ResGenerateAnnualReportToken,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_annual_report_info(
+        self,
+        req_common: "ReqCommon",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchAnnualReportInfo":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchAnnualReportInfo",
+            req_common,
+            ResFetchAnnualReportInfo,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def remark_friend(
+        self,
+        req_remark_friend: "ReqRemarkFriend",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCommon":
+        return await self._unary_unary(
+            "/lq.Lobby/remarkFriend",
+            req_remark_friend,
+            ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def sim_v2_activity_fetch_info(
+        self,
+        req_sim_v2_activity_fetch_info: "ReqSimV2ActivityFetchInfo",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResSimV2ActivityFetchInfo":
+        return await self._unary_unary(
+            "/lq.Lobby/simV2ActivityFetchInfo",
+            req_sim_v2_activity_fetch_info,
+            ResSimV2ActivityFetchInfo,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def sim_v2_activity_start_season(
+        self,
+        req_sim_v2_activity_start_season: "ReqSimV2ActivityStartSeason",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResSimV2ActivityStartSeason":
+        return await self._unary_unary(
+            "/lq.Lobby/simV2ActivityStartSeason",
+            req_sim_v2_activity_start_season,
+            ResSimV2ActivityStartSeason,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def sim_v2_activity_train(
+        self,
+        req_sim_v2_activity_train: "ReqSimV2ActivityTrain",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResSimV2ActivityTrain":
+        return await self._unary_unary(
+            "/lq.Lobby/simV2ActivityTrain",
+            req_sim_v2_activity_train,
+            ResSimV2ActivityTrain,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def sim_v2_activity_select_event(
+        self,
+        req_sim_v2_activity_select_event: "ReqSimV2ActivitySelectEvent",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResSimV2ActivitySelectEvent":
+        return await self._unary_unary(
+            "/lq.Lobby/simV2ActivitySelectEvent",
+            req_sim_v2_activity_select_event,
+            ResSimV2ActivitySelectEvent,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def sim_v2_activity_start_match(
+        self,
+        req_sim_v2_activity_start_match: "ReqSimV2ActivityStartMatch",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResSimV2ActivityStartMatch":
+        return await self._unary_unary(
+            "/lq.Lobby/simV2ActivityStartMatch",
+            req_sim_v2_activity_start_match,
+            ResSimV2ActivityStartMatch,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def sim_v2_activity_end_match(
+        self,
+        req_sim_v2_activity_end_match: "ReqSimV2ActivityEndMatch",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResSimV2ActivityEndMatch":
+        return await self._unary_unary(
+            "/lq.Lobby/simV2ActivityEndMatch",
+            req_sim_v2_activity_end_match,
+            ResSimV2ActivityEndMatch,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def sim_v2_activity_give_up(
+        self,
+        req_sim_v2_activity_give_up: "ReqSimV2ActivityGiveUp",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCommon":
+        return await self._unary_unary(
+            "/lq.Lobby/simV2ActivityGiveUp",
+            req_sim_v2_activity_give_up,
+            ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def sim_v2_activity_set_upgrade(
+        self,
+        req_sim_v2_activity_set_upgrade: "ReqSimV2ActivitySetUpgrade",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCommon":
+        return await self._unary_unary(
+            "/lq.Lobby/simV2ActivitySetUpgrade",
+            req_sim_v2_activity_set_upgrade,
+            ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
 
 class FastTestStub(betterproto.ServiceStub):
     async def auth_game(
@@ -14882,6 +15525,59 @@ class FastTestStub(betterproto.ServiceStub):
             "/lq.FastTest/stopObserve",
             req_common,
             ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+
+class RouteStub(betterproto.ServiceStub):
+    async def request_connection(
+        self,
+        req_request_connection: "ReqRequestConnection",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResRequestConnection":
+        return await self._unary_unary(
+            "/lq.Route/requestConnection",
+            req_request_connection,
+            ResRequestConnection,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def request_route_change(
+        self,
+        req_request_route_change: "ReqRequestRouteChange",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResRequestRouteChange":
+        return await self._unary_unary(
+            "/lq.Route/requestRouteChange",
+            req_request_route_change,
+            ResRequestRouteChange,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def heartbeat(
+        self,
+        req_heartbeat: "ReqHeartbeat",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResHeartbeat":
+        return await self._unary_unary(
+            "/lq.Route/heartbeat",
+            req_heartbeat,
+            ResHeartbeat,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -16609,6 +17305,59 @@ class LobbyBase(ServiceBase):
     async def select_chest_choose_up_activity(
         self, req_select_chest_choose_up: "ReqSelectChestChooseUp"
     ) -> "ReqCommon":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def generate_annual_report_token(
+        self, req_generate_annual_report_token: "ReqGenerateAnnualReportToken"
+    ) -> "ResGenerateAnnualReportToken":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_annual_report_info(
+        self, req_common: "ReqCommon"
+    ) -> "ResFetchAnnualReportInfo":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def remark_friend(self, req_remark_friend: "ReqRemarkFriend") -> "ResCommon":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def sim_v2_activity_fetch_info(
+        self, req_sim_v2_activity_fetch_info: "ReqSimV2ActivityFetchInfo"
+    ) -> "ResSimV2ActivityFetchInfo":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def sim_v2_activity_start_season(
+        self, req_sim_v2_activity_start_season: "ReqSimV2ActivityStartSeason"
+    ) -> "ResSimV2ActivityStartSeason":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def sim_v2_activity_train(
+        self, req_sim_v2_activity_train: "ReqSimV2ActivityTrain"
+    ) -> "ResSimV2ActivityTrain":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def sim_v2_activity_select_event(
+        self, req_sim_v2_activity_select_event: "ReqSimV2ActivitySelectEvent"
+    ) -> "ResSimV2ActivitySelectEvent":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def sim_v2_activity_start_match(
+        self, req_sim_v2_activity_start_match: "ReqSimV2ActivityStartMatch"
+    ) -> "ResSimV2ActivityStartMatch":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def sim_v2_activity_end_match(
+        self, req_sim_v2_activity_end_match: "ReqSimV2ActivityEndMatch"
+    ) -> "ResSimV2ActivityEndMatch":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def sim_v2_activity_give_up(
+        self, req_sim_v2_activity_give_up: "ReqSimV2ActivityGiveUp"
+    ) -> "ResCommon":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def sim_v2_activity_set_upgrade(
+        self, req_sim_v2_activity_set_upgrade: "ReqSimV2ActivitySetUpgrade"
+    ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def __rpc_fetch_connection_info(
@@ -19344,6 +20093,90 @@ class LobbyBase(ServiceBase):
         response = await self.select_chest_choose_up_activity(request)
         await stream.send_message(response)
 
+    async def __rpc_generate_annual_report_token(
+        self,
+        stream: "grpclib.server.Stream[ReqGenerateAnnualReportToken, ResGenerateAnnualReportToken]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.generate_annual_report_token(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_annual_report_info(
+        self, stream: "grpclib.server.Stream[ReqCommon, ResFetchAnnualReportInfo]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_annual_report_info(request)
+        await stream.send_message(response)
+
+    async def __rpc_remark_friend(
+        self, stream: "grpclib.server.Stream[ReqRemarkFriend, ResCommon]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.remark_friend(request)
+        await stream.send_message(response)
+
+    async def __rpc_sim_v2_activity_fetch_info(
+        self,
+        stream: "grpclib.server.Stream[ReqSimV2ActivityFetchInfo, ResSimV2ActivityFetchInfo]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.sim_v2_activity_fetch_info(request)
+        await stream.send_message(response)
+
+    async def __rpc_sim_v2_activity_start_season(
+        self,
+        stream: "grpclib.server.Stream[ReqSimV2ActivityStartSeason, ResSimV2ActivityStartSeason]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.sim_v2_activity_start_season(request)
+        await stream.send_message(response)
+
+    async def __rpc_sim_v2_activity_train(
+        self,
+        stream: "grpclib.server.Stream[ReqSimV2ActivityTrain, ResSimV2ActivityTrain]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.sim_v2_activity_train(request)
+        await stream.send_message(response)
+
+    async def __rpc_sim_v2_activity_select_event(
+        self,
+        stream: "grpclib.server.Stream[ReqSimV2ActivitySelectEvent, ResSimV2ActivitySelectEvent]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.sim_v2_activity_select_event(request)
+        await stream.send_message(response)
+
+    async def __rpc_sim_v2_activity_start_match(
+        self,
+        stream: "grpclib.server.Stream[ReqSimV2ActivityStartMatch, ResSimV2ActivityStartMatch]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.sim_v2_activity_start_match(request)
+        await stream.send_message(response)
+
+    async def __rpc_sim_v2_activity_end_match(
+        self,
+        stream: "grpclib.server.Stream[ReqSimV2ActivityEndMatch, ResSimV2ActivityEndMatch]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.sim_v2_activity_end_match(request)
+        await stream.send_message(response)
+
+    async def __rpc_sim_v2_activity_give_up(
+        self, stream: "grpclib.server.Stream[ReqSimV2ActivityGiveUp, ResCommon]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.sim_v2_activity_give_up(request)
+        await stream.send_message(response)
+
+    async def __rpc_sim_v2_activity_set_upgrade(
+        self, stream: "grpclib.server.Stream[ReqSimV2ActivitySetUpgrade, ResCommon]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.sim_v2_activity_set_upgrade(request)
+        await stream.send_message(response)
+
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
         return {
             "/lq.Lobby/fetchConnectionInfo": grpclib.const.Handler(
@@ -21578,6 +22411,72 @@ class LobbyBase(ServiceBase):
                 ReqSelectChestChooseUp,
                 ReqCommon,
             ),
+            "/lq.Lobby/generateAnnualReportToken": grpclib.const.Handler(
+                self.__rpc_generate_annual_report_token,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqGenerateAnnualReportToken,
+                ResGenerateAnnualReportToken,
+            ),
+            "/lq.Lobby/fetchAnnualReportInfo": grpclib.const.Handler(
+                self.__rpc_fetch_annual_report_info,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqCommon,
+                ResFetchAnnualReportInfo,
+            ),
+            "/lq.Lobby/remarkFriend": grpclib.const.Handler(
+                self.__rpc_remark_friend,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqRemarkFriend,
+                ResCommon,
+            ),
+            "/lq.Lobby/simV2ActivityFetchInfo": grpclib.const.Handler(
+                self.__rpc_sim_v2_activity_fetch_info,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSimV2ActivityFetchInfo,
+                ResSimV2ActivityFetchInfo,
+            ),
+            "/lq.Lobby/simV2ActivityStartSeason": grpclib.const.Handler(
+                self.__rpc_sim_v2_activity_start_season,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSimV2ActivityStartSeason,
+                ResSimV2ActivityStartSeason,
+            ),
+            "/lq.Lobby/simV2ActivityTrain": grpclib.const.Handler(
+                self.__rpc_sim_v2_activity_train,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSimV2ActivityTrain,
+                ResSimV2ActivityTrain,
+            ),
+            "/lq.Lobby/simV2ActivitySelectEvent": grpclib.const.Handler(
+                self.__rpc_sim_v2_activity_select_event,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSimV2ActivitySelectEvent,
+                ResSimV2ActivitySelectEvent,
+            ),
+            "/lq.Lobby/simV2ActivityStartMatch": grpclib.const.Handler(
+                self.__rpc_sim_v2_activity_start_match,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSimV2ActivityStartMatch,
+                ResSimV2ActivityStartMatch,
+            ),
+            "/lq.Lobby/simV2ActivityEndMatch": grpclib.const.Handler(
+                self.__rpc_sim_v2_activity_end_match,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSimV2ActivityEndMatch,
+                ResSimV2ActivityEndMatch,
+            ),
+            "/lq.Lobby/simV2ActivityGiveUp": grpclib.const.Handler(
+                self.__rpc_sim_v2_activity_give_up,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSimV2ActivityGiveUp,
+                ResCommon,
+            ),
+            "/lq.Lobby/simV2ActivitySetUpgrade": grpclib.const.Handler(
+                self.__rpc_sim_v2_activity_set_upgrade,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSimV2ActivitySetUpgrade,
+                ResCommon,
+            ),
         }
 
 
@@ -21868,5 +22767,66 @@ class FastTestBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqCommon,
                 ResCommon,
+            ),
+        }
+
+
+class RouteBase(ServiceBase):
+
+    async def request_connection(
+        self, req_request_connection: "ReqRequestConnection"
+    ) -> "ResRequestConnection":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def request_route_change(
+        self, req_request_route_change: "ReqRequestRouteChange"
+    ) -> "ResRequestRouteChange":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def heartbeat(self, req_heartbeat: "ReqHeartbeat") -> "ResHeartbeat":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def __rpc_request_connection(
+        self,
+        stream: "grpclib.server.Stream[ReqRequestConnection, ResRequestConnection]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.request_connection(request)
+        await stream.send_message(response)
+
+    async def __rpc_request_route_change(
+        self,
+        stream: "grpclib.server.Stream[ReqRequestRouteChange, ResRequestRouteChange]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.request_route_change(request)
+        await stream.send_message(response)
+
+    async def __rpc_heartbeat(
+        self, stream: "grpclib.server.Stream[ReqHeartbeat, ResHeartbeat]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.heartbeat(request)
+        await stream.send_message(response)
+
+    def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
+        return {
+            "/lq.Route/requestConnection": grpclib.const.Handler(
+                self.__rpc_request_connection,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqRequestConnection,
+                ResRequestConnection,
+            ),
+            "/lq.Route/requestRouteChange": grpclib.const.Handler(
+                self.__rpc_request_route_change,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqRequestRouteChange,
+                ResRequestRouteChange,
+            ),
+            "/lq.Route/heartbeat": grpclib.const.Handler(
+                self.__rpc_heartbeat,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqHeartbeat,
+                ResHeartbeat,
             ),
         }
