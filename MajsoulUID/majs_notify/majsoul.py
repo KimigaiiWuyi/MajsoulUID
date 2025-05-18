@@ -5,7 +5,7 @@ import random
 import asyncio
 import hashlib
 from collections.abc import Iterable
-from typing import Dict, Union, cast
+from typing import Dict, List, Union, cast
 
 import httpx
 import aiofiles
@@ -20,6 +20,7 @@ from ..lib import lq as liblq
 from ._level import MajsoulLevel
 from .codec import MajsoulProtoCodec
 from .majsoul_friend import MajsoulFriend
+from ..utils.api.remote_const import GameMode
 from .tenhou.parser import MajsoulPaipuParser
 from ..majs_config.majs_config import MAJS_CONFIG
 from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
@@ -121,7 +122,9 @@ class MajsoulConnection:
 
     async def connect(self):
         logger.info(f"Connecting to {self._endpoint}")
-        self._ws = await websockets.client.connect(self._endpoint)
+        self._ws = await websockets.client.connect(  # type: ignore
+            self._endpoint,
+        )
         self._msg_dispatcher = asyncio.create_task(self.start_sv())
 
     async def send_meta(self, meta_msg):
@@ -725,28 +728,19 @@ class MajsoulConnection:
         self.access_token = access_token
 
     async def fetchLiveGames(self):
-        game216 = cast(
-            liblq.ResGameLiveList,
-            await self.rpc_call(
-                ".lq.Lobby.fetchGameLiveList",
-                {"filter_id": 216},
-            ),
-        )
-        game209 = cast(
-            liblq.ResGameLiveList,
-            await self.rpc_call(
-                ".lq.Lobby.fetchGameLiveList",
-                {"filter_id": 209},
-            ),
-        )
-        game212 = cast(
-            liblq.ResGameLiveList,
-            await self.rpc_call(
-                ".lq.Lobby.fetchGameLiveList",
-                {"filter_id": 212},
-            ),
-        )
-        return game216.live_list + game209.live_list + game212.live_list
+        game_live_list: List[liblq.GameLiveHead] = []
+        for gm in GameMode:
+            filter_id = f'2{gm.value}'
+            games = cast(
+                liblq.ResGameLiveList,
+                await self.rpc_call(
+                    ".lq.Lobby.fetchGameLiveList",
+                    {"filter_id": int(filter_id)},
+                ),
+            )
+            game_live_list.extend(games.live_list)
+            await asyncio.sleep(0.7)
+        return game_live_list
 
     async def fetchInfo(self):
         resp = cast(
@@ -1047,10 +1041,15 @@ class MajsoulManager:
                         logger.warning(
                             f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}"
                         )
-                        conn = await createMajsoulConnection(
-                            username=user.username,
-                            password=user.password,
-                        )
+                        try:
+                            conn = await createMajsoulConnection(
+                                username=user.username,
+                                password=user.password,
+                            )
+                        except ValueError as e:
+                            logger.error(
+                                f"[majs] 刷新AccessToken失败, 请重新登录！\n{e}"
+                            )
 
                     self.conn.append(conn)
                     await conn.fetchInfo()

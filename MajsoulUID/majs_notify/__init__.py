@@ -1,4 +1,5 @@
 import random
+import asyncio
 from urllib.parse import parse_qs, urlparse
 
 import httpx
@@ -6,12 +7,14 @@ import email_validator
 from gsuid_core.sv import SV
 from gsuid_core.bot import Bot
 from gsuid_core.models import Event
+from gsuid_core.aps import scheduler
 from gsuid_core.logger import logger
+from gsuid_core.subscribe import gs_subscribe
 from gsuid_core.utils.database.api import get_uid
 
-from .constants import USER_AGENT
 from .draw_frame import render_frame
 from ..utils.error_reply import UID_HINT
+from .constants import USER_AGENT, ModeId2Room
 from ..utils.api.remote import encode_account_id2
 from .draw_friend_rank import draw_friend_rank_img
 from .draw_review_info import draw_review_info_img
@@ -38,6 +41,8 @@ EXSAMPLE_JP_EN = """雀魂登陆日服 邮箱
 ⚠ 提示: 该命令将会使用邮箱进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
 ⚠ 请自行使用任何小号, 本插件不为账号被封禁承担任何责任！！
 """
+
+cache_game = {}
 
 
 @majsoul_review.on_command(("牌谱Review", "牌谱review", "Review", "review"))
@@ -339,10 +344,20 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
         if uid == str(friend.account_id):
             break
     else:
-        return await bot.send(
-            "[majs] 未找到好友信息! \n"
+        await bot.send(
+            "[majs] 未找到好友信息! 将使用观战订阅模式！\n"
+            "该模式无法获取好友分数变化情况, 可能存在不准确的情况, 请自行关注！\n"
+            "如需使用好友订阅模式,"
             f"请先在【游戏中】添加 {conn.nick_name}: {friend_code}好友再执行此操作！"
         )
+
+        await gs_subscribe.add_subscribe(
+            'single',
+            '雀魂观战订阅',
+            ev,
+            extra_message=uid,
+        )
+        return await bot.send('[观战模式] 订阅成功！')
 
     push_id = ev.group_id if ev.group_id else "on"
     if await MajsPush.data_exist(uid=uid):
@@ -472,4 +487,54 @@ async def majsoul_friend_apply_command(bot: Bot, event: Event):
     apply = int(event.text.strip())
     await conn.acceptFriendApply(apply)
     await bot.send("已同意好友申请")
-    await bot.send("已同意好友申请")
+
+
+@scheduler.scheduled_job('cron', minute='*/2')
+async def majsoul_notify_rank():
+    await asyncio.sleep(random.randint(0, 1))
+    datas = await gs_subscribe.get_subscribe('雀魂观战订阅')
+
+    if not datas:
+        return
+
+    conn = await manager.start()
+    if isinstance(conn, str):
+        return logger.error(conn)
+
+    live_games = await conn.fetchLiveGames()
+
+    _cache_game = []
+    for subscribe in datas:
+        for live_game in live_games:
+            _cache_game.append(live_game.uuid)
+            if live_game.uuid in cache_game:
+                continue
+
+            for player in live_game.players:
+                if str(subscribe.extra_message) == str(player.account_id):
+                    mode_id = live_game.game_config.meta.mode_id
+                    room_name = ModeId2Room.get(mode_id, "")
+                    nickname = player.nickname
+                    _id = f'对局ID: {live_game.uuid}'
+                    msg = f'[订阅] {nickname} 正在进行 {room_name} 的对局!\n{_id}'
+                    await subscribe.send(msg)
+                    cache_game[live_game.uuid] = {
+                        'game': live_game,
+                        'subscribe': subscribe,
+                        'nickname': nickname,
+                    }
+
+    del_game = []
+    for key in cache_game:
+        if key not in _cache_game:
+            game = cache_game[key]['game']
+            subscribe = cache_game[key]['subscribe']
+            mode_id = game.game_config.meta.mode_id
+            room_name = ModeId2Room.get(mode_id, "")
+            nickname = cache_game[key]['nickname']
+            _id = f'对局ID: {key}'
+            msg = f'[订阅] {nickname} 结束了 {room_name} 的对局!\n{_id}'
+            del_game.append(key)
+
+    for key in del_game:
+        del cache_game[key]

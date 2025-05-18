@@ -20,7 +20,8 @@ async def search_player_with_name(name: str) -> Tuple[str, Optional[List]]:
             None,
         )
 
+    hint2 = '提示：在登录账号的前提下，可使用[雀魂订阅+ID]进行对局订阅推送！'
     return (
-        "\n".join(msg_list) + "\n提示：可使用[雀魂绑定+你的ID]进行角色绑定",
+        "\n".join(msg_list) + "\n提示：可使用[雀魂绑定+你的ID]进行角色绑定！\n" + hint2 + "\n",
         uid_list,
     )
