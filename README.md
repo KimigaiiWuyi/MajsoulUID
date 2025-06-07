@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://github.com/KimigaiiWuyi/MajsoulUID"><img src="https://s11.ax1x.com/2024/01/07/pFSmJdf.png" width="256" height="256" alt="MajsoulUID"></a>
 </p>
-<h1 align = "center">MajsoulUID 0.2</h1>
+<h1 align = "center">MajsoulUID 0.3.1</h1>
 <h4 align = "center">🚧支持QQ群/频道、OneBot、微信、KOOK、Tg、飞书、DoDo、米游社、Discord的雀魂Bot插件🚧</h4>
 <div align = "center">
         <a href="http://docs.gsuid.gbots.work/#/" target="_blank">安装文档</a>

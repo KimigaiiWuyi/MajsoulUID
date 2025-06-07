@@ -1,1 +1,1 @@
-MajsoulUID_version = "0.2"
+MajsoulUID_version = "0.3.1"
