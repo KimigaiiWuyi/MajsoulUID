@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import List, Union
 
 from PIL import Image, ImageDraw
+from gsuid_core.logger import logger
 from gsuid_core.utils.image.convert import convert_img
 from gsuid_core.utils.image.image_tools import crop_center_img
 from gsuid_core.utils.fonts.fonts import core_font as majs_font
@@ -29,7 +30,11 @@ async def draw_bar(
     bar_draw = ImageDraw.Draw(bar)
 
     avatar_id = str(avatar_id)
-    path = lqc[avatar_id]["path"]
+    try:
+        path = lqc[avatar_id]["path"]
+    except KeyError:
+        logger.info("找不到头像,采用默认头像")
+        path = lqc["400000"]["path"]
     name_path: str = path.split("/")[-1]
     local_path: Path = CHARACTOR_PATH / name_path / "bighead.png"
 
@@ -91,4 +96,6 @@ async def draw_friend_rank_img(friends: List[MajsoulFriend], mode: str = "4"):
 
     img = add_footer(img)
     res = await convert_img(img)
+    return res
+    return res
     return res
