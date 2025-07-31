@@ -13,9 +13,7 @@ with open(Path(__file__).parent / "resource.json", "r") as f:
     raw_data = json.loads(f.read())
 
 if (Path(__file__).parent / "reslut.json").exists():
-    with open(
-        Path(__file__).parent / "reslut.json", "r", encoding="utf8"
-    ) as f:
+    with open(Path(__file__).parent / "reslut.json", "r", encoding="utf8") as f:
         result = json.loads(f.read())
 else:
     result = {}
@@ -43,7 +41,7 @@ try:
             print(f"会失败，跳过 {path}")
             continue
 
-        url = f'{BASE}{resource[res]["prefix"]}/{res}'
+        url = f"{BASE}{resource[res]['prefix']}/{res}"
 
         print(f"URL: {url}")
         print(f"正在下载至 {path}")
@@ -84,7 +82,5 @@ try:
             result[res] = "请求失败"
             print("请求失败")
 finally:
-    with open(
-        Path(__file__).parent / "result.json", "w", encoding="utf8"
-    ) as f:
+    with open(Path(__file__).parent / "result.json", "w", encoding="utf8") as f:
         json.dump(result, f, indent=4, ensure_ascii=False)

@@ -1,10 +1,10 @@
+import asyncio
 import json
 import time
-import asyncio
 from typing import Dict, List, Tuple, Union
 
-import httpx
 import aiofiles
+import httpx
 from gsuid_core.logger import logger
 
 from ...utils.resource.RESOURCE_PATH import PAIPU_PATH
@@ -57,7 +57,7 @@ async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
 
     sess = httpx.AsyncClient(verify=False)
     urls = {
-        # "[wegt]": "https://majsoul.wget.es",
+        "[wegt]": "https://majsoul.wget.es",
         "[cn]": "http://183.36.37.120:62800",
     }
 
@@ -111,9 +111,7 @@ async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
 async def get_review_result(res: dict):
     review_data = res["data"]["review"]
     rating: float = review_data["rating"] * 100
-    matches_total = (
-        review_data["total_matches"] / review_data["total_reviewed"]
-    ) * 100
+    matches_total = (review_data["total_matches"] / review_data["total_reviewed"]) * 100
     bad_move_up_count = 0
     bad_move_down_count = 0
 

@@ -319,7 +319,7 @@ class Agari:
 
             if agari.tsumo:
                 tsumo = agari.point.tsumo
-                point_jpname = RUNES['points'][JPNAME]
+                point_jpname = RUNES["points"][JPNAME]
                 if agari.oya:
                     point = f"{tsumo}{point_jpname}{RUNES['all'][JPNAME]}"
                 else:

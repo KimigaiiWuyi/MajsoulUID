@@ -1,27 +1,32 @@
-import random
 import asyncio
+import random
 from urllib.parse import parse_qs, urlparse
 
-import httpx
 import email_validator
-from gsuid_core.sv import SV
-from gsuid_core.bot import Bot
-from gsuid_core.models import Event
+import httpx
 from gsuid_core.aps import scheduler
+from gsuid_core.bot import Bot
 from gsuid_core.logger import logger
+from gsuid_core.models import Event
 from gsuid_core.subscribe import gs_subscribe
+from gsuid_core.sv import SV
 from gsuid_core.utils.database.api import get_uid
 
-from .draw_frame import render_frame
-from ..utils.error_reply import UID_HINT
-from .constants import USER_AGENT, ModeId2Room
 from ..utils.api.remote import encode_account_id2
+from ..utils.database.models import MajsBind, MajsPush, MajsUser
+from ..utils.error_reply import UID_HINT
+from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
+from .constants import USER_AGENT, ModeId2Room
+from .draw_frame import render_frame
 from .draw_friend_rank import draw_friend_rank_img
 from .draw_review_info import draw_review_info_img
-from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
-from .tenhou.review import review_tenhou, get_review_result
-from ..utils.database.models import MajsBind, MajsPush, MajsUser
-from .majsoul import MajsoulMaintenanceError, manager, get_paipu_by_game_id
+from .majsoul import (
+    TASK_NAME_MAJSOUL_NOTIFY,
+    MajsoulMaintenanceError,
+    get_paipu_by_game_id,
+    manager,
+)
+from .tenhou.review import get_review_result, review_tenhou
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_add_account = SV("雀魂账号池", pm=0)
@@ -31,6 +36,9 @@ majsoul_yostar_login = SV("雀魂Yostar登陆", pm=0)
 majsoul_friend_level_billboard = SV("雀魂好友排行榜")
 majsoul_get_notify = SV("雀魂订阅推送")
 majsoul_review = SV("雀魂牌谱Review")
+
+sv_majsoul_notify_sub = SV("雀魂推送订阅", pm=0)
+
 
 EXSAMPLE = """雀魂登陆国服 用户名, 密码
 ⚠ 提示: 该命令将会使用账密进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
@@ -86,12 +94,10 @@ async def majsoul_review_command(bot: Bot, ev: Event):
 
 @majsoul_review.on_command(("场况", "牌谱详情"))
 async def majsoul_render_log(bot: Bot, ev: Event):
-    et = ev.text.strip().replace('，', ',').replace(",", " ")
+    et = ev.text.strip().replace("，", ",").replace(",", " ")
     paipu_command = et.split(" ")
     if len(paipu_command) != 3:
-        return await bot.send(
-            '❌ 请输入有效的格式!\n例如：雀魂场况 241118 10 5'
-        )
+        return await bot.send("❌ 请输入有效的格式!\n例如：雀魂场况 241118 10 5")
 
     paipu_id = paipu_command[0]
     kyoku_id = int(paipu_command[1])
@@ -103,14 +109,10 @@ async def majsoul_render_log(bot: Bot, ev: Event):
             paipu = await get_paipu_by_game_id(paipu_id)
             break
     else:
-        return await bot.send(
-            "❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]"
-        )
+        return await bot.send("❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]")
 
     if paipu is None:
-        return await bot.send(
-            "❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]"
-        )
+        return await bot.send("❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]")
 
     res = await review_tenhou(paipu)
     if isinstance(res, str):
@@ -120,9 +122,7 @@ async def majsoul_render_log(bot: Bot, ev: Event):
     await bot.send(im)
 
 
-@majsoul_yostar_login.on_command(
-    ("登录美服", "登录日服", "登陆日服", "登陆美服")
-)
+@majsoul_yostar_login.on_command(("登录美服", "登录日服", "登陆日服", "登陆美服"))
 async def majsoul_jp_login_command(bot: Bot, ev: Event):
     url = "https://passport.mahjongsoul.com/account/auth_request"
     headers = {
@@ -249,9 +249,7 @@ async def majsoul_add_at(bot: Bot, ev: Event):
         if isinstance(connection, str):
             return await bot.send(connection)
         if isinstance(connection, bool):
-            return await bot.send(
-                "❌ 登陆失败, 请输入正确的username和password!"
-            )
+            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
     else:
         return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
 
@@ -311,9 +309,7 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
             )
             if retcode == 0:
                 logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
-                return await bot.send(
-                    f"[majs] 修改推送订阅成功！当前值：{push_id}"
-                )
+                return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
             else:
                 return await bot.send("[majs] 推送订阅失败！")
     else:
@@ -352,12 +348,12 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
         )
 
         await gs_subscribe.add_subscribe(
-            'single',
-            '雀魂观战订阅',
+            "single",
+            "雀魂观战订阅",
             ev,
             extra_message=uid,
         )
-        return await bot.send('[观战模式] 订阅成功！')
+        return await bot.send("[观战模式] 订阅成功！")
 
     push_id = ev.group_id if ev.group_id else "on"
     if await MajsPush.data_exist(uid=uid):
@@ -489,10 +485,10 @@ async def majsoul_friend_apply_command(bot: Bot, event: Event):
     await bot.send("已同意好友申请")
 
 
-@scheduler.scheduled_job('cron', minute='*/2')
+@scheduler.scheduled_job("cron", minute="*/2")
 async def majsoul_notify_rank():
     await asyncio.sleep(random.randint(0, 1))
-    datas = await gs_subscribe.get_subscribe('雀魂观战订阅')
+    datas = await gs_subscribe.get_subscribe("雀魂观战订阅")
 
     if not datas:
         return
@@ -515,26 +511,54 @@ async def majsoul_notify_rank():
                     mode_id = live_game.game_config.meta.mode_id
                     room_name = ModeId2Room.get(mode_id, "")
                     nickname = player.nickname
-                    _id = f'对局ID: {live_game.uuid}'
-                    msg = f'[订阅] {nickname} 正在进行 {room_name} 的对局!\n{_id}'
+                    _id = f"对局ID: {live_game.uuid}"
+                    msg = f"[订阅] {nickname} 正在进行 {room_name} 的对局!\n{_id}"
                     await subscribe.send(msg)
                     cache_game[live_game.uuid] = {
-                        'game': live_game,
-                        'subscribe': subscribe,
-                        'nickname': nickname,
+                        "game": live_game,
+                        "subscribe": subscribe,
+                        "nickname": nickname,
                     }
 
     del_game = []
     for key in cache_game:
         if key not in _cache_game:
-            game = cache_game[key]['game']
-            subscribe = cache_game[key]['subscribe']
+            game = cache_game[key]["game"]
+            subscribe = cache_game[key]["subscribe"]
             mode_id = game.game_config.meta.mode_id
             room_name = ModeId2Room.get(mode_id, "")
-            nickname = cache_game[key]['nickname']
-            _id = f'对局ID: {key}'
-            msg = f'[订阅] {nickname} 结束了 {room_name} 的对局!\n{_id}'
+            nickname = cache_game[key]["nickname"]
+            _id = f"对局ID: {key}"
+            msg = f"[订阅] {nickname} 结束了 {room_name} 的对局!\n{_id}"
             del_game.append(key)
 
     for key in del_game:
         del cache_game[key]
+
+
+@sv_majsoul_notify_sub.on_fullmatch("订阅雀魂推送")
+async def subscribe_majsoul_notify(bot: Bot, ev: Event):
+    """订阅雀魂推送"""
+    if ev.group_id is None:
+        return await bot.send("请在群聊中订阅")
+
+    try:
+        data = await gs_subscribe.get_subscribe(TASK_NAME_MAJSOUL_NOTIFY)
+        if data:
+            for subscribe in data:
+                if subscribe.group_id == ev.group_id:
+                    return await bot.send("已经订阅了雀魂推送！")
+
+        await gs_subscribe.add_subscribe(
+            "session",
+            task_name=TASK_NAME_MAJSOUL_NOTIFY,
+            event=ev,
+            extra_message="",
+        )
+
+        logger.info(f"新增雀魂推送订阅: {ev.group_id}")
+        await bot.send("成功订阅雀魂推送!")
+
+    except Exception as e:
+        logger.error(f"订阅雀魂推送失败: {e}")
+        await bot.send("订阅失败，请稍后再试")

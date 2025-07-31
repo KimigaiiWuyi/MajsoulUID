@@ -1,49 +1,51 @@
-import hmac
-import json
-import uuid
-import random
 import asyncio
 import hashlib
+import hmac
+import json
+import random
+import uuid
 from collections.abc import Iterable
-from typing import Dict, List, Union, cast
+from typing import Dict, List, Sequence, Union, cast
 
-import httpx
 import aiofiles
+import httpx
 import websockets.client
-from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
+from gsuid_core.subscribe import gs_subscribe
+from httpx import AsyncClient
 from msgspec import ValidationError, convert
 
-from .utils import getRes
 from ..lib import lq as liblq
-from ._level import MajsoulLevel
-from .codec import MajsoulProtoCodec
-from .majsoul_friend import MajsoulFriend
-from ..utils.api.remote_const import GameMode
-from .tenhou.parser import MajsoulPaipuParser
 from ..majs_config.majs_config import MAJS_CONFIG
-from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
-from .constants import HEADERS, USER_AGENT, ModeId2Room
-from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
 from ..utils.api.remote import (
+    decode_account_id2,
     decode_log_id,
     encode_account_id,
-    decode_account_id2,
 )
+from ..utils.api.remote_const import GameMode
+from ..utils.database.models import MajsPaipu, MajsPush, MajsUser
+from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
+from ._level import MajsoulLevel
+from .codec import MajsoulProtoCodec
+from .constants import HEADERS, USER_AGENT, ModeId2Room
+from .majsoul_friend import MajsoulFriend
 from .model import (
+    MajsoulConfig,
+    MajsoulDecodedMessage,
+    MajsoulLiqiProto,
+    MajsoulResInfo,
+    MajsoulServerList,
+    MajsoulUSConfig,
+    MajsoulVersionInfo,
     MjsLog,
     MjsLogItem,
-    MajsoulConfig,
-    MajsoulResInfo,
-    MajsoulUSConfig,
-    MajsoulLiqiProto,
-    MajsoulServerList,
-    MajsoulVersionInfo,
-    MajsoulDecodedMessage,
 )
+from .tenhou.parser import MajsoulPaipuParser
+from .utils import getRes
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
+TASK_NAME_MAJSOUL_NOTIFY = "订阅雀魂消息推送"
 
 
 class MajsoulMaintenanceError(Exception):
@@ -87,9 +89,7 @@ class MajsoulConnection:
         self._ws = None
         self._req_events: dict[int, asyncio.Event] = {}
         self._res: dict[int, MajsoulDecodedMessage] = {}
-        self.clientVersionString = "web-" + versionInfo.version.replace(
-            ".w", ""
-        )
+        self.clientVersionString = "web-" + versionInfo.version.replace(".w", "")
         self.no_operation_counter = 0
         self.bg_tasks = []
         self.queue = asyncio.queues.Queue()
@@ -109,9 +109,7 @@ class MajsoulConnection:
             return False
         resp = cast(
             liblq.ResCommon,
-            await self.rpc_call(
-                ".lq.Lobby.heatbeat", {"no_operation_counter": 0}
-            ),
+            await self.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0}),
         )
         if resp.error.code:
             return False
@@ -127,25 +125,42 @@ class MajsoulConnection:
         )
         self._msg_dispatcher = asyncio.create_task(self.start_sv())
 
-    async def send_meta(self, meta_msg):
-        meta_bot_id = MAJS_CONFIG.get_config("MajsFriendPushBotId").data
-        meta_type = MAJS_CONFIG.get_config("MajsFriendPushType").data
-        meta_id: str = MAJS_CONFIG.get_config("MajsFriendPushID").data
+    async def _notify_subscribers(self, task_name: str, message: str):
+        """通知订阅者"""
+        try:
+            subscribers = await gs_subscribe.get_subscribe(task_name)
+            if not subscribers:
+                logger.info(f"[{task_name}] 暂无群订阅")
+                return
 
-        if meta_id:
-            for BOT_ID in gss.active_bot:
-                bot = gss.active_bot[BOT_ID]
-                await bot.target_send(
-                    meta_msg,
-                    meta_type,
-                    meta_id,
-                    meta_bot_id,
-                    "",
-                )
-        else:
-            logger.warning(
-                "[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!"
-            )
+            for subscribe in subscribers:
+                try:
+                    await subscribe.send(message)
+                    await asyncio.sleep(random.uniform(1, 3))
+                except Exception as e:
+                    logger.error(f"发送通知失败: {subscribe.group_id}, 错误: {e}")
+
+        except Exception as e:
+            logger.error(f"获取订阅列表失败: {e}")
+
+    async def send_meta(self, meta_msg):
+        # meta_bot_id = MAJS_CONFIG.get_config("MajsFriendPushBotId").data
+        # meta_type = MAJS_CONFIG.get_config("MajsFriendPushType").data
+        # meta_id: str = MAJS_CONFIG.get_config("MajsFriendPushID").data
+
+        # if meta_id:
+        #     for BOT_ID in gss.active_bot:
+        #         bot = gss.active_bot[BOT_ID]
+        #         await bot.target_send(
+        #             meta_msg,
+        #             meta_type,
+        #             meta_id,
+        #             meta_bot_id,
+        #             "",
+        #         )
+        # else:
+        #     logger.warning("[majs] 未配置元数据推送对象, 请前往网页控制台配置推送对象!")
+        await self._notify_subscribers(TASK_NAME_MAJSOUL_NOTIFY, meta_msg)
 
     async def send_msg_to_user(self, target_user: str, msg):
         if MAJS_CONFIG.get_config("MajsIsPushActiveToMaster").data:
@@ -284,9 +299,7 @@ class MajsoulConnection:
                         # check is_online before send message
                         if not active_state.is_online:
                             friend.change_state(active_state)
-                            if not await MajsPaipu.data_exist(
-                                uuid=active_uuid
-                            ):
+                            if not await MajsPaipu.data_exist(uuid=active_uuid):
                                 await MajsPaipu.insert_data(
                                     account_id=str(friend.account_id),
                                     uuid=active_uuid,
@@ -294,9 +307,7 @@ class MajsoulConnection:
                                     paipu_type_name=type_name,
                                 )
                             return
-                        logger.error(
-                            f"获取牌谱失败: {game_record.error}, retrying"
-                        )
+                        logger.error(f"获取牌谱失败: {game_record.error}, retrying")
                         # sleep 1s
                         await asyncio.sleep(1)
                         # retry 1 time
@@ -532,9 +543,7 @@ class MajsoulConnection:
         return self.friends
 
     def encode_p(self, password: str):
-        return hmac.new(
-            b"lailai", password.encode(), hashlib.sha256
-        ).hexdigest()
+        return hmac.new(b"lailai", password.encode(), hashlib.sha256).hexdigest()
 
     async def jp_login(
         self,
@@ -730,7 +739,7 @@ class MajsoulConnection:
     async def fetchLiveGames(self):
         game_live_list: List[liblq.GameLiveHead] = []
         for gm in GameMode:
-            filter_id = f'2{gm.value}'
+            filter_id = f"2{gm.value}"
             games = cast(
                 liblq.ResGameLiveList,
                 await self.rpc_call(
@@ -871,7 +880,7 @@ async def fetchMajsoulInfo(URL_BASE: str):
         await getRes(URL_BASE, f"{pbVersion}/res/proto/liqi.json"),
         MajsoulLiqiProto,
     )
-    _path = f'{resInfo.res["config.json"].prefix}/config.json'
+    _path = f"{resInfo.res['config.json'].prefix}/config.json"
     obj = await getRes(URL_BASE, _path)
     try:
         config = convert(
@@ -888,8 +897,7 @@ async def fetchMajsoulInfo(URL_BASE: str):
 
     serverListUrl = random.choice(ipDef.region_urls).url
     serverListUrl += (
-        "?service=ws-gateway&protocol=ws&ssl=true&rv="
-        + str(random.random())[2:]
+        "?service=ws-gateway&protocol=ws&ssl=true&rv=" + str(random.random())[2:]
     )
 
     headers = HEADERS.copy()
@@ -899,9 +907,7 @@ async def fetchMajsoulInfo(URL_BASE: str):
     serverList = convert(resp.json(), MajsoulServerList)
 
     if serverList.maintenance:
-        raise MajsoulMaintenanceError(
-            serverList.maintenance.message_i18n[0].context
-        )
+        raise MajsoulMaintenanceError(serverList.maintenance.message_i18n[0].context)
     else:
         assert serverList.servers
 
@@ -998,9 +1004,7 @@ class MajsoulManager:
         login_type: int,
     ):
         try:
-            conn = await createMajsoulConnection(
-                username, password, access_token
-            )
+            conn = await createMajsoulConnection(username, password, access_token)
         except MajsoulMaintenanceError as e:
             return f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
         except ValueError as e:
@@ -1026,17 +1030,15 @@ class MajsoulManager:
     async def start(self):
         if len(self.conn) == 0:
             # get all accounts
-            users = await MajsUser.get_all_user()
+            users: Sequence[MajsUser] = await MajsUser.get_all_user()
+            logger.info(f"[majs] Found {len(users)} accounts to connect")
+            logger.debug(f"[majs] Users: {users}")
             for user in users:
                 if user.login_type == 0:
                     try:
-                        conn = await createMajsoulConnection(
-                            access_token=user.cookie
-                        )
+                        conn = await createMajsoulConnection(access_token=user.cookie)
                     except MajsoulMaintenanceError as e:
-                        return (
-                            f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
-                        )
+                        return f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
                     except ValueError as e:
                         logger.warning(
                             f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}"
@@ -1050,6 +1052,7 @@ class MajsoulManager:
                             logger.error(
                                 f"[majs] 刷新AccessToken失败, 请重新登录！\n{e}"
                             )
+                            return "❌ AccessToken已失效, 请重新登录！"
 
                     self.conn.append(conn)
                     await conn.fetchInfo()
@@ -1084,6 +1087,10 @@ class MajsoulManager:
                         logger.error(response.text)
                         return "❌ JP Yostar token已失效, 请重新登录！"
 
+                    if user.uid is None:
+                        logger.error("Yostar UID is None, please check your config")
+                        return "❌ Yostar UID is None, 请检查配置"
+
                     try:
                         conn = await createYostarMajsoulConnection(
                             user.uid,
@@ -1091,9 +1098,7 @@ class MajsoulManager:
                             user.lang,
                         )
                     except ValueError as e:
-                        logger.warning(
-                            f"[majs] Yostar token已失效, 请重新登录！\n{e}"
-                        )
+                        logger.warning(f"[majs] Yostar token已失效, 请重新登录！\n{e}")
                         return "❌ Yostar token已失效, 请重新登录！"
 
                     self.conn.append(conn)

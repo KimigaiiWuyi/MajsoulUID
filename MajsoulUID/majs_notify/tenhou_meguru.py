@@ -34,19 +34,19 @@ def sort_list(lst: List[List[int]], now_seat: int, pos: int):
 
 def n2p(number: int):
     if 47 >= number >= 41:
-        return 'ESWNPFC'[number - 41]
+        return "ESWNPFC"[number - 41]
     elif 39 >= number >= 31:
-        return [f'{i}s' for i in range(1, 10)][number - 31]
+        return [f"{i}s" for i in range(1, 10)][number - 31]
     elif 29 >= number >= 21:
-        return [f'{i}p' for i in range(1, 10)][number - 21]
+        return [f"{i}p" for i in range(1, 10)][number - 21]
     elif 19 >= number >= 11:
-        return [f'{i}m' for i in range(1, 10)][number - 11]
+        return [f"{i}m" for i in range(1, 10)][number - 11]
     elif number == 51:
-        return '5mr'
+        return "5mr"
     elif number == 52:
-        return '5pr'
+        return "5pr"
     elif number == 53:
-        return '5sr'
+        return "5sr"
     return None
 
 
@@ -86,12 +86,12 @@ class MeguruLog:
                 _draw = self.player_state[j][1][point[j]]
                 point[j] += 1
                 if isinstance(_draw, str):
-                    if 'p' in _draw:
-                        num = _draw.index('p')
-                    elif 'c' in _draw:
-                        num = _draw.index('c')
+                    if "p" in _draw:
+                        num = _draw.index("p")
+                    elif "c" in _draw:
+                        num = _draw.index("c")
                     else:
-                        num = _draw.index('k')
+                        num = _draw.index("k")
                     result_condi = sort_list(result_condi, j, num)
                     break
             else:
@@ -128,11 +128,11 @@ class MeguruLog:
             if isinstance(now_action, int):
                 now_seat[0].append(now_action)
             else:
-                if 'c' in now_action:
-                    now_action = now_action.replace('c', '')
+                if "c" in now_action:
+                    now_action = now_action.replace("c", "")
                     furoos[seat_num].append(split_list(now_action))
-                elif 'k' in now_action:
-                    now_action = now_action.replace('k', '')
+                elif "k" in now_action:
+                    now_action = now_action.replace("k", "")
                     furoos[seat_num].append(split_list(now_action))
 
             if isinstance(now_discard, int):

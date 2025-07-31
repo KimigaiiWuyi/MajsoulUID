@@ -17,9 +17,7 @@ path = Path(__file__).parent
 
 
 def get_version():
-    req = httpx.get(
-        "https://game.maj-soul.com/1/version.json", headers=Headers
-    )
+    req = httpx.get("https://game.maj-soul.com/1/version.json", headers=Headers)
     return req.json()
 
 
