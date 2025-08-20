@@ -1559,203 +1559,6 @@ class ActivityIslandData(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class AmuletEffectData(betterproto.Message):
-    id: int = betterproto.uint32_field(1)
-    uid: int = betterproto.uint32_field(2)
-    store: List[int] = betterproto.int64_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletBuffData(betterproto.Message):
-    id: int = betterproto.uint32_field(1)
-    store: List[int] = betterproto.int64_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletGameShopGoods(betterproto.Message):
-    id: int = betterproto.uint32_field(1)
-    sold: bool = betterproto.bool_field(2)
-    goods_id: int = betterproto.uint32_field(3)
-    price: int = betterproto.uint32_field(4)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletActivityTingInfo(betterproto.Message):
-    tile: str = betterproto.string_field(1)
-    fan: int = betterproto.uint64_field(2)
-    ting_tile: str = betterproto.string_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletShowDesktopTileData(betterproto.Message):
-    id: int = betterproto.uint32_field(1)
-    pos: int = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletGameOperation(betterproto.Message):
-    type: int = betterproto.uint32_field(1)
-    gang: List["AmuletGameOperationGangTiles"] = betterproto.message_field(2)
-    effect_id: int = betterproto.uint32_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletGameOperationGangTiles(betterproto.Message):
-    tiles: List[int] = betterproto.uint32_field(1)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletGameShopData(betterproto.Message):
-    goods: List["AmuletGameShopGoods"] = betterproto.message_field(1)
-    effect_list: List[int] = betterproto.uint32_field(2)
-    shop_refresh_count: int = betterproto.uint32_field(3)
-    refresh_price: int = betterproto.uint32_field(4)
-    next_goods_id: int = betterproto.uint32_field(5)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletGameUpdateData(betterproto.Message):
-    tile_replace: List["AmuletTile"] = betterproto.message_field(1)
-    tian_dora: List[str] = betterproto.string_field(2)
-    dora: List[int] = betterproto.uint32_field(4)
-    hands: List[int] = betterproto.uint32_field(7)
-    ming: List["AmuletMingInfo"] = betterproto.message_field(8)
-    effect_list: List["AmuletEffectData"] = betterproto.message_field(9)
-    buff_list: List["AmuletEffectData"] = betterproto.message_field(10)
-    point: str = betterproto.string_field(13)
-    coin: int = betterproto.uint32_field(14)
-    stage: int = betterproto.uint32_field(22)
-    desktop_remain: int = betterproto.uint32_field(26)
-    show_desktop_tiles: List["AmuletShowDesktopTileData"] = betterproto.message_field(
-        28
-    )
-    ting_list: List["AmuletActivityTingInfo"] = betterproto.message_field(30)
-    next_operation: List["AmuletGameOperation"] = betterproto.message_field(31)
-    used_desktop: List[int] = betterproto.uint32_field(34)
-    highest_hu: "ActivityAmuletHuRecord" = betterproto.message_field(35)
-    records: "ActivityAmuletRecord" = betterproto.message_field(36)
-    reward_pack: List[int] = betterproto.uint32_field(37)
-    reward_effect: List[int] = betterproto.uint32_field(38)
-    tile_score: List["AmuletGameTileScoreData"] = betterproto.message_field(43)
-    reward_pack_id: int = betterproto.uint32_field(47)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletGameRecordData(betterproto.Message):
-    key: int = betterproto.uint32_field(1)
-    int_value: int = betterproto.int32_field(2)
-    str_value: str = betterproto.string_field(3)
-    int_arr_value: List[int] = betterproto.int32_field(4)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletGameTileScoreData(betterproto.Message):
-    tile: str = betterproto.string_field(1)
-    score: str = betterproto.string_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletGameData(betterproto.Message):
-    pool: List["AmuletTile"] = betterproto.message_field(1)
-    tile_replace: List["AmuletTile"] = betterproto.message_field(2)
-    tian_dora: List[str] = betterproto.string_field(3)
-    mountain: List[int] = betterproto.uint32_field(4)
-    dora: List[int] = betterproto.uint32_field(5)
-    hands: List[int] = betterproto.uint32_field(7)
-    ming: List["AmuletMingInfo"] = betterproto.message_field(8)
-    effect_list: List["AmuletEffectData"] = betterproto.message_field(9)
-    buff_list: List["AmuletBuffData"] = betterproto.message_field(10)
-    level: int = betterproto.uint32_field(11)
-    point: str = betterproto.string_field(13)
-    coin: int = betterproto.uint32_field(14)
-    shop: "AmuletGameShopData" = betterproto.message_field(16)
-    used: List[int] = betterproto.uint32_field(20)
-    boss_buff: List[int] = betterproto.uint32_field(21)
-    stage: int = betterproto.uint32_field(22)
-    desktop: List[int] = betterproto.uint32_field(24)
-    show_desktop: List[int] = betterproto.uint32_field(25)
-    desktop_remain: int = betterproto.uint32_field(26)
-    free_effect_list: List[int] = betterproto.uint32_field(27)
-    show_desktop_tiles: List["AmuletShowDesktopTileData"] = betterproto.message_field(
-        28
-    )
-    change_tile_count: int = betterproto.uint32_field(29)
-    ting_list: List["AmuletActivityTingInfo"] = betterproto.message_field(30)
-    next_operation: List["AmuletGameOperation"] = betterproto.message_field(31)
-    shop_buff_list: List["AmuletBuffData"] = betterproto.message_field(32)
-    remain_change_tile_count: int = betterproto.int32_field(33)
-    used_desktop: List[int] = betterproto.uint32_field(34)
-    after_gang: int = betterproto.uint32_field(35)
-    record_data: List["AmuletGameRecordData"] = betterproto.message_field(36)
-    skill_buff_list: List["AmuletBuffData"] = betterproto.message_field(37)
-    max_effect_count: int = betterproto.uint32_field(38)
-    highest_hu: "ActivityAmuletHuRecord" = betterproto.message_field(39)
-    total_consumed_coin: int = betterproto.uint32_field(40)
-    boss_buff_id: List[int] = betterproto.uint32_field(41)
-    locked_tile: List[int] = betterproto.uint32_field(42)
-    tile_score: List["AmuletGameTileScoreData"] = betterproto.message_field(43)
-    locked_tile_count: int = betterproto.uint32_field(44)
-    reward_pack: List[int] = betterproto.uint32_field(45)
-    reward_effect: List[int] = betterproto.uint32_field(46)
-    reward_pack_id: int = betterproto.uint32_field(47)
-    total_change_tile_count: int = betterproto.uint32_field(48)
-
-
-@dataclass(eq=False, repr=False)
-class ActivityAmuletUpdateData(betterproto.Message):
-    activity_id: int = betterproto.uint32_field(1)
-    game_update: "AmuletGameUpdateData" = betterproto.message_field(2)
-    game_empty: bool = betterproto.bool_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletSkillData(betterproto.Message):
-    id: int = betterproto.uint32_field(1)
-    level: int = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class ActivityAmuletUpgradeData(betterproto.Message):
-    skill: List["AmuletSkillData"] = betterproto.message_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class ActivityAmuletRecord(betterproto.Message):
-    effect_gain_count: int = betterproto.uint32_field(1)
-    hu_count: int = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class ActivityAmuletHuRecord(betterproto.Message):
-    point: str = betterproto.string_field(1)
-    pai: str = betterproto.string_field(2)
-    fan: str = betterproto.string_field(3)
-    base: str = betterproto.string_field(4)
-
-
-@dataclass(eq=False, repr=False)
-class ActivityAmuletIllustratedBookData(betterproto.Message):
-    effect_collection: List[int] = betterproto.uint32_field(1)
-    highest_hu: "ActivityAmuletHuRecord" = betterproto.message_field(2)
-    highest_level: int = betterproto.uint32_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class ActivityAmuletTaskData(betterproto.Message):
-    progress: List["TaskProgress"] = betterproto.message_field(1)
-
-
-@dataclass(eq=False, repr=False)
-class ActivityAmuletData(betterproto.Message):
-    activity_id: int = betterproto.uint32_field(1)
-    game: "AmuletGameData" = betterproto.message_field(2)
-    version: int = betterproto.uint32_field(3)
-    upgrade: "ActivityAmuletUpgradeData" = betterproto.message_field(4)
-    illustrated_book: "ActivityAmuletIllustratedBookData" = betterproto.message_field(5)
-    task: "ActivityAmuletTaskData" = betterproto.message_field(6)
-
-
-@dataclass(eq=False, repr=False)
 class ActivityFeedData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     feed_count: int = betterproto.uint32_field(2)
@@ -1796,6 +1599,12 @@ class UnlockedStoryData(betterproto.Message):
 class ActivityStoryData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     unlocked_story: List["UnlockedStoryData"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityProgressRewardData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    rewarded_progresses: List[int] = betterproto.uint32_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -2693,6 +2502,7 @@ class RecordRoundInfo(betterproto.Message):
     hules_info: "RecordHulesInfo" = betterproto.message_field(11)
     liuju_info: "RecordLiujuInfo" = betterproto.message_field(12)
     no_tile_info: "RecordNoTileInfo" = betterproto.message_field(13)
+    xiuluo_hules_info: List["RecordHulesInfo"] = betterproto.message_field(14)
 
 
 @dataclass(eq=False, repr=False)
@@ -2911,122 +2721,6 @@ class TransparentData(betterproto.Message):
     data: bytes = betterproto.bytes_field(2)
     session: str = betterproto.string_field(3)
     remote: "NetworkEndpoint" = betterproto.message_field(4)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletTile(betterproto.Message):
-    id: int = betterproto.uint32_field(1)
-    tile: str = betterproto.string_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletFan(betterproto.Message):
-    id: int = betterproto.uint32_field(1)
-    val: int = betterproto.int64_field(2)
-    count: int = betterproto.uint32_field(3)
-    yiman: bool = betterproto.bool_field(4)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletReplace(betterproto.Message):
-    id: int = betterproto.uint32_field(1)
-    tile: str = betterproto.string_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletMingInfo(betterproto.Message):
-    type: int = betterproto.uint32_field(1)
-    tile_list: List[int] = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletActivityHookEffect(betterproto.Message):
-    add_dora: List[int] = betterproto.uint32_field(1)
-    add_tian_dora: List[str] = betterproto.string_field(3)
-    add_effect: List["AmuletActivityHookEffectAmuletActivityAddHookEffect"] = (
-        betterproto.message_field(4)
-    )
-    remove_effect: List[int] = betterproto.uint32_field(5)
-    add_buff: List[int] = betterproto.uint32_field(6)
-    remove_buff: List[int] = betterproto.uint32_field(7)
-    add_coin: int = betterproto.int32_field(9)
-    tile_replace: List["AmuletReplace"] = betterproto.message_field(11)
-    add_fan: str = betterproto.string_field(12)
-    add_base: str = betterproto.string_field(13)
-    modify_fan: List["AmuletFan"] = betterproto.message_field(14)
-    id: int = betterproto.uint32_field(15)
-    modify_dora: bool = betterproto.bool_field(16)
-    uid: int = betterproto.uint32_field(17)
-    add_show_tile: List[int] = betterproto.uint32_field(18)
-    add_dora_count: int = betterproto.int32_field(19)
-    add_dora_no_hook: List[int] = betterproto.uint32_field(20)
-    add_coin_no_hook: int = betterproto.int32_field(21)
-    add_tile_score: List["AmuletGameTileScoreData"] = betterproto.message_field(22)
-    add_tile_score_no_hook: List["AmuletGameTileScoreData"] = betterproto.message_field(
-        23
-    )
-
-
-@dataclass(eq=False, repr=False)
-class AmuletActivityHookEffectAmuletActivityAddHookEffect(betterproto.Message):
-    id: int = betterproto.uint32_field(1)
-    uid: int = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletHuleInfo(betterproto.Message):
-    tile: int = betterproto.uint32_field(1)
-    fan_list: List["AmuletFan"] = betterproto.message_field(2)
-    fan: str = betterproto.string_field(3)
-    point: str = betterproto.string_field(4)
-    base: str = betterproto.string_field(5)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletHuleOperateResult(betterproto.Message):
-    hu_final: "AmuletHuleInfo" = betterproto.message_field(2)
-    hu_base: "AmuletHuleInfo" = betterproto.message_field(3)
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletGangOperateResult(betterproto.Message):
-    new_dora: List[int] = betterproto.uint32_field(4)
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletDealTileResult(betterproto.Message):
-    tile: int = betterproto.uint32_field(1)
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletDiscardTileResult(betterproto.Message):
-    tile: int = betterproto.uint32_field(1)
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletStartGameResult(betterproto.Message):
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletRoundResult(betterproto.Message):
-    hu_result: "AmuletHuleOperateResult" = betterproto.message_field(2)
-    deal_result: "AmuletDealTileResult" = betterproto.message_field(4)
-    discard_result: "AmuletDiscardTileResult" = betterproto.message_field(5)
-
-
-@dataclass(eq=False, repr=False)
-class AmuletUpgradeResult(betterproto.Message):
-    remain_rounds: List["AmuletRoundResult"] = betterproto.message_field(1)
-    point_coin: int = betterproto.uint32_field(2)
-    level_coin: int = betterproto.uint32_field(3)
-    shop: "AmuletGameShopData" = betterproto.message_field(4)
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(5)
-    reward_pack: List[int] = betterproto.uint32_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -3472,6 +3166,19 @@ class ResLogin(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ReqPrepareLogin(betterproto.Message):
+    access_token: str = betterproto.string_field(1)
+    type: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResFastLogin(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    game_info: "GameConnectInfo" = betterproto.message_field(2)
+    room: "Room" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
 class ReqEmailLogin(betterproto.Message):
     email: str = betterproto.string_field(1)
     password: str = betterproto.string_field(2)
@@ -3638,12 +3345,12 @@ class ReqHeatBeat(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class ReqSearchAccountByEid(betterproto.Message):
+class ReqSearchAccountByEidLobby(betterproto.Message):
     eid: int = betterproto.uint32_field(1)
 
 
 @dataclass(eq=False, repr=False)
-class ResSearchAccountbyEid(betterproto.Message):
+class ResSearchAccountbyEidLobby(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     account_id: int = betterproto.uint32_field(2)
 
@@ -5603,6 +5310,9 @@ class ResAccountActivityData(betterproto.Message):
     island_data: List["ActivityIslandData"] = betterproto.message_field(27)
     story_data: List["ActivityStoryData"] = betterproto.message_field(29)
     choose_up_data: List["ActivityChooseUpData"] = betterproto.message_field(30)
+    progress_reward_data: List["ActivityProgressRewardData"] = (
+        betterproto.message_field(32)
+    )
 
 
 @dataclass(eq=False, repr=False)
@@ -6332,14 +6042,21 @@ class ReqFetchVoteActivity(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ResFetchVoteActivity(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    vote_rank: List[int] = betterproto.uint32_field(2)
     update_time: int = betterproto.uint32_field(3)
+    data: List["ResFetchVoteActivityVoteRankData"] = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchVoteActivityVoteRankData(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    share: int = betterproto.uint32_field(2)
 
 
 @dataclass(eq=False, repr=False)
 class ReqVoteActivity(betterproto.Message):
     vote: int = betterproto.uint32_field(1)
     activity_id: int = betterproto.uint32_field(2)
+    count: int = betterproto.uint32_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -7038,7 +6755,25 @@ class ResAmuletActivityFetchBrief(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     upgrade: "ActivityAmuletUpgradeData" = betterproto.message_field(4)
     illustrated_book: "ActivityAmuletIllustratedBookData" = betterproto.message_field(5)
-    task: "ActivityAmuletTaskData" = betterproto.message_field(6)
+    game_records: List["ActivityAmuletGameRecordData"] = betterproto.message_field(7)
+    statistic: "ActivityAmuletStatisticData" = betterproto.message_field(8)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFetchAmuletActivityData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchAmuletActivityData(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    data: "ActivityAmuletData" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResAmuletEventResponse(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    events: List["AmuletEventData"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -7047,57 +6782,15 @@ class ReqAmuletActivityStartGame(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class ResAmuletActivityStartGame(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    game: "AmuletGameData" = betterproto.message_field(2)
-
-
-@dataclass(eq=False, repr=False)
 class ReqAmuletActivityOperate(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     type: int = betterproto.uint32_field(2)
-    tile: List[int] = betterproto.uint32_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class ResAmuletActivityOperate(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    hu_result: "AmuletHuleOperateResult" = betterproto.message_field(2)
-    gang_result: "AmuletGangOperateResult" = betterproto.message_field(3)
-    deal_result: "AmuletDealTileResult" = betterproto.message_field(4)
-    upgrade_result: "AmuletUpgradeResult" = betterproto.message_field(5)
-    upgraded: bool = betterproto.bool_field(6)
-    failed: bool = betterproto.bool_field(7)
-    game_update: "AmuletGameUpdateData" = betterproto.message_field(8)
-    discard_result: "AmuletDiscardTileResult" = betterproto.message_field(9)
-    start_result: "AmuletStartGameResult" = betterproto.message_field(10)
-
-
-@dataclass(eq=False, repr=False)
-class ReqAmuletActivityChangeHands(betterproto.Message):
-    activity_id: int = betterproto.uint32_field(1)
-    hands: List[int] = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class ResAmuletActivityChangeHands(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    hands: List[int] = betterproto.uint32_field(2)
-    remain_change_tile_count: int = betterproto.uint32_field(3)
-    ting_list: List["AmuletActivityTingInfo"] = betterproto.message_field(4)
-    effect_list: List["AmuletEffectData"] = betterproto.message_field(5)
+    tile_list: List[int] = betterproto.uint32_field(3)
 
 
 @dataclass(eq=False, repr=False)
 class ReqAmuletActivityUpgrade(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
-
-
-@dataclass(eq=False, repr=False)
-class ResAmuletActivityUpgrade(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    game: "AmuletGameData" = betterproto.message_field(2)
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -7107,43 +6800,15 @@ class ReqAmuletActivitySelectPack(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class ResAmuletActivitySelectPack(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    effect_list: List["AmuletEffectData"] = betterproto.message_field(2)
-    shop: "AmuletGameShopData" = betterproto.message_field(3)
-
-
-@dataclass(eq=False, repr=False)
 class ReqAmuletActivityBuy(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     id: int = betterproto.uint32_field(3)
 
 
 @dataclass(eq=False, repr=False)
-class ResAmuletActivityBuy(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    coin: int = betterproto.uint32_field(2)
-    shop: "AmuletGameShopData" = betterproto.message_field(3)
-    stage: int = betterproto.uint32_field(4)
-    effect_list: List["AmuletEffectData"] = betterproto.message_field(5)
-    total_consumed_coin: int = betterproto.uint32_field(6)
-
-
-@dataclass(eq=False, repr=False)
 class ReqAmuletActivitySellEffect(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     id: int = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class ResAmuletActivitySellEffect(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    coin: int = betterproto.uint32_field(2)
-    effect_list: List["AmuletEffectData"] = betterproto.message_field(3)
-    game_update: "AmuletGameUpdateData" = betterproto.message_field(4)
-    remain_change_tile_count: int = betterproto.uint32_field(5)
-    hook_effect: List["AmuletActivityHookEffect"] = betterproto.message_field(6)
-    shop: "AmuletGameShopData" = betterproto.message_field(7)
 
 
 @dataclass(eq=False, repr=False)
@@ -7163,26 +6828,9 @@ class ReqAmuletActivityRefreshShop(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class ResAmuletActivityRefreshShop(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    shop: "AmuletGameShopData" = betterproto.message_field(2)
-    coin: int = betterproto.uint32_field(3)
-    effect_list: List["AmuletEffectData"] = betterproto.message_field(4)
-
-
-@dataclass(eq=False, repr=False)
 class ReqAmuletActivitySelectFreeEffect(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     selected_id: int = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class ResAmuletActivitySelectFreeEffect(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    game_update: "AmuletGameUpdateData" = betterproto.message_field(3)
-    remain_change_tile_count: int = betterproto.uint32_field(4)
-    locked_tile: List[int] = betterproto.uint32_field(5)
-    locked_tile_count: int = betterproto.uint32_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -7192,22 +6840,8 @@ class ReqAmuletActivityUpgradeShopBuff(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class ResAmuletActivityUpgradeShopBuff(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    game_update: "AmuletGameUpdateData" = betterproto.message_field(3)
-    shop_buff_list: List["AmuletEffectData"] = betterproto.message_field(4)
-    total_consumed_coin: int = betterproto.uint32_field(5)
-
-
-@dataclass(eq=False, repr=False)
 class ReqAmuletActivityEndShopping(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
-
-
-@dataclass(eq=False, repr=False)
-class ResAmuletActivityEndShopping(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    game_update: "AmuletGameUpdateData" = betterproto.message_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -7229,22 +6863,9 @@ class ReqAmuletActivitySelectRewardPack(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class ResAmuletActivitySelectRewardPack(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    game_update: "AmuletGameUpdateData" = betterproto.message_field(2)
-    shop: "AmuletGameShopData" = betterproto.message_field(3)
-
-
-@dataclass(eq=False, repr=False)
-class ReqAmuletActivityReceiveTaskReward(betterproto.Message):
+class ReqAmuletActivitySelectBookEffect(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
-    task_list: List[int] = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class ResAmuletActivityReceiveTaskReward(betterproto.Message):
-    error: "Error" = betterproto.message_field(1)
-    task: "ActivityAmuletTaskData" = betterproto.message_field(2)
+    effect_id: int = betterproto.uint32_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -7655,6 +7276,687 @@ class ReqSimV2ActivityGiveUp(betterproto.Message):
 class ReqSimV2ActivitySetUpgrade(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     upgrade: "SimulationV2Ability" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqProgressRewardActivityReceive(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    progresses: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResProgressRewardActivityReceive(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    reward_items: List["ExecuteReward"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFetchProgressRewardActivityInfo(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchProgressRewardActivityInfo(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    progress: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletBadgeData(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    uid: int = betterproto.uint32_field(2)
+    store: List[str] = betterproto.string_field(3)
+    random: int = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEffectData(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    uid: int = betterproto.uint32_field(2)
+    store: List[str] = betterproto.string_field(3)
+    badge: "AmuletBadgeData" = betterproto.message_field(4)
+    volume: int = betterproto.uint32_field(5)
+    tags: List[int] = betterproto.uint32_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletTile(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    tile: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletBuffData(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    store: List[str] = betterproto.string_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletGameShopGoods(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    sold: bool = betterproto.bool_field(2)
+    goods_id: int = betterproto.uint32_field(3)
+    price: int = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletActivityTingInfo(betterproto.Message):
+    tile: str = betterproto.string_field(1)
+    fan: str = betterproto.string_field(2)
+    ting_tile: str = betterproto.string_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletShowDesktopTileData(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    pos: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletMingInfo(betterproto.Message):
+    type: int = betterproto.uint32_field(1)
+    tile_list: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletGameOperation(betterproto.Message):
+    type: int = betterproto.uint32_field(1)
+    gang: List["AmuletGameOperationGangTiles"] = betterproto.message_field(2)
+    value: int = betterproto.int32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletGameOperationGangTiles(betterproto.Message):
+    tiles: List[int] = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletTileScore(betterproto.Message):
+    tile: str = betterproto.string_field(1)
+    score: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityAmuletHuRecord(betterproto.Message):
+    point: str = betterproto.string_field(1)
+    pai: str = betterproto.string_field(2)
+    fan: str = betterproto.string_field(3)
+    base: str = betterproto.string_field(4)
+    effect_builds: List["ActivityAmuletEffectRecordData"] = betterproto.message_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEffectCounterData(betterproto.Message):
+    effect_id: int = betterproto.uint32_field(1)
+    pack_candidate_count: int = betterproto.uint32_field(2)
+    gain_count: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletGameRecordData(betterproto.Message):
+    yiman_count: int = betterproto.uint32_field(1)
+    level_hu_count: int = betterproto.uint32_field(2)
+    game_hu_count: int = betterproto.uint32_field(3)
+    effect_gain: int = betterproto.uint32_field(4)
+    coin_consume: str = betterproto.string_field(5)
+    coin_gain: str = betterproto.string_field(6)
+    highest_hu: "ActivityAmuletHuRecord" = betterproto.message_field(7)
+    highest_level_score: str = betterproto.string_field(8)
+    highest_fan: str = betterproto.string_field(9)
+    pack_count: int = betterproto.uint32_field(10)
+    round_count: int = betterproto.uint32_field(11)
+    effect_counter: List["AmuletEffectCounterData"] = betterproto.message_field(12)
+    hu_tiles_id: List[int] = betterproto.uint32_field(13)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletSkillData(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    level: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityAmuletUpgradeData(betterproto.Message):
+    skill: List["AmuletSkillData"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletGameRoundData(betterproto.Message):
+    pool: List["AmuletTile"] = betterproto.message_field(1)
+    tile_replace: List["AmuletTile"] = betterproto.message_field(2)
+    tian_dora: List[str] = betterproto.string_field(3)
+    dora: List[int] = betterproto.uint32_field(5)
+    hands: List[int] = betterproto.uint32_field(6)
+    used_desktop: List[int] = betterproto.uint32_field(8)
+    ming: List["AmuletMingInfo"] = betterproto.message_field(9)
+    locked_tile: List[int] = betterproto.uint32_field(12)
+    change_tile_count: int = betterproto.uint32_field(13)
+    total_change_tile_count: int = betterproto.uint32_field(14)
+    next_operation: List["AmuletGameOperation"] = betterproto.message_field(15)
+    ting_list: List["AmuletActivityTingInfo"] = betterproto.message_field(16)
+    point: str = betterproto.string_field(18)
+    target_point: str = betterproto.string_field(19)
+    locked_tile_count: int = betterproto.uint32_field(22)
+    mountain: List[int] = betterproto.uint32_field(4)
+    used: List[int] = betterproto.uint32_field(7)
+    desktop: List[int] = betterproto.uint32_field(10)
+    show_desktop: List[int] = betterproto.uint32_field(11)
+    after_gang: int = betterproto.uint32_field(17)
+    desktop_remain: int = betterproto.uint32_field(20)
+    show_desktop_tiles: List["AmuletShowDesktopTileData"] = betterproto.message_field(
+        21
+    )
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEffectCandidate(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    badge_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletGameEffectData(betterproto.Message):
+    effect_list: List["AmuletEffectData"] = betterproto.message_field(1)
+    buff_list: List["AmuletBuffData"] = betterproto.message_field(2)
+    skill_buff_list: List["AmuletBuffData"] = betterproto.message_field(3)
+    shop_buff_list: List["AmuletBuffData"] = betterproto.message_field(4)
+    free_reward_candidates: List["AmuletEffectCandidate"] = betterproto.message_field(5)
+    level_reward_candidates: List["AmuletEffectCandidate"] = betterproto.message_field(
+        6
+    )
+    level_reward_packs: List[int] = betterproto.uint32_field(7)
+    current_level_reward_pack: int = betterproto.uint32_field(8)
+    max_effect_volume: int = betterproto.uint32_field(9)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletShopData(betterproto.Message):
+    goods: List["AmuletGameShopGoods"] = betterproto.message_field(1)
+    candidate_effect_list: List["AmuletEffectCandidate"] = betterproto.message_field(2)
+    shop_refresh_count: int = betterproto.uint32_field(3)
+    refresh_price: int = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletGameData(betterproto.Message):
+    round: "AmuletGameRoundData" = betterproto.message_field(1)
+    effect: "AmuletGameEffectData" = betterproto.message_field(2)
+    game: "AmuletGameInfoData" = betterproto.message_field(3)
+    stage: int = betterproto.uint32_field(4)
+    shop: "AmuletShopData" = betterproto.message_field(5)
+    record: "AmuletGameRecordData" = betterproto.message_field(6)
+    ended: bool = betterproto.bool_field(7)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletGameInfoData(betterproto.Message):
+    level: int = betterproto.uint32_field(1)
+    coin: str = betterproto.string_field(2)
+    max_effect_volume: int = betterproto.uint32_field(3)
+    next_boss_buff: List[int] = betterproto.uint32_field(4)
+    boss_buff: List[int] = betterproto.uint32_field(5)
+    tile_score_map: List["AmuletTileScore"] = betterproto.message_field(6)
+    book_effect_id: int = betterproto.uint32_field(8)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityAmuletIllustratedBookData(betterproto.Message):
+    effect_collection: List[int] = betterproto.uint32_field(1)
+    badge_collection: List[int] = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityAmuletEffectRecordData(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    badge_id: int = betterproto.uint32_field(2)
+    volume: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityAmuletGameRecordData(betterproto.Message):
+    effect_builds: List["ActivityAmuletEffectRecordData"] = betterproto.message_field(1)
+    level: int = betterproto.uint32_field(2)
+    highest_level_score: str = betterproto.string_field(3)
+    highest_fan: str = betterproto.string_field(4)
+    highest_score: str = betterproto.string_field(5)
+    coin_consumed: str = betterproto.string_field(6)
+    pack_count: int = betterproto.uint32_field(7)
+    time: int = betterproto.uint32_field(8)
+    highest_hu: "ActivityAmuletHuRecord" = betterproto.message_field(9)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityAmuletStatisticData(betterproto.Message):
+    highest_level: int = betterproto.uint32_field(1)
+    highest_hu: "ActivityAmuletHuRecord" = betterproto.message_field(2)
+    highest_level_score: str = betterproto.string_field(3)
+    highest_fan: str = betterproto.string_field(4)
+    highest_score: str = betterproto.string_field(5)
+    pass_game_count: int = betterproto.uint32_field(6)
+    round_count: int = betterproto.uint32_field(7)
+    open_pack_count: int = betterproto.uint32_field(8)
+    highest_coin_consumed: str = betterproto.string_field(9)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityAmuletData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    game: "AmuletGameData" = betterproto.message_field(2)
+    version: int = betterproto.uint32_field(3)
+    upgrade: "ActivityAmuletUpgradeData" = betterproto.message_field(4)
+    illustrated_book: "ActivityAmuletIllustratedBookData" = betterproto.message_field(5)
+    book_effect_id: int = betterproto.uint32_field(6)
+    game_records: List["ActivityAmuletGameRecordData"] = betterproto.message_field(7)
+    statistic: "ActivityAmuletStatisticData" = betterproto.message_field(8)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletFan(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    val: str = betterproto.string_field(2)
+    count: int = betterproto.uint32_field(3)
+    yiman: bool = betterproto.bool_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletHookResult(betterproto.Message):
+    add_effect: List["AmuletHookResultAddEffectResult"] = betterproto.message_field(1)
+    remove_effect: List[int] = betterproto.uint32_field(2)
+    add_buff: List[int] = betterproto.uint32_field(3)
+    remove_buff: List[int] = betterproto.uint32_field(4)
+    add_tian_dora: List[str] = betterproto.string_field(5)
+    add_dora: "AmuletHookResultAddDoraResult" = betterproto.message_field(6)
+    coin_modify: "AmuletHookResultValueResult" = betterproto.message_field(8)
+    tile_replace: List["AmuletTile"] = betterproto.message_field(10)
+    add_show_tile: List[int] = betterproto.uint32_field(11)
+    modify_tile_score: List["AmuletTileScore"] = betterproto.message_field(12)
+    modify_desktop_count: int = betterproto.int32_field(14)
+    modify_show_desktop_count: int = betterproto.int32_field(15)
+    modify_lock_tile_count: int = betterproto.int32_field(16)
+    modify_change_hands_count: int = betterproto.int32_field(17)
+    modify_change_hands_tile_count: int = betterproto.int32_field(18)
+    force_moqie: bool = betterproto.bool_field(19)
+    replace_hu: bool = betterproto.bool_field(20)
+    modify_target_point: str = betterproto.string_field(21)
+    upgrade_level: bool = betterproto.bool_field(22)
+    modify_dora: List["AmuletHookResultModifyDoraResult"] = betterproto.message_field(
+        23
+    )
+    modify_dora_max_count: int = betterproto.int32_field(25)
+    modify_shop_goods_count: int = betterproto.int32_field(26)
+    modify_shop_rare_weight: bool = betterproto.bool_field(27)
+    modify_shop_goods_price: bool = betterproto.bool_field(28)
+    modify_shop_pack_effect: List[int] = betterproto.uint32_field(29)
+    modify_effect_max_count: int = betterproto.int32_field(30)
+    modify_goods: List["AmuletGameShopGoods"] = betterproto.message_field(31)
+    remove_goods: List[int] = betterproto.uint32_field(32)
+    modify_base: "AmuletHookResultValueResult" = betterproto.message_field(33)
+    modify_fan: "AmuletHookResultValueResult" = betterproto.message_field(34)
+    modify_fan_info: List["AmuletFan"] = betterproto.message_field(37)
+    transform_effect: List["AmuletHookResultTransformResult"] = (
+        betterproto.message_field(39)
+    )
+    add_badge: List["AmuletHookResultAddBadge"] = betterproto.message_field(40)
+    remove_badge: List[int] = betterproto.uint32_field(41)
+    modify_effect_price: str = betterproto.string_field(42)
+    copy_effect: List["AmuletHookResultCopyEffect"] = betterproto.message_field(43)
+    effect_growth: bool = betterproto.bool_field(44)
+    modify_tile_score_aura: str = betterproto.string_field(45)
+    modify_hule_count: int = betterproto.uint32_field(46)
+    can_gang: bool = betterproto.bool_field(47)
+    modify_change_hands_list: List[int] = betterproto.uint32_field(48)
+    modify_change_desktop: "AmuletHookResultAmuletChangeDesktopResult" = (
+        betterproto.message_field(49)
+    )
+    self_effect_id: int = betterproto.uint32_field(50)
+    modify_change_coin: str = betterproto.string_field(51)
+    set_tile_score: List["AmuletTileScore"] = betterproto.message_field(52)
+    upgrade_effect: List["AmuletHookResultUpgradeEffectResult"] = (
+        betterproto.message_field(53)
+    )
+    modify_tile_base_score: List["AmuletTileScore"] = betterproto.message_field(54)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletHookResultAddEffectResult(betterproto.Message):
+    uid: int = betterproto.uint32_field(1)
+    id: int = betterproto.uint32_field(2)
+    merge_type: int = betterproto.uint32_field(3)
+    merged_list: List[int] = betterproto.uint32_field(4)
+    merged_result: int = betterproto.uint32_field(5)
+    badge: "AmuletBadgeData" = betterproto.message_field(6)
+    store: List[str] = betterproto.string_field(7)
+    volume: int = betterproto.uint32_field(8)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletHookResultAddDoraResult(betterproto.Message):
+    count: int = betterproto.uint32_field(1)
+    list: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletHookResultValueResult(betterproto.Message):
+    origin: str = betterproto.string_field(1)
+    modify: str = betterproto.string_field(2)
+    final: str = betterproto.string_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletHookResultModifyDoraResult(betterproto.Message):
+    tile: str = betterproto.string_field(1)
+    is_dora: bool = betterproto.bool_field(2)
+    is_red_dora: bool = betterproto.bool_field(3)
+    is_tian_dora: bool = betterproto.bool_field(4)
+    dora_count: int = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletHookResultTransformResult(betterproto.Message):
+    uid: int = betterproto.uint32_field(1)
+    effect_id: int = betterproto.uint32_field(2)
+    add_result: "AmuletHookResultAddEffectResult" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletHookResultAddBadge(betterproto.Message):
+    uid: int = betterproto.uint32_field(1)
+    badge_id: int = betterproto.uint32_field(2)
+    badge_uid: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletHookResultCopyEffect(betterproto.Message):
+    uid: int = betterproto.uint32_field(1)
+    from_uid: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletHookResultAmuletChangeDesktopResult(betterproto.Message):
+    show_desktop_tiles: List["AmuletShowDesktopTileData"] = betterproto.message_field(1)
+    locked_tile_count: int = betterproto.uint32_field(3)
+    desktop_remain: int = betterproto.uint32_field(4)
+    locked_tile: List[int] = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletHookResultUpgradeEffectResult(betterproto.Message):
+    uid: int = betterproto.uint32_field(1)
+    id: int = betterproto.uint32_field(2)
+    badge: "AmuletBadgeData" = betterproto.message_field(3)
+    store: List[str] = betterproto.string_field(4)
+    volume: int = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEffectedHookData(betterproto.Message):
+    uid: int = betterproto.uint32_field(1)
+    id: int = betterproto.uint32_field(2)
+    result: "AmuletHookResult" = betterproto.message_field(3)
+    type: int = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEffectCandidatesArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["AmuletEffectCandidate"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletTileArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["AmuletTile"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class StringDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class StringArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List[str] = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class UInt32ArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletMingInfoArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["AmuletMingInfo"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class UInt32Dirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletGameOperationArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["AmuletGameOperation"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletTingInfoArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["AmuletActivityTingInfo"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletShowDesktopTileDataArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["AmuletShowDesktopTileData"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletRoundDataChanges(betterproto.Message):
+    pool: "AmuletTileArrayDirty" = betterproto.message_field(1)
+    tile_replace: "AmuletTileArrayDirty" = betterproto.message_field(2)
+    tian_dora: "StringArrayDirty" = betterproto.message_field(3)
+    dora: "UInt32ArrayDirty" = betterproto.message_field(5)
+    hands: "UInt32ArrayDirty" = betterproto.message_field(6)
+    used_desktop: "UInt32ArrayDirty" = betterproto.message_field(7)
+    used: "UInt32ArrayDirty" = betterproto.message_field(8)
+    ming: "AmuletMingInfoArrayDirty" = betterproto.message_field(9)
+    locked_tile: "UInt32ArrayDirty" = betterproto.message_field(12)
+    change_tile_count: "UInt32Dirty" = betterproto.message_field(13)
+    total_change_tile_count: "UInt32Dirty" = betterproto.message_field(14)
+    next_operation: "AmuletGameOperationArrayDirty" = betterproto.message_field(15)
+    ting_list: "AmuletTingInfoArrayDirty" = betterproto.message_field(16)
+    point: "StringDirty" = betterproto.message_field(18)
+    target_point: "StringDirty" = betterproto.message_field(19)
+    desktop_remain: "UInt32Dirty" = betterproto.message_field(20)
+    show_desktop_tiles: "AmuletShowDesktopTileDataArrayDirty" = (
+        betterproto.message_field(21)
+    )
+    locked_tile_count: "UInt32Dirty" = betterproto.message_field(22)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEffectDataArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["AmuletEffectData"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletBuffDataArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["AmuletBuffData"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEffectDataChanges(betterproto.Message):
+    effect_list: "AmuletEffectDataArrayDirty" = betterproto.message_field(1)
+    buff_list: "AmuletBuffDataArrayDirty" = betterproto.message_field(2)
+    skill_buff_list: "AmuletBuffDataArrayDirty" = betterproto.message_field(3)
+    shop_buff_list: "AmuletBuffDataArrayDirty" = betterproto.message_field(4)
+    free_reward_candidates: "AmuletEffectCandidatesArrayDirty" = (
+        betterproto.message_field(5)
+    )
+    level_reward_candidates: "AmuletEffectCandidatesArrayDirty" = (
+        betterproto.message_field(6)
+    )
+    current_level_reward_pack: "UInt32Dirty" = betterproto.message_field(7)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletTileScoreArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["AmuletTileScore"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletGameInfoDataChanges(betterproto.Message):
+    level: "UInt32Dirty" = betterproto.message_field(1)
+    coin: "StringDirty" = betterproto.message_field(2)
+    max_effect_volume: "UInt32Dirty" = betterproto.message_field(3)
+    next_boss_buff: "UInt32ArrayDirty" = betterproto.message_field(4)
+    boss_buff: "UInt32ArrayDirty" = betterproto.message_field(5)
+    tile_score_map: "AmuletTileScoreArrayDirty" = betterproto.message_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletShopGoodsArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["AmuletGameShopGoods"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletShopDataChanges(betterproto.Message):
+    goods: "AmuletShopGoodsArrayDirty" = betterproto.message_field(1)
+    candidate_effect_list: "AmuletEffectCandidatesArrayDirty" = (
+        betterproto.message_field(2)
+    )
+    shop_refresh_count: "UInt32Dirty" = betterproto.message_field(3)
+    refresh_price: "UInt32Dirty" = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityAmuletHuRecordDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: "ActivityAmuletHuRecord" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEffectCounterDataArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["AmuletEffectCounterData"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletRecordDataChanges(betterproto.Message):
+    yiman_count: "UInt32Dirty" = betterproto.message_field(1)
+    level_hu_count: "UInt32Dirty" = betterproto.message_field(2)
+    game_hu_count: "UInt32Dirty" = betterproto.message_field(3)
+    effect_gain: "UInt32Dirty" = betterproto.message_field(4)
+    coin_consume: "StringDirty" = betterproto.message_field(5)
+    coin_gain: "StringDirty" = betterproto.message_field(6)
+    highest_hu: "ActivityAmuletHuRecordDirty" = betterproto.message_field(7)
+    highest_level_score: "StringDirty" = betterproto.message_field(8)
+    highest_fan: "StringDirty" = betterproto.message_field(9)
+    pack_count: "UInt32Dirty" = betterproto.message_field(10)
+    round_count: "UInt32Dirty" = betterproto.message_field(11)
+    effect_counter: "AmuletEffectCounterDataArrayDirty" = betterproto.message_field(12)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletValueChanges(betterproto.Message):
+    round: "AmuletRoundDataChanges" = betterproto.message_field(1)
+    effect: "AmuletEffectDataChanges" = betterproto.message_field(2)
+    game: "AmuletGameInfoDataChanges" = betterproto.message_field(3)
+    stage: int = betterproto.uint32_field(4)
+    shop: "AmuletShopDataChanges" = betterproto.message_field(5)
+    record: "AmuletRecordDataChanges" = betterproto.message_field(6)
+    ended: bool = betterproto.bool_field(7)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEventResult(betterproto.Message):
+    deal_result: "AmuletEventResultDealResult" = betterproto.message_field(1)
+    hu_result: "AmuletEventResultHuResult" = betterproto.message_field(2)
+    game_end_result: "AmuletEventResultGameEndResult" = betterproto.message_field(3)
+    gang_result: "AmuletEventResultGangResult" = betterproto.message_field(4)
+    upgrade_result: "AmuletEventResultUpgradeResult" = betterproto.message_field(5)
+    new_game_result: "AmuletGameData" = betterproto.message_field(6)
+    sell_effect_result: "AmuletEventResultSellEffectResult" = betterproto.message_field(
+        7
+    )
+    select_pack_result: "AmuletEventResultSelectPackResult" = betterproto.message_field(
+        8
+    )
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEventResultDealResult(betterproto.Message):
+    tile: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEventResultHuResult(betterproto.Message):
+    hu_final: "AmuletEventResultHuResultHuInfo" = betterproto.message_field(1)
+    hu_base: "AmuletEventResultHuResultHuInfo" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEventResultHuResultHuInfo(betterproto.Message):
+    tile: int = betterproto.uint32_field(1)
+    fan_list: List["AmuletFan"] = betterproto.message_field(2)
+    fan: str = betterproto.string_field(3)
+    base: str = betterproto.string_field(4)
+    point: str = betterproto.string_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEventResultGameEndResult(betterproto.Message):
+    reason: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEventResultGangResult(betterproto.Message):
+    new_dora: List[int] = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEventResultUpgradeResult(betterproto.Message):
+    level_coin: str = betterproto.string_field(1)
+    point_coin: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEventResultSellEffectResult(betterproto.Message):
+    price: str = betterproto.string_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEventResultSelectPackResult(betterproto.Message):
+    uid: int = betterproto.uint32_field(1)
+    id: int = betterproto.uint32_field(2)
+    merge_type: int = betterproto.uint32_field(3)
+    merged_list: List[int] = betterproto.uint32_field(4)
+    merged_result: int = betterproto.uint32_field(5)
+    badge: "AmuletBadgeData" = betterproto.message_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEventHookData(betterproto.Message):
+    remove_effect: List[int] = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class AmuletEventData(betterproto.Message):
+    type: int = betterproto.uint32_field(1)
+    effected_hooks: List["AmuletEffectedHookData"] = betterproto.message_field(2)
+    value_changes: "AmuletValueChanges" = betterproto.message_field(3)
+    result: "AmuletEventResult" = betterproto.message_field(4)
+    event_hooks: List["AmuletEventHookData"] = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -8695,7 +8997,7 @@ class PlayerLeaving(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ReqRequestConnection(betterproto.Message):
     type: int = betterproto.uint32_field(2)
-    route_id: int = betterproto.uint32_field(3)
+    route_id: str = betterproto.string_field(3)
     timestamp: int = betterproto.uint64_field(4)
 
 
@@ -8708,8 +9010,8 @@ class ResRequestConnection(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class ReqRequestRouteChange(betterproto.Message):
-    before: int = betterproto.uint32_field(1)
-    route_id: int = betterproto.uint32_field(2)
+    before: str = betterproto.string_field(1)
+    route_id: str = betterproto.string_field(2)
     type: int = betterproto.uint32_field(3)
 
 
@@ -8721,15 +9023,15 @@ class ResRequestRouteChange(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class ReqHeartbeat(betterproto.Message):
-    timestamp: int = betterproto.uint64_field(1)
+    delay: int = betterproto.uint32_field(1)
     no_operation_counter: int = betterproto.uint32_field(2)
+    platform: int = betterproto.uint32_field(3)
+    network_quality: int = betterproto.uint32_field(4)
 
 
 @dataclass(eq=False, repr=False)
 class ResHeartbeat(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
-    delta: int = betterproto.int64_field(2)
-    timestamp: int = betterproto.uint64_field(3)
 
 
 class LobbyStub(betterproto.ServiceStub):
@@ -8830,6 +9132,40 @@ class LobbyStub(betterproto.ServiceStub):
             "/lq.Lobby/login",
             req_login,
             ResLogin,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def prepare_login(
+        self,
+        req_prepare_login: "ReqPrepareLogin",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCommon":
+        return await self._unary_unary(
+            "/lq.Lobby/prepareLogin",
+            req_prepare_login,
+            ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fast_login(
+        self,
+        req_common: "ReqCommon",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFastLogin":
+        return await self._unary_unary(
+            "/lq.Lobby/fastLogin",
+            req_common,
+            ResFastLogin,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -9194,16 +9530,16 @@ class LobbyStub(betterproto.ServiceStub):
 
     async def search_account_by_eid(
         self,
-        req_search_account_by_eid: "ReqSearchAccountByEid",
+        req_search_account_by_eid_lobby: "ReqSearchAccountByEidLobby",
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResSearchAccountbyEid":
+    ) -> "ResSearchAccountbyEidLobby":
         return await self._unary_unary(
             "/lq.Lobby/searchAccountByEid",
-            req_search_account_by_eid,
-            ResSearchAccountbyEid,
+            req_search_account_by_eid_lobby,
+            ResSearchAccountbyEidLobby,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14411,18 +14747,18 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
-    async def amulet_activity_fetch_info(
+    async def fetch_amulet_activity_data(
         self,
-        req_amulet_activity_fetch_info: "ReqAmuletActivityFetchInfo",
+        req_fetch_amulet_activity_data: "ReqFetchAmuletActivityData",
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivityFetchInfo":
+    ) -> "ResFetchAmuletActivityData":
         return await self._unary_unary(
-            "/lq.Lobby/amuletActivityFetchInfo",
-            req_amulet_activity_fetch_info,
-            ResAmuletActivityFetchInfo,
+            "/lq.Lobby/fetchAmuletActivityData",
+            req_fetch_amulet_activity_data,
+            ResFetchAmuletActivityData,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14452,11 +14788,11 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivityStartGame":
+    ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityStartGame",
             req_amulet_activity_start_game,
-            ResAmuletActivityStartGame,
+            ResAmuletEventResponse,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14469,28 +14805,11 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivityOperate":
+    ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityOperate",
             req_amulet_activity_operate,
-            ResAmuletActivityOperate,
-            timeout=timeout,
-            deadline=deadline,
-            metadata=metadata,
-        )
-
-    async def amulet_activity_change_hands(
-        self,
-        req_amulet_activity_change_hands: "ReqAmuletActivityChangeHands",
-        *,
-        timeout: Optional[float] = None,
-        deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivityChangeHands":
-        return await self._unary_unary(
-            "/lq.Lobby/amuletActivityChangeHands",
-            req_amulet_activity_change_hands,
-            ResAmuletActivityChangeHands,
+            ResAmuletEventResponse,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14503,11 +14822,11 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivityUpgrade":
+    ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityUpgrade",
             req_amulet_activity_upgrade,
-            ResAmuletActivityUpgrade,
+            ResAmuletEventResponse,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14520,11 +14839,11 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivityBuy":
+    ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityBuy",
             req_amulet_activity_buy,
-            ResAmuletActivityBuy,
+            ResAmuletEventResponse,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14537,11 +14856,11 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivitySelectPack":
+    ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySelectPack",
             req_amulet_activity_select_pack,
-            ResAmuletActivitySelectPack,
+            ResAmuletEventResponse,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14554,11 +14873,11 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivitySellEffect":
+    ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySellEffect",
             req_amulet_activity_sell_effect,
-            ResAmuletActivitySellEffect,
+            ResAmuletEventResponse,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14571,11 +14890,11 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResCommon":
+    ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityEffectSort",
             req_amulet_activity_effect_sort,
-            ResCommon,
+            ResAmuletEventResponse,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14605,11 +14924,11 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivityRefreshShop":
+    ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityRefreshShop",
             req_amulet_activity_refresh_shop,
-            ResAmuletActivityRefreshShop,
+            ResAmuletEventResponse,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14622,11 +14941,11 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivitySelectFreeEffect":
+    ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySelectFreeEffect",
             req_amulet_activity_select_free_effect,
-            ResAmuletActivitySelectFreeEffect,
+            ResAmuletEventResponse,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14639,11 +14958,11 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivityUpgradeShopBuff":
+    ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityUpgradeShopBuff",
             req_amulet_activity_upgrade_shop_buff,
-            ResAmuletActivityUpgradeShopBuff,
+            ResAmuletEventResponse,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14656,11 +14975,11 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivityEndShopping":
+    ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityEndShopping",
             req_amulet_activity_end_shopping,
-            ResAmuletActivityEndShopping,
+            ResAmuletEventResponse,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -14707,28 +15026,28 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivitySelectRewardPack":
+    ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySelectRewardPack",
             req_amulet_activity_select_reward_pack,
-            ResAmuletActivitySelectRewardPack,
+            ResAmuletEventResponse,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
         )
 
-    async def amulet_activity_receive_task_reward(
+    async def amulet_activity_select_book_effect(
         self,
-        req_amulet_activity_receive_task_reward: "ReqAmuletActivityReceiveTaskReward",
+        req_amulet_activity_select_book_effect: "ReqAmuletActivitySelectBookEffect",
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ResAmuletActivityReceiveTaskReward":
+    ) -> "ResCommon":
         return await self._unary_unary(
-            "/lq.Lobby/amuletActivityReceiveTaskReward",
-            req_amulet_activity_receive_task_reward,
-            ResAmuletActivityReceiveTaskReward,
+            "/lq.Lobby/amuletActivitySelectBookEffect",
+            req_amulet_activity_select_book_effect,
+            ResCommon,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -15261,6 +15580,40 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def progress_reward_activity_receive(
+        self,
+        req_progress_reward_activity_receive: "ReqProgressRewardActivityReceive",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResProgressRewardActivityReceive":
+        return await self._unary_unary(
+            "/lq.Lobby/progressRewardActivityReceive",
+            req_progress_reward_activity_receive,
+            ResProgressRewardActivityReceive,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_progress_reward_activity_info(
+        self,
+        req_fetch_progress_reward_activity_info: "ReqFetchProgressRewardActivityInfo",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchProgressRewardActivityInfo":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchProgressRewardActivityInfo",
+            req_fetch_progress_reward_activity_info,
+            ResFetchProgressRewardActivityInfo,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
 
 class FastTestStub(betterproto.ServiceStub):
     async def auth_game(
@@ -15632,6 +15985,12 @@ class LobbyBase(ServiceBase):
     async def login(self, req_login: "ReqLogin") -> "ResLogin":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def prepare_login(self, req_prepare_login: "ReqPrepareLogin") -> "ResCommon":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fast_login(self, req_common: "ReqCommon") -> "ResFastLogin":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def fetch_info(self, req_common: "ReqCommon") -> "ResFetchInfo":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -15720,8 +16079,8 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def search_account_by_eid(
-        self, req_search_account_by_eid: "ReqSearchAccountByEid"
-    ) -> "ResSearchAccountbyEid":
+        self, req_search_account_by_eid_lobby: "ReqSearchAccountByEidLobby"
+    ) -> "ResSearchAccountbyEidLobby":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def login_beat(self, req_login_beat: "ReqLoginBeat") -> "ResCommon":
@@ -17134,9 +17493,9 @@ class LobbyBase(ServiceBase):
     ) -> "ResGenerateContestManagerLoginCode":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def amulet_activity_fetch_info(
-        self, req_amulet_activity_fetch_info: "ReqAmuletActivityFetchInfo"
-    ) -> "ResAmuletActivityFetchInfo":
+    async def fetch_amulet_activity_data(
+        self, req_fetch_amulet_activity_data: "ReqFetchAmuletActivityData"
+    ) -> "ResFetchAmuletActivityData":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_fetch_brief(
@@ -17146,42 +17505,37 @@ class LobbyBase(ServiceBase):
 
     async def amulet_activity_start_game(
         self, req_amulet_activity_start_game: "ReqAmuletActivityStartGame"
-    ) -> "ResAmuletActivityStartGame":
+    ) -> "ResAmuletEventResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_operate(
         self, req_amulet_activity_operate: "ReqAmuletActivityOperate"
-    ) -> "ResAmuletActivityOperate":
-        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
-
-    async def amulet_activity_change_hands(
-        self, req_amulet_activity_change_hands: "ReqAmuletActivityChangeHands"
-    ) -> "ResAmuletActivityChangeHands":
+    ) -> "ResAmuletEventResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_upgrade(
         self, req_amulet_activity_upgrade: "ReqAmuletActivityUpgrade"
-    ) -> "ResAmuletActivityUpgrade":
+    ) -> "ResAmuletEventResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_buy(
         self, req_amulet_activity_buy: "ReqAmuletActivityBuy"
-    ) -> "ResAmuletActivityBuy":
+    ) -> "ResAmuletEventResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_select_pack(
         self, req_amulet_activity_select_pack: "ReqAmuletActivitySelectPack"
-    ) -> "ResAmuletActivitySelectPack":
+    ) -> "ResAmuletEventResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_sell_effect(
         self, req_amulet_activity_sell_effect: "ReqAmuletActivitySellEffect"
-    ) -> "ResAmuletActivitySellEffect":
+    ) -> "ResAmuletEventResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_effect_sort(
         self, req_amulet_activity_effect_sort: "ReqAmuletActivityEffectSort"
-    ) -> "ResCommon":
+    ) -> "ResAmuletEventResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_giveup(
@@ -17191,23 +17545,23 @@ class LobbyBase(ServiceBase):
 
     async def amulet_activity_refresh_shop(
         self, req_amulet_activity_refresh_shop: "ReqAmuletActivityRefreshShop"
-    ) -> "ResAmuletActivityRefreshShop":
+    ) -> "ResAmuletEventResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_select_free_effect(
         self,
         req_amulet_activity_select_free_effect: "ReqAmuletActivitySelectFreeEffect",
-    ) -> "ResAmuletActivitySelectFreeEffect":
+    ) -> "ResAmuletEventResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_upgrade_shop_buff(
         self, req_amulet_activity_upgrade_shop_buff: "ReqAmuletActivityUpgradeShopBuff"
-    ) -> "ResAmuletActivityUpgradeShopBuff":
+    ) -> "ResAmuletEventResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_end_shopping(
         self, req_amulet_activity_end_shopping: "ReqAmuletActivityEndShopping"
-    ) -> "ResAmuletActivityEndShopping":
+    ) -> "ResAmuletEventResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def amulet_activity_set_skill_level(
@@ -17223,13 +17577,13 @@ class LobbyBase(ServiceBase):
     async def amulet_activity_select_reward_pack(
         self,
         req_amulet_activity_select_reward_pack: "ReqAmuletActivitySelectRewardPack",
-    ) -> "ResAmuletActivitySelectRewardPack":
+    ) -> "ResAmuletEventResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def amulet_activity_receive_task_reward(
+    async def amulet_activity_select_book_effect(
         self,
-        req_amulet_activity_receive_task_reward: "ReqAmuletActivityReceiveTaskReward",
-    ) -> "ResAmuletActivityReceiveTaskReward":
+        req_amulet_activity_select_book_effect: "ReqAmuletActivitySelectBookEffect",
+    ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def story_activity_unlock(
@@ -17387,6 +17741,17 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def progress_reward_activity_receive(
+        self, req_progress_reward_activity_receive: "ReqProgressRewardActivityReceive"
+    ) -> "ResProgressRewardActivityReceive":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_progress_reward_activity_info(
+        self,
+        req_fetch_progress_reward_activity_info: "ReqFetchProgressRewardActivityInfo",
+    ) -> "ResFetchProgressRewardActivityInfo":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def __rpc_fetch_connection_info(
         self, stream: "grpclib.server.Stream[ReqCommon, ResConnectionInfo]"
     ) -> None:
@@ -17427,6 +17792,20 @@ class LobbyBase(ServiceBase):
     ) -> None:
         request = await stream.recv_message()
         response = await self.login(request)
+        await stream.send_message(response)
+
+    async def __rpc_prepare_login(
+        self, stream: "grpclib.server.Stream[ReqPrepareLogin, ResCommon]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.prepare_login(request)
+        await stream.send_message(response)
+
+    async def __rpc_fast_login(
+        self, stream: "grpclib.server.Stream[ReqCommon, ResFastLogin]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fast_login(request)
         await stream.send_message(response)
 
     async def __rpc_fetch_info(
@@ -17579,7 +17958,7 @@ class LobbyBase(ServiceBase):
 
     async def __rpc_search_account_by_eid(
         self,
-        stream: "grpclib.server.Stream[ReqSearchAccountByEid, ResSearchAccountbyEid]",
+        stream: "grpclib.server.Stream[ReqSearchAccountByEidLobby, ResSearchAccountbyEidLobby]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.search_account_by_eid(request)
@@ -19832,12 +20211,12 @@ class LobbyBase(ServiceBase):
         response = await self.generate_contest_manager_login_code(request)
         await stream.send_message(response)
 
-    async def __rpc_amulet_activity_fetch_info(
+    async def __rpc_fetch_amulet_activity_data(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivityFetchInfo, ResAmuletActivityFetchInfo]",
+        stream: "grpclib.server.Stream[ReqFetchAmuletActivityData, ResFetchAmuletActivityData]",
     ) -> None:
         request = await stream.recv_message()
-        response = await self.amulet_activity_fetch_info(request)
+        response = await self.fetch_amulet_activity_data(request)
         await stream.send_message(response)
 
     async def __rpc_amulet_activity_fetch_brief(
@@ -19850,7 +20229,7 @@ class LobbyBase(ServiceBase):
 
     async def __rpc_amulet_activity_start_game(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivityStartGame, ResAmuletActivityStartGame]",
+        stream: "grpclib.server.Stream[ReqAmuletActivityStartGame, ResAmuletEventResponse]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_start_game(request)
@@ -19858,23 +20237,15 @@ class LobbyBase(ServiceBase):
 
     async def __rpc_amulet_activity_operate(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivityOperate, ResAmuletActivityOperate]",
+        stream: "grpclib.server.Stream[ReqAmuletActivityOperate, ResAmuletEventResponse]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_operate(request)
         await stream.send_message(response)
 
-    async def __rpc_amulet_activity_change_hands(
-        self,
-        stream: "grpclib.server.Stream[ReqAmuletActivityChangeHands, ResAmuletActivityChangeHands]",
-    ) -> None:
-        request = await stream.recv_message()
-        response = await self.amulet_activity_change_hands(request)
-        await stream.send_message(response)
-
     async def __rpc_amulet_activity_upgrade(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivityUpgrade, ResAmuletActivityUpgrade]",
+        stream: "grpclib.server.Stream[ReqAmuletActivityUpgrade, ResAmuletEventResponse]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_upgrade(request)
@@ -19882,7 +20253,7 @@ class LobbyBase(ServiceBase):
 
     async def __rpc_amulet_activity_buy(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivityBuy, ResAmuletActivityBuy]",
+        stream: "grpclib.server.Stream[ReqAmuletActivityBuy, ResAmuletEventResponse]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_buy(request)
@@ -19890,7 +20261,7 @@ class LobbyBase(ServiceBase):
 
     async def __rpc_amulet_activity_select_pack(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivitySelectPack, ResAmuletActivitySelectPack]",
+        stream: "grpclib.server.Stream[ReqAmuletActivitySelectPack, ResAmuletEventResponse]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_select_pack(request)
@@ -19898,14 +20269,15 @@ class LobbyBase(ServiceBase):
 
     async def __rpc_amulet_activity_sell_effect(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivitySellEffect, ResAmuletActivitySellEffect]",
+        stream: "grpclib.server.Stream[ReqAmuletActivitySellEffect, ResAmuletEventResponse]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_sell_effect(request)
         await stream.send_message(response)
 
     async def __rpc_amulet_activity_effect_sort(
-        self, stream: "grpclib.server.Stream[ReqAmuletActivityEffectSort, ResCommon]"
+        self,
+        stream: "grpclib.server.Stream[ReqAmuletActivityEffectSort, ResAmuletEventResponse]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_effect_sort(request)
@@ -19920,7 +20292,7 @@ class LobbyBase(ServiceBase):
 
     async def __rpc_amulet_activity_refresh_shop(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivityRefreshShop, ResAmuletActivityRefreshShop]",
+        stream: "grpclib.server.Stream[ReqAmuletActivityRefreshShop, ResAmuletEventResponse]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_refresh_shop(request)
@@ -19928,7 +20300,7 @@ class LobbyBase(ServiceBase):
 
     async def __rpc_amulet_activity_select_free_effect(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivitySelectFreeEffect, ResAmuletActivitySelectFreeEffect]",
+        stream: "grpclib.server.Stream[ReqAmuletActivitySelectFreeEffect, ResAmuletEventResponse]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_select_free_effect(request)
@@ -19936,7 +20308,7 @@ class LobbyBase(ServiceBase):
 
     async def __rpc_amulet_activity_upgrade_shop_buff(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivityUpgradeShopBuff, ResAmuletActivityUpgradeShopBuff]",
+        stream: "grpclib.server.Stream[ReqAmuletActivityUpgradeShopBuff, ResAmuletEventResponse]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_upgrade_shop_buff(request)
@@ -19944,7 +20316,7 @@ class LobbyBase(ServiceBase):
 
     async def __rpc_amulet_activity_end_shopping(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivityEndShopping, ResAmuletActivityEndShopping]",
+        stream: "grpclib.server.Stream[ReqAmuletActivityEndShopping, ResAmuletEventResponse]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_end_shopping(request)
@@ -19966,18 +20338,18 @@ class LobbyBase(ServiceBase):
 
     async def __rpc_amulet_activity_select_reward_pack(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivitySelectRewardPack, ResAmuletActivitySelectRewardPack]",
+        stream: "grpclib.server.Stream[ReqAmuletActivitySelectRewardPack, ResAmuletEventResponse]",
     ) -> None:
         request = await stream.recv_message()
         response = await self.amulet_activity_select_reward_pack(request)
         await stream.send_message(response)
 
-    async def __rpc_amulet_activity_receive_task_reward(
+    async def __rpc_amulet_activity_select_book_effect(
         self,
-        stream: "grpclib.server.Stream[ReqAmuletActivityReceiveTaskReward, ResAmuletActivityReceiveTaskReward]",
+        stream: "grpclib.server.Stream[ReqAmuletActivitySelectBookEffect, ResCommon]",
     ) -> None:
         request = await stream.recv_message()
-        response = await self.amulet_activity_receive_task_reward(request)
+        response = await self.amulet_activity_select_book_effect(request)
         await stream.send_message(response)
 
     async def __rpc_story_activity_unlock(
@@ -20213,6 +20585,22 @@ class LobbyBase(ServiceBase):
         response = await self.sim_v2_activity_set_upgrade(request)
         await stream.send_message(response)
 
+    async def __rpc_progress_reward_activity_receive(
+        self,
+        stream: "grpclib.server.Stream[ReqProgressRewardActivityReceive, ResProgressRewardActivityReceive]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.progress_reward_activity_receive(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_progress_reward_activity_info(
+        self,
+        stream: "grpclib.server.Stream[ReqFetchProgressRewardActivityInfo, ResFetchProgressRewardActivityInfo]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_progress_reward_activity_info(request)
+        await stream.send_message(response)
+
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
         return {
             "/lq.Lobby/fetchConnectionInfo": grpclib.const.Handler(
@@ -20250,6 +20638,18 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqLogin,
                 ResLogin,
+            ),
+            "/lq.Lobby/prepareLogin": grpclib.const.Handler(
+                self.__rpc_prepare_login,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqPrepareLogin,
+                ResCommon,
+            ),
+            "/lq.Lobby/fastLogin": grpclib.const.Handler(
+                self.__rpc_fast_login,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqCommon,
+                ResFastLogin,
             ),
             "/lq.Lobby/fetchInfo": grpclib.const.Handler(
                 self.__rpc_fetch_info,
@@ -20380,8 +20780,8 @@ class LobbyBase(ServiceBase):
             "/lq.Lobby/searchAccountByEid": grpclib.const.Handler(
                 self.__rpc_search_account_by_eid,
                 grpclib.const.Cardinality.UNARY_UNARY,
-                ReqSearchAccountByEid,
-                ResSearchAccountbyEid,
+                ReqSearchAccountByEidLobby,
+                ResSearchAccountbyEidLobby,
             ),
             "/lq.Lobby/loginBeat": grpclib.const.Handler(
                 self.__rpc_login_beat,
@@ -22219,11 +22619,11 @@ class LobbyBase(ServiceBase):
                 ReqCommon,
                 ResGenerateContestManagerLoginCode,
             ),
-            "/lq.Lobby/amuletActivityFetchInfo": grpclib.const.Handler(
-                self.__rpc_amulet_activity_fetch_info,
+            "/lq.Lobby/fetchAmuletActivityData": grpclib.const.Handler(
+                self.__rpc_fetch_amulet_activity_data,
                 grpclib.const.Cardinality.UNARY_UNARY,
-                ReqAmuletActivityFetchInfo,
-                ResAmuletActivityFetchInfo,
+                ReqFetchAmuletActivityData,
+                ResFetchAmuletActivityData,
             ),
             "/lq.Lobby/amuletActivityFetchBrief": grpclib.const.Handler(
                 self.__rpc_amulet_activity_fetch_brief,
@@ -22235,49 +22635,43 @@ class LobbyBase(ServiceBase):
                 self.__rpc_amulet_activity_start_game,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqAmuletActivityStartGame,
-                ResAmuletActivityStartGame,
+                ResAmuletEventResponse,
             ),
             "/lq.Lobby/amuletActivityOperate": grpclib.const.Handler(
                 self.__rpc_amulet_activity_operate,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqAmuletActivityOperate,
-                ResAmuletActivityOperate,
-            ),
-            "/lq.Lobby/amuletActivityChangeHands": grpclib.const.Handler(
-                self.__rpc_amulet_activity_change_hands,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                ReqAmuletActivityChangeHands,
-                ResAmuletActivityChangeHands,
+                ResAmuletEventResponse,
             ),
             "/lq.Lobby/amuletActivityUpgrade": grpclib.const.Handler(
                 self.__rpc_amulet_activity_upgrade,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqAmuletActivityUpgrade,
-                ResAmuletActivityUpgrade,
+                ResAmuletEventResponse,
             ),
             "/lq.Lobby/amuletActivityBuy": grpclib.const.Handler(
                 self.__rpc_amulet_activity_buy,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqAmuletActivityBuy,
-                ResAmuletActivityBuy,
+                ResAmuletEventResponse,
             ),
             "/lq.Lobby/amuletActivitySelectPack": grpclib.const.Handler(
                 self.__rpc_amulet_activity_select_pack,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqAmuletActivitySelectPack,
-                ResAmuletActivitySelectPack,
+                ResAmuletEventResponse,
             ),
             "/lq.Lobby/amuletActivitySellEffect": grpclib.const.Handler(
                 self.__rpc_amulet_activity_sell_effect,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqAmuletActivitySellEffect,
-                ResAmuletActivitySellEffect,
+                ResAmuletEventResponse,
             ),
             "/lq.Lobby/amuletActivityEffectSort": grpclib.const.Handler(
                 self.__rpc_amulet_activity_effect_sort,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqAmuletActivityEffectSort,
-                ResCommon,
+                ResAmuletEventResponse,
             ),
             "/lq.Lobby/amuletActivityGiveup": grpclib.const.Handler(
                 self.__rpc_amulet_activity_giveup,
@@ -22289,25 +22683,25 @@ class LobbyBase(ServiceBase):
                 self.__rpc_amulet_activity_refresh_shop,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqAmuletActivityRefreshShop,
-                ResAmuletActivityRefreshShop,
+                ResAmuletEventResponse,
             ),
             "/lq.Lobby/amuletActivitySelectFreeEffect": grpclib.const.Handler(
                 self.__rpc_amulet_activity_select_free_effect,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqAmuletActivitySelectFreeEffect,
-                ResAmuletActivitySelectFreeEffect,
+                ResAmuletEventResponse,
             ),
             "/lq.Lobby/amuletActivityUpgradeShopBuff": grpclib.const.Handler(
                 self.__rpc_amulet_activity_upgrade_shop_buff,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqAmuletActivityUpgradeShopBuff,
-                ResAmuletActivityUpgradeShopBuff,
+                ResAmuletEventResponse,
             ),
             "/lq.Lobby/amuletActivityEndShopping": grpclib.const.Handler(
                 self.__rpc_amulet_activity_end_shopping,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqAmuletActivityEndShopping,
-                ResAmuletActivityEndShopping,
+                ResAmuletEventResponse,
             ),
             "/lq.Lobby/amuletActivitySetSkillLevel": grpclib.const.Handler(
                 self.__rpc_amulet_activity_set_skill_level,
@@ -22325,13 +22719,13 @@ class LobbyBase(ServiceBase):
                 self.__rpc_amulet_activity_select_reward_pack,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqAmuletActivitySelectRewardPack,
-                ResAmuletActivitySelectRewardPack,
+                ResAmuletEventResponse,
             ),
-            "/lq.Lobby/amuletActivityReceiveTaskReward": grpclib.const.Handler(
-                self.__rpc_amulet_activity_receive_task_reward,
+            "/lq.Lobby/amuletActivitySelectBookEffect": grpclib.const.Handler(
+                self.__rpc_amulet_activity_select_book_effect,
                 grpclib.const.Cardinality.UNARY_UNARY,
-                ReqAmuletActivityReceiveTaskReward,
-                ResAmuletActivityReceiveTaskReward,
+                ReqAmuletActivitySelectBookEffect,
+                ResCommon,
             ),
             "/lq.Lobby/storyActivityUnlock": grpclib.const.Handler(
                 self.__rpc_story_activity_unlock,
@@ -22518,6 +22912,18 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqSimV2ActivitySetUpgrade,
                 ResCommon,
+            ),
+            "/lq.Lobby/progressRewardActivityReceive": grpclib.const.Handler(
+                self.__rpc_progress_reward_activity_receive,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqProgressRewardActivityReceive,
+                ResProgressRewardActivityReceive,
+            ),
+            "/lq.Lobby/fetchProgressRewardActivityInfo": grpclib.const.Handler(
+                self.__rpc_fetch_progress_reward_activity_info,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchProgressRewardActivityInfo,
+                ResFetchProgressRewardActivityInfo,
             ),
         }
 
