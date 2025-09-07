@@ -49,7 +49,7 @@ class MajsoulLiqiProto(Struct):
 
 
 class MajsoulRegionUrl(Struct):
-    ob_url: str
+    id: str
     url: str
 
 
