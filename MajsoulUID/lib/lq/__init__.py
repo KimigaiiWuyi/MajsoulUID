@@ -15,7 +15,6 @@ import betterproto
 import grpclib
 from betterproto.grpc.grpclib_server import ServiceBase
 
-
 if TYPE_CHECKING:
     import grpclib.server
     from betterproto.grpc.grpclib_client import MetadataLike
@@ -1162,9 +1161,9 @@ class AccountDetailStatisticV2(betterproto.Message):
     rank_statistic: "AccountDetailStatisticV2RankStatistic" = betterproto.message_field(
         2
     )
-    customized_contest_statistic: (
-        "AccountDetailStatisticV2CustomizedContestStatistic"
-    ) = betterproto.message_field(3)
+    customized_contest_statistic: "AccountDetailStatisticV2CustomizedContestStatistic" = betterproto.message_field(
+        3
+    )
     leisure_match_statistic: "AccountDetailStatistic" = betterproto.message_field(4)
     challenge_match_statistic: "AccountDetailStatisticV2ChallengeStatistic" = (
         betterproto.message_field(5)
@@ -9041,7 +9040,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResConnectionInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchConnectionInfo",
@@ -9058,7 +9057,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchQueueInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchQueueInfo",
@@ -9075,7 +9074,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/cancelQueue",
@@ -9092,7 +9091,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResOauth2Check":
         return await self._unary_unary(
             "/lq.Lobby/openidCheck",
@@ -9109,7 +9108,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSignupAccount":
         return await self._unary_unary(
             "/lq.Lobby/signup",
@@ -9126,7 +9125,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResLogin":
         return await self._unary_unary(
             "/lq.Lobby/login",
@@ -9143,7 +9142,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/prepareLogin",
@@ -9160,7 +9159,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFastLogin":
         return await self._unary_unary(
             "/lq.Lobby/fastLogin",
@@ -9177,7 +9176,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchInfo",
@@ -9194,7 +9193,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/loginSuccess",
@@ -9211,7 +9210,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchServerMaintenanceInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchServerMaintenanceInfo",
@@ -9228,7 +9227,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResLogin":
         return await self._unary_unary(
             "/lq.Lobby/emailLogin",
@@ -9245,7 +9244,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResOauth2Auth":
         return await self._unary_unary(
             "/lq.Lobby/oauth2Auth",
@@ -9262,7 +9261,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResOauth2Check":
         return await self._unary_unary(
             "/lq.Lobby/oauth2Check",
@@ -9279,7 +9278,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResOauth2Signup":
         return await self._unary_unary(
             "/lq.Lobby/oauth2Signup",
@@ -9296,7 +9295,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResLogin":
         return await self._unary_unary(
             "/lq.Lobby/oauth2Login",
@@ -9313,7 +9312,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResDmmPreLogin":
         return await self._unary_unary(
             "/lq.Lobby/dmmPreLogin",
@@ -9330,7 +9329,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/createPhoneVerifyCode",
@@ -9347,7 +9346,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/createEmailVerifyCode",
@@ -9364,7 +9363,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResVerfiyCodeForSecure":
         return await self._unary_unary(
             "/lq.Lobby/verfifyCodeForSecure",
@@ -9381,7 +9380,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/bindPhoneNumber",
@@ -9398,7 +9397,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/unbindPhoneNumber",
@@ -9415,7 +9414,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchPhoneLoginBind":
         return await self._unary_unary(
             "/lq.Lobby/fetchPhoneLoginBind",
@@ -9432,7 +9431,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/createPhoneLoginBind",
@@ -9449,7 +9448,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/bindEmail",
@@ -9466,7 +9465,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/modifyPassword",
@@ -9483,7 +9482,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/bindAccount",
@@ -9500,7 +9499,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResLogout":
         return await self._unary_unary(
             "/lq.Lobby/logout",
@@ -9517,7 +9516,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/heatbeat",
@@ -9534,7 +9533,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSearchAccountbyEidLobby":
         return await self._unary_unary(
             "/lq.Lobby/searchAccountByEid",
@@ -9551,7 +9550,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/loginBeat",
@@ -9568,7 +9567,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/createNickname",
@@ -9585,7 +9584,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/modifyNickname",
@@ -9602,7 +9601,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/modifyBirthday",
@@ -9619,7 +9618,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSelfRoom":
         return await self._unary_unary(
             "/lq.Lobby/fetchRoom",
@@ -9636,7 +9635,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchGamingInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchGamingInfo",
@@ -9653,7 +9652,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateRoom":
         return await self._unary_unary(
             "/lq.Lobby/createRoom",
@@ -9670,7 +9669,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResJoinRoom":
         return await self._unary_unary(
             "/lq.Lobby/joinRoom",
@@ -9687,7 +9686,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/leaveRoom",
@@ -9704,7 +9703,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/readyPlay",
@@ -9721,7 +9720,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/dressingStatus",
@@ -9738,7 +9737,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/startRoom",
@@ -9755,7 +9754,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/roomKickPlayer",
@@ -9772,7 +9771,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/modifyRoom",
@@ -9789,7 +9788,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/addRoomRobot",
@@ -9806,7 +9805,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/matchGame",
@@ -9823,7 +9822,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/cancelMatch",
@@ -9840,7 +9839,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAccountInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountInfo",
@@ -9857,7 +9856,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/changeAvatar",
@@ -9874,7 +9873,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/receiveVersionReward",
@@ -9891,7 +9890,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAccountStatisticInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountStatisticInfo",
@@ -9908,7 +9907,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAccountChallengeRankInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountChallengeRankInfo",
@@ -9925,7 +9924,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAccountCharacterInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountCharacterInfo",
@@ -9942,7 +9941,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResShopPurchase":
         return await self._unary_unary(
             "/lq.Lobby/shopPurchase",
@@ -9959,7 +9958,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGameRecord":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameRecord",
@@ -9976,7 +9975,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/readGameRecord",
@@ -9993,7 +9992,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGameRecordList":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameRecordList",
@@ -10010,7 +10009,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGameRecordListV2":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameRecordListV2",
@@ -10027,7 +10026,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResNextGameRecordList":
         return await self._unary_unary(
             "/lq.Lobby/fetchNextGameRecordList",
@@ -10044,7 +10043,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCollectedGameRecordList":
         return await self._unary_unary(
             "/lq.Lobby/fetchCollectedGameRecordList",
@@ -10061,7 +10060,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGameRecordsDetail":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameRecordsDetail",
@@ -10078,7 +10077,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGameRecordsDetailV2":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameRecordsDetailV2",
@@ -10095,7 +10094,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAddCollectedGameRecord":
         return await self._unary_unary(
             "/lq.Lobby/addCollectedGameRecord",
@@ -10112,7 +10111,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResRemoveCollectedGameRecord":
         return await self._unary_unary(
             "/lq.Lobby/removeCollectedGameRecord",
@@ -10129,7 +10128,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResChangeCollectedGameRecordRemarks":
         return await self._unary_unary(
             "/lq.Lobby/changeCollectedGameRecordRemarks",
@@ -10146,7 +10145,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResLevelLeaderboard":
         return await self._unary_unary(
             "/lq.Lobby/fetchLevelLeaderboard",
@@ -10163,7 +10162,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResChallengeLeaderboard":
         return await self._unary_unary(
             "/lq.Lobby/fetchChallengeLeaderboard",
@@ -10180,7 +10179,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResMutiChallengeLevel":
         return await self._unary_unary(
             "/lq.Lobby/fetchMutiChallengeLevel",
@@ -10197,7 +10196,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResMultiAccountBrief":
         return await self._unary_unary(
             "/lq.Lobby/fetchMultiAccountBrief",
@@ -10214,7 +10213,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFriendList":
         return await self._unary_unary(
             "/lq.Lobby/fetchFriendList",
@@ -10231,7 +10230,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFriendApplyList":
         return await self._unary_unary(
             "/lq.Lobby/fetchFriendApplyList",
@@ -10248,7 +10247,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/applyFriend",
@@ -10265,7 +10264,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/handleFriendApply",
@@ -10282,7 +10281,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/removeFriend",
@@ -10299,7 +10298,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSearchAccountById":
         return await self._unary_unary(
             "/lq.Lobby/searchAccountById",
@@ -10316,7 +10315,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSearchAccountByPattern":
         return await self._unary_unary(
             "/lq.Lobby/searchAccountByPattern",
@@ -10333,7 +10332,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAccountStates":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountState",
@@ -10350,7 +10349,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResBagInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchBagInfo",
@@ -10367,7 +10366,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/useBagItem",
@@ -10384,7 +10383,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/openManualItem",
@@ -10401,7 +10400,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResOpenRandomRewardItem":
         return await self._unary_unary(
             "/lq.Lobby/openRandomRewardItem",
@@ -10418,7 +10417,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResOpenAllRewardItem":
         return await self._unary_unary(
             "/lq.Lobby/openAllRewardItem",
@@ -10435,7 +10434,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/composeShard",
@@ -10452,7 +10451,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAnnouncement":
         return await self._unary_unary(
             "/lq.Lobby/fetchAnnouncement",
@@ -10469,7 +10468,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/readAnnouncement",
@@ -10486,7 +10485,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResMailInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchMailInfo",
@@ -10503,7 +10502,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/readMail",
@@ -10520,7 +10519,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/deleteMail",
@@ -10537,7 +10536,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/takeAttachmentFromMail",
@@ -10554,7 +10553,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReceiveAchievementReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveAchievementReward",
@@ -10571,7 +10570,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReceiveAchievementGroupReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveAchievementGroupReward",
@@ -10588,7 +10587,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchAchievementRate":
         return await self._unary_unary(
             "/lq.Lobby/fetchAchievementRate",
@@ -10605,7 +10604,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAchievement":
         return await self._unary_unary(
             "/lq.Lobby/fetchAchievement",
@@ -10622,7 +10621,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/buyShiLian",
@@ -10639,7 +10638,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/matchShiLian",
@@ -10656,7 +10655,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/goNextShiLian",
@@ -10673,7 +10672,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateClientValue",
@@ -10690,7 +10689,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResClientValue":
         return await self._unary_unary(
             "/lq.Lobby/fetchClientValue",
@@ -10707,7 +10706,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/clientMessage",
@@ -10724,7 +10723,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCurrentMatchInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchCurrentMatchInfo",
@@ -10741,7 +10740,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/userComplain",
@@ -10758,7 +10757,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReviveCoinInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchReviveCoinInfo",
@@ -10775,7 +10774,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/gainReviveCoin",
@@ -10792,7 +10791,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResDailyTask":
         return await self._unary_unary(
             "/lq.Lobby/fetchDailyTask",
@@ -10809,7 +10808,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResRefreshDailyTask":
         return await self._unary_unary(
             "/lq.Lobby/refreshDailyTask",
@@ -10826,7 +10825,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResUseGiftCode":
         return await self._unary_unary(
             "/lq.Lobby/useGiftCode",
@@ -10843,7 +10842,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResUseSpecialGiftCode":
         return await self._unary_unary(
             "/lq.Lobby/useSpecialGiftCode",
@@ -10860,7 +10859,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResTitleList":
         return await self._unary_unary(
             "/lq.Lobby/fetchTitleList",
@@ -10877,7 +10876,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/useTitle",
@@ -10894,7 +10893,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/sendClientMessage",
@@ -10911,7 +10910,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGameLiveInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameLiveInfo",
@@ -10928,7 +10927,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGameLiveLeftSegment":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameLiveLeftSegment",
@@ -10945,7 +10944,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGameLiveList":
         return await self._unary_unary(
             "/lq.Lobby/fetchGameLiveList",
@@ -10962,7 +10961,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommentSetting":
         return await self._unary_unary(
             "/lq.Lobby/fetchCommentSetting",
@@ -10979,7 +10978,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateCommentSetting",
@@ -10996,7 +10995,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchCommentList":
         return await self._unary_unary(
             "/lq.Lobby/fetchCommentList",
@@ -11013,7 +11012,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchCommentContent":
         return await self._unary_unary(
             "/lq.Lobby/fetchCommentContent",
@@ -11030,7 +11029,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/leaveComment",
@@ -11047,7 +11046,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/deleteComment",
@@ -11064,7 +11063,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateReadComment",
@@ -11081,7 +11080,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchRollingNotice":
         return await self._unary_unary(
             "/lq.Lobby/fetchRollingNotice",
@@ -11098,7 +11097,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchMaintainNotice":
         return await self._unary_unary(
             "/lq.Lobby/fetchMaintainNotice",
@@ -11115,7 +11114,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResServerTime":
         return await self._unary_unary(
             "/lq.Lobby/fetchServerTime",
@@ -11132,7 +11131,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResPlatformBillingProducts":
         return await self._unary_unary(
             "/lq.Lobby/fetchPlatformProducts",
@@ -11149,7 +11148,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResRandomCharacter":
         return await self._unary_unary(
             "/lq.Lobby/fetchRandomCharacter",
@@ -11166,7 +11165,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/setRandomCharacter",
@@ -11183,7 +11182,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/cancelGooglePlayOrder",
@@ -11200,7 +11199,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResOpenChest":
         return await self._unary_unary(
             "/lq.Lobby/openChest",
@@ -11217,7 +11216,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResBuyFromChestShop":
         return await self._unary_unary(
             "/lq.Lobby/buyFromChestShop",
@@ -11234,7 +11233,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResDailySignInInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchDailySignInInfo",
@@ -11251,7 +11250,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/doDailySignIn",
@@ -11268,7 +11267,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResDoActivitySignIn":
         return await self._unary_unary(
             "/lq.Lobby/doActivitySignIn",
@@ -11285,7 +11284,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCharacterInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchCharacterInfo",
@@ -11302,7 +11301,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateCharacterSort",
@@ -11319,7 +11318,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/changeMainCharacter",
@@ -11336,7 +11335,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/changeCharacterSkin",
@@ -11353,7 +11352,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/changeCharacterView",
@@ -11370,7 +11369,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSetHiddenCharacter":
         return await self._unary_unary(
             "/lq.Lobby/setHiddenCharacter",
@@ -11387,7 +11386,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSendGiftToCharacter":
         return await self._unary_unary(
             "/lq.Lobby/sendGiftToCharacter",
@@ -11404,7 +11403,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/sellItem",
@@ -11421,7 +11420,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommonView":
         return await self._unary_unary(
             "/lq.Lobby/fetchCommonView",
@@ -11438,7 +11437,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/changeCommonView",
@@ -11455,7 +11454,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/saveCommonViews",
@@ -11472,7 +11471,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommonViews":
         return await self._unary_unary(
             "/lq.Lobby/fetchCommonViews",
@@ -11489,7 +11488,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAllcommonViews":
         return await self._unary_unary(
             "/lq.Lobby/fetchAllCommonViews",
@@ -11506,7 +11505,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/useCommonView",
@@ -11523,7 +11522,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResUpgradeCharacter":
         return await self._unary_unary(
             "/lq.Lobby/upgradeCharacter",
@@ -11540,7 +11539,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/addFinishedEnding",
@@ -11557,7 +11556,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/receiveEndingReward",
@@ -11574,7 +11573,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/gameMasterCommand",
@@ -11591,7 +11590,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResShopInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchShopInfo",
@@ -11608,7 +11607,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResBuyFromShop":
         return await self._unary_unary(
             "/lq.Lobby/buyFromShop",
@@ -11625,7 +11624,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/buyFromZHP",
@@ -11642,7 +11641,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResRefreshZhpShop":
         return await self._unary_unary(
             "/lq.Lobby/refreshZHPShop",
@@ -11659,7 +11658,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResMonthTicketInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchMonthTicketInfo",
@@ -11676,7 +11675,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResPayMonthTicket":
         return await self._unary_unary(
             "/lq.Lobby/payMonthTicket",
@@ -11693,7 +11692,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/exchangeCurrency",
@@ -11710,7 +11709,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/exchangeChestStone",
@@ -11727,7 +11726,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/exchangeDiamond",
@@ -11744,7 +11743,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResServerSettings":
         return await self._unary_unary(
             "/lq.Lobby/fetchServerSettings",
@@ -11761,7 +11760,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAccountSettings":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountSettings",
@@ -11778,7 +11777,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateAccountSettings",
@@ -11795,7 +11794,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResModNicknameTime":
         return await self._unary_unary(
             "/lq.Lobby/fetchModNicknameTime",
@@ -11812,7 +11811,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateWechatNativeOrder":
         return await self._unary_unary(
             "/lq.Lobby/createWechatNativeOrder",
@@ -11829,7 +11828,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateWechatAppOrder":
         return await self._unary_unary(
             "/lq.Lobby/createWechatAppOrder",
@@ -11846,7 +11845,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateAlipayOrder":
         return await self._unary_unary(
             "/lq.Lobby/createAlipayOrder",
@@ -11863,7 +11862,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateAlipayScanOrder":
         return await self._unary_unary(
             "/lq.Lobby/createAlipayScanOrder",
@@ -11880,7 +11879,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateAlipayAppOrder":
         return await self._unary_unary(
             "/lq.Lobby/createAlipayAppOrder",
@@ -11897,7 +11896,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateJpCreditCardOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPCreditCardOrder",
@@ -11914,7 +11913,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateJpPaypalOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPPaypalOrder",
@@ -11931,7 +11930,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateJpAuOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPAuOrder",
@@ -11948,7 +11947,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateJpDocomoOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPDocomoOrder",
@@ -11965,7 +11964,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateJpWebMoneyOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPWebMoneyOrder",
@@ -11982,7 +11981,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateJpSoftbankOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPSoftbankOrder",
@@ -11999,7 +11998,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateJpPayPayOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPPayPayOrder",
@@ -12016,7 +12015,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchJpCommonCreditCardOrder":
         return await self._unary_unary(
             "/lq.Lobby/fetchJPCommonCreditCardOrder",
@@ -12033,7 +12032,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateJpgmoOrder":
         return await self._unary_unary(
             "/lq.Lobby/createJPGMOOrder",
@@ -12050,7 +12049,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateEnPaypalOrder":
         return await self._unary_unary(
             "/lq.Lobby/createENPaypalOrder",
@@ -12067,7 +12066,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateEnMasterCardOrder":
         return await self._unary_unary(
             "/lq.Lobby/createENMasterCardOrder",
@@ -12084,7 +12083,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateEnVisaOrder":
         return await self._unary_unary(
             "/lq.Lobby/createENVisaOrder",
@@ -12101,7 +12100,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateEnjcbOrder":
         return await self._unary_unary(
             "/lq.Lobby/createENJCBOrder",
@@ -12118,7 +12117,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateEnAlipayOrder":
         return await self._unary_unary(
             "/lq.Lobby/createENAlipayOrder",
@@ -12135,7 +12134,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateKrPaypalOrder":
         return await self._unary_unary(
             "/lq.Lobby/createKRPaypalOrder",
@@ -12152,7 +12151,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateKrMasterCardOrder":
         return await self._unary_unary(
             "/lq.Lobby/createKRMasterCardOrder",
@@ -12169,7 +12168,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateKrVisaOrder":
         return await self._unary_unary(
             "/lq.Lobby/createKRVisaOrder",
@@ -12186,7 +12185,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateKrjcbOrder":
         return await self._unary_unary(
             "/lq.Lobby/createKRJCBOrder",
@@ -12203,7 +12202,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateKrAlipayOrder":
         return await self._unary_unary(
             "/lq.Lobby/createKRAlipayOrder",
@@ -12220,7 +12219,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateDmmOrder":
         return await self._unary_unary(
             "/lq.Lobby/createDMMOrder",
@@ -12237,7 +12236,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateIapOrder":
         return await self._unary_unary(
             "/lq.Lobby/createIAPOrder",
@@ -12254,7 +12253,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateSteamOrder":
         return await self._unary_unary(
             "/lq.Lobby/createSteamOrder",
@@ -12271,7 +12270,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/verifySteamOrder",
@@ -12288,7 +12287,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateMyCardOrder":
         return await self._unary_unary(
             "/lq.Lobby/createMyCardAndroidOrder",
@@ -12305,7 +12304,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateMyCardOrder":
         return await self._unary_unary(
             "/lq.Lobby/createMyCardWebOrder",
@@ -12322,7 +12321,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreatePaypalOrder":
         return await self._unary_unary(
             "/lq.Lobby/createPaypalOrder",
@@ -12339,7 +12338,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateXsollaOrder":
         return await self._unary_unary(
             "/lq.Lobby/createXsollaOrder",
@@ -12356,7 +12355,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateXsollaOrder":
         return await self._unary_unary(
             "/lq.Lobby/createXsollaV4Order",
@@ -12373,7 +12372,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/verifyMyCardOrder",
@@ -12390,7 +12389,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResVerificationIapOrder":
         return await self._unary_unary(
             "/lq.Lobby/verificationIAPOrder",
@@ -12407,7 +12406,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateYostarOrder":
         return await self._unary_unary(
             "/lq.Lobby/createYostarSDKOrder",
@@ -12424,7 +12423,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateBillingOrder":
         return await self._unary_unary(
             "/lq.Lobby/createBillingOrder",
@@ -12441,7 +12440,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/solveGooglePlayOrder",
@@ -12458,7 +12457,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/solveGooglePayOrderV3",
@@ -12475,7 +12474,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/deliverAA32Order",
@@ -12492,7 +12491,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResMisc":
         return await self._unary_unary(
             "/lq.Lobby/fetchMisc",
@@ -12509,7 +12508,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/modifySignature",
@@ -12526,7 +12525,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResIdCardInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchIDCardInfo",
@@ -12543,7 +12542,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateIDCardInfo",
@@ -12560,7 +12559,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResVipReward":
         return await self._unary_unary(
             "/lq.Lobby/fetchVipReward",
@@ -12577,7 +12576,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/gainVipReward",
@@ -12594,7 +12593,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchRefundOrder":
         return await self._unary_unary(
             "/lq.Lobby/fetchRefundOrder",
@@ -12611,7 +12610,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchCustomizedContestList":
         return await self._unary_unary(
             "/lq.Lobby/fetchCustomizedContestList",
@@ -12628,7 +12627,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchCustomizedContestAuthInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchCustomizedContestAuthInfo",
@@ -12645,7 +12644,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResEnterCustomizedContest":
         return await self._unary_unary(
             "/lq.Lobby/enterCustomizedContest",
@@ -12662,7 +12661,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/leaveCustomizedContest",
@@ -12679,7 +12678,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchCustomizedContestOnlineInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchCustomizedContestOnlineInfo",
@@ -12696,7 +12695,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchCustomizedContestByContestId":
         return await self._unary_unary(
             "/lq.Lobby/fetchCustomizedContestByContestId",
@@ -12713,7 +12712,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSignupCustomizedContest":
         return await self._unary_unary(
             "/lq.Lobby/signupCustomizedContest",
@@ -12730,7 +12729,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/startCustomizedContest",
@@ -12747,7 +12746,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/stopCustomizedContest",
@@ -12764,7 +12763,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResJoinCustomizedContestChatRoom":
         return await self._unary_unary(
             "/lq.Lobby/joinCustomizedContestChatRoom",
@@ -12781,7 +12780,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/leaveCustomizedContestChatRoom",
@@ -12798,7 +12797,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/sayChatMessage",
@@ -12815,7 +12814,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchCustomizedContestGameRecords":
         return await self._unary_unary(
             "/lq.Lobby/fetchCustomizedContestGameRecords",
@@ -12832,7 +12831,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchCustomizedContestGameLiveList":
         return await self._unary_unary(
             "/lq.Lobby/fetchCustomizedContestGameLiveList",
@@ -12849,7 +12848,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/followCustomizedContest",
@@ -12866,7 +12865,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/unfollowCustomizedContest",
@@ -12883,7 +12882,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResActivityList":
         return await self._unary_unary(
             "/lq.Lobby/fetchActivityList",
@@ -12900,7 +12899,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAccountActivityData":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountActivityData",
@@ -12917,7 +12916,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResExchangeActivityItem":
         return await self._unary_unary(
             "/lq.Lobby/exchangeActivityItem",
@@ -12934,7 +12933,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completeActivityTask",
@@ -12951,7 +12950,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completeActivityTaskBatch",
@@ -12968,7 +12967,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completeActivityFlipTask",
@@ -12985,7 +12984,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completePeriodActivityTask",
@@ -13002,7 +13001,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completePeriodActivityTaskBatch",
@@ -13019,7 +13018,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completeRandomActivityTask",
@@ -13036,7 +13035,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/completeRandomActivityTaskBatch",
@@ -13053,7 +13052,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReceiveActivityFlipTask":
         return await self._unary_unary(
             "/lq.Lobby/receiveActivityFlipTask",
@@ -13070,7 +13069,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCompleteSegmentTaskReward":
         return await self._unary_unary(
             "/lq.Lobby/completeSegmentTaskReward",
@@ -13087,7 +13086,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchActivityFlipInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchActivityFlipInfo",
@@ -13104,7 +13103,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/gainAccumulatedPointActivityReward",
@@ -13121,7 +13120,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/gainMultiPointActivityReward",
@@ -13138,7 +13137,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchRankPointLeaderboard":
         return await self._unary_unary(
             "/lq.Lobby/fetchRankPointLeaderboard",
@@ -13155,7 +13154,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/gainRankPointReward",
@@ -13172,7 +13171,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResRichmanNextMove":
         return await self._unary_unary(
             "/lq.Lobby/richmanActivityNextMove",
@@ -13189,7 +13188,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResRichmanNextMove":
         return await self._unary_unary(
             "/lq.Lobby/richmanAcitivitySpecialMove",
@@ -13206,7 +13205,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResRichmanChestInfo":
         return await self._unary_unary(
             "/lq.Lobby/richmanActivityChestInfo",
@@ -13223,7 +13222,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateGameObserveAuth":
         return await self._unary_unary(
             "/lq.Lobby/createGameObserveAuth",
@@ -13240,7 +13239,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResRefreshGameObserveAuth":
         return await self._unary_unary(
             "/lq.Lobby/refreshGameObserveAuth",
@@ -13257,7 +13256,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResActivityBuff":
         return await self._unary_unary(
             "/lq.Lobby/fetchActivityBuff",
@@ -13274,7 +13273,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResActivityBuff":
         return await self._unary_unary(
             "/lq.Lobby/upgradeActivityBuff",
@@ -13291,7 +13290,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResUpgradeActivityLevel":
         return await self._unary_unary(
             "/lq.Lobby/upgradeActivityLevel",
@@ -13308,7 +13307,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReceiveUpgradeActivityReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveUpgradeActivityReward",
@@ -13325,7 +13324,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResUpgradeChallenge":
         return await self._unary_unary(
             "/lq.Lobby/upgradeChallenge",
@@ -13342,7 +13341,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResRefreshChallenge":
         return await self._unary_unary(
             "/lq.Lobby/refreshChallenge",
@@ -13359,7 +13358,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchChallengeInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchChallengeInfo",
@@ -13376,7 +13375,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/forceCompleteChallengeTask",
@@ -13393,7 +13392,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResChallengeSeasonInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchChallengeSeason",
@@ -13410,7 +13409,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReceiveChallengeRankReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveChallengeRankReward",
@@ -13427,7 +13426,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchAbMatch":
         return await self._unary_unary(
             "/lq.Lobby/fetchABMatchInfo",
@@ -13444,7 +13443,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/buyInABMatch",
@@ -13461,7 +13460,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/receiveABMatchReward",
@@ -13478,7 +13477,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/quitABMatch",
@@ -13495,7 +13494,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/startUnifiedMatch",
@@ -13512,7 +13511,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/cancelUnifiedMatch",
@@ -13529,7 +13528,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGamePointRank":
         return await self._unary_unary(
             "/lq.Lobby/fetchGamePointRank",
@@ -13546,7 +13545,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchSelfGamePointRank":
         return await self._unary_unary(
             "/lq.Lobby/fetchSelfGamePointRank",
@@ -13563,7 +13562,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReadSns":
         return await self._unary_unary(
             "/lq.Lobby/readSNS",
@@ -13580,7 +13579,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReplySns":
         return await self._unary_unary(
             "/lq.Lobby/replySNS",
@@ -13597,7 +13596,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResLikeSns":
         return await self._unary_unary(
             "/lq.Lobby/likeSNS",
@@ -13614,7 +13613,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResDigMine":
         return await self._unary_unary(
             "/lq.Lobby/digMine",
@@ -13631,7 +13630,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchLastPrivacy":
         return await self._unary_unary(
             "/lq.Lobby/fetchLastPrivacy",
@@ -13648,7 +13647,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/checkPrivacy",
@@ -13665,7 +13664,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchRpgBattleHistory":
         return await self._unary_unary(
             "/lq.Lobby/fetchRPGBattleHistory",
@@ -13682,7 +13681,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchRpgBattleHistoryV2":
         return await self._unary_unary(
             "/lq.Lobby/fetchRPGBattleHistoryV2",
@@ -13699,7 +13698,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReceiveRpgRewards":
         return await self._unary_unary(
             "/lq.Lobby/receiveRPGRewards",
@@ -13716,7 +13715,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReceiveRpgRewards":
         return await self._unary_unary(
             "/lq.Lobby/receiveRPGReward",
@@ -13733,7 +13732,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/buyArenaTicket",
@@ -13750,7 +13749,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/enterArena",
@@ -13767,7 +13766,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResArenaReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveArenaReward",
@@ -13784,7 +13783,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchObToken":
         return await self._unary_unary(
             "/lq.Lobby/fetchOBToken",
@@ -13801,7 +13800,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReceiveCharacterRewards":
         return await self._unary_unary(
             "/lq.Lobby/receiveCharacterRewards",
@@ -13818,7 +13817,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFeedActivityFeed":
         return await self._unary_unary(
             "/lq.Lobby/feedActivityFeed",
@@ -13835,7 +13834,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSendActivityGiftToFriend":
         return await self._unary_unary(
             "/lq.Lobby/sendActivityGiftToFriend",
@@ -13852,7 +13851,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/receiveActivityGift",
@@ -13869,7 +13868,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReceiveAllActivityGift":
         return await self._unary_unary(
             "/lq.Lobby/receiveAllActivityGift",
@@ -13886,7 +13885,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchFriendGiftActivityData":
         return await self._unary_unary(
             "/lq.Lobby/fetchFriendGiftActivityData",
@@ -13903,7 +13902,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResOpenPreChestItem":
         return await self._unary_unary(
             "/lq.Lobby/openPreChestItem",
@@ -13920,7 +13919,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchVoteActivity":
         return await self._unary_unary(
             "/lq.Lobby/fetchVoteActivity",
@@ -13937,7 +13936,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResVoteActivity":
         return await self._unary_unary(
             "/lq.Lobby/voteActivity",
@@ -13954,7 +13953,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/unlockActivitySpot",
@@ -13971,7 +13970,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/unlockActivitySpotEnding",
@@ -13988,7 +13987,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReceiveActivitySpotReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveActivitySpotReward",
@@ -14005,7 +14004,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResDeleteAccount":
         return await self._unary_unary(
             "/lq.Lobby/deleteAccount",
@@ -14022,7 +14021,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/cancelDeleteAccount",
@@ -14039,7 +14038,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/logReport",
@@ -14056,7 +14055,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/bindOauth2",
@@ -14073,7 +14072,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchOauth2":
         return await self._unary_unary(
             "/lq.Lobby/fetchOauth2Info",
@@ -14090,7 +14089,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/setLoadingImage",
@@ -14107,7 +14106,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchShopInterval":
         return await self._unary_unary(
             "/lq.Lobby/fetchShopInterval",
@@ -14124,7 +14123,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchActivityInterval":
         return await self._unary_unary(
             "/lq.Lobby/fetchActivityInterval",
@@ -14141,7 +14140,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchrecentFriend":
         return await self._unary_unary(
             "/lq.Lobby/fetchRecentFriend",
@@ -14158,7 +14157,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResOpenGacha":
         return await self._unary_unary(
             "/lq.Lobby/openGacha",
@@ -14175,7 +14174,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/taskRequest",
@@ -14192,7 +14191,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSimulationActivityTrain":
         return await self._unary_unary(
             "/lq.Lobby/simulationActivityTrain",
@@ -14209,7 +14208,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchSimulationGameRecord":
         return await self._unary_unary(
             "/lq.Lobby/fetchSimulationGameRecord",
@@ -14226,7 +14225,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResStartSimulationActivityGame":
         return await self._unary_unary(
             "/lq.Lobby/startSimulationActivityGame",
@@ -14243,7 +14242,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchSimulationGameRank":
         return await self._unary_unary(
             "/lq.Lobby/fetchSimulationGameRank",
@@ -14260,7 +14259,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGenerateCombiningCraft":
         return await self._unary_unary(
             "/lq.Lobby/generateCombiningCraft",
@@ -14277,7 +14276,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResMoveCombiningCraft":
         return await self._unary_unary(
             "/lq.Lobby/moveCombiningCraft",
@@ -14294,7 +14293,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCombiningRecycleCraft":
         return await self._unary_unary(
             "/lq.Lobby/combiningRecycleCraft",
@@ -14311,7 +14310,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResRecoverCombiningRecycle":
         return await self._unary_unary(
             "/lq.Lobby/recoverCombiningRecycle",
@@ -14328,7 +14327,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFinishCombiningOrder":
         return await self._unary_unary(
             "/lq.Lobby/finishCombiningOrder",
@@ -14345,7 +14344,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/upgradeVillageBuilding",
@@ -14362,7 +14361,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReceiveVillageBuildingReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveVillageBuildingReward",
@@ -14379,7 +14378,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/startVillageTrip",
@@ -14396,7 +14395,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResReceiveVillageTripReward":
         return await self._unary_unary(
             "/lq.Lobby/receiveVillageTripReward",
@@ -14413,7 +14412,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCompleteVillageTask":
         return await self._unary_unary(
             "/lq.Lobby/completeVillageTask",
@@ -14430,7 +14429,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGetFriendVillageData":
         return await self._unary_unary(
             "/lq.Lobby/getFriendVillageData",
@@ -14447,7 +14446,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSetVillageWorker":
         return await self._unary_unary(
             "/lq.Lobby/setVillageWorker",
@@ -14464,7 +14463,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResNextRoundVillage":
         return await self._unary_unary(
             "/lq.Lobby/nextRoundVillage",
@@ -14481,7 +14480,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResResolveFestivalActivityProposal":
         return await self._unary_unary(
             "/lq.Lobby/resolveFestivalActivityProposal",
@@ -14498,7 +14497,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResResolveFestivalActivityEvent":
         return await self._unary_unary(
             "/lq.Lobby/resolveFestivalActivityEvent",
@@ -14515,7 +14514,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResBuyFestivalProposal":
         return await self._unary_unary(
             "/lq.Lobby/buyFestivalProposal",
@@ -14532,7 +14531,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/islandActivityMove",
@@ -14549,7 +14548,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/islandActivityBuy",
@@ -14566,7 +14565,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/islandActivitySell",
@@ -14583,7 +14582,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/islandActivityTidyBag",
@@ -14600,7 +14599,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/islandActivityUnlockBagGrid",
@@ -14617,7 +14616,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateCustomizedContest":
         return await self._unary_unary(
             "/lq.Lobby/createCustomizedContest",
@@ -14634,7 +14633,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchManagerCustomizedContestList":
         return await self._unary_unary(
             "/lq.Lobby/fetchManagerCustomizedContestList",
@@ -14651,7 +14650,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchManagerCustomizedContest":
         return await self._unary_unary(
             "/lq.Lobby/fetchManagerCustomizedContest",
@@ -14668,7 +14667,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/updateManagerCustomizedContest",
@@ -14685,7 +14684,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchContestPlayerRank":
         return await self._unary_unary(
             "/lq.Lobby/fetchContestPlayerRank",
@@ -14702,7 +14701,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchReadyPlayerList":
         return await self._unary_unary(
             "/lq.Lobby/fetchReadyPlayerList",
@@ -14719,7 +14718,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/createGamePlan",
@@ -14736,7 +14735,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGenerateContestManagerLoginCode":
         return await self._unary_unary(
             "/lq.Lobby/generateContestManagerLoginCode",
@@ -14753,7 +14752,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchAmuletActivityData":
         return await self._unary_unary(
             "/lq.Lobby/fetchAmuletActivityData",
@@ -14770,7 +14769,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletActivityFetchBrief":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityFetchBrief",
@@ -14787,7 +14786,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityStartGame",
@@ -14804,7 +14803,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityOperate",
@@ -14821,7 +14820,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityUpgrade",
@@ -14838,7 +14837,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityBuy",
@@ -14855,7 +14854,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySelectPack",
@@ -14872,7 +14871,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySellEffect",
@@ -14889,7 +14888,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityEffectSort",
@@ -14906,7 +14905,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityGiveup",
@@ -14923,7 +14922,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityRefreshShop",
@@ -14940,7 +14939,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySelectFreeEffect",
@@ -14957,7 +14956,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityUpgradeShopBuff",
@@ -14974,7 +14973,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityEndShopping",
@@ -14991,7 +14990,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySetSkillLevel",
@@ -15008,7 +15007,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletActivityMaintainInfo":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivityMaintainInfo",
@@ -15025,7 +15024,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAmuletEventResponse":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySelectRewardPack",
@@ -15042,7 +15041,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/amuletActivitySelectBookEffect",
@@ -15059,7 +15058,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/storyActivityUnlock",
@@ -15076,7 +15075,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/storyActivityUnlockEnding",
@@ -15093,7 +15092,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResStoryReward":
         return await self._unary_unary(
             "/lq.Lobby/storyActivityReceiveEndingReward",
@@ -15110,7 +15109,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResStoryReward":
         return await self._unary_unary(
             "/lq.Lobby/storyActivityReceiveFinishReward",
@@ -15127,7 +15126,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResStoryReward":
         return await self._unary_unary(
             "/lq.Lobby/storyActivityReceiveAllFinishReward",
@@ -15144,7 +15143,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResStoryActivityUnlockEndingAndReceive":
         return await self._unary_unary(
             "/lq.Lobby/storyActivityUnlockEndingAndReceive",
@@ -15161,7 +15160,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchActivityRank":
         return await self._unary_unary(
             "/lq.Lobby/fetchActivityRank",
@@ -15178,7 +15177,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/setVerifiedHidden",
@@ -15195,7 +15194,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchQuestionnaireList":
         return await self._unary_unary(
             "/lq.Lobby/fetchQuestionnaireList",
@@ -15212,7 +15211,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchQuestionnaireDetail":
         return await self._unary_unary(
             "/lq.Lobby/fetchQuestionnaireDetail",
@@ -15229,7 +15228,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/submitQuestionnaire",
@@ -15246,7 +15245,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/setFriendRoomRandomBotChar",
@@ -15263,7 +15262,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchAccountGameHuRecords":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountGameHuRecords",
@@ -15280,7 +15279,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchAccountInfoExtra":
         return await self._unary_unary(
             "/lq.Lobby/fetchAccountInfoExtra",
@@ -15297,7 +15296,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/setAccountFavoriteHu",
@@ -15314,7 +15313,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchSeerReport":
         return await self._unary_unary(
             "/lq.Lobby/fetchSeerReport",
@@ -15331,7 +15330,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCreateSeerReport":
         return await self._unary_unary(
             "/lq.Lobby/createSeerReport",
@@ -15348,7 +15347,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchSeerReportList":
         return await self._unary_unary(
             "/lq.Lobby/fetchSeerReportList",
@@ -15365,7 +15364,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchSeerInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchSeerInfo",
@@ -15382,7 +15381,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ReqCommon":
         return await self._unary_unary(
             "/lq.Lobby/selectChestChooseUpActivity",
@@ -15399,7 +15398,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGenerateAnnualReportToken":
         return await self._unary_unary(
             "/lq.Lobby/generateAnnualReportToken",
@@ -15416,7 +15415,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchAnnualReportInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchAnnualReportInfo",
@@ -15433,7 +15432,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/remarkFriend",
@@ -15450,7 +15449,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSimV2ActivityFetchInfo":
         return await self._unary_unary(
             "/lq.Lobby/simV2ActivityFetchInfo",
@@ -15467,7 +15466,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSimV2ActivityStartSeason":
         return await self._unary_unary(
             "/lq.Lobby/simV2ActivityStartSeason",
@@ -15484,7 +15483,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSimV2ActivityTrain":
         return await self._unary_unary(
             "/lq.Lobby/simV2ActivityTrain",
@@ -15501,7 +15500,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSimV2ActivitySelectEvent":
         return await self._unary_unary(
             "/lq.Lobby/simV2ActivitySelectEvent",
@@ -15518,7 +15517,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSimV2ActivityStartMatch":
         return await self._unary_unary(
             "/lq.Lobby/simV2ActivityStartMatch",
@@ -15535,7 +15534,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSimV2ActivityEndMatch":
         return await self._unary_unary(
             "/lq.Lobby/simV2ActivityEndMatch",
@@ -15552,7 +15551,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/simV2ActivityGiveUp",
@@ -15569,7 +15568,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/simV2ActivitySetUpgrade",
@@ -15586,7 +15585,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResProgressRewardActivityReceive":
         return await self._unary_unary(
             "/lq.Lobby/progressRewardActivityReceive",
@@ -15603,7 +15602,7 @@ class LobbyStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResFetchProgressRewardActivityInfo":
         return await self._unary_unary(
             "/lq.Lobby/fetchProgressRewardActivityInfo",
@@ -15622,7 +15621,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResAuthGame":
         return await self._unary_unary(
             "/lq.FastTest/authGame",
@@ -15639,7 +15638,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResEnterGame":
         return await self._unary_unary(
             "/lq.FastTest/enterGame",
@@ -15656,7 +15655,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResSyncGame":
         return await self._unary_unary(
             "/lq.FastTest/syncGame",
@@ -15673,7 +15672,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/finishSyncGame",
@@ -15690,7 +15689,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/terminateGame",
@@ -15707,7 +15706,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/inputOperation",
@@ -15724,7 +15723,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/inputChiPengGang",
@@ -15741,7 +15740,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/confirmNewRound",
@@ -15758,7 +15757,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/broadcastInGame",
@@ -15775,7 +15774,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/inputGameGMCommand",
@@ -15792,7 +15791,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGamePlayerState":
         return await self._unary_unary(
             "/lq.FastTest/fetchGamePlayerState",
@@ -15809,7 +15808,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/checkNetworkDelay",
@@ -15826,7 +15825,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/clearLeaving",
@@ -15843,7 +15842,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResGameEndVote":
         return await self._unary_unary(
             "/lq.FastTest/voteGameEnd",
@@ -15860,7 +15859,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/authObserve",
@@ -15877,7 +15876,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResStartObserve":
         return await self._unary_unary(
             "/lq.FastTest/startObserve",
@@ -15894,7 +15893,7 @@ class FastTestStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.FastTest/stopObserve",
@@ -15913,7 +15912,7 @@ class RouteStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResRequestConnection":
         return await self._unary_unary(
             "/lq.Route/requestConnection",
@@ -15930,7 +15929,7 @@ class RouteStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResRequestRouteChange":
         return await self._unary_unary(
             "/lq.Route/requestRouteChange",
@@ -15947,7 +15946,7 @@ class RouteStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResHeartbeat":
         return await self._unary_unary(
             "/lq.Route/heartbeat",
@@ -15960,7 +15959,6 @@ class RouteStub(betterproto.ServiceStub):
 
 
 class LobbyBase(ServiceBase):
-
     async def fetch_connection_info(
         self, req_common: "ReqCommon"
     ) -> "ResConnectionInfo":
@@ -22929,7 +22927,6 @@ class LobbyBase(ServiceBase):
 
 
 class FastTestBase(ServiceBase):
-
     async def auth_game(self, req_auth_game: "ReqAuthGame") -> "ResAuthGame":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -23220,7 +23217,6 @@ class FastTestBase(ServiceBase):
 
 
 class RouteBase(ServiceBase):
-
     async def request_connection(
         self, req_request_connection: "ReqRequestConnection"
     ) -> "ResRequestConnection":

@@ -496,7 +496,7 @@ class MajsoulConnection:
         logger.error(f"[majs] {self.account_id} Connection lost: {error}")
         await manager.restart()
 
-    async def create_heatbeat_task(self):
+    async def create_heartbeat_task(self):
         # create a new task to keep the connection alive, 300s heartbeat
         async def heartbeat():
             while True:
@@ -513,7 +513,7 @@ class MajsoulConnection:
                 resp = cast(
                     liblq.ResCommon,
                     await self.rpc_call(
-                        ".lq.Lobby.heatbeat",
+                        ".lq.Route.heartbeat",
                         {"no_operation_counter": 0},
                     ),
                 )
@@ -946,7 +946,7 @@ async def createMajsoulConnection(
         except ValueError as e:
             raise ValueError(f"Manual login failed: {e}")
 
-    await conn.create_heatbeat_task()
+    await conn.create_heartbeat_task()
 
     return conn
 
@@ -970,7 +970,7 @@ async def createYostarMajsoulConnection(uid: str, code: str, lang: str):
 
     await conn.jp_login(uid, code, version_info)
 
-    await conn.create_heatbeat_task()
+    await conn.create_heartbeat_task()
 
     return conn
 
