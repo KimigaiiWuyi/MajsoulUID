@@ -1,48 +1,46 @@
-import hmac
-import json
-import uuid
-import random
 import asyncio
 import hashlib
+import hmac
+import json
+import random
+import uuid
 from collections.abc import Iterable
-from typing import Dict, List, Union, Sequence, cast
+from typing import Dict, List, Sequence, Union, cast
 
-import httpx
 import aiofiles
+import httpx
 import websockets.client
-from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
-from msgspec import ValidationError, convert
 from gsuid_core.subscribe import gs_subscribe
+from msgspec import ValidationError, convert
 
-from .utils import getRes
 from ..lib import lq as liblq
-from ._level import MajsoulLevel
-from .codec import MajsoulProtoCodec
-from .majsoul_friend import MajsoulFriend
-from ..utils.api.remote_const import GameMode
-from .tenhou.parser import MajsoulPaipuParser
 from ..majs_config.majs_config import MAJS_CONFIG
-from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
-from .constants import HEADERS, USER_AGENT, ModeId2Room
-from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
 from ..utils.api.remote import (
+    decode_account_id2,
     decode_log_id,
     encode_account_id,
-    decode_account_id2,
 )
+from ..utils.api.remote_const import GameMode
+from ..utils.database.models import MajsPaipu, MajsPush, MajsUser
+from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
+from ._level import MajsoulLevel
+from .codec import MajsoulProtoCodec
+from .constants import USER_AGENT, ModeId2Room
+from .majsoul_friend import MajsoulFriend
 from .model import (
-    MjsLog,
-    MjsLogItem,
     MajsoulConfig,
+    MajsoulDecodedMessage,
+    MajsoulLiqiProto,
     MajsoulResInfo,
     MajsoulUSConfig,
-    MajsoulLiqiProto,
-    MajsoulServerList,
     MajsoulVersionInfo,
-    MajsoulDecodedMessage,
+    MjsLog,
+    MjsLogItem,
 )
+from .tenhou.parser import MajsoulPaipuParser
+from .utils import getRes
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 TASK_NAME_MAJSOUL_NOTIFY = "订阅雀魂消息推送"
@@ -895,26 +893,12 @@ async def fetchMajsoulInfo(URL_BASE: str):
 
     ipDef = next(filter(lambda x: x.name == "player", config.ip))
 
-    serverListUrl = random.choice(ipDef.region_urls).url
-    serverListUrl += (
-        "?service=ws-gateway&protocol=ws&ssl=true&rv=" + str(random.random())[2:]
-    )
+    gatewayUrl = random.choice(ipDef.gateways).url
 
-    headers = HEADERS.copy()
-    headers["Referer"] = URL_BASE
-    resp = await AsyncClient(headers=headers).get(serverListUrl)
-    resp.raise_for_status()
-    serverList = convert(resp.json(), MajsoulServerList)
+    region_url = gatewayUrl.replace("https://", "")
+    server = f"{region_url}/gateway"
 
-    if serverList.maintenance:
-        raise MajsoulMaintenanceError(serverList.maintenance.message_i18n[0].context)
-    else:
-        assert serverList.servers
-
-        server = random.choice(serverList.servers)
-        server += "/gateway"
-
-        return server, pbDef, pbVersion, version_info
+    return server, pbDef, pbVersion, version_info
 
 
 async def createMajsoulConnection(

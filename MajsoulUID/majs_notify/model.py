@@ -57,7 +57,7 @@ class MajsoulUSConfigIp(Struct):
     contest_chat_url: str
     dhs_url: str
     name: str
-    region_urls: List[MajsoulRegionUrl]
+    gateways: List[MajsoulRegionUrl]
 
 
 class MajsoulConfigIp(MajsoulUSConfigIp):
