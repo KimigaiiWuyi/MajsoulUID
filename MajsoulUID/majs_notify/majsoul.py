@@ -1,48 +1,48 @@
-import asyncio
-import hashlib
 import hmac
 import json
-import random
 import uuid
+import random
+import asyncio
+import hashlib
 from collections.abc import Iterable
-from typing import Dict, List, Sequence, Union, cast
+from typing import Dict, List, Union, Sequence, cast
 
-import aiofiles
 import httpx
+import aiofiles
 import websockets.client
+from httpx import AsyncClient
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
-from gsuid_core.subscribe import gs_subscribe
-from httpx import AsyncClient
 from msgspec import ValidationError, convert
+from gsuid_core.subscribe import gs_subscribe
 
+from .utils import getRes
 from ..lib import lq as liblq
-from ..majs_config.majs_config import MAJS_CONFIG
-from ..utils.api.remote import (
-    decode_account_id2,
-    decode_log_id,
-    encode_account_id,
-)
-from ..utils.api.remote_const import GameMode
-from ..utils.database.models import MajsPaipu, MajsPush, MajsUser
-from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
 from ._level import MajsoulLevel
 from .codec import MajsoulProtoCodec
-from .constants import HEADERS, USER_AGENT, ModeId2Room
 from .majsoul_friend import MajsoulFriend
+from ..utils.api.remote_const import GameMode
+from .tenhou.parser import MajsoulPaipuParser
+from ..majs_config.majs_config import MAJS_CONFIG
+from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
+from .constants import HEADERS, USER_AGENT, ModeId2Room
+from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
+from ..utils.api.remote import (
+    decode_log_id,
+    encode_account_id,
+    decode_account_id2,
+)
 from .model import (
-    MajsoulConfig,
-    MajsoulDecodedMessage,
-    MajsoulLiqiProto,
-    MajsoulResInfo,
-    MajsoulServerList,
-    MajsoulUSConfig,
-    MajsoulVersionInfo,
     MjsLog,
     MjsLogItem,
+    MajsoulConfig,
+    MajsoulResInfo,
+    MajsoulUSConfig,
+    MajsoulLiqiProto,
+    MajsoulServerList,
+    MajsoulVersionInfo,
+    MajsoulDecodedMessage,
 )
-from .tenhou.parser import MajsoulPaipuParser
-from .utils import getRes
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 TASK_NAME_MAJSOUL_NOTIFY = "订阅雀魂消息推送"

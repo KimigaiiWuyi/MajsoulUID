@@ -1,15 +1,15 @@
-from pathlib import Path
 from typing import List
+from pathlib import Path
 
-from gsuid_core.utils.fonts.fonts import core_font as majs_font
+from PIL import Image, ImageDraw
 from gsuid_core.utils.image.convert import convert_img
 from gsuid_core.utils.image.image_tools import crop_center_img
-from PIL import Image, ImageDraw
+from gsuid_core.utils.fonts.fonts import core_font as majs_font
 
-from ..utils.image import add_footer, get_bg
 from ._level import MajsoulLevel
-from .check_reach import find_ting_tiles
 from .draw_friend_rank import draw_bar
+from .check_reach import find_ting_tiles
+from ..utils.image import get_bg, add_footer
 
 TEXT_PATH = Path(__file__).parent / "texture2d_review"
 PAI_PATH = TEXT_PATH / "pai"

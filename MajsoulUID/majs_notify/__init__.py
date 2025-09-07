@@ -1,32 +1,32 @@
-import asyncio
 import random
+import asyncio
 from urllib.parse import parse_qs, urlparse
 
-import email_validator
 import httpx
-from gsuid_core.aps import scheduler
-from gsuid_core.bot import Bot
-from gsuid_core.logger import logger
-from gsuid_core.models import Event
-from gsuid_core.subscribe import gs_subscribe
+import email_validator
 from gsuid_core.sv import SV
+from gsuid_core.bot import Bot
+from gsuid_core.models import Event
+from gsuid_core.aps import scheduler
+from gsuid_core.logger import logger
+from gsuid_core.subscribe import gs_subscribe
 from gsuid_core.utils.database.api import get_uid
 
-from ..utils.api.remote import encode_account_id2
-from ..utils.database.models import MajsBind, MajsPush, MajsUser
-from ..utils.error_reply import UID_HINT
-from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
-from .constants import USER_AGENT, ModeId2Room
 from .draw_frame import render_frame
+from ..utils.error_reply import UID_HINT
+from .constants import USER_AGENT, ModeId2Room
+from ..utils.api.remote import encode_account_id2
 from .draw_friend_rank import draw_friend_rank_img
 from .draw_review_info import draw_review_info_img
+from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
+from .tenhou.review import review_tenhou, get_review_result
+from ..utils.database.models import MajsBind, MajsPush, MajsUser
 from .majsoul import (
     TASK_NAME_MAJSOUL_NOTIFY,
     MajsoulMaintenanceError,
-    get_paipu_by_game_id,
     manager,
+    get_paipu_by_game_id,
 )
-from .tenhou.review import get_review_result, review_tenhou
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_add_account = SV("雀魂账号池", pm=0)

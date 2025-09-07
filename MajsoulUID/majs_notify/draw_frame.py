@@ -1,15 +1,15 @@
 import json
-from pathlib import Path
 from typing import Dict
+from pathlib import Path
 
-from gsuid_core.utils.fonts.fonts import core_font as majs_font
+from PIL import Image, ImageDraw
 from gsuid_core.utils.image.convert import convert_img
 from gsuid_core.utils.image.image_tools import crop_center_img
-from PIL import Image, ImageDraw
+from gsuid_core.utils.fonts.fonts import core_font as majs_font
 
-from ..utils.image import add_footer, get_bg
-from .draw_review_info import PAI_PATH, draw_en_bg, kyoku_to_string
 from .tenhou_meguru import MeguruLog, n2p
+from ..utils.image import get_bg, add_footer
+from .draw_review_info import PAI_PATH, draw_en_bg, kyoku_to_string
 
 TEXT_LOG_PATH = Path(__file__).parent / "texture2d_log"
 MASK = Image.open(TEXT_LOG_PATH / "mask.png")

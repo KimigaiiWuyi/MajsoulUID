@@ -1,12 +1,14 @@
-from typing import Dict
+from typing import Dict, List
 
-from gsuid_core.handler import config_masters, config_superusers
+from gsuid_core.config import core_config
 from gsuid_core.utils.plugins_config.models import (
     GSC,
     GsStrConfig,
     GsBoolConfig,
 )
 
+config_masters: List[str] = core_config.get_config('masters')
+config_superusers: List[str] = core_config.get_config('superusers')
 master: str = config_masters[0] if config_masters else ""
 superuser: str = config_superusers[0] if config_superusers else ""
 

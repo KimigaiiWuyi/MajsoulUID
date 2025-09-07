@@ -3,8 +3,8 @@
 # plugin: python-betterproto
 # This file has been @generated
 import builtins
-from dataclasses import dataclass
 from typing import List
+from dataclasses import dataclass
 
 import betterproto
 
