@@ -776,10 +776,25 @@ class AccountUpdateBadgeUpdate(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ContestGameMetaData(betterproto.Message):
+    type_list: List["ContestGameMetaDataContestTypeZoneData"] = (
+        betterproto.message_field(1)
+    )
+    rank_type: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ContestGameMetaDataContestTypeZoneData(betterproto.Message):
+    zone: int = betterproto.uint32_field(1)
+    contest_type: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
 class GameMetaData(betterproto.Message):
     room_id: int = betterproto.uint32_field(1)
     mode_id: int = betterproto.uint32_field(2)
     contest_uid: int = betterproto.uint32_field(3)
+    contest_info: "ContestGameMetaData" = betterproto.message_field(4)
 
 
 @dataclass(eq=False, repr=False)
@@ -842,6 +857,8 @@ class PlayerGameView(betterproto.Message):
     avatar_frame: int = betterproto.uint32_field(8)
     verified: int = betterproto.uint32_field(9)
     views: List["ViewSlot"] = betterproto.message_field(10)
+    team_id: int = betterproto.uint32_field(11)
+    team_name: str = betterproto.string_field(12)
 
 
 @dataclass(eq=False, repr=False)
@@ -1365,6 +1382,7 @@ class AccountActivityUpdate(betterproto.Message):
     story_data: List["ActivityStoryData"] = betterproto.message_field(14)
     choose_up_data: List["ActivityChooseUpData"] = betterproto.message_field(15)
     simulation_v2_data: List["SimulationV2Data"] = betterproto.message_field(16)
+    shoot_data: List["ActivityShootData"] = betterproto.message_field(17)
 
 
 @dataclass(eq=False, repr=False)
@@ -1895,6 +1913,15 @@ class ShopInfo(betterproto.Message):
     zhp: "ZhpShop" = betterproto.message_field(1)
     buy_records: List["BuyRecord"] = betterproto.message_field(2)
     last_refresh_time: int = betterproto.uint32_field(3)
+    selected_package_records: List["ShopInfoSelectedPackageBuyRecord"] = (
+        betterproto.message_field(4)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ShopInfoSelectedPackageBuyRecord(betterproto.Message):
+    package_id: int = betterproto.uint32_field(1)
+    buy_records: List["BuyRecord"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -2013,6 +2040,8 @@ class CustomizedContestBase(betterproto.Message):
     public_notice: str = betterproto.string_field(11)
     check_state: int = betterproto.uint32_field(12)
     checking_name: str = betterproto.string_field(13)
+    rank_type: int = betterproto.uint32_field(14)
+    show_team_rank: bool = betterproto.bool_field(15)
 
 
 @dataclass(eq=False, repr=False)
@@ -2058,6 +2087,8 @@ class CustomizedContestDetail(betterproto.Message):
     signup_end_time: int = betterproto.uint32_field(18)
     signup_type: int = betterproto.uint32_field(19)
     auto_match: int = betterproto.uint32_field(20)
+    rank_type: int = betterproto.uint32_field(21)
+    show_team_rank: bool = betterproto.bool_field(22)
 
 
 @dataclass(eq=False, repr=False)
@@ -3097,6 +3128,48 @@ class SimulationActionDataActionDiscardData(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class SimulationActionDataActionDealTileData(betterproto.Message):
     seat: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityShootValueChange(betterproto.Message):
+    level: "ActivityShootValueChangeUint32ValueDirty" = betterproto.message_field(1)
+    enemies: "ActivityShootEnemyInfoDirty" = betterproto.message_field(2)
+    rewarded_ids: "ActivityShootValueChangeRewardArrayDirty" = (
+        betterproto.message_field(3)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ActivityShootValueChangeUint32ValueDirty(betterproto.Message):
+    value: int = betterproto.uint32_field(1)
+    dirty: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityShootValueChangeRewardArrayDirty(betterproto.Message):
+    reward_ids: List[int] = betterproto.uint32_field(1)
+    dirty: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityShootEnemyInfoDirty(betterproto.Message):
+    dirty: int = betterproto.uint32_field(1)
+    enemies: List["ActivityShootEnemyInfo"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityShootData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    level: int = betterproto.uint32_field(2)
+    enemies: List["ActivityShootEnemyInfo"] = betterproto.message_field(3)
+    rewarded_ids: List[int] = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityShootEnemyInfo(betterproto.Message):
+    group_id: int = betterproto.uint32_field(1)
+    enemy_id: int = betterproto.uint32_field(2)
+    hp: int = betterproto.uint32_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -4989,6 +5062,7 @@ class ReqBuyFromShop(betterproto.Message):
     count: int = betterproto.uint32_field(2)
     ver_price: List["ReqBuyFromShopItem"] = betterproto.message_field(3)
     ver_goods: List["ReqBuyFromShopItem"] = betterproto.message_field(4)
+    package_goods: List["ReqBuyFromShopItem"] = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -5313,6 +5387,7 @@ class ResAccountActivityData(betterproto.Message):
     progress_reward_data: List["ActivityProgressRewardData"] = (
         betterproto.message_field(32)
     )
+    shoot_data: List["ActivityShootData"] = betterproto.message_field(33)
 
 
 @dataclass(eq=False, repr=False)
@@ -6589,6 +6664,7 @@ class ReqCreateCustomizedContest(betterproto.Message):
     auto_match: int = betterproto.uint32_field(6)
     rank_rule: int = betterproto.uint32_field(7)
     contest_setting: "ContestSetting" = betterproto.message_field(8)
+    rank_type: int = betterproto.uint32_field(9)
 
 
 @dataclass(eq=False, repr=False)
@@ -6626,6 +6702,7 @@ class ResFetchManagerCustomizedContest(betterproto.Message):
     check_state: int = betterproto.uint32_field(9)
     checking_name: str = betterproto.string_field(10)
     contest_setting: "ContestSetting" = betterproto.message_field(11)
+    rank_type: int = betterproto.uint32_field(12)
 
 
 @dataclass(eq=False, repr=False)
@@ -6665,6 +6742,7 @@ class ResFetchContestPlayerRankContestPlayerAccountData(betterproto.Message):
     highest_series_points: List[
         "ResFetchContestPlayerRankContestPlayerAccountDataContestSeriesGameResult"
     ] = betterproto.message_field(3)
+    accumulate_point: int = betterproto.int32_field(4)
 
 
 @dataclass(eq=False, repr=False)
@@ -6692,6 +6770,7 @@ class ResFetchContestPlayerRankSeasonRank(betterproto.Message):
     data: "ResFetchContestPlayerRankContestPlayerAccountData" = (
         betterproto.message_field(3)
     )
+    team_name: str = betterproto.string_field(4)
 
 
 @dataclass(eq=False, repr=False)
@@ -6700,6 +6779,71 @@ class ResFetchContestPlayerRankPlayerData(betterproto.Message):
     data: "ResFetchContestPlayerRankContestPlayerAccountData" = (
         betterproto.message_field(2)
     )
+    team_name: str = betterproto.string_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFetchContestTeamRank(betterproto.Message):
+    unique_id: int = betterproto.uint32_field(1)
+    limit: int = betterproto.uint32_field(2)
+    offset: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchContestTeamRank(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    total: int = betterproto.uint32_field(2)
+    rank: List["ResFetchContestTeamRankSeasonTeamRank"] = betterproto.message_field(3)
+    self_team_rank: "ResFetchContestTeamRankSeasonTeamRank" = betterproto.message_field(
+        4
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchContestTeamRankContestTeamData(betterproto.Message):
+    total_point: int = betterproto.int32_field(1)
+    total_game_count: int = betterproto.uint32_field(2)
+    member_count: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchContestTeamRankSeasonTeamRank(betterproto.Message):
+    team_id: int = betterproto.uint32_field(1)
+    name: str = betterproto.string_field(2)
+    data: "ResFetchContestTeamRankContestTeamData" = betterproto.message_field(3)
+    rank: int = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFetchContestTeamPlayerRank(betterproto.Message):
+    unique_id: int = betterproto.uint32_field(1)
+    offset: int = betterproto.uint32_field(2)
+    limit: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFetchContestTeamMember(betterproto.Message):
+    unique_id: int = betterproto.uint32_field(1)
+    team_id: int = betterproto.uint32_field(2)
+    offset: int = betterproto.uint32_field(3)
+    limit: int = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchContestTeamMember(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    total: int = betterproto.uint32_field(2)
+    rank: List["ResFetchContestTeamMemberContestTeamMemberRank"] = (
+        betterproto.message_field(3)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchContestTeamMemberContestTeamMemberRank(betterproto.Message):
+    account_id: int = betterproto.uint32_field(1)
+    total_game_count: int = betterproto.uint32_field(3)
+    total_score: int = betterproto.int32_field(4)
+    nickname: str = betterproto.string_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -6717,6 +6861,7 @@ class ResFetchReadyPlayerList(betterproto.Message):
 class ResFetchReadyPlayerListPlayer(betterproto.Message):
     account_id: int = betterproto.uint32_field(1)
     nickname: str = betterproto.string_field(2)
+    team_name: str = betterproto.string_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -7299,6 +7444,31 @@ class ReqFetchProgressRewardActivityInfo(betterproto.Message):
 class ResFetchProgressRewardActivityInfo(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     progress: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqShootActivityAttackEnemies(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    bullets_count: int = betterproto.uint32_field(2)
+    position: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResShootActivityAttackEnemies(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    records: List["ResShootActivityAttackEnemiesActivityShootAttackRecord"] = (
+        betterproto.message_field(2)
+    )
+    value_change: "ActivityShootValueChange" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResShootActivityAttackEnemiesActivityShootAttackRecord(betterproto.Message):
+    position: int = betterproto.uint32_field(1)
+    enemy: "ActivityShootEnemyInfo" = betterproto.message_field(2)
+    level: int = betterproto.uint32_field(3)
+    reward_ids: List[int] = betterproto.uint32_field(4)
+    rewards: List["ExecuteReward"] = betterproto.message_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -12877,6 +13047,74 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def fetch_contest_team_rank(
+        self,
+        req_fetch_contest_team_rank: "ReqFetchContestTeamRank",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchContestTeamRank":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchContestTeamRank",
+            req_fetch_contest_team_rank,
+            ResFetchContestTeamRank,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_contest_team_member(
+        self,
+        req_fetch_contest_team_member: "ReqFetchContestTeamMember",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchContestTeamMember":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchContestTeamMember",
+            req_fetch_contest_team_member,
+            ResFetchContestTeamMember,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_contest_team_player_rank(
+        self,
+        req_fetch_contest_team_player_rank: "ReqFetchContestTeamPlayerRank",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchContestPlayerRank":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchContestTeamPlayerRank",
+            req_fetch_contest_team_player_rank,
+            ResFetchContestPlayerRank,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def fetch_contest_player_rank(
+        self,
+        req_fetch_contest_player_rank: "ReqFetchContestPlayerRank",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchContestPlayerRank":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchContestPlayerRank",
+            req_fetch_contest_player_rank,
+            ResFetchContestPlayerRank,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
     async def fetch_activity_list(
         self,
         req_common: "ReqCommon",
@@ -14475,6 +14713,23 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def shoot_activity_attack_enemies(
+        self,
+        req_shoot_activity_attack_enemies: "ReqShootActivityAttackEnemies",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResShootActivityAttackEnemies":
+        return await self._unary_unary(
+            "/lq.Lobby/shootActivityAttackEnemies",
+            req_shoot_activity_attack_enemies,
+            ResShootActivityAttackEnemies,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
     async def resolve_festival_activity_proposal(
         self,
         req_resolve_festival_activity_proposal: "ReqResolveFestivalActivityProposal",
@@ -14674,23 +14929,6 @@ class LobbyStub(betterproto.ServiceStub):
             "/lq.Lobby/updateManagerCustomizedContest",
             req_update_manager_customized_contest,
             ResCommon,
-            timeout=timeout,
-            deadline=deadline,
-            metadata=metadata,
-        )
-
-    async def fetch_contest_player_rank(
-        self,
-        req_fetch_contest_player_rank: "ReqFetchContestPlayerRank",
-        *,
-        timeout: Optional[float] = None,
-        deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
-    ) -> "ResFetchContestPlayerRank":
-        return await self._unary_unary(
-            "/lq.Lobby/fetchContestPlayerRank",
-            req_fetch_contest_player_rank,
-            ResFetchContestPlayerRank,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -16977,6 +17215,26 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def fetch_contest_team_rank(
+        self, req_fetch_contest_team_rank: "ReqFetchContestTeamRank"
+    ) -> "ResFetchContestTeamRank":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_contest_team_member(
+        self, req_fetch_contest_team_member: "ReqFetchContestTeamMember"
+    ) -> "ResFetchContestTeamMember":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_contest_team_player_rank(
+        self, req_fetch_contest_team_player_rank: "ReqFetchContestTeamPlayerRank"
+    ) -> "ResFetchContestPlayerRank":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_contest_player_rank(
+        self, req_fetch_contest_player_rank: "ReqFetchContestPlayerRank"
+    ) -> "ResFetchContestPlayerRank":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def fetch_activity_list(self, req_common: "ReqCommon") -> "ResActivityList":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -17411,6 +17669,11 @@ class LobbyBase(ServiceBase):
     ) -> "ResNextRoundVillage":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def shoot_activity_attack_enemies(
+        self, req_shoot_activity_attack_enemies: "ReqShootActivityAttackEnemies"
+    ) -> "ResShootActivityAttackEnemies":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def resolve_festival_activity_proposal(
         self,
         req_resolve_festival_activity_proposal: "ReqResolveFestivalActivityProposal",
@@ -17471,11 +17734,6 @@ class LobbyBase(ServiceBase):
     async def update_manager_customized_contest(
         self, req_update_manager_customized_contest: "ReqUpdateManagerCustomizedContest"
     ) -> "ResCommon":
-        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
-
-    async def fetch_contest_player_rank(
-        self, req_fetch_contest_player_rank: "ReqFetchContestPlayerRank"
-    ) -> "ResFetchContestPlayerRank":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_ready_player_list(
@@ -19395,6 +19653,38 @@ class LobbyBase(ServiceBase):
         response = await self.unfollow_customized_contest(request)
         await stream.send_message(response)
 
+    async def __rpc_fetch_contest_team_rank(
+        self,
+        stream: "grpclib.server.Stream[ReqFetchContestTeamRank, ResFetchContestTeamRank]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_contest_team_rank(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_contest_team_member(
+        self,
+        stream: "grpclib.server.Stream[ReqFetchContestTeamMember, ResFetchContestTeamMember]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_contest_team_member(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_contest_team_player_rank(
+        self,
+        stream: "grpclib.server.Stream[ReqFetchContestTeamPlayerRank, ResFetchContestPlayerRank]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_contest_team_player_rank(request)
+        await stream.send_message(response)
+
+    async def __rpc_fetch_contest_player_rank(
+        self,
+        stream: "grpclib.server.Stream[ReqFetchContestPlayerRank, ResFetchContestPlayerRank]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_contest_player_rank(request)
+        await stream.send_message(response)
+
     async def __rpc_fetch_activity_list(
         self, stream: "grpclib.server.Stream[ReqCommon, ResActivityList]"
     ) -> None:
@@ -20089,6 +20379,14 @@ class LobbyBase(ServiceBase):
         response = await self.next_round_village(request)
         await stream.send_message(response)
 
+    async def __rpc_shoot_activity_attack_enemies(
+        self,
+        stream: "grpclib.server.Stream[ReqShootActivityAttackEnemies, ResShootActivityAttackEnemies]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.shoot_activity_attack_enemies(request)
+        await stream.send_message(response)
+
     async def __rpc_resolve_festival_activity_proposal(
         self,
         stream: "grpclib.server.Stream[ReqResolveFestivalActivityProposal, ResResolveFestivalActivityProposal]",
@@ -20178,14 +20476,6 @@ class LobbyBase(ServiceBase):
     ) -> None:
         request = await stream.recv_message()
         response = await self.update_manager_customized_contest(request)
-        await stream.send_message(response)
-
-    async def __rpc_fetch_contest_player_rank(
-        self,
-        stream: "grpclib.server.Stream[ReqFetchContestPlayerRank, ResFetchContestPlayerRank]",
-    ) -> None:
-        request = await stream.recv_message()
-        response = await self.fetch_contest_player_rank(request)
         await stream.send_message(response)
 
     async def __rpc_fetch_ready_player_list(
@@ -21959,6 +22249,30 @@ class LobbyBase(ServiceBase):
                 ReqTargetCustomizedContest,
                 ResCommon,
             ),
+            "/lq.Lobby/fetchContestTeamRank": grpclib.const.Handler(
+                self.__rpc_fetch_contest_team_rank,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchContestTeamRank,
+                ResFetchContestTeamRank,
+            ),
+            "/lq.Lobby/fetchContestTeamMember": grpclib.const.Handler(
+                self.__rpc_fetch_contest_team_member,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchContestTeamMember,
+                ResFetchContestTeamMember,
+            ),
+            "/lq.Lobby/fetchContestTeamPlayerRank": grpclib.const.Handler(
+                self.__rpc_fetch_contest_team_player_rank,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchContestTeamPlayerRank,
+                ResFetchContestPlayerRank,
+            ),
+            "/lq.Lobby/fetchContestPlayerRank": grpclib.const.Handler(
+                self.__rpc_fetch_contest_player_rank,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchContestPlayerRank,
+                ResFetchContestPlayerRank,
+            ),
             "/lq.Lobby/fetchActivityList": grpclib.const.Handler(
                 self.__rpc_fetch_activity_list,
                 grpclib.const.Cardinality.UNARY_UNARY,
@@ -22523,6 +22837,12 @@ class LobbyBase(ServiceBase):
                 ReqNextRoundVillage,
                 ResNextRoundVillage,
             ),
+            "/lq.Lobby/shootActivityAttackEnemies": grpclib.const.Handler(
+                self.__rpc_shoot_activity_attack_enemies,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqShootActivityAttackEnemies,
+                ResShootActivityAttackEnemies,
+            ),
             "/lq.Lobby/resolveFestivalActivityProposal": grpclib.const.Handler(
                 self.__rpc_resolve_festival_activity_proposal,
                 grpclib.const.Cardinality.UNARY_UNARY,
@@ -22594,12 +22914,6 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqUpdateManagerCustomizedContest,
                 ResCommon,
-            ),
-            "/lq.Lobby/fetchContestPlayerRank": grpclib.const.Handler(
-                self.__rpc_fetch_contest_player_rank,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                ReqFetchContestPlayerRank,
-                ResFetchContestPlayerRank,
             ),
             "/lq.Lobby/fetchReadyPlayerList": grpclib.const.Handler(
                 self.__rpc_fetch_ready_player_list,
