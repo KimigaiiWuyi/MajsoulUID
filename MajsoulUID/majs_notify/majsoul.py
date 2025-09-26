@@ -107,7 +107,15 @@ class MajsoulConnection:
             return False
         resp = cast(
             liblq.ResCommon,
-            await self.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0}),
+            await self.rpc_call(
+                ".lq.Route.heartbeat",
+                {
+                    "delay": random.randint(0, 200),
+                    "no_operation_counter": 0,
+                    "platform": 11,
+                    "network_quality": random.randint(0, 100),
+                },
+            ),
         )
         if resp.error.code:
             return False
@@ -920,7 +928,15 @@ async def createMajsoulConnection(
     await conn.connect()
 
     logger.info("Connection established, sending heartbeat")
-    _ = await conn.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0})
+    _ = await conn.rpc_call(
+        ".lq.Route.heartbeat",
+        {
+            "delay": random.randint(0, 200),
+            "no_operation_counter": 0,
+            "platform": 11,
+            "network_quality": random.randint(0, 100),
+        },
+    )
     logger.info(f"Authenticating ({version_info.version})")
 
     if access_token:
@@ -970,7 +986,15 @@ async def createYostarMajsoulConnection(uid: str, code: str, lang: str):
     await conn.connect()
 
     logger.info("Connection established, sending heartbeat")
-    _ = await conn.rpc_call(".lq.Lobby.heatbeat", {"no_operation_counter": 0})
+    _ = await conn.rpc_call(
+        ".lq.Route.heartbeat",
+        {
+            "delay": random.randint(0, 200),
+            "no_operation_counter": 0,
+            "platform": 11,
+            "network_quality": random.randint(0, 100),
+        },
+    )
     logger.info(f"Authenticating ({version_info.version})")
 
     await conn.jp_login(uid, code, version_info)
