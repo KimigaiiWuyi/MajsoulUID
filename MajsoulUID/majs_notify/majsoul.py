@@ -514,7 +514,12 @@ class MajsoulConnection:
                     liblq.ResCommon,
                     await self.rpc_call(
                         ".lq.Route.heartbeat",
-                        {"no_operation_counter": 0},
+                        {
+                            "delay": random.randint(0, 200),
+                            "no_operation_counter": 0,
+                            "platform": 11,
+                            "network_quality": random.randint(0, 100),
+                        },
                     ),
                 )
                 if resp.error.code:
