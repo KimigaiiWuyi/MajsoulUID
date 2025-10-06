@@ -111,7 +111,9 @@ async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
 async def get_review_result(res: dict):
     review_data = res["data"]["review"]
     rating: float = review_data["rating"] * 100
-    matches_total = (review_data["total_matches"] / review_data["total_reviewed"]) * 100
+    matches_total = (
+        review_data["total_matches"] / review_data["total_reviewed"]
+    ) * 100
     bad_move_up_count = 0
     bad_move_down_count = 0
 
