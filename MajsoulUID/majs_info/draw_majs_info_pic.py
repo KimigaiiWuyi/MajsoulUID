@@ -118,7 +118,9 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
     yf_rate = get_rate(extended["一发率"])
     jddxl = str(extended["净打点效率"])
 
-    all_rong = extended["立直和了"] + extended["副露和了"] + extended["默听和了"]
+    all_rong = (
+        extended["立直和了"] + extended["副露和了"] + extended["默听和了"]
+    )
     lz_r_rate = extended["立直和了"] / all_rong
     fl_r_rate = extended["副露和了"] / all_rong
     mt_r_rate = extended["默听和了"] / all_rong
@@ -126,7 +128,11 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
     lz_f_rate = extended["放铳时立直率"]
     fl_f_rate = extended["放铳时副露率"]
 
-    all_chong = extended["放铳至立直"] + extended["放铳至副露"] + extended["放铳至默听"]
+    all_chong = (
+        extended["放铳至立直"]
+        + extended["放铳至副露"]
+        + extended["放铳至默听"]
+    )
     lz_c_rate = extended["放铳至立直"] / all_chong
     fl_c_rate = extended["放铳至副露"] / all_chong
     mt_c_rate = extended["放铳至默听"] / all_chong
@@ -162,7 +168,9 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
 
     for i, r in enumerate(record[::-1]):
         ranks = {p["nickname"]: p["gradingScore"] for p in r["players"]}
-        sorted_players = sorted(ranks.items(), key=lambda x: x[1], reverse=True)
+        sorted_players = sorted(
+            ranks.items(), key=lambda x: x[1], reverse=True
+        )
         _rank = next(
             (
                 i + 1
@@ -179,7 +187,9 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
                         lambda x: round(x * _rank_alpha) if x > 0 else 0
                     )
                 )
-            detail_bg.paste(flower, (99 + 99 * (i % 8), 588 + 152 * (i // 8)), flower)
+            detail_bg.paste(
+                flower, (99 + 99 * (i % 8), 588 + 152 * (i // 8)), flower
+            )
             detail_draw.text(
                 (149 + 99 * (i % 8), 710 + 152 * (i // 8)),
                 f"第{_rank}名",
@@ -236,7 +246,9 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
     return await convert_img(img)
 
 
-async def get_lz_bar(title: str, v1: float, v2: float, v3: Optional[float] = None):
+async def get_lz_bar(
+    title: str, v1: float, v2: float, v3: Optional[float] = None
+):
     if v3 is None:
         v3 = 1 - v1 - v2
 
