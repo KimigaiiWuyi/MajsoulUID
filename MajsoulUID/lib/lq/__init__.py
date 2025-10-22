@@ -484,6 +484,30 @@ class ResCommon(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class StringDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class StringArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List[str] = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class UInt32ArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class UInt32Dirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
 class ResAccountUpdate(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     update: "AccountUpdate" = betterproto.message_field(2)
@@ -952,6 +976,7 @@ class GameDetailRule(betterproto.Message):
     hunzhiyiji_mode: int = betterproto.uint32_field(71)
     wanxiangxiuluo_mode: int = betterproto.uint32_field(72)
     beishuizhizhan_mode: int = betterproto.uint32_field(73)
+    amusement_switches: List[int] = betterproto.uint32_field(74)
 
 
 @dataclass(eq=False, repr=False)
@@ -1382,7 +1407,8 @@ class AccountActivityUpdate(betterproto.Message):
     story_data: List["ActivityStoryData"] = betterproto.message_field(14)
     choose_up_data: List["ActivityChooseUpData"] = betterproto.message_field(15)
     simulation_v2_data: List["SimulationV2Data"] = betterproto.message_field(16)
-    shoot_data: List["ActivityShootData"] = betterproto.message_field(17)
+    quest_crew_data: List["ActivityQuestCrewChanges"] = betterproto.message_field(17)
+    shoot_data: List["ActivityShootData"] = betterproto.message_field(18)
 
 
 @dataclass(eq=False, repr=False)
@@ -1623,6 +1649,78 @@ class ActivityStoryData(betterproto.Message):
 class ActivityProgressRewardData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     rewarded_progresses: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class QcMember(betterproto.Message):
+    member_id: int = betterproto.uint32_field(1)
+    consumed_sta: "TimeCounterData" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityQuestCrewEffectResult(betterproto.Message):
+    result_change: "ActivityQuestCrewEffectResultQcQuestResultChange" = (
+        betterproto.message_field(1)
+    )
+    consumed_change: List["ActivityQuestCrewEffectResultQcQuestConsumeChange"] = (
+        betterproto.message_field(2)
+    )
+    reward: "ActivityQuestCrewEffectResultQcItemReward" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityQuestCrewEffectResultQcQuestResultChange(betterproto.Message):
+    from_: int = betterproto.uint32_field(1)
+    to: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityQuestCrewEffectResultQcQuestConsumeChange(betterproto.Message):
+    member_id: int = betterproto.uint32_field(1)
+    from_: int = betterproto.uint32_field(2)
+    to: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityQuestCrewEffectResultQcItemReward(betterproto.Message):
+    execute_reward: List["ExecuteReward"] = betterproto.message_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class QcQuest(betterproto.Message):
+    quest_id: int = betterproto.uint32_field(1)
+    finished: int = betterproto.uint32_field(2)
+    finished_time: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityQuestCrewData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    members: List["QcMember"] = betterproto.message_field(2)
+    quest_board: List["QcQuest"] = betterproto.message_field(3)
+    market_board: List[int] = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityQuestCrewChanges(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    members: "ActivityQuestCrewChangesQcMemberArrayDirty" = betterproto.message_field(2)
+    quest_board: "ActivityQuestCrewChangesQcQuestArrayDirty" = (
+        betterproto.message_field(3)
+    )
+    market_board: "UInt32ArrayDirty" = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityQuestCrewChangesQcMemberArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["QcMember"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityQuestCrewChangesQcQuestArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["QcQuest"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -3242,6 +3340,11 @@ class ResLogin(betterproto.Message):
 class ReqPrepareLogin(betterproto.Message):
     access_token: str = betterproto.string_field(1)
     type: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFastLogin(betterproto.Message):
+    client_version_string: str = betterproto.string_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -5387,7 +5490,8 @@ class ResAccountActivityData(betterproto.Message):
     progress_reward_data: List["ActivityProgressRewardData"] = (
         betterproto.message_field(32)
     )
-    shoot_data: List["ActivityShootData"] = betterproto.message_field(33)
+    quest_crew_data: List["ActivityQuestCrewData"] = betterproto.message_field(33)
+    shoot_data: List["ActivityShootData"] = betterproto.message_field(34)
 
 
 @dataclass(eq=False, repr=False)
@@ -7472,6 +7576,68 @@ class ResShootActivityAttackEnemiesActivityShootAttackRecord(betterproto.Message
 
 
 @dataclass(eq=False, repr=False)
+class ReqQuestCrewActivityStartQuest(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    joined_members: List[int] = betterproto.uint32_field(2)
+    quest_id: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResQuestCrewActivityStartQuest(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    result: int = betterproto.uint32_field(2)
+    value_changes: "ActivityQuestCrewChanges" = betterproto.message_field(3)
+    effect_info: List["ResQuestCrewActivityStartQuestActivityQuestCrewEffectInfo"] = (
+        betterproto.message_field(4)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ResQuestCrewActivityStartQuestActivityQuestCrewEffectInfo(betterproto.Message):
+    member_id: int = betterproto.uint32_field(1)
+    effect_id: int = betterproto.uint32_field(2)
+    result: "ActivityQuestCrewEffectResult" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqQuestCrewActivityHire(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    member_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResQuestCrewActivityHire(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    value_changes: "ActivityQuestCrewChanges" = betterproto.message_field(2)
+    execute_result: List["ExecuteResult"] = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqQuestCrewActivityFeed(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    member_id: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResQuestCrewActivityFeed(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    value_changes: "ActivityQuestCrewChanges" = betterproto.message_field(2)
+    execute_result: List["ExecuteResult"] = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqQuestCrewActivityRefreshMarket(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResQuestCrewActivityRefreshMarket(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    value_changes: "ActivityQuestCrewChanges" = betterproto.message_field(2)
+    execute_result: List["ExecuteResult"] = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
 class AmuletBadgeData(betterproto.Message):
     id: int = betterproto.uint32_field(1)
     uid: int = betterproto.uint32_field(2)
@@ -7879,33 +8045,9 @@ class AmuletTileArrayDirty(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
-class StringDirty(betterproto.Message):
-    dirty: bool = betterproto.bool_field(1)
-    value: str = betterproto.string_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class StringArrayDirty(betterproto.Message):
-    dirty: bool = betterproto.bool_field(1)
-    value: List[str] = betterproto.string_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class UInt32ArrayDirty(betterproto.Message):
-    dirty: bool = betterproto.bool_field(1)
-    value: List[int] = betterproto.uint32_field(2)
-
-
-@dataclass(eq=False, repr=False)
 class AmuletMingInfoArrayDirty(betterproto.Message):
     dirty: bool = betterproto.bool_field(1)
     value: List["AmuletMingInfo"] = betterproto.message_field(2)
-
-
-@dataclass(eq=False, repr=False)
-class UInt32Dirty(betterproto.Message):
-    dirty: bool = betterproto.bool_field(1)
-    value: int = betterproto.uint32_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -8426,6 +8568,11 @@ class YongchangInfo(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class XiaKeShangInfo(betterproto.Message):
+    score_coefficients: List[int] = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
 class ActionNewCard(betterproto.Message):
     field_spell: int = betterproto.uint32_field(1)
 
@@ -8458,6 +8605,7 @@ class ActionNewRound(betterproto.Message):
     sha256: str = betterproto.string_field(19)
     yongchang: "YongchangInfo" = betterproto.message_field(20)
     salt_sha256: str = betterproto.string_field(21)
+    xia_ke_shang: "XiaKeShangInfo" = betterproto.message_field(26)
 
 
 @dataclass(eq=False, repr=False)
@@ -8487,6 +8635,7 @@ class RecordNewRound(betterproto.Message):
     yongchang: "YongchangInfo" = betterproto.message_field(23)
     salt_sha256: str = betterproto.string_field(24)
     salt: str = betterproto.string_field(25)
+    xia_ke_shang: "XiaKeShangInfo" = betterproto.message_field(26)
 
 
 @dataclass(eq=False, repr=False)
@@ -8617,6 +8766,7 @@ class LiQiSuccess(betterproto.Message):
     liqibang: int = betterproto.uint32_field(3)
     failed: bool = betterproto.bool_field(4)
     liqi_type_beishuizhizhan: int = betterproto.uint32_field(5)
+    xia_ke_shang: "XiaKeShangInfo" = betterproto.message_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -8654,6 +8804,7 @@ class HuleInfo(betterproto.Message):
     tianming_bonus: int = betterproto.uint32_field(24)
     baida_changed: List[str] = betterproto.string_field(25)
     hu_tile_bai_da_changed: str = betterproto.string_field(26)
+    xia_ke_shang_coefficient: int = betterproto.uint32_field(27)
 
 
 @dataclass(eq=False, repr=False)
@@ -9326,7 +9477,7 @@ class LobbyStub(betterproto.ServiceStub):
 
     async def fast_login(
         self,
-        req_common: "ReqCommon",
+        req_fast_login: "ReqFastLogin",
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
@@ -9334,7 +9485,7 @@ class LobbyStub(betterproto.ServiceStub):
     ) -> "ResFastLogin":
         return await self._unary_unary(
             "/lq.Lobby/fastLogin",
-            req_common,
+            req_fast_login,
             ResFastLogin,
             timeout=timeout,
             deadline=deadline,
@@ -15852,6 +16003,74 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def quest_crew_activity_start_quest(
+        self,
+        req_quest_crew_activity_start_quest: "ReqQuestCrewActivityStartQuest",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResQuestCrewActivityStartQuest":
+        return await self._unary_unary(
+            "/lq.Lobby/questCrewActivityStartQuest",
+            req_quest_crew_activity_start_quest,
+            ResQuestCrewActivityStartQuest,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def quest_crew_activity_hire(
+        self,
+        req_quest_crew_activity_hire: "ReqQuestCrewActivityHire",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResQuestCrewActivityHire":
+        return await self._unary_unary(
+            "/lq.Lobby/questCrewActivityHire",
+            req_quest_crew_activity_hire,
+            ResQuestCrewActivityHire,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def quest_crew_activity_feed(
+        self,
+        req_quest_crew_activity_feed: "ReqQuestCrewActivityFeed",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResQuestCrewActivityFeed":
+        return await self._unary_unary(
+            "/lq.Lobby/questCrewActivityFeed",
+            req_quest_crew_activity_feed,
+            ResQuestCrewActivityFeed,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def quest_crew_activity_refresh_market(
+        self,
+        req_quest_crew_activity_refresh_market: "ReqQuestCrewActivityRefreshMarket",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResQuestCrewActivityRefreshMarket":
+        return await self._unary_unary(
+            "/lq.Lobby/questCrewActivityRefreshMarket",
+            req_quest_crew_activity_refresh_market,
+            ResQuestCrewActivityRefreshMarket,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
 
 class FastTestStub(betterproto.ServiceStub):
     async def auth_game(
@@ -16226,7 +16445,7 @@ class LobbyBase(ServiceBase):
     async def prepare_login(self, req_prepare_login: "ReqPrepareLogin") -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def fast_login(self, req_common: "ReqCommon") -> "ResFastLogin":
+    async def fast_login(self, req_fast_login: "ReqFastLogin") -> "ResFastLogin":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def fetch_info(self, req_common: "ReqCommon") -> "ResFetchInfo":
@@ -18010,6 +18229,27 @@ class LobbyBase(ServiceBase):
     ) -> "ResFetchProgressRewardActivityInfo":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def quest_crew_activity_start_quest(
+        self, req_quest_crew_activity_start_quest: "ReqQuestCrewActivityStartQuest"
+    ) -> "ResQuestCrewActivityStartQuest":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def quest_crew_activity_hire(
+        self, req_quest_crew_activity_hire: "ReqQuestCrewActivityHire"
+    ) -> "ResQuestCrewActivityHire":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def quest_crew_activity_feed(
+        self, req_quest_crew_activity_feed: "ReqQuestCrewActivityFeed"
+    ) -> "ResQuestCrewActivityFeed":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def quest_crew_activity_refresh_market(
+        self,
+        req_quest_crew_activity_refresh_market: "ReqQuestCrewActivityRefreshMarket",
+    ) -> "ResQuestCrewActivityRefreshMarket":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def __rpc_fetch_connection_info(
         self, stream: "grpclib.server.Stream[ReqCommon, ResConnectionInfo]"
     ) -> None:
@@ -18060,7 +18300,7 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_fast_login(
-        self, stream: "grpclib.server.Stream[ReqCommon, ResFastLogin]"
+        self, stream: "grpclib.server.Stream[ReqFastLogin, ResFastLogin]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.fast_login(request)
@@ -20891,6 +21131,38 @@ class LobbyBase(ServiceBase):
         response = await self.fetch_progress_reward_activity_info(request)
         await stream.send_message(response)
 
+    async def __rpc_quest_crew_activity_start_quest(
+        self,
+        stream: "grpclib.server.Stream[ReqQuestCrewActivityStartQuest, ResQuestCrewActivityStartQuest]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.quest_crew_activity_start_quest(request)
+        await stream.send_message(response)
+
+    async def __rpc_quest_crew_activity_hire(
+        self,
+        stream: "grpclib.server.Stream[ReqQuestCrewActivityHire, ResQuestCrewActivityHire]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.quest_crew_activity_hire(request)
+        await stream.send_message(response)
+
+    async def __rpc_quest_crew_activity_feed(
+        self,
+        stream: "grpclib.server.Stream[ReqQuestCrewActivityFeed, ResQuestCrewActivityFeed]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.quest_crew_activity_feed(request)
+        await stream.send_message(response)
+
+    async def __rpc_quest_crew_activity_refresh_market(
+        self,
+        stream: "grpclib.server.Stream[ReqQuestCrewActivityRefreshMarket, ResQuestCrewActivityRefreshMarket]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.quest_crew_activity_refresh_market(request)
+        await stream.send_message(response)
+
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
         return {
             "/lq.Lobby/fetchConnectionInfo": grpclib.const.Handler(
@@ -20938,7 +21210,7 @@ class LobbyBase(ServiceBase):
             "/lq.Lobby/fastLogin": grpclib.const.Handler(
                 self.__rpc_fast_login,
                 grpclib.const.Cardinality.UNARY_UNARY,
-                ReqCommon,
+                ReqFastLogin,
                 ResFastLogin,
             ),
             "/lq.Lobby/fetchInfo": grpclib.const.Handler(
@@ -23238,6 +23510,30 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqFetchProgressRewardActivityInfo,
                 ResFetchProgressRewardActivityInfo,
+            ),
+            "/lq.Lobby/questCrewActivityStartQuest": grpclib.const.Handler(
+                self.__rpc_quest_crew_activity_start_quest,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqQuestCrewActivityStartQuest,
+                ResQuestCrewActivityStartQuest,
+            ),
+            "/lq.Lobby/questCrewActivityHire": grpclib.const.Handler(
+                self.__rpc_quest_crew_activity_hire,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqQuestCrewActivityHire,
+                ResQuestCrewActivityHire,
+            ),
+            "/lq.Lobby/questCrewActivityFeed": grpclib.const.Handler(
+                self.__rpc_quest_crew_activity_feed,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqQuestCrewActivityFeed,
+                ResQuestCrewActivityFeed,
+            ),
+            "/lq.Lobby/questCrewActivityRefreshMarket": grpclib.const.Handler(
+                self.__rpc_quest_crew_activity_refresh_market,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqQuestCrewActivityRefreshMarket,
+                ResQuestCrewActivityRefreshMarket,
             ),
         }
 
