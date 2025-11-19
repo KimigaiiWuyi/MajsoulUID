@@ -1409,6 +1409,7 @@ class AccountActivityUpdate(betterproto.Message):
     simulation_v2_data: List["SimulationV2Data"] = betterproto.message_field(16)
     quest_crew_data: List["ActivityQuestCrewChanges"] = betterproto.message_field(17)
     shoot_data: List["ActivityShootData"] = betterproto.message_field(18)
+    bingo_data: List["ActivityBingoData"] = betterproto.message_field(19)
 
 
 @dataclass(eq=False, repr=False)
@@ -3261,6 +3262,8 @@ class ActivityShootData(betterproto.Message):
     level: int = betterproto.uint32_field(2)
     enemies: List["ActivityShootEnemyInfo"] = betterproto.message_field(3)
     rewarded_ids: List[int] = betterproto.uint32_field(4)
+    ended: bool = betterproto.bool_field(5)
+    rewarded_records: List["ActivityShootRewardRecord"] = betterproto.message_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -3268,6 +3271,45 @@ class ActivityShootEnemyInfo(betterproto.Message):
     group_id: int = betterproto.uint32_field(1)
     enemy_id: int = betterproto.uint32_field(2)
     hp: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityShootRewardRecord(betterproto.Message):
+    enemy_id: int = betterproto.uint32_field(1)
+    reward_id: int = betterproto.uint32_field(2)
+    rewarded_time: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityBingoCardData(betterproto.Message):
+    card_id: int = betterproto.uint32_field(1)
+    achieved_pos: List[int] = betterproto.uint32_field(2)
+    rewarded_ids: List[int] = betterproto.uint32_field(3)
+    state: int = betterproto.uint32_field(4)
+    achieved_records: List["ActivityBingoCardDataBingoAchievedRecord"] = (
+        betterproto.message_field(5)
+    )
+    reward_records: List["ActivityBingoCardDataBingoRewardRecord"] = (
+        betterproto.message_field(6)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ActivityBingoCardDataBingoAchievedRecord(betterproto.Message):
+    pos: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityBingoCardDataBingoRewardRecord(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityBingoData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    cards: List["ActivityBingoCardData"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -5492,6 +5534,7 @@ class ResAccountActivityData(betterproto.Message):
     )
     quest_crew_data: List["ActivityQuestCrewData"] = betterproto.message_field(33)
     shoot_data: List["ActivityShootData"] = betterproto.message_field(34)
+    bingo_data: List["ActivityBingoData"] = betterproto.message_field(35)
 
 
 @dataclass(eq=False, repr=False)
@@ -6807,6 +6850,14 @@ class ResFetchManagerCustomizedContest(betterproto.Message):
     checking_name: str = betterproto.string_field(10)
     contest_setting: "ContestSetting" = betterproto.message_field(11)
     rank_type: int = betterproto.uint32_field(12)
+    season: "ResFetchManagerCustomizedContestSeasonInfo" = betterproto.message_field(13)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchManagerCustomizedContestSeasonInfo(betterproto.Message):
+    create_time: int = betterproto.uint32_field(1)
+    start_time: int = betterproto.uint32_field(2)
+    end_time: int = betterproto.uint32_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -7635,6 +7686,27 @@ class ResQuestCrewActivityRefreshMarket(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     value_changes: "ActivityQuestCrewChanges" = betterproto.message_field(2)
     execute_result: List["ExecuteResult"] = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqBingoActivityReceiveReward(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    rewards: List["ReqBingoActivityReceiveRewardBingoReward"] = (
+        betterproto.message_field(2)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ReqBingoActivityReceiveRewardBingoReward(betterproto.Message):
+    reward_id: int = betterproto.uint32_field(1)
+    card_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResBingoActivityReceiveReward(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    execute_result: List["ExecuteResult"] = betterproto.message_field(2)
+    cards: List["ActivityBingoCardData"] = betterproto.message_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -16071,6 +16143,23 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def bingo_activity_receive_reward(
+        self,
+        req_bingo_activity_receive_reward: "ReqBingoActivityReceiveReward",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResBingoActivityReceiveReward":
+        return await self._unary_unary(
+            "/lq.Lobby/bingoActivityReceiveReward",
+            req_bingo_activity_receive_reward,
+            ResBingoActivityReceiveReward,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
 
 class FastTestStub(betterproto.ServiceStub):
     async def auth_game(
@@ -18248,6 +18337,11 @@ class LobbyBase(ServiceBase):
         self,
         req_quest_crew_activity_refresh_market: "ReqQuestCrewActivityRefreshMarket",
     ) -> "ResQuestCrewActivityRefreshMarket":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def bingo_activity_receive_reward(
+        self, req_bingo_activity_receive_reward: "ReqBingoActivityReceiveReward"
+    ) -> "ResBingoActivityReceiveReward":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def __rpc_fetch_connection_info(
@@ -21163,6 +21257,14 @@ class LobbyBase(ServiceBase):
         response = await self.quest_crew_activity_refresh_market(request)
         await stream.send_message(response)
 
+    async def __rpc_bingo_activity_receive_reward(
+        self,
+        stream: "grpclib.server.Stream[ReqBingoActivityReceiveReward, ResBingoActivityReceiveReward]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.bingo_activity_receive_reward(request)
+        await stream.send_message(response)
+
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
         return {
             "/lq.Lobby/fetchConnectionInfo": grpclib.const.Handler(
@@ -23534,6 +23636,12 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqQuestCrewActivityRefreshMarket,
                 ResQuestCrewActivityRefreshMarket,
+            ),
+            "/lq.Lobby/bingoActivityReceiveReward": grpclib.const.Handler(
+                self.__rpc_bingo_activity_receive_reward,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqBingoActivityReceiveReward,
+                ResBingoActivityReceiveReward,
             ),
         }
 
