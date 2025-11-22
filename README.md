@@ -50,6 +50,7 @@
 ## 丨感谢
 
 - [雀魂牌谱屋](https://amae-koromo.sapk.ch/) - 感谢该项目的**数据源**
+- [MJAI Server](https://mjai-blog.7xcnnw11phu.eu.org/) - 感谢 MJAI Server 提供的**牌谱 review 支持**
 
 ## 丨其他
 
