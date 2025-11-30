@@ -47,4 +47,15 @@ CONFIG_DEFAULT: Dict[str, GSC] = {
         "设置后账号池的账号将会自动同意添加所有好友申请",
         True,
     ),
+    "MajsReviewToken": GsStrConfig(
+        "神秘的Token",
+        "没有？没关系，也能用。不够用？干碎小白！",
+        ""
+    ),
+    "MajsReviewEngine": GsStrConfig(
+        "Review引擎选择",
+        "Tenhou: 小白甄选模型|Mjai: 高端模型(但是限流)",
+        "Tenhou",
+        ["Tenhou", "Mjai"]
+    ),
 }
