@@ -93,12 +93,16 @@ async def majsoul_review_command(bot: Bot, ev: Event):
         for i in range(len(res["data"]["review"]["kyokus"])):
             review_result = await draw_review_info_img(tenhou_log, res, i)
             msg.append(review_result)
+
+        await bot.send(MessageSegment.node(msg))
+
+        '''
         if MAJS_CONFIG.get_config("MajsReviewForward").data:
             await bot.send(MessageSegment.node(msg))
         else:
             for i in msg:
                 await bot.send(i)
-
+        '''
 
 @majsoul_review.on_command(("场况", "牌谱详情"))
 async def majsoul_render_log(bot: Bot, ev: Event):

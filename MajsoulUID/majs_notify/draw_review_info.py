@@ -367,6 +367,6 @@ async def draw_review_info_img(
 
     img.paste(review_info, (1390, 396), review_info)
 
-    img = add_footer(img)
+    img = add_footer(img, is_footer2=True)
     r = await convert_img(img)
     return r

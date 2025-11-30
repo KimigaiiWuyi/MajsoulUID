@@ -56,7 +56,4 @@ CONFIG_DEFAULT: Dict[str, GSC] = {
         "Tenhou",
         ["Tenhou", "Mjai"],
     ),
-    "MajsReviewForward": GsBoolConfig(
-        "合并转发Review结果", "是否使用合并转发发送Review结果", False
-    ),
 }
