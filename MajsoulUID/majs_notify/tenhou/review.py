@@ -1,6 +1,7 @@
 import json
 import time
 import asyncio
+import os
 from typing import Dict, List, Tuple, Union
 
 import httpx
@@ -8,6 +9,7 @@ import aiofiles
 from gsuid_core.logger import logger
 
 from ...utils.resource.RESOURCE_PATH import PAIPU_PATH
+from ...majs_config.majs_config import MAJS_CONFIG
 
 
 async def check_url(tag: str, url: str):
@@ -79,29 +81,38 @@ async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
     logger.info(f"[Majsoul] Fastest Review URL: {tag} {url}")
 
     player_id = tenhou_log.get("_target_actor", 0)
+    auth_token: str = MAJS_CONFIG.get_config("MajsReviewToken").data
+    headers = {"Authentication": f"Bear {auth_token}"} if auth_token else {}
+    engine: str = MAJS_CONFIG.get_config("MajsReviewEngine").data
     payload = {
-        "type": "tenhou",
+        "type": engine.lower(),
         "player_id": player_id,
         "data": tenhou_log,
     }
-
-    response = await sess.post(f"{url}/review?type=Tenhou", json=payload)
+    
+    response = await sess.post(
+        f"{url}/review?type={engine}",
+        json=payload,
+        headers=headers
+    )
+    if response.status_code == 429:
+        return "❌ 触发限流 请2分钟后再试!"
     response.raise_for_status()
     task_id = response.json()["task_id"]
 
-    for _ in range(15):
+    for _ in range(20):
         response = await sess.get(f"{url}/review", params={"task": task_id})
         response.raise_for_status()
         res = response.json()
         status = res["status"]
         if status == "working":
             logger.info(f"[Majsoul] Review Task {task_id} is working...")
-            await asyncio.sleep(3)
+            await asyncio.sleep(6)
         elif status == "done":
             logger.info(f"[Majsoul] Review Task {task_id} is finished!")
             break
     else:
-        return "❌ 未找到有效的Review信息!"
+        return "❌ 未找到有效的Review信息!可能是处理超过等待时间请在2分钟后重试!"
 
     async with aiofiles.open(path, "w", encoding="utf-8") as f:
         await f.write(json.dumps(res, ensure_ascii=False, indent=4))
