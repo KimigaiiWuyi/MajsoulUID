@@ -48,14 +48,15 @@ CONFIG_DEFAULT: Dict[str, GSC] = {
         True,
     ),
     "MajsReviewToken": GsStrConfig(
-        "神秘的Token",
-        "没有？没关系，也能用。不够用？干碎小白！",
-        ""
+        "神秘的Token", "没有？没关系，也能用。不够用？干碎小白！", ""
     ),
     "MajsReviewEngine": GsStrConfig(
         "Review引擎选择",
         "Tenhou: 小白甄选模型|Mjai: 高端模型(但是限流)",
         "Tenhou",
-        ["Tenhou", "Mjai"]
+        ["Tenhou", "Mjai"],
+    ),
+    "MajsReviewForward": GsBoolConfig(
+        "合并转发Review结果", "是否使用合并转发发送Review结果", False
     ),
 }
