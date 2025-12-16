@@ -1,9 +1,9 @@
 # https://github.com/Xerxes-2/AutoLiqi/blob/main/get_liqi.py
-import os
 import json
+import os
+from pathlib import Path
 from time import sleep
 from typing import Dict
-from pathlib import Path
 
 import httpx
 from config import ConfigTables
@@ -17,9 +17,7 @@ path = Path(__file__).parent
 
 
 def get_version():
-    req = httpx.get(
-        "https://game.maj-soul.com/1/version.json", headers=Headers
-    )
+    req = httpx.get("https://game.maj-soul.com/1/version.json", headers=Headers)
     return req.json()
 
 
@@ -91,7 +89,7 @@ def main():
     if (path / "lqc.lqbin").exists():
         lqc_data = (path / "lqc.lqbin").read_bytes()
     else:
-        lqc_data = get_lqc(prefix)
+        lqc_data = get_lqc(get_lqc_prefix(version["version"]))
     load_lqc_lqbin(lqc_data)
 
     print("开始获取liqi")
@@ -109,12 +107,9 @@ def to_camel_case(snake_str: str):
 
 
 def contains_bytes(data: Dict):
-    # 遍历字典的值
     for value in data.values():
-        # 如果值是bytes类型，返回True
         if isinstance(value, bytes):
             return True
-        # 如果值是另一个字典，递归检查
         elif isinstance(value, dict):
             if contains_bytes(value):
                 return True
