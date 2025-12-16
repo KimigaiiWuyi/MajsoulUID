@@ -15,7 +15,6 @@ import betterproto
 import grpclib
 from betterproto.grpc.grpclib_server import ServiceBase
 
-
 if TYPE_CHECKING:
     import grpclib.server
     from betterproto.grpc.grpclib_client import MetadataLike
@@ -7707,6 +7706,17 @@ class ResBingoActivityReceiveReward(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     execute_result: List["ExecuteResult"] = betterproto.message_field(2)
     cards: List["ActivityBingoCardData"] = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFetchBingoActivityData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchBingoActivityData(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    data: "ActivityBingoData" = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -16160,6 +16170,23 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def fetch_bingo_activity_data(
+        self,
+        req_fetch_bingo_activity_data: "ReqFetchBingoActivityData",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchBingoActivityData":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchBingoActivityData",
+            req_fetch_bingo_activity_data,
+            ResFetchBingoActivityData,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
 
 class FastTestStub(betterproto.ServiceStub):
     async def auth_game(
@@ -18342,6 +18369,11 @@ class LobbyBase(ServiceBase):
     async def bingo_activity_receive_reward(
         self, req_bingo_activity_receive_reward: "ReqBingoActivityReceiveReward"
     ) -> "ResBingoActivityReceiveReward":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_bingo_activity_data(
+        self, req_fetch_bingo_activity_data: "ReqFetchBingoActivityData"
+    ) -> "ResFetchBingoActivityData":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def __rpc_fetch_connection_info(
@@ -21265,6 +21297,14 @@ class LobbyBase(ServiceBase):
         response = await self.bingo_activity_receive_reward(request)
         await stream.send_message(response)
 
+    async def __rpc_fetch_bingo_activity_data(
+        self,
+        stream: "grpclib.server.Stream[ReqFetchBingoActivityData, ResFetchBingoActivityData]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_bingo_activity_data(request)
+        await stream.send_message(response)
+
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
         return {
             "/lq.Lobby/fetchConnectionInfo": grpclib.const.Handler(
@@ -23642,6 +23682,12 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqBingoActivityReceiveReward,
                 ResBingoActivityReceiveReward,
+            ),
+            "/lq.Lobby/fetchBingoActivityData": grpclib.const.Handler(
+                self.__rpc_fetch_bingo_activity_data,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchBingoActivityData,
+                ResFetchBingoActivityData,
             ),
         }
 
