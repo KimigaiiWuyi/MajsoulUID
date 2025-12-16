@@ -61,11 +61,18 @@ def get_liqi(prefix):
 
 
 def get_lqc(prefix):
+    lqc_path = path / "lqc.lqbin"
+    if lqc_path.exists():
+        print("已存在lqc.lqbin，删除后重新下载...")
+        lqc_path.unlink()
+    print("正在下载lqc.lqbin...")
+    print(f"https://game.maj-soul.com/1/{prefix}/res/config/lqc.lqbin")
     req = httpx.get(
         f"https://game.maj-soul.com/1/{prefix}/res/config/lqc.lqbin",
         headers=Headers,
     )
-    with open(path / "lqc.lqbin", "wb") as f:
+    print("下载完成，正在保存lqc.lqbin...")
+    with open(lqc_path, "wb") as f:
         f.write(req.content)
     return req.content
 
