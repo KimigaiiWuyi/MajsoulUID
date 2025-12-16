@@ -93,10 +93,7 @@ def main():
     get_res_prefix(version["version"])
 
     print("开始获取lqc.lqbin")
-    if (path / "lqc.lqbin").exists():
-        lqc_data = (path / "lqc.lqbin").read_bytes()
-    else:
-        lqc_data = get_lqc(get_lqc_prefix(version["version"]))
+    lqc_data = get_lqc(get_lqc_prefix(version["version"]))
     load_lqc_lqbin(lqc_data)
 
     print("开始获取liqi")
