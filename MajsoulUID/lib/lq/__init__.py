@@ -452,11 +452,25 @@ class NotifyConnectionShutdown(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class NotifyCustomizedContestReady(betterproto.Message):
+    unique_id: int = betterproto.uint32_field(1)
+    ready: int = betterproto.uint32_field(2)
+    reason: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyCustomizedContestRuleModify(betterproto.Message):
+    unique_id: int = betterproto.uint32_field(1)
+    auto_match: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
 class Error(betterproto.Message):
     code: int = betterproto.uint32_field(1)
     u32_params: List[int] = betterproto.uint32_field(2)
     str_params: List[str] = betterproto.string_field(3)
     json_param: str = betterproto.string_field(4)
+    level: int = betterproto.uint32_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -1409,6 +1423,7 @@ class AccountActivityUpdate(betterproto.Message):
     quest_crew_data: List["ActivityQuestCrewChanges"] = betterproto.message_field(17)
     shoot_data: List["ActivityShootData"] = betterproto.message_field(18)
     bingo_data: List["ActivityBingoData"] = betterproto.message_field(19)
+    snowball_data: List["ActivitySnowballValueChanges"] = betterproto.message_field(20)
 
 
 @dataclass(eq=False, repr=False)
@@ -2187,6 +2202,9 @@ class CustomizedContestDetail(betterproto.Message):
     auto_match: int = betterproto.uint32_field(20)
     rank_type: int = betterproto.uint32_field(21)
     show_team_rank: bool = betterproto.bool_field(22)
+    tied_rank: int = betterproto.uint32_field(23)
+    match_start_time: int = betterproto.uint32_field(24)
+    match_end_time: int = betterproto.uint32_field(25)
 
 
 @dataclass(eq=False, repr=False)
@@ -3309,6 +3327,95 @@ class ActivityBingoCardDataBingoRewardRecord(betterproto.Message):
 class ActivityBingoData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     cards: List["ActivityBingoCardData"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityIdTimeRecord(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    time: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivitySnowballData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    level: int = betterproto.uint32_field(2)
+    upgrade: List["ActivitySnowballUpgrade"] = betterproto.message_field(3)
+    rewarded_level: List[int] = betterproto.uint32_field(4)
+    finished_level: List[int] = betterproto.uint32_field(5)
+    random_seed: int = betterproto.uint32_field(6)
+    battle_id: str = betterproto.string_field(7)
+    level_finished_count: int = betterproto.uint32_field(8)
+    player_combo: int = betterproto.uint32_field(9)
+    reward_records: List["ActivityIdTimeRecord"] = betterproto.message_field(10)
+    finish_records: List["ActivityIdTimeRecord"] = betterproto.message_field(11)
+
+
+@dataclass(eq=False, repr=False)
+class ActivitySnowballUpgrade(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ActivitySnowballUpgradeDirty(betterproto.Message):
+    value: List["ActivitySnowballUpgrade"] = betterproto.message_field(1)
+    dirty: bool = betterproto.bool_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivitySnowballValueChanges(betterproto.Message):
+    level: "UInt32Dirty" = betterproto.message_field(1)
+    upgrade: "ActivitySnowballUpgradeDirty" = betterproto.message_field(2)
+    rewarded_level: "UInt32ArrayDirty" = betterproto.message_field(3)
+    finished_level: "UInt32ArrayDirty" = betterproto.message_field(4)
+    level_finished_count: "UInt32Dirty" = betterproto.message_field(5)
+    player_combo: "UInt32Dirty" = betterproto.message_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class ActivitySnowballPlayerAttackedInfo(betterproto.Message):
+    target: int = betterproto.uint32_field(1)
+    track: int = betterproto.uint32_field(2)
+    damage: int = betterproto.uint32_field(3)
+    critia: int = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ActivitySnowballPlayerAction(betterproto.Message):
+    tick: int = betterproto.uint32_field(1)
+    track: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivitySnowballPlayerState(betterproto.Message):
+    player: int = betterproto.uint32_field(1)
+    hp: int = betterproto.uint32_field(2)
+    mp: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class SnowballActivityBossAction(betterproto.Message):
+    tick: int = betterproto.uint32_field(1)
+    type: int = betterproto.uint32_field(2)
+    track: int = betterproto.uint32_field(3)
+    attack_info: "SnowballActivityBossActionSnowballActivityBossAttackInfo" = (
+        betterproto.message_field(4)
+    )
+    mp_consume_info: "SnowballActivityBossActionSnowballActivityBossMpConsumeInfo" = (
+        betterproto.message_field(5)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class SnowballActivityBossActionSnowballActivityBossAttackInfo(betterproto.Message):
+    damage: int = betterproto.uint32_field(1)
+    is_con_attack: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class SnowballActivityBossActionSnowballActivityBossMpConsumeInfo(betterproto.Message):
+    mp_consume: int = betterproto.uint32_field(1)
+    before_delay: int = betterproto.uint32_field(2)
+    after_delay: int = betterproto.uint32_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -5534,6 +5641,7 @@ class ResAccountActivityData(betterproto.Message):
     quest_crew_data: List["ActivityQuestCrewData"] = betterproto.message_field(33)
     shoot_data: List["ActivityShootData"] = betterproto.message_field(34)
     bingo_data: List["ActivityBingoData"] = betterproto.message_field(35)
+    snowball_data: List["ActivitySnowballData"] = betterproto.message_field(36)
 
 
 @dataclass(eq=False, repr=False)
@@ -6578,11 +6686,20 @@ class ResFetchServerMaintenanceInfo(betterproto.Message):
     function_maintenance: List[
         "ResFetchServerMaintenanceInfoServerFunctionMaintenanceInfo"
     ] = betterproto.message_field(1)
+    activity_maintenance: List[
+        "ResFetchServerMaintenanceInfoServerActivityMaintenanceInfo"
+    ] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
 class ResFetchServerMaintenanceInfoServerFunctionMaintenanceInfo(betterproto.Message):
     name: str = betterproto.string_field(1)
+    open: bool = betterproto.bool_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchServerMaintenanceInfoServerActivityMaintenanceInfo(betterproto.Message):
+    activity_type: str = betterproto.string_field(1)
     open: bool = betterproto.bool_field(2)
 
 
@@ -6798,6 +6915,7 @@ class ContestSetting(betterproto.Message):
 class ContestSettingLevelLimit(betterproto.Message):
     type: int = betterproto.uint32_field(1)
     value: int = betterproto.uint32_field(2)
+    operate: int = betterproto.uint32_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -6850,6 +6968,8 @@ class ResFetchManagerCustomizedContest(betterproto.Message):
     contest_setting: "ContestSetting" = betterproto.message_field(11)
     rank_type: int = betterproto.uint32_field(12)
     season: "ResFetchManagerCustomizedContestSeasonInfo" = betterproto.message_field(13)
+    match_start_time: int = betterproto.uint32_field(14)
+    match_end_time: int = betterproto.uint32_field(15)
 
 
 @dataclass(eq=False, repr=False)
@@ -6925,6 +7045,7 @@ class ResFetchContestPlayerRankSeasonRank(betterproto.Message):
         betterproto.message_field(3)
     )
     team_name: str = betterproto.string_field(4)
+    modify_score: int = betterproto.int32_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -6934,6 +7055,7 @@ class ResFetchContestPlayerRankPlayerData(betterproto.Message):
         betterproto.message_field(2)
     )
     team_name: str = betterproto.string_field(3)
+    modify_score: int = betterproto.int32_field(4)
 
 
 @dataclass(eq=False, repr=False)
@@ -7717,6 +7839,60 @@ class ReqFetchBingoActivityData(betterproto.Message):
 class ResFetchBingoActivityData(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     data: "ActivityBingoData" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSnowballActivityStartBattle(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResSnowballActivityStartBattle(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    random_seed: int = betterproto.uint32_field(2)
+    boss_action: List["SnowballActivityBossAction"] = betterproto.message_field(3)
+    battle_id: str = betterproto.string_field(4)
+    player_state: List["ActivitySnowballPlayerState"] = betterproto.message_field(5)
+    random_seq: List[int] = betterproto.uint32_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSnowballActivityFinishBattle(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    player_action: List["ActivitySnowballPlayerAction"] = betterproto.message_field(2)
+    result: int = betterproto.uint32_field(3)
+    battle_id: str = betterproto.string_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ResSnowballActivityFinishBattle(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivitySnowballValueChanges" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSnowballActivityUpgrade(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    upgrade: List["ActivitySnowballUpgrade"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResSnowballActivityUpgrade(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivitySnowballValueChanges" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSnowballActivityReceiveReward(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    level: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResSnowballActivityReceiveReward(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivitySnowballValueChanges" = betterproto.message_field(2)
+    rewards: List["ExecuteReward"] = betterproto.message_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -16187,6 +16363,74 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def snowball_activity_start_battle(
+        self,
+        req_snowball_activity_start_battle: "ReqSnowballActivityStartBattle",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResSnowballActivityStartBattle":
+        return await self._unary_unary(
+            "/lq.Lobby/snowballActivityStartBattle",
+            req_snowball_activity_start_battle,
+            ResSnowballActivityStartBattle,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def snowball_activity_finish_battle(
+        self,
+        req_snowball_activity_finish_battle: "ReqSnowballActivityFinishBattle",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResSnowballActivityFinishBattle":
+        return await self._unary_unary(
+            "/lq.Lobby/snowballActivityFinishBattle",
+            req_snowball_activity_finish_battle,
+            ResSnowballActivityFinishBattle,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def snowball_activity_upgrade(
+        self,
+        req_snowball_activity_upgrade: "ReqSnowballActivityUpgrade",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResSnowballActivityUpgrade":
+        return await self._unary_unary(
+            "/lq.Lobby/snowballActivityUpgrade",
+            req_snowball_activity_upgrade,
+            ResSnowballActivityUpgrade,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def snowball_activity_receive_reward(
+        self,
+        req_snowball_activity_receive_reward: "ReqSnowballActivityReceiveReward",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResSnowballActivityReceiveReward":
+        return await self._unary_unary(
+            "/lq.Lobby/snowballActivityReceiveReward",
+            req_snowball_activity_receive_reward,
+            ResSnowballActivityReceiveReward,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
 
 class FastTestStub(betterproto.ServiceStub):
     async def auth_game(
@@ -18374,6 +18618,26 @@ class LobbyBase(ServiceBase):
     async def fetch_bingo_activity_data(
         self, req_fetch_bingo_activity_data: "ReqFetchBingoActivityData"
     ) -> "ResFetchBingoActivityData":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def snowball_activity_start_battle(
+        self, req_snowball_activity_start_battle: "ReqSnowballActivityStartBattle"
+    ) -> "ResSnowballActivityStartBattle":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def snowball_activity_finish_battle(
+        self, req_snowball_activity_finish_battle: "ReqSnowballActivityFinishBattle"
+    ) -> "ResSnowballActivityFinishBattle":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def snowball_activity_upgrade(
+        self, req_snowball_activity_upgrade: "ReqSnowballActivityUpgrade"
+    ) -> "ResSnowballActivityUpgrade":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def snowball_activity_receive_reward(
+        self, req_snowball_activity_receive_reward: "ReqSnowballActivityReceiveReward"
+    ) -> "ResSnowballActivityReceiveReward":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def __rpc_fetch_connection_info(
@@ -21305,6 +21569,38 @@ class LobbyBase(ServiceBase):
         response = await self.fetch_bingo_activity_data(request)
         await stream.send_message(response)
 
+    async def __rpc_snowball_activity_start_battle(
+        self,
+        stream: "grpclib.server.Stream[ReqSnowballActivityStartBattle, ResSnowballActivityStartBattle]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.snowball_activity_start_battle(request)
+        await stream.send_message(response)
+
+    async def __rpc_snowball_activity_finish_battle(
+        self,
+        stream: "grpclib.server.Stream[ReqSnowballActivityFinishBattle, ResSnowballActivityFinishBattle]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.snowball_activity_finish_battle(request)
+        await stream.send_message(response)
+
+    async def __rpc_snowball_activity_upgrade(
+        self,
+        stream: "grpclib.server.Stream[ReqSnowballActivityUpgrade, ResSnowballActivityUpgrade]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.snowball_activity_upgrade(request)
+        await stream.send_message(response)
+
+    async def __rpc_snowball_activity_receive_reward(
+        self,
+        stream: "grpclib.server.Stream[ReqSnowballActivityReceiveReward, ResSnowballActivityReceiveReward]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.snowball_activity_receive_reward(request)
+        await stream.send_message(response)
+
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
         return {
             "/lq.Lobby/fetchConnectionInfo": grpclib.const.Handler(
@@ -23688,6 +23984,30 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqFetchBingoActivityData,
                 ResFetchBingoActivityData,
+            ),
+            "/lq.Lobby/snowballActivityStartBattle": grpclib.const.Handler(
+                self.__rpc_snowball_activity_start_battle,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSnowballActivityStartBattle,
+                ResSnowballActivityStartBattle,
+            ),
+            "/lq.Lobby/snowballActivityFinishBattle": grpclib.const.Handler(
+                self.__rpc_snowball_activity_finish_battle,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSnowballActivityFinishBattle,
+                ResSnowballActivityFinishBattle,
+            ),
+            "/lq.Lobby/snowballActivityUpgrade": grpclib.const.Handler(
+                self.__rpc_snowball_activity_upgrade,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSnowballActivityUpgrade,
+                ResSnowballActivityUpgrade,
+            ),
+            "/lq.Lobby/snowballActivityReceiveReward": grpclib.const.Handler(
+                self.__rpc_snowball_activity_receive_reward,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSnowballActivityReceiveReward,
+                ResSnowballActivityReceiveReward,
             ),
         }
 
