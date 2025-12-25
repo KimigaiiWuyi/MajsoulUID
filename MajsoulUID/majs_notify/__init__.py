@@ -104,6 +104,7 @@ async def majsoul_review_command(bot: Bot, ev: Event):
                 await bot.send(i)
         '''
 
+
 @majsoul_review.on_command(("场况", "牌谱详情"))
 async def majsoul_render_log(bot: Bot, ev: Event):
     et = ev.text.strip().replace("，", ",").replace(",", " ")
