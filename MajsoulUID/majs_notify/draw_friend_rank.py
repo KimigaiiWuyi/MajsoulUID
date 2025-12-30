@@ -88,9 +88,7 @@ async def draw_friend_rank_img(friends: List[MajsoulFriend], mode: str = "4"):
             level = friend.level3
             score = level.formatAdjustedScore(friend.level3_score)
 
-        bar = await draw_bar(
-            friend.avatar_id, friend.nickname, level, score, mode
-        )
+        bar = await draw_bar(friend.avatar_id, friend.nickname, level, score, mode)
 
         img.paste(bar, (0, 538 + index * 153), bar)
 

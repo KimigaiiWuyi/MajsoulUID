@@ -54,11 +54,11 @@ authors = [
   { name = "baiqwerdvd", email = "158065462+baiqwerdvd@users.noreply.github.com" },
 ]
 dependencies = [
-  "websockets>=13.0.1",
-  "httpx>=0.27.2",
+  "websockets>=15.0.1",
+  "httpx>=0.28.1",
   "betterproto>=2.0.0b7",
-  "pydantic>=2.9.2",
-  "msgspec>=0.18.6",
+  "pydantic>=2.12.5",
+  "msgspec>=0.20.0",
 ]
 requires-python = ">=3.12"
 readme = "README.md"

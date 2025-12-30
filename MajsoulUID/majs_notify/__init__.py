@@ -96,13 +96,13 @@ async def majsoul_review_command(bot: Bot, ev: Event):
 
         await bot.send(MessageSegment.node(msg))
 
-        '''
+        """
         if MAJS_CONFIG.get_config("MajsReviewForward").data:
             await bot.send(MessageSegment.node(msg))
         else:
             for i in msg:
                 await bot.send(i)
-        '''
+        """
 
 
 @majsoul_review.on_command(("场况", "牌谱详情"))
@@ -110,9 +110,7 @@ async def majsoul_render_log(bot: Bot, ev: Event):
     et = ev.text.strip().replace("，", ",").replace(",", " ")
     paipu_command = et.split(" ")
     if len(paipu_command) != 3:
-        return await bot.send(
-            "❌ 请输入有效的格式!\n例如：雀魂场况 241118 10 5"
-        )
+        return await bot.send("❌ 请输入有效的格式!\n例如：雀魂场况 241118 10 5")
 
     paipu_id = paipu_command[0]
     kyoku_id = int(paipu_command[1])
@@ -124,14 +122,10 @@ async def majsoul_render_log(bot: Bot, ev: Event):
             paipu = await get_paipu_by_game_id(paipu_id)
             break
     else:
-        return await bot.send(
-            "❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]"
-        )
+        return await bot.send("❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]")
 
     if paipu is None:
-        return await bot.send(
-            "❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]"
-        )
+        return await bot.send("❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]")
 
     res = await review_tenhou(paipu)
     if isinstance(res, str):
@@ -141,9 +135,7 @@ async def majsoul_render_log(bot: Bot, ev: Event):
     await bot.send(im)
 
 
-@majsoul_yostar_login.on_command(
-    ("登录美服", "登录日服", "登陆日服", "登陆美服")
-)
+@majsoul_yostar_login.on_command(("登录美服", "登录日服", "登陆日服", "登陆美服"))
 async def majsoul_jp_login_command(bot: Bot, ev: Event):
     url = "https://passport.mahjongsoul.com/account/auth_request"
     headers = {
@@ -270,9 +262,7 @@ async def majsoul_add_at(bot: Bot, ev: Event):
         if isinstance(connection, str):
             return await bot.send(connection)
         if isinstance(connection, bool):
-            return await bot.send(
-                "❌ 登陆失败, 请输入正确的username和password!"
-            )
+            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
     else:
         return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
 
@@ -332,9 +322,7 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
             )
             if retcode == 0:
                 logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
-                return await bot.send(
-                    f"[majs] 修改推送订阅成功！当前值：{push_id}"
-                )
+                return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
             else:
                 return await bot.send("[majs] 推送订阅失败！")
     else:

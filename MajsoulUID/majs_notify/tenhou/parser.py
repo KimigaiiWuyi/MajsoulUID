@@ -1,69 +1,83 @@
-from math import ceil
-from typing import cast
 from datetime import datetime
+from math import ceil
+from typing import TypeVar, cast
 
-from .cfg import cfg
-from ..model import MjsLog, MjsLogItem
-from .utils import pad_list, relative_seating
-from .constants import RUNES, JPNAME, YSCORE, DAISANGEN, DAISUUSHI
+from pydantic import BaseModel, Field
+
 from ...lib.lq import (
     HuleInfo,
-    RecordHule,
-    RecordBaBei,
-    RecordLiuJu,
-    RecordNoTile,
-    RecordDealTile,
-    RecordNewRound,
-    RecordChiPengGang,
-    RecordDiscardTile,
     RecordAnGangAddGang,
+    RecordBaBei,
+    RecordChiPengGang,
+    RecordDealTile,
+    RecordDiscardTile,
+    RecordHule,
+    RecordLiuJu,
+    RecordNewRound,
+    RecordNoTile,
 )
+from ..model import MjsLog, MjsLogItem
+from .cfg import cfg
+from .constants import DAISANGEN, DAISUUSHI, JPNAME, RUNES, YSCORE
 from .model import (
-    Tile,
-    Yaku,
     Agari,
-    Kyoku,
-    Round,
-    PeSymbol,
-    Ryukyoku,
-    TileType,
-    ChiSymbol,
-    PonSymbol,
     AgariPoint,
-    ZeroSymbol,
     AnkanSymbol,
-    KakanSymbol,
-    SingleAgari,
-    DiscardSymbol,
+    ChiSymbol,
     DaiminkanSymbol,
+    DiscardSymbol,
+    KakanSymbol,
+    Kyoku,
+    PeSymbol,
+    PonSymbol,
+    Round,
+    Ryukyoku,
+    SingleAgari,
     SpecialRyukyoku,
+    Tile,
+    TileType,
+    Yaku,
+    ZeroSymbol,
 )
+from .utils import pad_list, relative_seating
+
+T = TypeVar("T")
+
+
+class TenhouModel(BaseModel):
+    ver: str = "2.3"
+    ref: str = Field(default="")
+    ratingc: str = Field(default="")
+    rule: dict = Field(default_factory=dict)
+    lobby: int = Field(default=0)
+    dan: list[str] = Field(default_factory=list)
+    rate: list[int] = Field(default_factory=list)
+    sx: list[str] = Field(default_factory=list)
+    name: list[str] = Field(default_factory=list)
+    sc: list[float] = Field(default_factory=list)
+    title: list[str] = Field(default_factory=list)
+    log: list[list[dict]] = Field(default_factory=list)
 
 
 class MajsoulPaipuParser:
-    def __init__(
-        self, *, tsumoloss_off: bool = False, allow_kigiage: bool = False
-    ):
-        self.kyokus = []
-
-        self.tsumoloss_off = tsumoloss_off
-        self.allow_kigiage = allow_kigiage
+    def __init__(self):
+        self.kyokus: list[Kyoku] = []
+        self.kyoku: Kyoku | None = None
 
     def handle_game_record(self, record: MjsLog):
-        res = {}
+        res = TenhouModel()
         ruledisp = ""
         lobby = ""  # usually 0, is the custom lobby number
         nplayers = len(record.head.result.players)
         nakas = nplayers - 1  # default
-        # tsumoloss_off = False
 
-        res["ver"] = "2.3"  # mlog version number
-        res["ref"] = (
-            record.head.uuid
-        )  # game id - copy and paste into "other" on the log page to view
+        # mlog version number
+        res.ver = "2.3"
+        # game id - copy and paste into "other" on the log page to view
+        res.ref = record.head.uuid
 
         # PF4 is yonma, PF3 is sanma
-        res["ratingc"] = f"PF{nplayers}"
+        res.ratingc = f"PF{nplayers}"
 
         # rule display
         if nplayers == 3:
@@ -78,22 +92,16 @@ class MajsoulPaipuParser:
             lobby = f": {record.head.config.meta.room_id}"
             ruledisp += RUNES["friendly"][JPNAME]  # "Friendly"
             nakas = record.head.config.mode.detail_rule.dora_count
-            """
-            tsumoloss_off = (
-                nplayers == 3
-                and not record.head.config.mode.detail_rule.have_zimosun
+            self.tsumoloss_off = (
+                nplayers == 3 and not record.head.config.mode.detail_rule.have_zimosun
             )
-            """
         elif record.head.config.meta.contest_uid:  # tourney
             lobby = f": {record.head.config.meta.contest_uid}"
             ruledisp += RUNES["tournament"][JPNAME]  # "Tournament"
             nakas = record.head.config.mode.detail_rule.dora_count
-            """
-            tsumoloss_off = (
-                nplayers == 3
-                and not record.head.config.mode.detail_rule.have_zimosun
+            self.tsumoloss_off = (
+                nplayers == 3 and not record.head.config.mode.detail_rule.have_zimosun
             )
-            """
         if record.head.config.mode.mode == 1:
             ruledisp += RUNES["tonpuu"][JPNAME]  # " East"
         elif record.head.config.mode.mode == 2:
@@ -103,14 +111,14 @@ class MajsoulPaipuParser:
             record.head.config.meta.mode_id == 0
             and record.head.config.mode.detail_rule.dora_count == 0
         ):
-            res["rule"] = {
+            res.rule = {
                 "disp": ruledisp,
                 "aka53": 0,
                 "aka52": 0,
                 "aka51": 0,
             }
         else:
-            res["rule"] = {
+            res.rule = {
                 "disp": ruledisp,
                 "aka53": 1,
                 "aka52": 2 if nakas == 4 else 1,
@@ -120,55 +128,56 @@ class MajsoulPaipuParser:
         # tenhou custom lobby
         # could be tourney id or friendly room for
         # mjs. appending to title instead to avoid 3->C etc. in tenhou.net/5
-        res["lobby"] = 0
+        res.lobby = 0
 
         # autism to fix logs with AI
         # ranks
-        res["dan"] = [""] * nplayers
+        res.dan = [""] * nplayers
         for e in record.head.accounts:
-            res["dan"][e.seat] = cfg["level_definition"]["level_definition"][
-                "map_"
-            ][str(e.level.id)]["full_name_jp"]
+            res.dan[e.seat] = cfg["level_definition"]["level_definition"]["map_"][
+                str(e.level.id)
+            ]["full_name_jp"]
 
         # level score, no real analog to rate
-        res["rate"] = [0] * nplayers
+        res.rate = [0] * nplayers
         for e in record.head.accounts:
-            res["rate"][
-                e.seat
-            ] = e.level.score  # level score, closest thing to rate
+            res.rate[e.seat] = e.level.score  # level score, closest thing to rate
 
         # sex
-        res["sx"] = ["C"] * nplayers
+        res.sx = ["C"] * nplayers
 
         # >names
-        res["name"] = ["AI"] * nplayers
+        res.name = ["AI"] * nplayers
         for e in record.head.accounts:
-            res["name"][e.seat] = e.nickname
+            res.name[e.seat] = e.nickname
+
+        # clean up for sanma AI
+        if nplayers == 3:
+            res.name[3] = ""
+            res.sx[3] = ""
 
         # scores
         scores = [
             [e.seat, e.part_point_1, e.total_point / 1000]
             for e in record.head.result.players
         ]
-        res["sc"] = [0] * nplayers * 2
+        res.sc = [0.0] * nplayers * 2
         for i, e in enumerate(scores):
-            res["sc"][2 * e[0]] = e[1]
-            res["sc"][2 * e[0] + 1] = e[2]
+            res.sc[2 * e[0]] = e[1]
+            res.sc[2 * e[0] + 1] = e[2]
 
         # optional title - why not give the room and put the timestamp here
-        res["title"] = [
+        res.title = [
             ruledisp + lobby,
-            datetime.fromtimestamp(record.head.end_time).strftime(
-                "%Y-%m-%d %H:%M:%S"
-            ),
+            datetime.fromtimestamp(record.head.end_time).strftime("%Y-%m-%d %H:%M:%S"),
         ]
 
         for item in record.data:
             self.handle(item)
 
-            res["log"] = [kyoku.dump() for kyoku in self.kyokus]
+        res.log = [kyoku.dump() for kyoku in self.kyokus]
 
-        return res
+        return res.model_dump()
 
     def handle(self, log: MjsLogItem):
         match log.name:
@@ -181,9 +190,7 @@ class MajsoulPaipuParser:
             case "RecordChiPengGang":
                 self._handle_chi_peng_gang(cast(RecordChiPengGang, log.data))
             case "RecordAnGangAddGang":
-                self._handle_an_gang_add_gang(
-                    cast(RecordAnGangAddGang, log.data)
-                )
+                self._handle_an_gang_add_gang(cast(RecordAnGangAddGang, log.data))
             case "RecordBaBei":
                 self._handle_ba_bei(cast(RecordBaBei, log.data))
             case "RecordLiuJu":
@@ -196,8 +203,9 @@ class MajsoulPaipuParser:
                 raise RuntimeError(f"invalid log name: {log.name}")
 
     def _handle_new_round(self, log: RecordNewRound):
-        self.cur = Kyoku(
-            nplayers=len(log.scores),
+        nplayers = len(log.scores)
+        self.kyoku = Kyoku(
+            nplayers=nplayers,
             round=Round(4 * log.chang + log.ju, log.ben, log.liqibang),
             initscores=pad_list(list(log.scores), 4, 0),
             doras=(
@@ -205,51 +213,29 @@ class MajsoulPaipuParser:
                 if log.dora
                 else [Tile.parse(t) for t in log.doras]
             ),
-            draws=[[] for i in range(4)],
-            discards=[[] for i in range(4)],
+            draws=[[], [], [], []],
+            discards=[[], [], [], []],
             haipais=[
                 [Tile.parse(t) for t in getattr(log, f"tiles{i}")]
-                for i in range(4)
+                for i in range(nplayers)
             ],
+            poppedtile=Tile(0, TileType.M),  # placeholder, will be set below
+            # information we need, but can 't expect in every record
+            dealerseat=log.ju,
         )
 
-        # 转换为庄家摸13张牌的形式
-        self.poppedtile = self.cur.haipais[log.ju].pop()
-        self.cur.draws[log.ju].append(self.poppedtile)
-
-        # information we need, but can 't expect in every record
-        self.dealerseat = log.ju
-
-        # who dealt the last tile
-        self.ldseat = -1
-        # number of current riichis - needed for scores, abort workaround
-        self.nriichi = 0
-
-        self.priichi = False
-        # number of current kans - only for abort workaround
-        self.nkan = 0
-
-        # 计算包牌
-        self.nowinds = [
-            0
-        ] * self.cur.nplayers  # counter for each players open wind pons/kans
-        self.nodrags = [0] * self.cur.nplayers
-        self.paowind = (
-            -1
-        )  # seat of who dealt the final wind, -1 if no one is responsible
-        self.paodrag = -1
+        self.kyoku.draws[log.ju].append(self.kyoku.haipais[log.ju].pop())
 
     def _handle_discard_tile(self, log: RecordDiscardTile):
-        if self.cur is None:
-            raise RuntimeError("discard tile before new round")
+        assert self.kyoku is not None, "discard tile before new round"
         tile = Tile.parse(log.tile)
 
         tsumogiri = log.moqie
         # 特判庄家第一张的手摸切
         if (
-            log.seat == self.dealerseat
-            and len(self.cur.discards[log.seat]) == 0
-            and tile == self.poppedtile
+            log.seat == self.kyoku.dealerseat
+            and len(self.kyoku.discards[log.seat]) == 0
+            and tile == self.kyoku.poppedtile
         ):
             tsumogiri = True
 
@@ -257,142 +243,154 @@ class MajsoulPaipuParser:
 
         # 立直宣言
         if log.is_liqi:
-            self.priichi = True
+            self.kyoku.priichi = True
             sym = DiscardSymbol(sym.tile, sym.tsumogiri, True)
 
-        self.cur.discards[log.seat].append(sym)
-        self.ldseat = log.seat
+        self.kyoku.discards[log.seat].append(sym)
+        self.kyoku.ldseat = log.seat
 
         # 更新dora
-        if len(log.doras) > len(self.cur.doras):
-            self.cur.doras = [Tile.parse(t) for t in log.doras]
+        if len(log.doras) > len(self.kyoku.doras):
+            self.kyoku.doras = [Tile.parse(t) for t in log.doras]
 
     def _accept_riichi(self):
-        if self.priichi:
-            self.priichi = False
-            self.nriichi += 1
+        assert self.kyoku is not None, "accept riichi before new round"
+        if self.kyoku.priichi:
+            self.kyoku.priichi = False
+            self.kyoku.nriichi += 1
 
     def _handle_deal_tile(self, log: RecordDealTile):
-        if self.cur is None:
-            raise RuntimeError("deal tile before new round")
+        assert self.kyoku is not None, "deal tile before new round"
         self._accept_riichi()
 
         # 更新dora
-        if len(log.doras) > len(self.cur.doras):
-            self.cur.doras = [Tile.parse(t) for t in log.doras]
+        if len(log.doras) > len(self.kyoku.doras):
+            self.kyoku.doras = [Tile.parse(t) for t in log.doras]
 
-        self.cur.draws[log.seat].append(Tile.parse(log.tile))
-
-    def _countpao(self, tile: Tile, owner: int, feeder: int):
-        if tile.type != TileType.Z:
-            return
-
-        if 1 <= tile.num <= 4:
-            self.nowinds[owner] += 1
-            if self.nowinds[owner] == 4:
-                self.paowind = feeder
-        elif 5 <= tile.num <= 7:
-            self.nodrags[owner] += 1
-            if self.nodrags[owner] == 4:
-                self.paodrag = feeder
+        self.kyoku.draws[log.seat].append(Tile.parse(log.tile))
 
     def _handle_chi_peng_gang(self, log: RecordChiPengGang):
-        if self.cur is None:
-            raise RuntimeError("chi/peng/gang before new round")
+        assert self.kyoku is not None, "chi/peng/gang before new round"
         self._accept_riichi()
 
         if log.type == 0:
-            # chi
-            tiles = [Tile.parse(t) for t in log.tiles]
-            self.cur.draws[log.seat].append(ChiSymbol(*tiles))
+            # chii
+            self.kyoku.draws[log.seat].append(
+                ChiSymbol(
+                    Tile.parse(log.tiles[2]),
+                    Tile.parse(log.tiles[0]),
+                    Tile.parse(log.tiles[1]),
+                )
+            )
         elif log.type == 1:
             # pon
-            tiles = [Tile.parse(t) for t in log.tiles]
-            idx = relative_seating(log.seat, self.ldseat)
-            self._countpao(tiles[0], log.seat, self.ldseat)
-            self.cur.draws[log.seat].append(
-                PonSymbol(tiles[0], tiles[1], tiles[2], idx)
+            worktiles = [Tile.parse(t) for t in log.tiles]
+            idx = relative_seating(log.seat, self.kyoku.ldseat)
+            self.kyoku.countpao(worktiles[0], log.seat, self.kyoku.ldseat)
+            # pop the called tile and prepend 'p'
+            self.kyoku.draws[log.seat].append(
+                PonSymbol(worktiles[0], worktiles[1], worktiles[2], idx)
             )
         elif log.type == 2:
             # daiminkan
-            tiles = [Tile.parse(t) for t in log.tiles]
-            idx = relative_seating(log.seat, self.ldseat)
-            self._countpao(tiles[0], log.seat, self.ldseat)
-            self.cur.draws[log.seat].append(
-                DaiminkanSymbol(tiles[0], tiles[1], tiles[2], tiles[3], idx)
+            calltiles = [Tile.parse(t) for t in log.tiles]
+            idx = relative_seating(log.seat, self.kyoku.ldseat)
+            self.kyoku.countpao(calltiles[0], log.seat, self.kyoku.ldseat)
+            self.kyoku.draws[log.seat].append(
+                DaiminkanSymbol(
+                    calltiles[0], calltiles[1], calltiles[2], calltiles[3], idx
+                )
             )
-            self.cur.discards[log.seat].append(
-                ZeroSymbol()
-            )  # tenhou drops a 0 in discards for this
-            self.nkan += 1
+            # tenhou drops a 0 in discards for this
+            self.kyoku.discards[log.seat].append(ZeroSymbol())
+            # register kan
+            self.kyoku.nkan += 1
         else:
             raise RuntimeError(f"invalid RecordChiPengGang.type={log.type}")
 
     def _handle_an_gang_add_gang(self, log: RecordAnGangAddGang):
-        if self.cur is None:
-            raise RuntimeError("an/kan before new round")
+        assert self.kyoku is not None, "an/kan before new round"
+
         # NOTE: e.tiles here is a single tile; naki is placed in discards
         tile = Tile.parse(log.tiles)
-        self.ldseat = log.seat
+        self.kyoku.ldseat = log.seat
 
         if log.type == 3:
             # ankan
-            self._countpao(
-                tile, log.seat, -1
-            )  # count the group as visible, but don't set pao
-            self.cur.discards[log.seat].append(AnkanSymbol(tile.deaka()))
-            self.nkan += 1
+            # mjs chun ankan example record:
+            # {"seat":0,"type":3,"tiles":"7z"}
+
+            # count the group as visible, but don't set pao
+            self.kyoku.countpao(tile, log.seat, -1)
+
+            # get the tiles from haipai and draws that
+            # are involved in ankan, dumb
+            # because n aka might be involved
+            ankantiles = [
+                t for t in self.kyoku.haipais[log.seat] if t.deaka() == tile.deaka()
+            ] + [
+                t
+                for t in self.kyoku.draws[log.seat]
+                if isinstance(t, Tile) and t.deaka() == tile.deaka()
+            ]
+
+            # doesn't really matter which tile we mark ankan with - choosing last drawn
+            ankan_tile = ankantiles.pop() if ankantiles else tile
+
+            self.kyoku.discards[log.seat].append(AnkanSymbol(ankan_tile.deaka()))
+            self.kyoku.nkan += 1
+
         elif log.type == 2:
-            # kakan
-            # find pon and swap in new symbol
-            for sy in self.cur.draws[log.seat]:
+            # shouminkan
+            # get pon naki from .draws and swap in new symbol
+            for i, sy in enumerate(self.kyoku.draws[log.seat]):
                 if isinstance(sy, PonSymbol) and (
                     sy.tile == tile or sy.tile == tile.deaka()
                 ):
-                    self.cur.discards[log.seat].append(
-                        KakanSymbol(
-                            sy.a, sy.b, sy.tile, tile, sy.feeder_relative
-                        )
+                    # remove the pon from draws and add kakan to discards
+                    self.kyoku.draws[log.seat].pop(i)
+                    self.kyoku.discards[log.seat].append(
+                        KakanSymbol(sy.a, sy.b, sy.tile, tile, sy.feeder_relative)
                     )
-                    self.nkan += 1
+                    self.kyoku.nkan += 1
                     break
         else:
             raise RuntimeError(f"invalid RecordAnGangAddGang.type={log.type}")
 
     def _handle_ba_bei(self, log: RecordBaBei):
-        if self.cur is None:
-            raise RuntimeError("ba bei before new round")
+        assert self.kyoku is not None, "ba bei before new round"
         # kita - this record (only) gives {seat, moqie}
-        self.cur.discards[log.seat].append(PeSymbol())
+        self.kyoku.discards[log.seat].append(PeSymbol())
+        self.kyoku.ldseat = log.seat
 
     def _handle_liu_ju(self, log: RecordLiuJu):
-        if self.cur is None:
-            raise RuntimeError("liu ju before new round")
+        assert self.kyoku is not None, "liu ju before new round"
         self._accept_riichi()
 
         if log.type == 1:
-            self.cur.result = SpecialRyukyoku.kyushukyuhai
+            self.kyoku.result = SpecialRyukyoku.kyushukyuhai
         elif log.type == 2:
-            self.cur.result = SpecialRyukyoku.sufonrenda
-        elif self.nriichi == 4:
-            self.cur.result = SpecialRyukyoku.suuchariichi
-        elif self.nkan == 4:
-            self.cur.result = SpecialRyukyoku.suukaikan
+            self.kyoku.result = SpecialRyukyoku.sufonrenda
+        elif self.kyoku.nriichi == 4:
+            self.kyoku.result = SpecialRyukyoku.suuchariichi
+        elif self.kyoku.nkan == 4:
+            self.kyoku.result = SpecialRyukyoku.suukaikan
         else:
             raise RuntimeError(f"invalid RecordLiuJu.type={log.type}")
 
-        self.kyokus.append(self.cur)
-        self.cur = None
+        self.kyokus.append(self.kyoku)
+        self.kyoku = None
 
     def _handle_no_tile(self, log: RecordNoTile):
-        if self.cur is None:
-            raise RuntimeError("no tile before new round")
+        assert self.kyoku is not None, "no tile before new round"
         delta = [0, 0, 0, 0]
 
         # NOTE: mjs wll not give delta_scores if everyone is (no)ten
         # TODO: minimize the autism
         if (
-            log.scores[0].delta_scores is not None
+            log.scores
+            and len(log.scores) > 0
+            and log.scores[0].delta_scores is not None
             and len(log.scores[0].delta_scores) != 0
         ):
             for score in log.scores:
@@ -400,41 +398,38 @@ class MajsoulPaipuParser:
                     # for the rare case of multiple nagashi, we sum the arrays
                     delta[i] += g
 
-        self.cur.result = Ryukyoku(delta, getattr(log, "liujumanguan", False))
+        self.kyoku.result = Ryukyoku(delta, getattr(log, "liujumanguan", False))
 
-        self.kyokus.append(self.cur)
-        self.cur = None
+        self.kyokus.append(self.kyoku)
+        self.kyoku = None
 
-    def _tlround(self, x):
+    def _tlround(self, x: float):
         """
         round up to nearest hundred iff TSUMOLOSSOFF == true otherwise return 0
         """
-        if self.cur is None:
-            raise RuntimeError("deal tile before new round")
         if self.tsumoloss_off:
             return 100 * ceil(x / 100)
         else:
             return 0
 
-    def _parse_hu_le(self, hule: HuleInfo) -> SingleAgari:
-        if self.cur is None:
-            raise RuntimeError("deal tile before new round")
+    def _parse_hu_le(self, hule: HuleInfo, is_head_bump: bool) -> SingleAgari:
+        assert self.kyoku is not None, "deal tile before new round"
 
         # tenhou log viewer requires 点, 飜) or 役満) to end strings
         # rest of scoring string is entirely optional
-        delta = (
-            []
-        )  # we need to compute the delta ourselves to handle double/triple ron
+        # let res    = [h.seat, h.zimo ? h.seat : kyoku.ldseat, h.seat];
+        delta = []  # we need to compute the delta ourselves to handle double/triple ron
         points = None
 
-        # riichi stick points, -1 means already taken
-        if self.nriichi != -1:
-            rp = 1000 * (self.nriichi + self.cur.round.riichi_sticks)
-        else:
-            rp = 0
+        # riichi stick points
+        rp = (
+            1000 * (self.kyoku.nriichi + self.kyoku.round.riichi_sticks)
+            if is_head_bump
+            else 0
+        )
 
         # base honba payment
-        hb = 100 * self.cur.round.honba
+        hb = 100 * self.kyoku.round.honba if is_head_bump else 0
 
         # sekinin barai logic
         pao = False
@@ -444,32 +439,28 @@ class MajsoulPaipuParser:
         if hule.yiman:
             # only worth checking yakuman hands
             for e in hule.fans:
-                if e.id == DAISUUSHI and self.paowind != -1:
+                if e.id == DAISUUSHI and self.kyoku.paowind != -1:
                     pao = True
-                    liableseat = self.paowind
+                    liableseat = self.kyoku.paowind
                     liablefor += e.val  # realistically can only be liable once
-                elif e.id == DAISANGEN and self.paodrag != -1:
+                elif e.id == DAISANGEN and self.kyoku.paodrag != -1:
                     pao = True
-                    liableseat = self.paodrag
-                    liablefor += e.val  # realistically can only be liable once
+                    liableseat = self.kyoku.paodrag
+                    liablefor += e.val
 
         if hule.zimo:
             # ko-oya payment for non-dealer tsumo
-            # delta  = [...new Array(kyoku.nplayers)].map(()=> (-hb - h.point_zimo_xian)); # noqa: E501
-            delta = [
-                -hb
-                - hule.point_zimo_xian
-                - self._tlround((1 / 2) * hule.point_zimo_xian)
-            ] * self.cur.nplayers
-            if hule.seat == self.dealerseat:  # oya tsumo
+            # delta  = [...new Array(kyoku.nplayers)].map(()=> (-hb - h.point_zimo_xian));
+            tlround_part = self._tlround((1 / 2) * hule.point_zimo_xian)
+            delta = [-hb - hule.point_zimo_xian - tlround_part] * self.kyoku.nplayers
+            if hule.seat == self.kyoku.dealerseat:  # oya tsumo
                 delta[hule.seat] = (
                     rp
-                    + (self.cur.nplayers - 1) * (hb + hule.point_zimo_xian)
-                    + 2 * self._tlround(0.5 * hule.point_zimo_xian)
+                    + (self.kyoku.nplayers - 1) * (hb + hule.point_zimo_xian)
+                    + 2 * tlround_part
                 )
                 points = AgariPoint(
-                    tsumo=hule.point_zimo_xian
-                    + self._tlround((1 / 2) * hule.point_zimo_xian),
+                    tsumo=hule.point_zimo_xian + tlround_part,
                     oya=True,
                 )
             else:  # ko tsumo
@@ -477,113 +468,83 @@ class MajsoulPaipuParser:
                     rp
                     + hb
                     + hule.point_zimo_qin
-                    + (self.cur.nplayers - 2) * (hb + hule.point_zimo_xian)
-                    + 2 * self._tlround((1 / 2) * hule.point_zimo_xian)
+                    + (self.kyoku.nplayers - 2) * (hb + hule.point_zimo_xian)
+                    + 2 * tlround_part
                 )
-                delta[self.dealerseat] = (
-                    -hb
-                    - hule.point_zimo_qin
-                    - self._tlround((1 / 2) * hule.point_zimo_xian)
-                )
+                delta[self.kyoku.dealerseat] = -hb - hule.point_zimo_qin - tlround_part
                 points = AgariPoint(
                     tsumo=hule.point_zimo_xian, tsumo_oya=hule.point_zimo_qin
                 )
         else:
-            delta = [0] * self.cur.nplayers
-            delta[hule.seat] = (
-                rp + (self.cur.nplayers - 1) * hb + hule.point_rong
-            )
-            delta[self.ldseat] = (
-                -(self.cur.nplayers - 1) * hb - hule.point_rong
-            )
+            delta = [0] * self.kyoku.nplayers
+            delta[hule.seat] = rp + (self.kyoku.nplayers - 1) * hb + hule.point_rong
+            delta[self.kyoku.ldseat] = -(self.kyoku.nplayers - 1) * hb - hule.point_rong
             points = AgariPoint(ron=hule.point_rong, oya=hule.qinjia)
-            self.nriichi = (
-                -1
-            )  # mark the sticks as taken, in case of double ron
 
         # sekinin barai payments
         # treat pao as the liable player paying back
         # the other players - safe for multiple yakuman
+        OYA = 0
+        KO = 1
+        RON = 2
 
         if pao:
             # this is how tenhou does it
             # doesn't really seem to matter to akochan or tenhou.net/5
 
-            if (
-                hule.zimo
-            ):  # liable player needs to payback n yakuman tsumo payments
+            if hule.zimo:  # liable player needs to payback n yakuman tsumo payments
                 if hule.qinjia:  # dealer tsumo
                     # should treat tsumo loss as ron
                     # luckily all yakuman values round safely for
                     # north bisection
+                    tlround_part = self._tlround((1 / 2) * liablefor * YSCORE[OYA][KO])
                     delta[liableseat] -= (
-                        2 * hb
-                        + liablefor * 2 * YSCORE[0][1]
-                        + self._tlround(0.5 * liablefor * YSCORE[0][1])
+                        2 * hb + liablefor * 2 * YSCORE[OYA][KO] + tlround_part
                     )
                     for i, e in enumerate(delta):
                         if (
                             liableseat != i
                             and hule.seat != i
-                            and self.cur.nplayers >= i
+                            and self.kyoku.nplayers >= i
                         ):
-                            delta[i] += (
-                                hb
-                                + liablefor * YSCORE[0][1]
-                                + self._tlround(
-                                    0.5 * liablefor * (YSCORE[0][1])
-                                )
-                            )
-                    if (
-                        self.cur.nplayers == 3
-                    ):  # dealer should get north's payment from liable
+                            delta[i] += hb + liablefor * YSCORE[OYA][KO] + tlround_part
+                    # dealer should get north's payment from liable
+                    if self.kyoku.nplayers == 3:
                         delta[hule.seat] += (
-                            liablefor * YSCORE[0][1]
-                            if not self.tsumoloss_off
-                            else 0
+                            0 if self.tsumoloss_off else liablefor * YSCORE[OYA][KO]
                         )
                 else:  # non-dealer tsumo
+                    tlround_part = self._tlround((1 / 2) * liablefor * YSCORE[KO][KO])
                     delta[liableseat] -= (
-                        (self.cur.nplayers - 2) * hb
-                        + liablefor * (YSCORE[1][0] + YSCORE[1][1])
-                        + self._tlround(0.5 * liablefor * YSCORE[1][1])
+                        (self.kyoku.nplayers - 2) * hb
+                        + liablefor * (YSCORE[KO][OYA] + YSCORE[KO][KO])
+                        + tlround_part
                     )  # ^^same 1st, but ko
                     for i, e in enumerate(delta):
                         if (
                             liableseat != i
                             and hule.seat != i
-                            and self.cur.nplayers >= i
+                            and self.kyoku.nplayers >= i
                         ):
-                            if self.dealerseat == i:
+                            if self.kyoku.dealerseat == i:
                                 delta[i] += (
-                                    hb
-                                    + liablefor * YSCORE[1][0]
-                                    + self._tlround(
-                                        0.5 * liablefor * YSCORE[1][1]
-                                    )
+                                    hb + liablefor * YSCORE[KO][OYA] + tlround_part
                                 )  # ^^same 1st
                             else:
                                 delta[i] += (
-                                    hb
-                                    + liablefor * YSCORE[1][1]
-                                    + self._tlround(
-                                        0.5 * liablefor * YSCORE[1][1]
-                                    )
+                                    hb + liablefor * YSCORE[KO][KO] + tlround_part
                                 )  # ^^same 1st
             # ron
             else:
                 # liable seat pays the deal-in seat 1/2 yakuman + full honba
-                # TODO: Type
-                delta[liableseat] -= (  # type: ignore
-                    self.cur.nplayers - 1
-                ) * hb + 0.5 * liablefor * YSCORE[0 if hule.qinjia else 1][2]
-                delta[self.ldseat] += (  # type: ignore
-                    self.cur.nplayers - 1
-                ) * hb + 0.5 * liablefor * YSCORE[0 if hule.qinjia else 1][2]
+                points_ron = liablefor * YSCORE[OYA if hule.qinjia else KO][RON]
+                player_num = self.kyoku.nplayers - 1
+                delta[liableseat] -= int(player_num * hb + 0.5 * points_ron)
+                delta[self.kyoku.ldseat] += int(player_num * hb + 0.5 * points_ron)
 
         return SingleAgari(
             seat=hule.seat,
-            ldseat=hule.seat if hule.zimo else self.ldseat,
+            ldseat=hule.seat if hule.zimo else self.kyoku.ldseat,
             paoseat=liableseat if pao else hule.seat,
             han=hule.count,
             fu=hule.fu,
@@ -596,18 +557,17 @@ class MajsoulPaipuParser:
         )
 
     def _handle_hu_le(self, log: RecordHule):
-        if self.cur is None:
-            raise RuntimeError("hu le before new round")
+        assert self.kyoku is not None, "hu le before new round"
         agari = []
         ura = []
+        is_head_bump = True
 
-        # take the longest ura list - double ron with riichi + dama
         for f in log.hules:
             if f.li_doras is not None and len(ura) < len(f.li_doras):
                 ura = [Tile.parse(t) for t in f.li_doras]
-            agari.append(self._parse_hu_le(f))
+            agari.append(self._parse_hu_le(f, is_head_bump))
+            is_head_bump = False  # subsequent rons don't get points
 
-        self.cur.result = Agari(agari=agari, uras=ura, round=self.cur.round)
-
-        self.kyokus.append(self.cur)
-        self.cur = None
+        self.kyoku.result = Agari(agari=agari, uras=ura, round=self.kyoku.round)
+        self.kyokus.append(self.kyoku)
+        self.kyoku = None

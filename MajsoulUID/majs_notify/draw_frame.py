@@ -60,9 +60,7 @@ async def render_frame(res: Dict, paipu: Dict, kyoku_id: int, meguru_id: int):
     mg: Dict[str, Dict[str, int]] = megurus[meguru_id]
     changed_mg = {}
     for player_id in mg:
-        changed_mg[player_id] = {
-            n2p(int(k)): mg[player_id][k] for k in mg[player_id]
-        }
+        changed_mg[player_id] = {n2p(int(k)): mg[player_id][k] for k in mg[player_id]}
 
     with open("meguru.json", "w", encoding="utf-8") as f:
         json.dump(changed_mg, f, ensure_ascii=False, indent=4)

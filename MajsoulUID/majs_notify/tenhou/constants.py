@@ -61,6 +61,3 @@ YSCORE = [
     [0, 16000, 48000],  # oya wins
     [16000, 8000, 32000],  # ko  wins
 ]
-"""
-yakuman scoring table
-"""

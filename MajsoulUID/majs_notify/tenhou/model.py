@@ -1,10 +1,10 @@
-from enum import IntEnum
 from dataclasses import dataclass
-from typing import List, Union, Optional, Protocol, Sequence, NamedTuple
+from enum import IntEnum
+from typing import List, NamedTuple, Optional, Protocol, Sequence, Union
 
 from .cfg import cfg
+from .constants import JPNAME, RUNES, TSUMOGIRI
 from .utils import pad_list
-from .constants import RUNES, JPNAME, TSUMOGIRI
 
 AnyList = List[Union[int, str]]
 
@@ -384,6 +384,27 @@ class Kyoku:
     draws: list[list[Symbol]]
     discards: list[list[Symbol]]
     haipais: list[list[Tile]]
+
+    # treat the last tile in the dealer's hand as a drawn tile
+    poppedtile: Tile
+    # information we need, but can't expect in every record
+    dealerseat: int
+    # who dealt the last tile
+    ldseat: int = -1
+    # number of current riichis - needed for scores, abort workaround
+    nriichi: int = 0
+    priichi: bool = False
+    # number of current kans - only for abort workaround
+    nkan: int = 0
+
+    # pao rules
+    # counter for each players open wind pons/kans
+    nowinds: list[int] = [0, 0, 0, 0]
+    nodrags: list[int] = [0, 0, 0, 0]
+    # seat of who dealt the final wind, -1 if no one is responsible
+    paowind: int = -1
+    paodrag: int = -1
+
     result: Optional[KyokuResult] = None
 
     def dump(self):
@@ -407,3 +428,27 @@ class Kyoku:
             entry.append(self.result.dump())
 
         return entry
+
+    def countpao(self, tile: Tile, owner: int, feeder: int):
+        WINDS = [
+            Tile(1, TileType.Z),
+            Tile(2, TileType.Z),
+            Tile(3, TileType.Z),
+            Tile(4, TileType.Z),
+        ]
+        DRAGS = [
+            Tile(5, TileType.Z),
+            Tile(6, TileType.Z),
+            Tile(7, TileType.Z),
+            Tile(0, TileType.Z),
+        ]  # 0z would be aka haku
+
+        # owner and feeder are seats, tile should be tenhou
+        if tile in WINDS:
+            self.nowinds[owner] += 1
+            if self.nowinds[owner] == 4:
+                self.paowind = feeder
+        elif tile in DRAGS:
+            self.nodrags[owner] += 1
+            if self.nodrags[owner] == 3:
+                self.paodrag = feeder
