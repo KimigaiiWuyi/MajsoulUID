@@ -1,10 +1,10 @@
-from dataclasses import dataclass
 from enum import IntEnum
-from typing import List, NamedTuple, Optional, Protocol, Sequence, Union
+from typing import List, Union, Optional, Protocol, Sequence, NamedTuple
+from dataclasses import field, dataclass
 
 from .cfg import cfg
-from .constants import JPNAME, RUNES, TSUMOGIRI
 from .utils import pad_list
+from .constants import RUNES, JPNAME, TSUMOGIRI
 
 AnyList = List[Union[int, str]]
 
@@ -348,13 +348,7 @@ class Agari:
                 point = RUNES["haneman"][JPNAME] + point
                 fuhan = ""
             elif point_level == AgariPointLevel.mangan:
-                if (
-                    agari.han >= 5
-                    or agari.han >= 4
-                    and agari.fu >= 40
-                    or agari.han >= 3
-                    and agari.fu >= 70
-                ):
+                if agari.han >= 5 or agari.han >= 4 and agari.fu >= 40 or agari.han >= 3 and agari.fu >= 70:
                     point = RUNES["mangan"][JPNAME] + point
                 else:
                     point = RUNES["kiriagemangan"][JPNAME] + point
@@ -399,8 +393,8 @@ class Kyoku:
 
     # pao rules
     # counter for each players open wind pons/kans
-    nowinds: list[int] = [0, 0, 0, 0]
-    nodrags: list[int] = [0, 0, 0, 0]
+    nowinds: list[int] = field(default_factory=lambda: [0, 0, 0, 0])
+    nodrags: list[int] = field(default_factory=lambda: [0, 0, 0, 0])
     # seat of who dealt the final wind, -1 if no one is responsible
     paowind: int = -1
     paodrag: int = -1
