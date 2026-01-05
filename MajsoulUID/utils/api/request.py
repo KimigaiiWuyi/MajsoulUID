@@ -28,7 +28,9 @@ MODE_MAP = {
 }
 
 MODE_3 = ",".join(str(mode.value) for mode in GameMode if "三" in mode.name)
-MODE_4 = ",".join(str(mode.value) for mode in GameMode if "三" not in mode.name)
+MODE_4 = ",".join(
+    str(mode.value) for mode in GameMode if "三" not in mode.name
+)
 
 
 class KoromoApi:
