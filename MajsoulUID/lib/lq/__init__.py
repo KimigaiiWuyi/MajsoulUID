@@ -465,6 +465,17 @@ class NotifyCustomizedContestRuleModify(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class NotifyCustomizedContestPlanReady(betterproto.Message):
+    game_plan: "CustomizedContestGamePlan" = betterproto.message_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class NotifyCustomizedContestPlanCancel(betterproto.Message):
+    unique_id: int = betterproto.uint32_field(1)
+    uuid: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
 class Error(betterproto.Message):
     code: int = betterproto.uint32_field(1)
     u32_params: List[int] = betterproto.uint32_field(2)
@@ -2208,6 +2219,16 @@ class CustomizedContestDetail(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class CustomizedContestGamePlan(betterproto.Message):
+    unique_id: int = betterproto.uint32_field(1)
+    uuid: str = betterproto.string_field(2)
+    ready_players: List[int] = betterproto.uint32_field(3)
+    account_ids: List[int] = betterproto.uint32_field(4)
+    game_start_time: int = betterproto.uint32_field(5)
+    expired_time: int = betterproto.uint32_field(6)
+
+
+@dataclass(eq=False, repr=False)
 class CustomizedContestPlayerReport(betterproto.Message):
     rank_rule: int = betterproto.uint32_field(1)
     rank: int = betterproto.uint32_field(2)
@@ -3416,6 +3437,13 @@ class SnowballActivityBossActionSnowballActivityBossMpConsumeInfo(betterproto.Me
     mp_consume: int = betterproto.uint32_field(1)
     before_delay: int = betterproto.uint32_field(2)
     after_delay: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ClientDeviceInfoLog(betterproto.Message):
+    device_info: "ClientDeviceInfo" = betterproto.message_field(1)
+    login_time: int = betterproto.uint32_field(2)
+    account_id: int = betterproto.uint32_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -5493,6 +5521,7 @@ class ResEnterCustomizedContest(betterproto.Message):
     is_followed: bool = betterproto.bool_field(4)
     state: int = betterproto.uint32_field(5)
     is_admin: bool = betterproto.bool_field(6)
+    game_plan: "CustomizedContestGamePlan" = betterproto.message_field(7)
 
 
 @dataclass(eq=False, repr=False)
@@ -8534,9 +8563,7 @@ class ReqAuthGame(betterproto.Message):
     account_id: int = betterproto.uint32_field(1)
     token: str = betterproto.string_field(2)
     game_uuid: str = betterproto.string_field(3)
-    session: str = betterproto.string_field(4)
-    gift: str = betterproto.string_field(5)
-    vs: int = betterproto.uint32_field(6)
+    device: "ClientDeviceInfo" = betterproto.message_field(7)
 
 
 @dataclass(eq=False, repr=False)
