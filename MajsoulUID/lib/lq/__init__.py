@@ -5762,6 +5762,17 @@ class ResReceiveActivityFlipTask(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ReqReceiveActivityFlipTaskBatch(betterproto.Message):
+    task_list: List[int] = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResReceiveActivityFlipTaskBatch(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    count: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
 class ReqCompleteSegmentTaskReward(betterproto.Message):
     task_id: int = betterproto.uint32_field(1)
     count: int = betterproto.uint32_field(2)
@@ -5783,6 +5794,17 @@ class ResFetchActivityFlipInfo(betterproto.Message):
     rewards: List[int] = betterproto.uint32_field(1)
     count: int = betterproto.uint32_field(2)
     error: "Error" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqCompleteActivityFlipTaskBatch(betterproto.Message):
+    task_list: List[int] = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResCompleteActivityFlipTaskBatch(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    total_rewards: List["ExecuteReward"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -13653,6 +13675,23 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def complete_activity_flip_task_batch(
+        self,
+        req_complete_activity_flip_task_batch: "ReqCompleteActivityFlipTaskBatch",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCompleteActivityFlipTaskBatch":
+        return await self._unary_unary(
+            "/lq.Lobby/completeActivityFlipTaskBatch",
+            req_complete_activity_flip_task_batch,
+            ResCompleteActivityFlipTaskBatch,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
     async def complete_period_activity_task(
         self,
         req_complete_activity_task: "ReqCompleteActivityTask",
@@ -13733,6 +13772,23 @@ class LobbyStub(betterproto.ServiceStub):
             "/lq.Lobby/receiveActivityFlipTask",
             req_receive_activity_flip_task,
             ResReceiveActivityFlipTask,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def receive_activity_flip_task_batch(
+        self,
+        req_receive_activity_flip_task_batch: "ReqReceiveActivityFlipTaskBatch",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResReceiveActivityFlipTaskBatch":
+        return await self._unary_unary(
+            "/lq.Lobby/receiveActivityFlipTaskBatch",
+            req_receive_activity_flip_task_batch,
+            ResReceiveActivityFlipTaskBatch,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -17869,6 +17925,11 @@ class LobbyBase(ServiceBase):
     ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def complete_activity_flip_task_batch(
+        self, req_complete_activity_flip_task_batch: "ReqCompleteActivityFlipTaskBatch"
+    ) -> "ResCompleteActivityFlipTaskBatch":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def complete_period_activity_task(
         self, req_complete_activity_task: "ReqCompleteActivityTask"
     ) -> "ResCommon":
@@ -17893,6 +17954,11 @@ class LobbyBase(ServiceBase):
     async def receive_activity_flip_task(
         self, req_receive_activity_flip_task: "ReqReceiveActivityFlipTask"
     ) -> "ResReceiveActivityFlipTask":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def receive_activity_flip_task_batch(
+        self, req_receive_activity_flip_task_batch: "ReqReceiveActivityFlipTaskBatch"
+    ) -> "ResReceiveActivityFlipTaskBatch":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def complete_segment_task_reward(
@@ -20385,6 +20451,14 @@ class LobbyBase(ServiceBase):
         response = await self.complete_activity_flip_task(request)
         await stream.send_message(response)
 
+    async def __rpc_complete_activity_flip_task_batch(
+        self,
+        stream: "grpclib.server.Stream[ReqCompleteActivityFlipTaskBatch, ResCompleteActivityFlipTaskBatch]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.complete_activity_flip_task_batch(request)
+        await stream.send_message(response)
+
     async def __rpc_complete_period_activity_task(
         self, stream: "grpclib.server.Stream[ReqCompleteActivityTask, ResCommon]"
     ) -> None:
@@ -20420,6 +20494,14 @@ class LobbyBase(ServiceBase):
     ) -> None:
         request = await stream.recv_message()
         response = await self.receive_activity_flip_task(request)
+        await stream.send_message(response)
+
+    async def __rpc_receive_activity_flip_task_batch(
+        self,
+        stream: "grpclib.server.Stream[ReqReceiveActivityFlipTaskBatch, ResReceiveActivityFlipTaskBatch]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.receive_activity_flip_task_batch(request)
         await stream.send_message(response)
 
     async def __rpc_complete_segment_task_reward(
@@ -23046,6 +23128,12 @@ class LobbyBase(ServiceBase):
                 ReqCompleteActivityTask,
                 ResCommon,
             ),
+            "/lq.Lobby/completeActivityFlipTaskBatch": grpclib.const.Handler(
+                self.__rpc_complete_activity_flip_task_batch,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqCompleteActivityFlipTaskBatch,
+                ResCompleteActivityFlipTaskBatch,
+            ),
             "/lq.Lobby/completePeriodActivityTask": grpclib.const.Handler(
                 self.__rpc_complete_period_activity_task,
                 grpclib.const.Cardinality.UNARY_UNARY,
@@ -23075,6 +23163,12 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqReceiveActivityFlipTask,
                 ResReceiveActivityFlipTask,
+            ),
+            "/lq.Lobby/receiveActivityFlipTaskBatch": grpclib.const.Handler(
+                self.__rpc_receive_activity_flip_task_batch,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqReceiveActivityFlipTaskBatch,
+                ResReceiveActivityFlipTaskBatch,
             ),
             "/lq.Lobby/completeSegmentTaskReward": grpclib.const.Handler(
                 self.__rpc_complete_segment_task_reward,
