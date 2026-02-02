@@ -1,33 +1,33 @@
-import asyncio
 import random
+import asyncio
 from urllib.parse import parse_qs, urlparse
 
-import email_validator
 import httpx
-from gsuid_core.aps import scheduler
+import email_validator
+from gsuid_core.sv import SV
 from gsuid_core.bot import Bot
-from gsuid_core.logger import logger
 from gsuid_core.models import Event
+from gsuid_core.aps import scheduler
+from gsuid_core.logger import logger
 from gsuid_core.segment import MessageSegment
 from gsuid_core.subscribe import gs_subscribe
-from gsuid_core.sv import SV
 from gsuid_core.utils.database.api import get_uid
 
-from ..utils.api.remote import encode_account_id2
-from ..utils.database.models import MajsBind, MajsPush, MajsUser
-from ..utils.error_reply import UID_HINT
-from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
-from .constants import USER_AGENT, ModeId2Room
 from .draw_frame import render_frame
+from ..utils.error_reply import UID_HINT
+from .constants import USER_AGENT, ModeId2Room
+from ..utils.api.remote import encode_account_id2
 from .draw_friend_rank import draw_friend_rank_img
 from .draw_review_info import draw_review_info_img
+from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
+from .tenhou.review import review_tenhou, get_review_result
+from ..utils.database.models import MajsBind, MajsPush, MajsUser
 from .majsoul import (
     TASK_NAME_MAJSOUL_NOTIFY,
     MajsoulMaintenanceError,
-    get_paipu_by_game_id,
     manager,
+    get_paipu_by_game_id,
 )
-from .tenhou.review import get_review_result, review_tenhou
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_add_account = SV("雀魂账号池", pm=0)
@@ -109,7 +109,9 @@ async def majsoul_render_log(bot: Bot, ev: Event):
     et = ev.text.strip().replace("，", ",").replace(",", " ")
     paipu_command = et.split(" ")
     if len(paipu_command) != 3:
-        return await bot.send("❌ 请输入有效的格式!\n例如：雀魂场况 241118 10 5")
+        return await bot.send(
+            "❌ 请输入有效的格式!\n例如：雀魂场况 241118 10 5"
+        )
 
     paipu_id = paipu_command[0]
     kyoku_id = int(paipu_command[1])
@@ -121,10 +123,14 @@ async def majsoul_render_log(bot: Bot, ev: Event):
             paipu = await get_paipu_by_game_id(paipu_id)
             break
     else:
-        return await bot.send("❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]")
+        return await bot.send(
+            "❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]"
+        )
 
     if paipu is None:
-        return await bot.send("❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]")
+        return await bot.send(
+            "❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]"
+        )
 
     res = await review_tenhou(paipu)
     if isinstance(res, str):
@@ -134,7 +140,9 @@ async def majsoul_render_log(bot: Bot, ev: Event):
     await bot.send(im)
 
 
-@majsoul_yostar_login.on_command(("登录美服", "登录日服", "登陆日服", "登陆美服"))
+@majsoul_yostar_login.on_command(
+    ("登录美服", "登录日服", "登陆日服", "登陆美服")
+)
 async def majsoul_jp_login_command(bot: Bot, ev: Event):
     url = "https://passport.mahjongsoul.com/account/auth_request"
     headers = {
@@ -261,7 +269,9 @@ async def majsoul_add_at(bot: Bot, ev: Event):
         if isinstance(connection, str):
             return await bot.send(connection)
         if isinstance(connection, bool):
-            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
+            return await bot.send(
+                "❌ 登陆失败, 请输入正确的username和password!"
+            )
     else:
         return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
 
@@ -321,7 +331,9 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
             )
             if retcode == 0:
                 logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
-                return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
+                return await bot.send(
+                    f"[majs] 修改推送订阅成功！当前值：{push_id}"
+                )
             else:
                 return await bot.send("[majs] 推送订阅失败！")
     else:

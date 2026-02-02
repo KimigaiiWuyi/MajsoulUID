@@ -17,7 +17,9 @@ def get_bg():
     return Image.open(TEXT_PATH / "bg.jpg")
 
 
-def add_footer(img: Image.Image, w: int = 0, is_footer2: bool = False) -> Image.Image:
+def add_footer(
+    img: Image.Image, w: int = 0, is_footer2: bool = False
+) -> Image.Image:
     footer = get_footer2() if is_footer2 else get_footer()
     w = img.size[0] if not w else w
     if w != footer.size[0]:
