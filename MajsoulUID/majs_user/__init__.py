@@ -80,7 +80,9 @@ async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
 async def send_majs_search_msg(bot: Bot, ev: Event):
     im, uid_list = await search_player_with_name(ev.text.strip())
     if uid_list:
-        buttons = [Button(f"✏️绑定{uid}", f"雀魂绑定{uid}") for uid in uid_list]
+        buttons = [
+            Button(f"✏️绑定{uid}", f"雀魂绑定{uid}") for uid in uid_list
+        ]
     else:
         buttons = None
     await bot.send_option(im, buttons)

@@ -1,9 +1,9 @@
 # https://github.com/Xerxes-2/AutoLiqi/blob/main/get_liqi.py
-import json
 import os
-from pathlib import Path
+import json
 from time import sleep
 from typing import Dict
+from pathlib import Path
 
 import httpx
 from config import ConfigTables
@@ -17,7 +17,9 @@ path = Path(__file__).parent
 
 
 def get_version():
-    req = httpx.get("https://game.maj-soul.com/1/version.json", headers=Headers)
+    req = httpx.get(
+        "https://game.maj-soul.com/1/version.json", headers=Headers
+    )
     return req.json()
 
 
@@ -101,7 +103,7 @@ def main():
     with open("liqi.json", "w") as f:
         f.write(liqi)
     env = os.getenv("GITHUB_ENV")
-    with open(env, "a") as f:  # type:ignore
+    with open(env, "a") as f:  # type: ignore
         f.write(f"liqi-json={prefix}\n")
 
 
