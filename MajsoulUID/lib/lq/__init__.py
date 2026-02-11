@@ -1435,6 +1435,9 @@ class AccountActivityUpdate(betterproto.Message):
     shoot_data: List["ActivityShootData"] = betterproto.message_field(18)
     bingo_data: List["ActivityBingoData"] = betterproto.message_field(19)
     snowball_data: List["ActivitySnowballValueChanges"] = betterproto.message_field(20)
+    choose_group_up_data: List["ActivityChooseGroupData"] = betterproto.message_field(
+        21
+    )
 
 
 @dataclass(eq=False, repr=False)
@@ -1755,6 +1758,13 @@ class ActivityChooseUpData(betterproto.Message):
     chest_id: int = betterproto.uint32_field(2)
     selection: int = betterproto.uint32_field(3)
     is_end: int = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityChooseGroupData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    chest_id: int = betterproto.uint32_field(2)
+    selection_id: int = betterproto.uint32_field(3)
 
 
 @dataclass(eq=False, repr=False)
@@ -2195,7 +2205,6 @@ class CustomizedContestDetail(betterproto.Message):
     contest_id: int = betterproto.uint32_field(2)
     contest_name: str = betterproto.string_field(3)
     state: int = betterproto.uint32_field(4)
-    creator_id: int = betterproto.uint32_field(5)
     create_time: int = betterproto.uint32_field(6)
     start_time: int = betterproto.uint32_field(7)
     finish_time: int = betterproto.uint32_field(8)
@@ -3444,6 +3453,46 @@ class ClientDeviceInfoLog(betterproto.Message):
     device_info: "ClientDeviceInfo" = betterproto.message_field(1)
     login_time: int = betterproto.uint32_field(2)
     account_id: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class MarathonGameRecord(betterproto.Message):
+    point: int = betterproto.uint32_field(1)
+    distance: int = betterproto.uint32_field(2)
+    used_tick: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMarathonData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    highest_record: "MarathonGameRecord" = betterproto.message_field(2)
+    race_data: "ActivityMarathonDataMarathonRaceData" = betterproto.message_field(3)
+    history: List["ActivityMarathonDataMarathonRaceHistory"] = (
+        betterproto.message_field(4)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMarathonDataMarathonRaceData(betterproto.Message):
+    id: str = betterproto.string_field(1)
+    random_seed: int = betterproto.uint32_field(2)
+    start_time: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMarathonDataMarathonRaceHistory(betterproto.Message):
+    race_data: "ActivityMarathonDataMarathonRaceData" = betterproto.message_field(1)
+    record: "MarathonGameRecord" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMarathonCheckData(betterproto.Message):
+    round: int = betterproto.uint32_field(1)
+    item: List[int] = betterproto.uint32_field(2)
+    tile: str = betterproto.string_field(3)
+    tick: int = betterproto.uint32_field(4)
+    point: int = betterproto.uint32_field(5)
+    time_end: int = betterproto.uint32_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -5111,6 +5160,7 @@ class ReqOpenChest(betterproto.Message):
     count: int = betterproto.uint32_field(2)
     use_ticket: bool = betterproto.bool_field(3)
     choose_up_activity_id: int = betterproto.uint32_field(4)
+    choose_group_activity_id: int = betterproto.uint32_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -5671,6 +5721,10 @@ class ResAccountActivityData(betterproto.Message):
     shoot_data: List["ActivityShootData"] = betterproto.message_field(34)
     bingo_data: List["ActivityBingoData"] = betterproto.message_field(35)
     snowball_data: List["ActivitySnowballData"] = betterproto.message_field(36)
+    marathon_data: List["ActivityMarathonData"] = betterproto.message_field(37)
+    choose_group_up_data: List["ActivityChooseGroupData"] = betterproto.message_field(
+        38
+    )
 
 
 @dataclass(eq=False, repr=False)
@@ -7614,6 +7668,13 @@ class ReqSelectChestChooseUp(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ReqSelectChestChooseGroupActivity(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    selection: int = betterproto.uint32_field(2)
+    chest_id: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
 class ReqGenerateAnnualReportToken(betterproto.Message):
     lang: str = betterproto.string_field(1)
 
@@ -7943,6 +8004,33 @@ class ReqSnowballActivityReceiveReward(betterproto.Message):
 class ResSnowballActivityReceiveReward(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     changes: "ActivitySnowballValueChanges" = betterproto.message_field(2)
+    rewards: List["ExecuteReward"] = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMarathonActivityStartRace(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResMarathonActivityStartRace(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    random_seed: int = betterproto.uint32_field(2)
+    race_id: str = betterproto.string_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMarathonActivityFinishRace(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    race_data: List["ActivityMarathonCheckData"] = betterproto.message_field(2)
+    record: "MarathonGameRecord" = betterproto.message_field(3)
+    race_id: str = betterproto.string_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ResMarathonActivityFinishRace(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    highest_record: "MarathonGameRecord" = betterproto.message_field(2)
     rewards: List["ExecuteReward"] = betterproto.message_field(3)
 
 
@@ -16113,11 +16201,28 @@ class LobbyStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> "ReqCommon":
+    ) -> "ResCommon":
         return await self._unary_unary(
             "/lq.Lobby/selectChestChooseUpActivity",
             req_select_chest_choose_up,
-            ReqCommon,
+            ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def select_chest_choose_group_activity(
+        self,
+        req_select_chest_choose_group_activity: "ReqSelectChestChooseGroupActivity",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCommon":
+        return await self._unary_unary(
+            "/lq.Lobby/selectChestChooseGroupActivity",
+            req_select_chest_choose_group_activity,
+            ResCommon,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -16509,6 +16614,40 @@ class LobbyStub(betterproto.ServiceStub):
             "/lq.Lobby/snowballActivityReceiveReward",
             req_snowball_activity_receive_reward,
             ResSnowballActivityReceiveReward,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def marathon_activity_start_race(
+        self,
+        req_marathon_activity_start_race: "ReqMarathonActivityStartRace",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMarathonActivityStartRace":
+        return await self._unary_unary(
+            "/lq.Lobby/marathonActivityStartRace",
+            req_marathon_activity_start_race,
+            ResMarathonActivityStartRace,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def marathon_activity_finish_race(
+        self,
+        req_marathon_activity_finish_race: "ReqMarathonActivityFinishRace",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMarathonActivityFinishRace":
+        return await self._unary_unary(
+            "/lq.Lobby/marathonActivityFinishRace",
+            req_marathon_activity_finish_race,
+            ResMarathonActivityFinishRace,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -18615,7 +18754,13 @@ class LobbyBase(ServiceBase):
 
     async def select_chest_choose_up_activity(
         self, req_select_chest_choose_up: "ReqSelectChestChooseUp"
-    ) -> "ReqCommon":
+    ) -> "ResCommon":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def select_chest_choose_group_activity(
+        self,
+        req_select_chest_choose_group_activity: "ReqSelectChestChooseGroupActivity",
+    ) -> "ResCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def generate_annual_report_token(
@@ -18731,6 +18876,16 @@ class LobbyBase(ServiceBase):
     async def snowball_activity_receive_reward(
         self, req_snowball_activity_receive_reward: "ReqSnowballActivityReceiveReward"
     ) -> "ResSnowballActivityReceiveReward":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def marathon_activity_start_race(
+        self, req_marathon_activity_start_race: "ReqMarathonActivityStartRace"
+    ) -> "ResMarathonActivityStartRace":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def marathon_activity_finish_race(
+        self, req_marathon_activity_finish_race: "ReqMarathonActivityFinishRace"
+    ) -> "ResMarathonActivityFinishRace":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def __rpc_fetch_connection_info(
@@ -21524,10 +21679,18 @@ class LobbyBase(ServiceBase):
         await stream.send_message(response)
 
     async def __rpc_select_chest_choose_up_activity(
-        self, stream: "grpclib.server.Stream[ReqSelectChestChooseUp, ReqCommon]"
+        self, stream: "grpclib.server.Stream[ReqSelectChestChooseUp, ResCommon]"
     ) -> None:
         request = await stream.recv_message()
         response = await self.select_chest_choose_up_activity(request)
+        await stream.send_message(response)
+
+    async def __rpc_select_chest_choose_group_activity(
+        self,
+        stream: "grpclib.server.Stream[ReqSelectChestChooseGroupActivity, ResCommon]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.select_chest_choose_group_activity(request)
         await stream.send_message(response)
 
     async def __rpc_generate_annual_report_token(
@@ -21708,6 +21871,22 @@ class LobbyBase(ServiceBase):
     ) -> None:
         request = await stream.recv_message()
         response = await self.snowball_activity_receive_reward(request)
+        await stream.send_message(response)
+
+    async def __rpc_marathon_activity_start_race(
+        self,
+        stream: "grpclib.server.Stream[ReqMarathonActivityStartRace, ResMarathonActivityStartRace]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.marathon_activity_start_race(request)
+        await stream.send_message(response)
+
+    async def __rpc_marathon_activity_finish_race(
+        self,
+        stream: "grpclib.server.Stream[ReqMarathonActivityFinishRace, ResMarathonActivityFinishRace]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.marathon_activity_finish_race(request)
         await stream.send_message(response)
 
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
@@ -23990,7 +24169,13 @@ class LobbyBase(ServiceBase):
                 self.__rpc_select_chest_choose_up_activity,
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqSelectChestChooseUp,
-                ReqCommon,
+                ResCommon,
+            ),
+            "/lq.Lobby/selectChestChooseGroupActivity": grpclib.const.Handler(
+                self.__rpc_select_chest_choose_group_activity,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSelectChestChooseGroupActivity,
+                ResCommon,
             ),
             "/lq.Lobby/generateAnnualReportToken": grpclib.const.Handler(
                 self.__rpc_generate_annual_report_token,
@@ -24129,6 +24314,18 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqSnowballActivityReceiveReward,
                 ResSnowballActivityReceiveReward,
+            ),
+            "/lq.Lobby/marathonActivityStartRace": grpclib.const.Handler(
+                self.__rpc_marathon_activity_start_race,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMarathonActivityStartRace,
+                ResMarathonActivityStartRace,
+            ),
+            "/lq.Lobby/marathonActivityFinishRace": grpclib.const.Handler(
+                self.__rpc_marathon_activity_finish_race,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMarathonActivityFinishRace,
+                ResMarathonActivityFinishRace,
             ),
         }
 
