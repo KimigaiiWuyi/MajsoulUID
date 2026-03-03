@@ -9,7 +9,7 @@ DAISUUSHI = 50
 
 TSUMOGIRI = 60  # tenhou tsumogiri symbol
 
-RUNES = {
+RUNES: dict[str, list[str]] = {
     # wind
     "east": ["東", "East ", "East "],
     "south": ["南", "South ", "South "],
@@ -56,7 +56,7 @@ RUNES = {
     "nored": ["", " Aka Nashi", " No Red Fives"],
 }
 
-YSCORE = [
+YSCORE: list[list[int]] = [
     # oya,    ko,   ron  pays
     [0, 16000, 48000],  # oya wins
     [16000, 8000, 32000],  # ko  wins

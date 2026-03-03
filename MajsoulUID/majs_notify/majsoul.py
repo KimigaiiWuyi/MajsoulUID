@@ -4,33 +4,20 @@ import uuid
 import random
 import asyncio
 import hashlib
-from collections.abc import Iterable
 from typing import Dict, List, Union, Sequence, cast
+from collections.abc import Iterable
 
 import httpx
 import aiofiles
 import websockets.client
+from msgspec import ValidationError, convert
+
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
-from msgspec import ValidationError, convert
 from gsuid_core.subscribe import gs_subscribe
 
-from .utils import getRes
 from ..lib import lq as liblq
-from ._level import MajsoulLevel
 from .codec import MajsoulProtoCodec
-from .majsoul_friend import MajsoulFriend
-from ..utils.api.remote_const import GameMode
-from .tenhou.parser import MajsoulPaipuParser
-from .constants import USER_AGENT, ModeId2Room
-from ..majs_config.majs_config import MAJS_CONFIG
-from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
-from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
-from ..utils.api.remote import (
-    decode_log_id,
-    encode_account_id,
-    decode_account_id2,
-)
 from .model import (
     MjsLog,
     MjsLogItem,
@@ -41,6 +28,20 @@ from .model import (
     MajsoulVersionInfo,
     MajsoulDecodedMessage,
 )
+from .utils import getRes
+from ._level import MajsoulLevel
+from .constants import USER_AGENT, ModeId2Room
+from .tenhou.parser import MajsoulPaipuParser
+from .majsoul_friend import MajsoulFriend
+from ..utils.api.remote import (
+    decode_log_id,
+    encode_account_id,
+    decode_account_id2,
+)
+from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
+from ..utils.api.remote_const import GameMode
+from ..majs_config.majs_config import MAJS_CONFIG
+from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 TASK_NAME_MAJSOUL_NOTIFY = "订阅雀魂消息推送"
@@ -359,9 +360,7 @@ class MajsoulConnection:
                             msg += f"得点:{player.grading_score}\n"
 
                             if category == 2:
-                                level_info = MajsoulLevel(
-                                    friend_level_id
-                                ).formatAdjustedScoreWithTag(
+                                level_info = MajsoulLevel(friend_level_id).formatAdjustedScoreWithTag(
                                     friend_score + player.grading_score
                                 )
                                 msg += f"当前段位:{level_info}\n"
@@ -504,9 +503,9 @@ class MajsoulConnection:
         logger.error(f"[majs] {self.account_id} Connection lost: {error}")
         await manager.restart()
 
-    async def create_heartbeat_task(self):
+    async def create_heartbeat_task(self) -> None:
         # create a new task to keep the connection alive, 300s heartbeat
-        async def heartbeat():
+        async def heartbeat() -> None:
             while True:
                 # random sleep to avoid heartbeat collision
                 timeout = random.randint(300, 360)
@@ -561,7 +560,7 @@ class MajsoulConnection:
         uid: str,
         code: str,
         version_info: MajsoulVersionInfo,
-    ):
+    ) -> None:
         resp = cast(
             liblq.ResOauth2Auth,
             await self.rpc_call(
@@ -843,9 +842,7 @@ class MajsoulConnection:
                     item = MjsLogItem(name=name, data=msg)
                     action_list.append(item)
 
-        tenhou_log = MajsoulPaipuParser().handle_game_record(
-            record=MjsLog(logs.head, action_list)
-        )
+        tenhou_log = MajsoulPaipuParser().handle_game_record(record=MjsLog(logs.head, action_list))
 
         tenhou_log["head"] = process_dict(logs.head.__dict__)
         tenhou_log["game_id"] = game_id
@@ -973,11 +970,7 @@ async def createMajsoulConnection(
 
 
 async def createYostarMajsoulConnection(uid: str, code: str, lang: str):
-    URL_BASE = (
-        "https://game.mahjongsoul.com/"
-        if lang == "jp"
-        else "https://mahjongsoul.game.yo-star.com/"
-    )
+    URL_BASE = "https://game.mahjongsoul.com/" if lang == "jp" else "https://mahjongsoul.game.yo-star.com/"
 
     server, pbDef, pbVersion, version_info = await fetchMajsoulInfo(URL_BASE)
 
@@ -1053,18 +1046,14 @@ class MajsoulManager:
                     except MajsoulMaintenanceError as e:
                         return f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
                     except ValueError as e:
-                        logger.warning(
-                            f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}"
-                        )
+                        logger.warning(f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}")
                         try:
                             conn = await createMajsoulConnection(
                                 username=user.username,
                                 password=user.password,
                             )
                         except ValueError as e:
-                            logger.error(
-                                f"[majs] 刷新AccessToken失败, 请重新登录！\n{e}"
-                            )
+                            logger.error(f"[majs] 刷新AccessToken失败, 请重新登录！\n{e}")
                             return "❌ AccessToken已失效, 请重新登录！"
 
                     self.conn.append(conn)
