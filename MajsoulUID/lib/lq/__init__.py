@@ -4846,6 +4846,23 @@ class ResCreateYostarOrder(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ReqCreateYostarV4SdkOrder(betterproto.Message):
+    goods_id: int = betterproto.uint32_field(1)
+    client_type: int = betterproto.uint32_field(2)
+    account_id: int = betterproto.uint32_field(3)
+    order_type: int = betterproto.uint32_field(4)
+    client_version_string: str = betterproto.string_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class ResCreateYostarV4SdkOrder(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    order_id: str = betterproto.string_field(2)
+    notify_url: str = betterproto.string_field(3)
+    extra_data: str = betterproto.string_field(4)
+
+
+@dataclass(eq=False, repr=False)
 class ReqCreateEnPaypalOrder(betterproto.Message):
     goods_id: int = betterproto.uint32_field(1)
     client_type: int = betterproto.uint32_field(2)
@@ -6611,6 +6628,17 @@ class ResOpenGacha(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ReqTaskRequest(betterproto.Message):
     params: List[int] = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ReqYostarDeleteAccount(betterproto.Message):
+    server: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResYostarDeleteAccount(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    notify_url: str = betterproto.string_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -13134,6 +13162,23 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def create_yostar_v4_sdk_order(
+        self,
+        req_create_yostar_v4_sdk_order: "ReqCreateYostarV4SdkOrder",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResCreateYostarV4SdkOrder":
+        return await self._unary_unary(
+            "/lq.Lobby/createYostarV4SDKOrder",
+            req_create_yostar_v4_sdk_order,
+            ResCreateYostarV4SdkOrder,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
     async def create_billing_order(
         self,
         req_create_billing_order: "ReqCreateBillingOrder",
@@ -14999,6 +15044,23 @@ class LobbyStub(betterproto.ServiceStub):
             "/lq.Lobby/taskRequest",
             req_task_request,
             ResCommon,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def yostar_delete_account(
+        self,
+        req_yostar_delete_account: "ReqYostarDeleteAccount",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResYostarDeleteAccount":
+        return await self._unary_unary(
+            "/lq.Lobby/yostarDeleteAccount",
+            req_yostar_delete_account,
+            ResYostarDeleteAccount,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -17884,6 +17946,11 @@ class LobbyBase(ServiceBase):
     ) -> "ResCreateYostarOrder":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def create_yostar_v4_sdk_order(
+        self, req_create_yostar_v4_sdk_order: "ReqCreateYostarV4SdkOrder"
+    ) -> "ResCreateYostarV4SdkOrder":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def create_billing_order(
         self, req_create_billing_order: "ReqCreateBillingOrder"
     ) -> "ResCreateBillingOrder":
@@ -18393,6 +18460,11 @@ class LobbyBase(ServiceBase):
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def task_request(self, req_task_request: "ReqTaskRequest") -> "ResCommon":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def yostar_delete_account(
+        self, req_yostar_delete_account: "ReqYostarDeleteAccount"
+    ) -> "ResYostarDeleteAccount":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def simulation_activity_train(
@@ -20332,6 +20404,14 @@ class LobbyBase(ServiceBase):
         response = await self.create_yostar_sdk_order(request)
         await stream.send_message(response)
 
+    async def __rpc_create_yostar_v4_sdk_order(
+        self,
+        stream: "grpclib.server.Stream[ReqCreateYostarV4SdkOrder, ResCreateYostarV4SdkOrder]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.create_yostar_v4_sdk_order(request)
+        await stream.send_message(response)
+
     async def __rpc_create_billing_order(
         self,
         stream: "grpclib.server.Stream[ReqCreateBillingOrder, ResCreateBillingOrder]",
@@ -21139,6 +21219,14 @@ class LobbyBase(ServiceBase):
     ) -> None:
         request = await stream.recv_message()
         response = await self.task_request(request)
+        await stream.send_message(response)
+
+    async def __rpc_yostar_delete_account(
+        self,
+        stream: "grpclib.server.Stream[ReqYostarDeleteAccount, ResYostarDeleteAccount]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.yostar_delete_account(request)
         await stream.send_message(response)
 
     async def __rpc_simulation_activity_train(
@@ -23085,6 +23173,12 @@ class LobbyBase(ServiceBase):
                 ReqCreateYostarOrder,
                 ResCreateYostarOrder,
             ),
+            "/lq.Lobby/createYostarV4SDKOrder": grpclib.const.Handler(
+                self.__rpc_create_yostar_v4_sdk_order,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqCreateYostarV4SdkOrder,
+                ResCreateYostarV4SdkOrder,
+            ),
             "/lq.Lobby/createBillingOrder": grpclib.const.Handler(
                 self.__rpc_create_billing_order,
                 grpclib.const.Cardinality.UNARY_UNARY,
@@ -23744,6 +23838,12 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqTaskRequest,
                 ResCommon,
+            ),
+            "/lq.Lobby/yostarDeleteAccount": grpclib.const.Handler(
+                self.__rpc_yostar_delete_account,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqYostarDeleteAccount,
+                ResYostarDeleteAccount,
             ),
             "/lq.Lobby/simulationActivityTrain": grpclib.const.Handler(
                 self.__rpc_simulation_activity_train,
