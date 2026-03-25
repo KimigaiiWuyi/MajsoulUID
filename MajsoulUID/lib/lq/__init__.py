@@ -2225,6 +2225,7 @@ class CustomizedContestDetail(betterproto.Message):
     tied_rank: int = betterproto.uint32_field(23)
     match_start_time: int = betterproto.uint32_field(24)
     match_end_time: int = betterproto.uint32_field(25)
+    open_rank_percent: int = betterproto.uint32_field(26)
 
 
 @dataclass(eq=False, repr=False)
@@ -2244,6 +2245,7 @@ class CustomizedContestPlayerReport(betterproto.Message):
     point: int = betterproto.int32_field(3)
     game_ranks: List[int] = betterproto.uint32_field(4)
     total_game_count: int = betterproto.uint32_field(5)
+    rank_percent: int = betterproto.uint32_field(6)
 
 
 @dataclass(eq=False, repr=False)
@@ -3493,6 +3495,21 @@ class ActivityMarathonCheckData(betterproto.Message):
     tick: int = betterproto.uint32_field(4)
     point: int = betterproto.uint32_field(5)
     time_end: int = betterproto.uint32_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class BannerActivityData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    tag_img_url: str = betterproto.string_field(2)
+    banner_background_url: str = betterproto.string_field(3)
+    banner_button_url: str = betterproto.string_field(4)
+    tag_name: str = betterproto.string_field(5)
+    start_time: int = betterproto.uint32_field(6)
+    end_time: int = betterproto.uint32_field(7)
+    url: str = betterproto.string_field(8)
+    type: int = betterproto.uint32_field(9)
+    sort: int = betterproto.uint32_field(10)
+    need_popout: int = betterproto.uint32_field(11)
 
 
 @dataclass(eq=False, repr=False)
@@ -7179,6 +7196,8 @@ class ResFetchContestPlayerRankSeasonRank(betterproto.Message):
     )
     team_name: str = betterproto.string_field(4)
     modify_score: int = betterproto.int32_field(5)
+    rank: int = betterproto.uint32_field(6)
+    rank_percent: int = betterproto.uint32_field(7)
 
 
 @dataclass(eq=False, repr=False)
@@ -7189,6 +7208,7 @@ class ResFetchContestPlayerRankPlayerData(betterproto.Message):
     )
     team_name: str = betterproto.string_field(3)
     modify_score: int = betterproto.int32_field(4)
+    rank_percent: int = betterproto.uint32_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -7221,6 +7241,7 @@ class ResFetchContestTeamRankSeasonTeamRank(betterproto.Message):
     name: str = betterproto.string_field(2)
     data: "ResFetchContestTeamRankContestTeamData" = betterproto.message_field(3)
     rank: int = betterproto.uint32_field(4)
+    rank_percent: int = betterproto.uint32_field(5)
 
 
 @dataclass(eq=False, repr=False)
@@ -8033,6 +8054,18 @@ class ResSnowballActivityReceiveReward(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     changes: "ActivitySnowballValueChanges" = betterproto.message_field(2)
     rewards: List["ExecuteReward"] = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqFetchBannerActivityData(betterproto.Message):
+    activity_id_list: List[int] = betterproto.uint32_field(1)
+    lang: str = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResFetchBannerActivityData(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    activity_list: List["BannerActivityData"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -16681,6 +16714,23 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def fetch_banner_activity_data(
+        self,
+        req_fetch_banner_activity_data: "ReqFetchBannerActivityData",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResFetchBannerActivityData":
+        return await self._unary_unary(
+            "/lq.Lobby/fetchBannerActivityData",
+            req_fetch_banner_activity_data,
+            ResFetchBannerActivityData,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
     async def marathon_activity_start_race(
         self,
         req_marathon_activity_start_race: "ReqMarathonActivityStartRace",
@@ -18948,6 +18998,11 @@ class LobbyBase(ServiceBase):
     async def snowball_activity_receive_reward(
         self, req_snowball_activity_receive_reward: "ReqSnowballActivityReceiveReward"
     ) -> "ResSnowballActivityReceiveReward":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def fetch_banner_activity_data(
+        self, req_fetch_banner_activity_data: "ReqFetchBannerActivityData"
+    ) -> "ResFetchBannerActivityData":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def marathon_activity_start_race(
@@ -21961,6 +22016,14 @@ class LobbyBase(ServiceBase):
         response = await self.snowball_activity_receive_reward(request)
         await stream.send_message(response)
 
+    async def __rpc_fetch_banner_activity_data(
+        self,
+        stream: "grpclib.server.Stream[ReqFetchBannerActivityData, ResFetchBannerActivityData]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.fetch_banner_activity_data(request)
+        await stream.send_message(response)
+
     async def __rpc_marathon_activity_start_race(
         self,
         stream: "grpclib.server.Stream[ReqMarathonActivityStartRace, ResMarathonActivityStartRace]",
@@ -24414,6 +24477,12 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqSnowballActivityReceiveReward,
                 ResSnowballActivityReceiveReward,
+            ),
+            "/lq.Lobby/fetchBannerActivityData": grpclib.const.Handler(
+                self.__rpc_fetch_banner_activity_data,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqFetchBannerActivityData,
+                ResFetchBannerActivityData,
             ),
             "/lq.Lobby/marathonActivityStartRace": grpclib.const.Handler(
                 self.__rpc_marathon_activity_start_race,
