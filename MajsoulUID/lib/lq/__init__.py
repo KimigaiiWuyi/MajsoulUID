@@ -482,6 +482,8 @@ class Error(betterproto.Message):
     str_params: List[str] = betterproto.string_field(3)
     json_param: str = betterproto.string_field(4)
     level: int = betterproto.uint32_field(5)
+    message: str = betterproto.string_field(6)
+    args: str = betterproto.string_field(7)
 
 
 @dataclass(eq=False, repr=False)
@@ -1438,6 +1440,16 @@ class AccountActivityUpdate(betterproto.Message):
     choose_group_up_data: List["ActivityChooseGroupData"] = betterproto.message_field(
         21
     )
+    mmo_data: List["ActivityMmoDataChanges"] = betterproto.message_field(22)
+    activity_buff: "AccountActivityUpdateActivityBuffDataArrayDirty" = (
+        betterproto.message_field(23)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class AccountActivityUpdateActivityBuffDataArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["ActivityBuffData"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -1765,6 +1777,171 @@ class ActivityChooseGroupData(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     chest_id: int = betterproto.uint32_field(2)
     selection_id: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataChanges(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    character: "ActivityMmoDataChangesActivityMmoCharacterDataChanges" = (
+        betterproto.message_field(2)
+    )
+    team: "ActivityMmoDataChangesActivityMmoTeamDataChanges" = (
+        betterproto.message_field(3)
+    )
+    bag: "ActivityMmoDataChangesActivityMmoBagDataChanges" = betterproto.message_field(
+        4
+    )
+    map: "ActivityMmoDataChangesActivityMmoMapDataChanges" = betterproto.message_field(
+        5
+    )
+    support: "ActivityMmoDataChangesActivityMmoSupportDataChanges" = (
+        betterproto.message_field(6)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataChangesActivityMmoCharacterDataChanges(betterproto.Message):
+    character_id: "UInt32Dirty" = betterproto.message_field(1)
+    equipments: "UInt32ArrayDirty" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataChangesActivityMmoTeamMemberArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["ActivityMmoTeamMember"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataChangesActivityMmoTeamDataChanges(betterproto.Message):
+    members: "ActivityMmoDataChangesActivityMmoTeamMemberArrayDirty" = (
+        betterproto.message_field(1)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataChangesActivityMmoEquipmentsArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["ActivityMmoEquipmentData"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataChangesActivityMmoBagDataChanges(betterproto.Message):
+    equipments: "ActivityMmoDataChangesActivityMmoEquipmentsArrayDirty" = (
+        betterproto.message_field(1)
+    )
+    total_gain_count: "UInt32Dirty" = betterproto.message_field(2)
+    total_fusion_count: "UInt32Dirty" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataChangesActivityMmoMapDataChanges(betterproto.Message):
+    level: "UInt32Dirty" = betterproto.message_field(1)
+    random_seed: "UInt32Dirty" = betterproto.message_field(2)
+    won: "UInt32Dirty" = betterproto.message_field(3)
+    failed: "UInt32Dirty" = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataChangesActivityMmoSupportDataChanges(betterproto.Message):
+    last_receive_time: "UInt32Dirty" = betterproto.message_field(1)
+    most_supporter: "ActivityMmoSupportRecordDirty" = betterproto.message_field(2)
+    receive_support_count: "UInt32Dirty" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoTeamMember(betterproto.Message):
+    character_id: int = betterproto.uint32_field(1)
+    equipments: List[int] = betterproto.uint32_field(2)
+    id: int = betterproto.uint32_field(3)
+    type: int = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoEquipmentData(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    stack: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class MmoActivityTeamCandidateData(betterproto.Message):
+    character_id: int = betterproto.uint32_field(1)
+    equipments: List[int] = betterproto.uint32_field(2)
+    id: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoSupportRecord(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    count: int = betterproto.uint32_field(2)
+    type: int = betterproto.uint32_field(3)
+    character_id: int = betterproto.uint32_field(4)
+    equipments: List[int] = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoSupportRecordDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: "ActivityMmoSupportRecord" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    character: "ActivityMmoDataActivityMmoCharacterData" = betterproto.message_field(2)
+    team: "ActivityMmoDataActivityMmoTeamData" = betterproto.message_field(3)
+    bag: "ActivityMmoDataActivityMmoBagData" = betterproto.message_field(4)
+    map: "ActivityMmoDataActivityMmoMapData" = betterproto.message_field(5)
+    support: "ActivityMmoDataActivityMmoSupportData" = betterproto.message_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataActivityMmoCharacterData(betterproto.Message):
+    character_id: int = betterproto.uint32_field(1)
+    equipments: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataActivityMmoTeamData(betterproto.Message):
+    members: List["ActivityMmoTeamMember"] = betterproto.message_field(1)
+    friend_list: List["MmoActivityTeamCandidateData"] = betterproto.message_field(100)
+    friend_list_expire: int = betterproto.uint32_field(101)
+    random_friends: List["MmoActivityTeamCandidateData"] = betterproto.message_field(
+        102
+    )
+    daily_update_time: int = betterproto.uint32_field(103)
+    npc_list: List["MmoActivityTeamCandidateData"] = betterproto.message_field(104)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataActivityMmoBagData(betterproto.Message):
+    equipments: List["ActivityMmoEquipmentData"] = betterproto.message_field(1)
+    total_gain_count: int = betterproto.uint32_field(2)
+    total_fusion_count: int = betterproto.uint32_field(3)
+    random_record: List["ActivityMmoDataActivityMmoBagDataActivityMmoRandomRecord"] = (
+        betterproto.message_field(100)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataActivityMmoBagDataActivityMmoRandomRecord(betterproto.Message):
+    rarity: int = betterproto.uint32_field(1)
+    count: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataActivityMmoMapData(betterproto.Message):
+    level: int = betterproto.uint32_field(1)
+    random_seed: int = betterproto.uint32_field(2)
+    won: int = betterproto.uint32_field(3)
+    failed: int = betterproto.uint32_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMmoDataActivityMmoSupportData(betterproto.Message):
+    last_receive_time: int = betterproto.uint32_field(1)
+    most_supporter: "ActivityMmoSupportRecord" = betterproto.message_field(2)
+    receive_support_count: int = betterproto.uint32_field(3)
+    support_record: List["ActivityMmoSupportRecord"] = betterproto.message_field(100)
 
 
 @dataclass(eq=False, repr=False)
@@ -5759,6 +5936,7 @@ class ResAccountActivityData(betterproto.Message):
     choose_group_up_data: List["ActivityChooseGroupData"] = betterproto.message_field(
         38
     )
+    mmo_data: List["ActivityMmoData"] = betterproto.message_field(39)
 
 
 @dataclass(eq=False, repr=False)
@@ -6037,6 +6215,18 @@ class ReqUpgradeActivityLevel(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     group: int = betterproto.uint32_field(2)
     count: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSetActivityBuff(betterproto.Message):
+    buff_list: List["ReqSetActivityBuffBuffInfo"] = betterproto.message_field(1)
+    activity_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSetActivityBuffBuffInfo(betterproto.Message):
+    buff_id: int = betterproto.uint32_field(1)
+    level: int = betterproto.uint32_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -8096,6 +8286,166 @@ class ResMarathonActivityFinishRace(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ReqMmoActivityFetchData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResMmoActivityFetchData(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    mmo_data: "ActivityMmoData" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMmoActivityEquipFusion(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    equip_list: List[int] = betterproto.uint32_field(2)
+    target_type: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResMmoActivityEquipFusion(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    result: int = betterproto.uint32_field(2)
+    changes: "ActivityMmoDataChanges" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMmoActivitySetCharacter(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    character_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResMmoActivitySetCharacter(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMmoDataChanges" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMmoActivitySetTeamMember(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    members: List["ReqMmoActivitySetTeamMemberMmoActivityTeamMember"] = (
+        betterproto.message_field(2)
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ReqMmoActivitySetTeamMemberMmoActivityTeamMember(betterproto.Message):
+    character_id: int = betterproto.uint32_field(1)
+    id: int = betterproto.uint32_field(2)
+    type: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResMmoActivitySetTeamMember(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMmoDataChanges" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMmoActivityStartBattle(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResMmoActivityStartBattle(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    actions: List["ResMmoActivityStartBattleMmoActivityBattleAction"] = (
+        betterproto.message_field(2)
+    )
+    units: List["ResMmoActivityStartBattleMmoActivityBattleUnit"] = (
+        betterproto.message_field(3)
+    )
+    changes: "ActivityMmoDataChanges" = betterproto.message_field(4)
+    result: int = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class ResMmoActivityStartBattleMmoActivityBattleAction(betterproto.Message):
+    type: int = betterproto.uint32_field(1)
+    target: int = betterproto.uint32_field(2)
+    from_: int = betterproto.uint32_field(3)
+    value: int = betterproto.uint32_field(4)
+    tick: int = betterproto.uint32_field(5)
+    critical: int = betterproto.uint32_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class ResMmoActivityStartBattleMmoActivityBattleUnit(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    hp: int = betterproto.uint32_field(2)
+    equipments: List[int] = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMmoActivityFinishBattle(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResMmoActivityFinishBattle(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMmoDataChanges" = betterproto.message_field(2)
+    rewards: List["ExecuteReward"] = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMmoActivitySetEquip(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    equipments: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResMmoActivitySetEquip(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMmoDataChanges" = betterproto.message_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMmoActivityUpdatehFriendList(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResMmoActivityUpdatehFriendList(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    friend_list: List["MmoActivityTeamCandidateData"] = betterproto.message_field(2)
+    random_friends: List["MmoActivityTeamCandidateData"] = betterproto.message_field(3)
+    npc_list: List["MmoActivityTeamCandidateData"] = betterproto.message_field(4)
+    expire_time: int = betterproto.uint32_field(5)
+    changes: "ActivityMmoDataChanges" = betterproto.message_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMmoActivityReceiveSupportReward(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ResMmoActivityReceiveSupportReward(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    rewards: List["ExecuteReward"] = betterproto.message_field(2)
+    changes: "ActivityMmoDataChanges" = betterproto.message_field(3)
+    support_count: int = betterproto.uint32_field(4)
+    total_support_count: int = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMmoActivityDebugSetTeamCandidate(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    friend_list: List["MmoActivityTeamCandidateData"] = betterproto.message_field(2)
+    random_friends: List["MmoActivityTeamCandidateData"] = betterproto.message_field(3)
+    npc_list: List["MmoActivityTeamCandidateData"] = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ResMmoActivityDebugSetTeamCandidate(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMmoDataChanges" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
 class AmuletBadgeData(betterproto.Message):
     id: int = betterproto.uint32_field(1)
     uid: int = betterproto.uint32_field(2)
@@ -9769,6 +10119,58 @@ class RecordNoTile(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class PlayerLeaving(betterproto.Message):
     seat: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class SubmitGroup(betterproto.Message):
+    count: int = betterproto.uint32_field(1)
+    tiles: List[str] = betterproto.string_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class SubmitInfo(betterproto.Message):
+    submit_seat: int = betterproto.uint32_field(1)
+    groups: List["SubmitGroup"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActionSubmit(betterproto.Message):
+    submits: List["SubmitInfo"] = betterproto.message_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class RecordSubmit(betterproto.Message):
+    submits: List["SubmitInfo"] = betterproto.message_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class TakeInfo(betterproto.Message):
+    take_seat: int = betterproto.uint32_field(1)
+    from_seat: int = betterproto.uint32_field(2)
+    count: int = betterproto.uint32_field(3)
+    tiles: List[str] = betterproto.string_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ActionTake(betterproto.Message):
+    takes: List["TakeInfo"] = betterproto.message_field(1)
+    tingpais0: List["TingPaiDiscardInfo"] = betterproto.message_field(2)
+    tingpais1: List["TingPaiInfo"] = betterproto.message_field(3)
+    operation: "OptionalOperationList" = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class RecordTake(betterproto.Message):
+    takes: List["TakeInfo"] = betterproto.message_field(1)
+    tingpais0: List["TingPaiDiscardInfo"] = betterproto.message_field(2)
+    tingpai: List["RecordTakeTingPai"] = betterproto.message_field(3)
+    operation: "OptionalOperationList" = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class RecordTakeTingPai(betterproto.Message):
+    seat: int = betterproto.uint32_field(1)
+    tingpais1: List["TingPaiInfo"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -14181,6 +14583,23 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def set_activity_buff(
+        self,
+        req_set_activity_buff: "ReqSetActivityBuff",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResActivityBuff":
+        return await self._unary_unary(
+            "/lq.Lobby/setActivityBuff",
+            req_set_activity_buff,
+            ResActivityBuff,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
     async def upgrade_activity_level(
         self,
         req_upgrade_activity_level: "ReqUpgradeActivityLevel",
@@ -16765,6 +17184,159 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def mmo_activity_fetch_data(
+        self,
+        req_mmo_activity_fetch_data: "ReqMmoActivityFetchData",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMmoActivityFetchData":
+        return await self._unary_unary(
+            "/lq.Lobby/mmoActivityFetchData",
+            req_mmo_activity_fetch_data,
+            ResMmoActivityFetchData,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def mmo_activity_equip_fusion(
+        self,
+        req_mmo_activity_equip_fusion: "ReqMmoActivityEquipFusion",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMmoActivityEquipFusion":
+        return await self._unary_unary(
+            "/lq.Lobby/mmoActivityEquipFusion",
+            req_mmo_activity_equip_fusion,
+            ResMmoActivityEquipFusion,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def mmo_activity_set_character(
+        self,
+        req_mmo_activity_set_character: "ReqMmoActivitySetCharacter",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMmoActivitySetCharacter":
+        return await self._unary_unary(
+            "/lq.Lobby/mmoActivitySetCharacter",
+            req_mmo_activity_set_character,
+            ResMmoActivitySetCharacter,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def mmo_activity_set_team_member(
+        self,
+        req_mmo_activity_set_team_member: "ReqMmoActivitySetTeamMember",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMmoActivitySetTeamMember":
+        return await self._unary_unary(
+            "/lq.Lobby/mmoActivitySetTeamMember",
+            req_mmo_activity_set_team_member,
+            ResMmoActivitySetTeamMember,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def mmo_activity_start_battle(
+        self,
+        req_mmo_activity_start_battle: "ReqMmoActivityStartBattle",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMmoActivityStartBattle":
+        return await self._unary_unary(
+            "/lq.Lobby/mmoActivityStartBattle",
+            req_mmo_activity_start_battle,
+            ResMmoActivityStartBattle,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def mmo_activity_finish_battle(
+        self,
+        req_mmo_activity_finish_battle: "ReqMmoActivityFinishBattle",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMmoActivityFinishBattle":
+        return await self._unary_unary(
+            "/lq.Lobby/mmoActivityFinishBattle",
+            req_mmo_activity_finish_battle,
+            ResMmoActivityFinishBattle,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def mmo_activity_set_equip(
+        self,
+        req_mmo_activity_set_equip: "ReqMmoActivitySetEquip",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMmoActivitySetEquip":
+        return await self._unary_unary(
+            "/lq.Lobby/mmoActivitySetEquip",
+            req_mmo_activity_set_equip,
+            ResMmoActivitySetEquip,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def mmo_activity_update_friend_list(
+        self,
+        req_mmo_activity_updateh_friend_list: "ReqMmoActivityUpdatehFriendList",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMmoActivityUpdatehFriendList":
+        return await self._unary_unary(
+            "/lq.Lobby/mmoActivityUpdateFriendList",
+            req_mmo_activity_updateh_friend_list,
+            ResMmoActivityUpdatehFriendList,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def mmo_activity_receive_support_reward(
+        self,
+        req_mmo_activity_receive_support_reward: "ReqMmoActivityReceiveSupportReward",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMmoActivityReceiveSupportReward":
+        return await self._unary_unary(
+            "/lq.Lobby/mmoActivityReceiveSupportReward",
+            req_mmo_activity_receive_support_reward,
+            ResMmoActivityReceiveSupportReward,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
 
 class FastTestStub(betterproto.ServiceStub):
     async def auth_game(
@@ -18281,6 +18853,11 @@ class LobbyBase(ServiceBase):
     ) -> "ResActivityBuff":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def set_activity_buff(
+        self, req_set_activity_buff: "ReqSetActivityBuff"
+    ) -> "ResActivityBuff":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def upgrade_activity_level(
         self, req_upgrade_activity_level: "ReqUpgradeActivityLevel"
     ) -> "ResUpgradeActivityLevel":
@@ -19013,6 +19590,52 @@ class LobbyBase(ServiceBase):
     async def marathon_activity_finish_race(
         self, req_marathon_activity_finish_race: "ReqMarathonActivityFinishRace"
     ) -> "ResMarathonActivityFinishRace":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def mmo_activity_fetch_data(
+        self, req_mmo_activity_fetch_data: "ReqMmoActivityFetchData"
+    ) -> "ResMmoActivityFetchData":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def mmo_activity_equip_fusion(
+        self, req_mmo_activity_equip_fusion: "ReqMmoActivityEquipFusion"
+    ) -> "ResMmoActivityEquipFusion":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def mmo_activity_set_character(
+        self, req_mmo_activity_set_character: "ReqMmoActivitySetCharacter"
+    ) -> "ResMmoActivitySetCharacter":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def mmo_activity_set_team_member(
+        self, req_mmo_activity_set_team_member: "ReqMmoActivitySetTeamMember"
+    ) -> "ResMmoActivitySetTeamMember":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def mmo_activity_start_battle(
+        self, req_mmo_activity_start_battle: "ReqMmoActivityStartBattle"
+    ) -> "ResMmoActivityStartBattle":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def mmo_activity_finish_battle(
+        self, req_mmo_activity_finish_battle: "ReqMmoActivityFinishBattle"
+    ) -> "ResMmoActivityFinishBattle":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def mmo_activity_set_equip(
+        self, req_mmo_activity_set_equip: "ReqMmoActivitySetEquip"
+    ) -> "ResMmoActivitySetEquip":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def mmo_activity_update_friend_list(
+        self, req_mmo_activity_updateh_friend_list: "ReqMmoActivityUpdatehFriendList"
+    ) -> "ResMmoActivityUpdatehFriendList":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def mmo_activity_receive_support_reward(
+        self,
+        req_mmo_activity_receive_support_reward: "ReqMmoActivityReceiveSupportReward",
+    ) -> "ResMmoActivityReceiveSupportReward":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def __rpc_fetch_connection_info(
@@ -20892,6 +21515,13 @@ class LobbyBase(ServiceBase):
         response = await self.upgrade_activity_buff(request)
         await stream.send_message(response)
 
+    async def __rpc_set_activity_buff(
+        self, stream: "grpclib.server.Stream[ReqSetActivityBuff, ResActivityBuff]"
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.set_activity_buff(request)
+        await stream.send_message(response)
+
     async def __rpc_upgrade_activity_level(
         self,
         stream: "grpclib.server.Stream[ReqUpgradeActivityLevel, ResUpgradeActivityLevel]",
@@ -22038,6 +22668,78 @@ class LobbyBase(ServiceBase):
     ) -> None:
         request = await stream.recv_message()
         response = await self.marathon_activity_finish_race(request)
+        await stream.send_message(response)
+
+    async def __rpc_mmo_activity_fetch_data(
+        self,
+        stream: "grpclib.server.Stream[ReqMmoActivityFetchData, ResMmoActivityFetchData]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.mmo_activity_fetch_data(request)
+        await stream.send_message(response)
+
+    async def __rpc_mmo_activity_equip_fusion(
+        self,
+        stream: "grpclib.server.Stream[ReqMmoActivityEquipFusion, ResMmoActivityEquipFusion]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.mmo_activity_equip_fusion(request)
+        await stream.send_message(response)
+
+    async def __rpc_mmo_activity_set_character(
+        self,
+        stream: "grpclib.server.Stream[ReqMmoActivitySetCharacter, ResMmoActivitySetCharacter]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.mmo_activity_set_character(request)
+        await stream.send_message(response)
+
+    async def __rpc_mmo_activity_set_team_member(
+        self,
+        stream: "grpclib.server.Stream[ReqMmoActivitySetTeamMember, ResMmoActivitySetTeamMember]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.mmo_activity_set_team_member(request)
+        await stream.send_message(response)
+
+    async def __rpc_mmo_activity_start_battle(
+        self,
+        stream: "grpclib.server.Stream[ReqMmoActivityStartBattle, ResMmoActivityStartBattle]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.mmo_activity_start_battle(request)
+        await stream.send_message(response)
+
+    async def __rpc_mmo_activity_finish_battle(
+        self,
+        stream: "grpclib.server.Stream[ReqMmoActivityFinishBattle, ResMmoActivityFinishBattle]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.mmo_activity_finish_battle(request)
+        await stream.send_message(response)
+
+    async def __rpc_mmo_activity_set_equip(
+        self,
+        stream: "grpclib.server.Stream[ReqMmoActivitySetEquip, ResMmoActivitySetEquip]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.mmo_activity_set_equip(request)
+        await stream.send_message(response)
+
+    async def __rpc_mmo_activity_update_friend_list(
+        self,
+        stream: "grpclib.server.Stream[ReqMmoActivityUpdatehFriendList, ResMmoActivityUpdatehFriendList]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.mmo_activity_update_friend_list(request)
+        await stream.send_message(response)
+
+    async def __rpc_mmo_activity_receive_support_reward(
+        self,
+        stream: "grpclib.server.Stream[ReqMmoActivityReceiveSupportReward, ResMmoActivityReceiveSupportReward]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.mmo_activity_receive_support_reward(request)
         await stream.send_message(response)
 
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
@@ -23584,6 +24286,12 @@ class LobbyBase(ServiceBase):
                 ReqUpgradeActivityBuff,
                 ResActivityBuff,
             ),
+            "/lq.Lobby/setActivityBuff": grpclib.const.Handler(
+                self.__rpc_set_activity_buff,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSetActivityBuff,
+                ResActivityBuff,
+            ),
             "/lq.Lobby/upgradeActivityLevel": grpclib.const.Handler(
                 self.__rpc_upgrade_activity_level,
                 grpclib.const.Cardinality.UNARY_UNARY,
@@ -24495,6 +25203,60 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqMarathonActivityFinishRace,
                 ResMarathonActivityFinishRace,
+            ),
+            "/lq.Lobby/mmoActivityFetchData": grpclib.const.Handler(
+                self.__rpc_mmo_activity_fetch_data,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMmoActivityFetchData,
+                ResMmoActivityFetchData,
+            ),
+            "/lq.Lobby/mmoActivityEquipFusion": grpclib.const.Handler(
+                self.__rpc_mmo_activity_equip_fusion,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMmoActivityEquipFusion,
+                ResMmoActivityEquipFusion,
+            ),
+            "/lq.Lobby/mmoActivitySetCharacter": grpclib.const.Handler(
+                self.__rpc_mmo_activity_set_character,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMmoActivitySetCharacter,
+                ResMmoActivitySetCharacter,
+            ),
+            "/lq.Lobby/mmoActivitySetTeamMember": grpclib.const.Handler(
+                self.__rpc_mmo_activity_set_team_member,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMmoActivitySetTeamMember,
+                ResMmoActivitySetTeamMember,
+            ),
+            "/lq.Lobby/mmoActivityStartBattle": grpclib.const.Handler(
+                self.__rpc_mmo_activity_start_battle,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMmoActivityStartBattle,
+                ResMmoActivityStartBattle,
+            ),
+            "/lq.Lobby/mmoActivityFinishBattle": grpclib.const.Handler(
+                self.__rpc_mmo_activity_finish_battle,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMmoActivityFinishBattle,
+                ResMmoActivityFinishBattle,
+            ),
+            "/lq.Lobby/mmoActivitySetEquip": grpclib.const.Handler(
+                self.__rpc_mmo_activity_set_equip,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMmoActivitySetEquip,
+                ResMmoActivitySetEquip,
+            ),
+            "/lq.Lobby/mmoActivityUpdateFriendList": grpclib.const.Handler(
+                self.__rpc_mmo_activity_update_friend_list,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMmoActivityUpdatehFriendList,
+                ResMmoActivityUpdatehFriendList,
+            ),
+            "/lq.Lobby/mmoActivityReceiveSupportReward": grpclib.const.Handler(
+                self.__rpc_mmo_activity_receive_support_reward,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMmoActivityReceiveSupportReward,
+                ResMmoActivityReceiveSupportReward,
             ),
         }
 
