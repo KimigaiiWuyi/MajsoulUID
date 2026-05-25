@@ -4,12 +4,14 @@ import uuid
 import random
 import asyncio
 import hashlib
+import contextlib
 from typing import Dict, List, Union, Sequence, cast
 from collections.abc import Iterable
 
 import httpx
 import aiofiles
 import websockets.client
+import websockets.exceptions
 from msgspec import ValidationError, convert
 
 from gsuid_core.gss import gss
@@ -129,8 +131,17 @@ class MajsoulConnection:
         logger.info(f"Connecting to {self._endpoint}")
         self._ws = await websockets.client.connect(  # type: ignore
             self._endpoint,
+            ping_interval=30,
+            ping_timeout=20,
         )
         self._msg_dispatcher = asyncio.create_task(self.start_sv())
+
+    def is_closed(self) -> bool:
+        return self._ws is None or getattr(self._ws, "closed", True)
+
+    def _wake_pending_requests(self) -> None:
+        for evt in self._req_events.values():
+            evt.set()
 
     async def _notify_subscribers(self, task_name: str, message: str):
         """通知订阅者"""
@@ -458,46 +469,62 @@ class MajsoulConnection:
         if self._ws is None:
             raise ConnectionError("Connection is broken")
 
-        while True:
-            msg = await self._ws.recv()
-            assert isinstance(msg, bytes)
-            data = self._codec.decode_message(msg)
-            logger.debug(f"[majs] 收到消息, index: {data.req_index}")
-            if data.msg_type == self._codec.RESPONSE:
-                idx = data.req_index
-                if idx not in self._req_events:
+        try:
+            while True:
+                msg = await self._ws.recv()
+                assert isinstance(msg, bytes)
+                data = self._codec.decode_message(msg)
+                logger.debug(f"[majs] 收到消息, index: {data.req_index}")
+                if data.msg_type == self._codec.RESPONSE:
+                    idx = data.req_index
+                    if idx not in self._req_events:
+                        continue
+                    self._res[idx] = data
+                    self._req_events[idx].set()
+                if data.msg_type == self._codec.NOTIFY:
+                    try:
+                        await self.handle_notify(data)
+                    except Exception as e:
+                        logger.exception(f"发生错误： {e}")
                     continue
-                self._res[idx] = data
-                self._req_events[idx].set()
-            if data.msg_type == self._codec.NOTIFY:
-                try:
-                    await self.handle_notify(data)
-                except Exception as e:
-                    logger.exception(f"发生错误： {e}")
-                continue
-            if data.msg_type == self._codec.REQUEST:
-                logger.info(f"Request: {data}")
-                continue
+                if data.msg_type == self._codec.REQUEST:
+                    logger.info(f"Request: {data}")
+                    continue
+        except asyncio.CancelledError:
+            raise
+        except websockets.exceptions.ConnectionClosed as e:
+            logger.warning(f"[majs] WebSocket连接已断开: {e}")
+            self._wake_pending_requests()
+        except Exception as e:
+            logger.exception(f"[majs] WebSocket消息分发异常: {e}")
+            self._wake_pending_requests()
 
     async def rpc_call(self, method_name: str, payload: dict):
         idx = self._codec.index
         logger.debug(f"[majs] 触发rpc_call, index: {idx}")
-        if self._ws is None:
+        if self.is_closed():
             raise ConnectionError("Connection is broken")
 
         req = self._codec.encode_request(method_name, payload)
 
         evt = asyncio.Event()
         self._req_events[idx] = evt
-        await self._ws.send(req)
-        await evt.wait()
+        try:
+            await self._ws.send(req)  # type: ignore
+            await asyncio.wait_for(evt.wait(), timeout=30)
+            if idx not in self._res:
+                raise ConnectionError("Connection is broken while waiting rpc response")
 
-        res = self._res[idx]
-        del self._res[idx]
-        if idx in self._req_events:
-            del self._req_events[idx]
-
-        return res.payload
+            res = self._res[idx]
+            return res.payload
+        except asyncio.CancelledError:
+            raise
+        except (websockets.exceptions.ConnectionClosed, asyncio.TimeoutError, ConnectionError) as e:
+            logger.warning(f"[majs] rpc_call失败, method={method_name}, index={idx}: {e}")
+            raise ConnectionError("Majsoul WebSocket connection lost") from e
+        finally:
+            self._res.pop(idx, None)
+            self._req_events.pop(idx, None)
 
     async def error_handler(self, error: liblq.Error):
         logger.error(f"[majs] {self.account_id} Connection lost: {error}")
@@ -1105,6 +1132,9 @@ class MajsoulManager:
 
                     self.conn.append(conn)
                     await conn.fetchInfo()
+        if self.conn and self.conn[0].is_closed():
+            logger.warning("[majs] 已有连接已断开，正在自动重启雀魂订阅服务")
+            return await self.restart()
         return self.conn[0]
 
     async def restart(self):
@@ -1112,8 +1142,12 @@ class MajsoulManager:
             if len(self.conn) >= 1:
                 for task in self.conn[0].bg_tasks:
                     task.cancel()  # type: ignore
+                    with contextlib.suppress(asyncio.CancelledError):
+                        await task
             for conn in self.conn:
-                await conn._ws.close()  # type: ignore
+                if conn._ws is not None and not conn.is_closed():
+                    with contextlib.suppress(Exception):
+                        await conn._ws.close()  # type: ignore
         self.conn = []
         return await self.start()
 
