@@ -3,22 +3,22 @@
 # plugin: python-betterproto
 # This file has been @generated
 import builtins
-from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Dict,
     List,
     Optional,
 )
+from dataclasses import dataclass
 
-import betterproto
 import grpclib
+import betterproto
 from betterproto.grpc.grpclib_server import ServiceBase
 
 if TYPE_CHECKING:
     import grpclib.server
-    from betterproto.grpc.grpclib_client import MetadataLike
     from grpclib.metadata import Deadline
+    from betterproto.grpc.grpclib_client import MetadataLike
 
 
 class GamePlayerState(betterproto.Enum):

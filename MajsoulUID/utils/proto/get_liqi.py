@@ -1,13 +1,13 @@
 # https://github.com/Xerxes-2/AutoLiqi/blob/main/get_liqi.py
-import json
 import os
-from pathlib import Path
+import json
 from time import sleep
 from typing import Dict
+from pathlib import Path
 
 import httpx
-from config import ConfigTables
 from sheet import *  # noqa: F403,F401
+from config import ConfigTables
 
 Headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"  # noqa: E501

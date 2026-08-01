@@ -2,8 +2,9 @@ from io import BytesIO
 from pathlib import Path
 
 import httpx
-from gsuid_core.logger import logger
 from PIL import Image, UnidentifiedImageError
+
+from gsuid_core.logger import logger
 
 
 async def get_charactor_img(url: str, path: Path):

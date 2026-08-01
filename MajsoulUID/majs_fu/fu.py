@@ -2,6 +2,7 @@ import random
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
+
 from gsuid_core.utils.fonts.fonts import core_font as majs_font
 
 

@@ -1,19 +1,20 @@
-from pathlib import Path
 from copy import deepcopy
 from typing import Optional
+from pathlib import Path
 
 from PIL import Image, ImageDraw
+
 from gsuid_core.models import Event
 from gsuid_core.utils.cache import gs_cache
-from gsuid_core.utils.image.convert import convert_img
 from gsuid_core.utils.fonts.fonts import core_font as majs_font
+from gsuid_core.utils.image.convert import convert_img
 
-from ..utils.majs_api import majs_api
-from ..utils.api.remote import PlayerLevel
 from ..utils.image import get_bg, get_footer
+from ..utils.majs_api import majs_api
 from ..utils.api.models import Stats, Extended
-from ..majs_config.majs_config import MAJS_CONFIG
+from ..utils.api.remote import PlayerLevel
 from ..utils.api.remote_const import player_stats_zero, player_extend_zero
+from ..majs_config.majs_config import MAJS_CONFIG
 
 TEXTURE = Path(__file__).parent / "texture2d"
 star_empty = Image.open(TEXTURE / "star_empty.png").resize((32, 32))

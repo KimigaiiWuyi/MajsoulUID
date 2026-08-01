@@ -5,6 +5,7 @@ from typing import Dict, List, Tuple, Union
 
 import httpx
 import aiofiles
+
 from gsuid_core.logger import logger
 
 from ...majs_config.majs_config import MAJS_CONFIG

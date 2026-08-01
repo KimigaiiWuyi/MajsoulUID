@@ -1,19 +1,20 @@
-from pathlib import Path
 from typing import List, Union
+from pathlib import Path
 
 from PIL import Image, ImageDraw
+
 from gsuid_core.logger import logger
+from gsuid_core.utils.fonts.fonts import core_font as majs_font
 from gsuid_core.utils.image.convert import convert_img
 from gsuid_core.utils.image.image_tools import crop_center_img
-from gsuid_core.utils.fonts.fonts import core_font as majs_font
 
 from ._level import MajsoulLevel
 from ..utils.map import lqc, extend_res
-from .majsoul_friend import MajsoulFriend
 from ..utils.image import get_bg, add_footer
+from .majsoul_friend import MajsoulFriend
 from ..utils.resource.get_res import get_charactor_img
-from ..utils.resource.RESOURCE_PATH import CHARACTOR_PATH
 from ..majs_info.draw_majs_info_pic import draw_title, get_rank_img
+from ..utils.resource.RESOURCE_PATH import CHARACTOR_PATH
 
 TEXT_PATH = Path(__file__).parent / "texture2d"
 mask = Image.open(TEXT_PATH / "mask.png")
