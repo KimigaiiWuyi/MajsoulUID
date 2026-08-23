@@ -42,11 +42,7 @@ async def find_fastest_url(
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    return [
-        result
-        for result in results
-        if not isinstance(result, (Exception, BaseException))
-    ]
+    return [result for result in results if not isinstance(result, (Exception, BaseException))]
 
 
 async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
@@ -90,9 +86,7 @@ async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
         "data": tenhou_log,
     }
 
-    response = await sess.post(
-        f"{url}/review?type={engine}", json=payload, headers=headers
-    )
+    response = await sess.post(f"{url}/review?type={engine}", json=payload, headers=headers)
     if response.status_code == 429:
         return "❌ 触发限流 请2分钟后再试!"
     response.raise_for_status()

@@ -49,9 +49,7 @@ class MajsPaipu(BaseIDModel, table=True):
 
     @classmethod
     @with_session
-    async def data_exist(
-        cls: Type[T_MajsPaipu], session: AsyncSession, uuid: str
-    ) -> bool:
+    async def data_exist(cls: Type[T_MajsPaipu], session: AsyncSession, uuid: str) -> bool:
         stmt = select(cls).where(cls.uuid == uuid)
         result = await session.execute(stmt)
         data = result.scalars().all()

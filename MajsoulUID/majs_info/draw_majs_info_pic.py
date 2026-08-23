@@ -66,9 +66,7 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
     if isinstance(extended3, int):
         extended3 = deepcopy(player_extend_zero)
 
-    if mode == "3" or (
-        mode == "auto" and data4["level"]["score"] < data3["level"]["score"]
-    ):
+    if mode == "3" or (mode == "auto" and data4["level"]["score"] < data3["level"]["score"]):
         _mode = "三麻战绩"
         data = data3
         extended = extended3
@@ -164,13 +162,7 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
     for i, r in enumerate(record[::-1]):
         ranks = {p["nickname"]: p["gradingScore"] for p in r["players"]}
         sorted_players = sorted(ranks.items(), key=lambda x: x[1], reverse=True)
-        _rank = next(
-            (
-                i + 1
-                for i, (player, score) in enumerate(sorted_players)
-                if player == data["nickname"]
-            )
-        )
+        _rank = next((i + 1 for i, (player, score) in enumerate(sorted_players) if player == data["nickname"]))
         if MODE:
             flower = Image.open(TEXTURE / "flower.png")
             if _rank > 1:
@@ -277,9 +269,7 @@ async def get_char_card():
     return char_bg
 
 
-async def get_rank_img(
-    major_rank: str, minor_rank: int, mode: str = "4", size: int = 156
-):
+async def get_rank_img(major_rank: str, minor_rank: int, mode: str = "4", size: int = 156):
     img = Image.new("RGBA", (156, 156))
 
     rank_icon = Image.open(TEXTURE / f"{major_rank}_{mode}.png")
@@ -300,9 +290,7 @@ async def get_rank_img(
     return img
 
 
-async def get_rank_icon(
-    level: PlayerLevel, stats: Stats, extended: Extended, mode: str = "4"
-):
+async def get_rank_icon(level: PlayerLevel, stats: Stats, extended: Extended, mode: str = "4"):
     rankbg = Image.open(TEXTURE / "rank_bg.png")
     rank_icon = await get_rank_img(
         level.major_rank,

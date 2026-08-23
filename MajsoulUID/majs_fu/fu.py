@@ -142,9 +142,7 @@ class MahjongScoring:
         self.self = self.self_wind[self.self_seed]
         self.hand = []
         self.answer = []
-        self.yaku_tile = (
-            "bnm" + self.winds[self.field_seed] + self.winds[self.self_seed]
-        )
+        self.yaku_tile = "bnm" + self.winds[self.field_seed] + self.winds[self.self_seed]
 
         self.taken_tiles = [0] * 34
 
@@ -159,11 +157,7 @@ class MahjongScoring:
             if type_ == 0:  # 順 (shuntsu)
                 t = random.randint(0, 20)
                 t = int(t / 7) * 9 + t % 7
-                while (
-                    self.taken_tiles[t] > 3
-                    or self.taken_tiles[t + 1] > 3
-                    or self.taken_tiles[t + 2] > 3
-                ):
+                while self.taken_tiles[t] > 3 or self.taken_tiles[t + 1] > 3 or self.taken_tiles[t + 2] > 3:
                     t = random.randint(0, 20)
                     t = int(t / 7) * 9 + t % 7
                 self.taken_tiles[t] += 1
@@ -282,9 +276,7 @@ class MahjongScoring:
                                 rand_num += 1
                             self.hand[i] = (
                                 self.hand[i][:rand_num]
-                                + self.rotated_tiles[
-                                    self.tiles.index(self.hand[i][rand_num])
-                                ]
+                                + self.rotated_tiles[self.tiles.index(self.hand[i][rand_num])]
                                 + self.hand[i][rand_num + 1 :]  # noqa:E203
                             )
                             self.answer_in_number += 16
@@ -300,9 +292,7 @@ class MahjongScoring:
                                 rand_num += 1
                             self.hand[i] = (
                                 self.hand[i][:rand_num]
-                                + self.rotated_tiles[
-                                    self.tiles.index(self.hand[i][rand_num])
-                                ]
+                                + self.rotated_tiles[self.tiles.index(self.hand[i][rand_num])]
                                 + self.hand[i][rand_num + 1 :]  # noqa:E203
                             )
                             self.answer_in_number += 8
@@ -317,9 +307,7 @@ class MahjongScoring:
                             rand_num = int(random.random() * 3)
                             self.hand[i] = (
                                 self.hand[i][:rand_num]
-                                + self.rotated_tiles[
-                                    self.tiles.index(self.hand[i][rand_num])
-                                ]
+                                + self.rotated_tiles[self.tiles.index(self.hand[i][rand_num])]
                                 + self.hand[i][rand_num + 1 :]  # noqa:E203
                             )
                             self.answer_in_number += 4
@@ -332,9 +320,7 @@ class MahjongScoring:
                             rand_num = int(random.random() * 3)
                             self.hand[i] = (
                                 self.hand[i][:rand_num]
-                                + self.rotated_tiles[
-                                    self.tiles.index(self.hand[i][rand_num])
-                                ]
+                                + self.rotated_tiles[self.tiles.index(self.hand[i][rand_num])]
                                 + self.hand[i][rand_num + 1 :]  # noqa:E203
                             )
                             self.answer_in_number += 2
@@ -345,9 +331,7 @@ class MahjongScoring:
                     self.answer[i + 1] = "順子 +0"
                     if i > 4 - self.call_amount:
                         self.hand[i] = (
-                            self.rotated_tiles[self.tiles.index(self.hand[i][0])]
-                            + self.hand[i][1]
-                            + self.hand[i][2]
+                            self.rotated_tiles[self.tiles.index(self.hand[i][0])] + self.hand[i][1] + self.hand[i][2]
                         )
             if self.last_tile_from == 0:
                 self.answer[1] += "\n聽單騎 +2"
@@ -406,17 +390,11 @@ class MahjongScoring:
             self.answer[6] = f"共{self.answer_in_number}符, 進位至十位數計"
 
         self.answer_in_number = (
-            self.answer_in_number
-            if self.answer_in_number % 10 == 0
-            else (int(self.answer_in_number / 10) * 10 + 10)
+            self.answer_in_number if self.answer_in_number % 10 == 0 else (int(self.answer_in_number / 10) * 10 + 10)
         )
         self.answer[6] += f"{self.answer_in_number}符"
 
-        if (
-            self.call_amount > 0
-            and self.shuntsu_amount >= 4
-            and self.answer_in_number < 30
-        ):
+        if self.call_amount > 0 and self.shuntsu_amount >= 4 and self.answer_in_number < 30:
             self.answer[6] += "<br>非平和情況下, 若進位後仍不足30符, 以30符計算"
             self.answer_in_number = 30
 

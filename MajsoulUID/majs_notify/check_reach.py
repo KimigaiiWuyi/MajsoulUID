@@ -85,11 +85,7 @@ def can_form_melds(hand):
         # 尝试移除顺子
         if tile[0] in "123456789":  # 仅数牌适用顺子
             num, suit = int(tile[0]), tile[1]
-            while (
-                hand[tile] > 0
-                and hand.get(f"{num + 1}{suit}", 0) > 0
-                and hand.get(f"{num + 2}{suit}", 0) > 0
-            ):
+            while hand[tile] > 0 and hand.get(f"{num + 1}{suit}", 0) > 0 and hand.get(f"{num + 2}{suit}", 0) > 0:
                 hand[tile] -= 1
                 hand[f"{num + 1}{suit}"] -= 1
                 hand[f"{num + 2}{suit}"] -= 1

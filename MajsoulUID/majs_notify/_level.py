@@ -23,9 +23,7 @@ class MajsoulLevel:
         return self.major_rank >= LEVEL_KONTEN - 1
 
     def get_label(self):
-        label = PLAYER_RANKS_DETAIL[
-            LEVEL_KONTEN - 2 if self.is_konten() else self.major_rank - 1
-        ]
+        label = PLAYER_RANKS_DETAIL[LEVEL_KONTEN - 2 if self.is_konten() else self.major_rank - 1]
         return label
 
     def get_tag(self) -> str:
@@ -46,15 +44,9 @@ class MajsoulLevel:
 
     def is_same(self, other: "MajsoulLevel"):
         if self.is_konten() and other.is_konten():
-            if (
-                self.major_rank == LEVEL_KONTEN - 1
-                or other.major_rank == LEVEL_KONTEN - 1
-            ):
+            if self.major_rank == LEVEL_KONTEN - 1 or other.major_rank == LEVEL_KONTEN - 1:
                 return True
-            return (
-                self.major_rank == other.major_rank
-                and self.minor_rank == other.minor_rank
-            )
+            return self.major_rank == other.major_rank and self.minor_rank == other.minor_rank
 
     def get_max_point(self) -> int:
         if self.is_konten():
@@ -106,11 +98,7 @@ class MajsoulLevel:
             maxPoints = level.get_max_point()
             score = level.get_starting_point()
         elif score < 0:
-            if (
-                not maxPoints
-                or level.major_rank == 1
-                or (level.major_rank == 2 and level.minor_rank == 1)
-            ):
+            if not maxPoints or level.major_rank == 1 or (level.major_rank == 2 and level.minor_rank == 1):
                 score = 0
             else:
                 level = level.get_previous_level()

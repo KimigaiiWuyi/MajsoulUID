@@ -282,9 +282,7 @@ async def draw_review_info_img(
 
     img.paste(title, (0, 0), title)
     player_id = tenhou_log.get("target_id", 0)
-    actor: dict = next(
-        (actor for actor in head if actor["account_id"] == player_id), {}
-    )
+    actor: dict = next((actor for actor in head if actor["account_id"] == player_id), {})
     if not actor:
         return "❌ 未找到有效的玩家信息!"
     # actor: dict = head[player_id]
