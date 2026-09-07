@@ -1,20 +1,19 @@
+from pathlib import Path
 from copy import deepcopy
 from typing import Optional
-from pathlib import Path
 
 from PIL import Image, ImageDraw
-
 from gsuid_core.models import Event
 from gsuid_core.utils.cache import gs_cache
-from gsuid_core.utils.fonts.fonts import core_font as majs_font
 from gsuid_core.utils.image.convert import convert_img
+from gsuid_core.utils.fonts.fonts import core_font as majs_font
 
-from ..utils.image import get_bg, get_footer
 from ..utils.majs_api import majs_api
-from ..utils.api.models import Stats, Extended
 from ..utils.api.remote import PlayerLevel
-from ..utils.api.remote_const import player_stats_zero, player_extend_zero
+from ..utils.image import get_bg, get_footer
+from ..utils.api.models import Stats, Extended
 from ..majs_config.majs_config import MAJS_CONFIG
+from ..utils.api.remote_const import player_stats_zero, player_extend_zero
 
 TEXTURE = Path(__file__).parent / "texture2d"
 star_empty = Image.open(TEXTURE / "star_empty.png").resize((32, 32))
@@ -66,7 +65,9 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
     if isinstance(extended3, int):
         extended3 = deepcopy(player_extend_zero)
 
-    if mode == "3" or (mode == "auto" and data4["level"]["score"] < data3["level"]["score"]):
+    if mode == "3" or (
+        mode == "auto" and data4["level"]["score"] < data3["level"]["score"]
+    ):
         _mode = "三麻战绩"
         data = data3
         extended = extended3
@@ -117,7 +118,9 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
     yf_rate = get_rate(extended["一发率"])
     jddxl = str(extended["净打点效率"])
 
-    all_rong = extended["立直和了"] + extended["副露和了"] + extended["默听和了"]
+    all_rong = (
+        extended["立直和了"] + extended["副露和了"] + extended["默听和了"]
+    )
     lz_r_rate = extended["立直和了"] / all_rong
     fl_r_rate = extended["副露和了"] / all_rong
     mt_r_rate = extended["默听和了"] / all_rong
@@ -125,7 +128,11 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
     lz_f_rate = extended["放铳时立直率"]
     fl_f_rate = extended["放铳时副露率"]
 
-    all_chong = extended["放铳至立直"] + extended["放铳至副露"] + extended["放铳至默听"]
+    all_chong = (
+        extended["放铳至立直"]
+        + extended["放铳至副露"]
+        + extended["放铳至默听"]
+    )
     lz_c_rate = extended["放铳至立直"] / all_chong
     fl_c_rate = extended["放铳至副露"] / all_chong
     mt_c_rate = extended["放铳至默听"] / all_chong
@@ -161,8 +168,16 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
 
     for i, r in enumerate(record[::-1]):
         ranks = {p["nickname"]: p["gradingScore"] for p in r["players"]}
-        sorted_players = sorted(ranks.items(), key=lambda x: x[1], reverse=True)
-        _rank = next((i + 1 for i, (player, score) in enumerate(sorted_players) if player == data["nickname"]))
+        sorted_players = sorted(
+            ranks.items(), key=lambda x: x[1], reverse=True
+        )
+        _rank = next(
+            (
+                i + 1
+                for i, (player, score) in enumerate(sorted_players)
+                if player == data["nickname"]
+            )
+        )
         if MODE:
             flower = Image.open(TEXTURE / "flower.png")
             if _rank > 1:
@@ -172,7 +187,9 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
                         lambda x: round(x * _rank_alpha) if x > 0 else 0  # type: ignore
                     )
                 )
-            detail_bg.paste(flower, (99 + 99 * (i % 8), 588 + 152 * (i // 8)), flower)
+            detail_bg.paste(
+                flower, (99 + 99 * (i % 8), 588 + 152 * (i // 8)), flower
+            )
             detail_draw.text(
                 (149 + 99 * (i % 8), 710 + 152 * (i // 8)),
                 f"第{_rank}名",
@@ -229,7 +246,9 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
     return await convert_img(img)
 
 
-async def get_lz_bar(title: str, v1: float, v2: float, v3: Optional[float] = None):
+async def get_lz_bar(
+    title: str, v1: float, v2: float, v3: Optional[float] = None
+):
     if v3 is None:
         v3 = 1 - v1 - v2
 
@@ -269,7 +288,9 @@ async def get_char_card():
     return char_bg
 
 
-async def get_rank_img(major_rank: str, minor_rank: int, mode: str = "4", size: int = 156):
+async def get_rank_img(
+    major_rank: str, minor_rank: int, mode: str = "4", size: int = 156
+):
     img = Image.new("RGBA", (156, 156))
 
     rank_icon = Image.open(TEXTURE / f"{major_rank}_{mode}.png")
@@ -290,7 +311,9 @@ async def get_rank_img(major_rank: str, minor_rank: int, mode: str = "4", size: 
     return img
 
 
-async def get_rank_icon(level: PlayerLevel, stats: Stats, extended: Extended, mode: str = "4"):
+async def get_rank_icon(
+    level: PlayerLevel, stats: Stats, extended: Extended, mode: str = "4"
+):
     rankbg = Image.open(TEXTURE / "rank_bg.png")
     rank_icon = await get_rank_img(
         level.major_rank,

@@ -1,11 +1,11 @@
 from gsuid_core.sv import SV
 from gsuid_core.bot import Bot
 from gsuid_core.models import Event
-from gsuid_core.utils.message import send_diff_msg
 from gsuid_core.message_models import Button
+from gsuid_core.utils.message import send_diff_msg
 
-from .search_player import search_player_with_name
 from ..utils.database.models import MajsBind
+from .search_player import search_player_with_name
 
 majs_user_bind = SV("雀魂用户绑定")
 
@@ -27,7 +27,9 @@ async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
     uid = ev.text.strip()
 
     if not uid and "绑定" in ev.command:
-        return await bot.send("该命令需要带上正确的uid!\n如果不知道, 可以使用雀魂搜索命令查询\n如雀魂搜索Wuyi")
+        return await bot.send(
+            "该命令需要带上正确的uid!\n如果不知道, 可以使用雀魂搜索命令查询\n如雀魂搜索Wuyi"
+        )
 
     await bot.logger.info("[Majs] 开始执行[绑定/解绑用户信息]")
     qid = ev.user_id
@@ -55,7 +57,9 @@ async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
         elif retcode == -3:
             now_uid = await MajsBind.get_uid_by_game(qid, ev.bot_id)
             if now_uid:
-                return await bot.send(f"[Majs] 你目前只绑定了一个UID{now_uid}, 无法切换!")
+                return await bot.send(
+                    f"[Majs] 你目前只绑定了一个UID{now_uid}, 无法切换!"
+                )
             else:
                 return await bot.send("[Majs] 你尚未绑定任何UID, 无法切换!")
         else:
@@ -76,7 +80,9 @@ async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
 async def send_majs_search_msg(bot: Bot, ev: Event):
     im, uid_list = await search_player_with_name(ev.text.strip())
     if uid_list:
-        buttons = [Button(f"✏️绑定{uid}", f"雀魂绑定{uid}") for uid in uid_list]
+        buttons = [
+            Button(f"✏️绑定{uid}", f"雀魂绑定{uid}") for uid in uid_list
+        ]
     else:
         buttons = None
     await bot.send_option(im, buttons)

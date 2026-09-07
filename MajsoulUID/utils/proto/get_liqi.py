@@ -6,8 +6,8 @@ from typing import Dict
 from pathlib import Path
 
 import httpx
-from sheet import *  # noqa: F403,F401
 from config import ConfigTables
+from sheet import *  # noqa: F403,F401
 
 Headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"  # noqa: E501
@@ -17,7 +17,9 @@ path = Path(__file__).parent
 
 
 def get_version():
-    req = httpx.get("https://game.maj-soul.com/1/version.json", headers=Headers)
+    req = httpx.get(
+        "https://game.maj-soul.com/1/version.json", headers=Headers
+    )
     return req.json()
 
 
@@ -101,7 +103,7 @@ def main():
     with open("liqi.json", "w") as f:
         f.write(liqi)
     env = os.getenv("GITHUB_ENV")
-    with open(env, "a") as f:  # type:ignore
+    with open(env, "a") as f:  # type: ignore
         f.write(f"liqi-json={prefix}\n")
 
 

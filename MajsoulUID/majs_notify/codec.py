@@ -84,8 +84,15 @@ class MajsoulProtoCodec:
         msg = requestType().from_dict(payload)
         msg = self.wrap(method_name, msg.SerializeToString())
 
-        self._inflight_requests[current_index] = InflightRequest(method_name=method_name, msg_obj=responseType)
+        self._inflight_requests[current_index] = InflightRequest(
+            method_name=method_name, msg_obj=responseType
+        )
 
-        data = struct.pack("<BBB", self.REQUEST, current_index & 0xFF, current_index >> 8) + msg
+        data = (
+            struct.pack(
+                "<BBB", self.REQUEST, current_index & 0xFF, current_index >> 8
+            )
+            + msg
+        )
 
         return data
