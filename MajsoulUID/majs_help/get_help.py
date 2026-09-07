@@ -4,13 +4,12 @@ from pathlib import Path
 
 import aiofiles
 from PIL import Image
-
-from gsuid_core.sv import get_plugin_available_prefix
 from gsuid_core.help.model import PluginHelp
+from gsuid_core.sv import get_plugin_available_prefix
 from gsuid_core.help.draw_new_plugin_help import get_new_help
 
-from ..version import MajsoulUID_version
 from ..utils.image import get_footer
+from ..version import MajsoulUID_version
 
 ICON = Path(__file__).parent.parent.parent / "ICON.png"
 HELP_DATA = Path(__file__).parent / "help.json"

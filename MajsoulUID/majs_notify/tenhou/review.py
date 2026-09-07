@@ -5,7 +5,6 @@ from typing import Dict, List, Tuple, Union
 
 import httpx
 import aiofiles
-
 from gsuid_core.logger import logger
 
 from ...majs_config.majs_config import MAJS_CONFIG
@@ -42,7 +41,11 @@ async def find_fastest_url(
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    return [result for result in results if not isinstance(result, (Exception, BaseException))]
+    return [
+        result
+        for result in results
+        if not isinstance(result, (Exception, BaseException))
+    ]
 
 
 async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
@@ -86,7 +89,9 @@ async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
         "data": tenhou_log,
     }
 
-    response = await sess.post(f"{url}/review?type={engine}", json=payload, headers=headers)
+    response = await sess.post(
+        f"{url}/review?type={engine}", json=payload, headers=headers
+    )
     if response.status_code == 429:
         return "❌ 触发限流 请2分钟后再试!"
     response.raise_for_status()
@@ -104,7 +109,9 @@ async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
             logger.info(f"[Majsoul] Review Task {task_id} is finished!")
             break
     else:
-        return "❌ 未找到有效的Review信息!可能是处理超过等待时间请在2分钟后重试!"
+        return (
+            "❌ 未找到有效的Review信息!可能是处理超过等待时间请在2分钟后重试!"
+        )
 
     async with aiofiles.open(path, "w", encoding="utf-8") as f:
         await f.write(json.dumps(res, ensure_ascii=False, indent=4))
@@ -114,7 +121,9 @@ async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
 async def get_review_result(res: dict):
     review_data = res["data"]["review"]
     rating: float = review_data["rating"] * 100
-    matches_total = (review_data["total_matches"] / review_data["total_reviewed"]) * 100
+    matches_total = (
+        review_data["total_matches"] / review_data["total_reviewed"]
+    ) * 100
     bad_move_up_count = 0
     bad_move_down_count = 0
 
