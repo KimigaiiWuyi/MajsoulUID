@@ -2,15 +2,14 @@ from typing import List
 from pathlib import Path
 
 from PIL import Image, ImageDraw
-
-from gsuid_core.utils.fonts.fonts import core_font as majs_font
 from gsuid_core.utils.image.convert import convert_img
 from gsuid_core.utils.image.image_tools import crop_center_img
+from gsuid_core.utils.fonts.fonts import core_font as majs_font
 
 from ._level import MajsoulLevel
+from .draw_friend_rank import draw_bar
 from .check_reach import find_ting_tiles
 from ..utils.image import get_bg, add_footer
-from .draw_friend_rank import draw_bar
 
 TEXT_PATH = Path(__file__).parent / "texture2d_review"
 PAI_PATH = TEXT_PATH / "pai"
@@ -282,7 +281,9 @@ async def draw_review_info_img(
 
     img.paste(title, (0, 0), title)
     player_id = tenhou_log.get("target_id", 0)
-    actor: dict = next((actor for actor in head if actor["account_id"] == player_id), {})
+    actor: dict = next(
+        (actor for actor in head if actor["account_id"] == player_id), {}
+    )
     if not actor:
         return "❌ 未找到有效的玩家信息!"
     # actor: dict = head[player_id]

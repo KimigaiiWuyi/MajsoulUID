@@ -1,6 +1,6 @@
 from enum import IntEnum
-from typing import List, Union, Optional, Protocol, Sequence, NamedTuple
 from dataclasses import field, dataclass
+from typing import List, Union, Optional, Protocol, Sequence, NamedTuple
 
 from .cfg import cfg
 from .utils import pad_list
@@ -348,7 +348,13 @@ class Agari:
                 point = RUNES["haneman"][JPNAME] + point
                 fuhan = ""
             elif point_level == AgariPointLevel.mangan:
-                if agari.han >= 5 or agari.han >= 4 and agari.fu >= 40 or agari.han >= 3 and agari.fu >= 70:
+                if (
+                    agari.han >= 5
+                    or agari.han >= 4
+                    and agari.fu >= 40
+                    or agari.han >= 3
+                    and agari.fu >= 70
+                ):
                     point = RUNES["mangan"][JPNAME] + point
                 else:
                     point = RUNES["kiriagemangan"][JPNAME] + point

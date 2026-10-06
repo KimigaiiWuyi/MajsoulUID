@@ -17,13 +17,19 @@ class MajsoulLevel:
         self.num_player_id = levelId // 10000
 
     def to_level_id(self):
-        return self.num_player_id * 10000 + self.major_rank * 100 + self.minor_rank
+        return (
+            self.num_player_id * 10000
+            + self.major_rank * 100
+            + self.minor_rank
+        )
 
     def is_konten(self) -> bool:
         return self.major_rank >= LEVEL_KONTEN - 1
 
     def get_label(self):
-        label = PLAYER_RANKS_DETAIL[LEVEL_KONTEN - 2 if self.is_konten() else self.major_rank - 1]
+        label = PLAYER_RANKS_DETAIL[
+            LEVEL_KONTEN - 2 if self.is_konten() else self.major_rank - 1
+        ]
         return label
 
     def get_tag(self) -> str:
@@ -44,21 +50,31 @@ class MajsoulLevel:
 
     def is_same(self, other: "MajsoulLevel"):
         if self.is_konten() and other.is_konten():
-            if self.major_rank == LEVEL_KONTEN - 1 or other.major_rank == LEVEL_KONTEN - 1:
+            if (
+                self.major_rank == LEVEL_KONTEN - 1
+                or other.major_rank == LEVEL_KONTEN - 1
+            ):
                 return True
-            return self.major_rank == other.major_rank and self.minor_rank == other.minor_rank
+            return (
+                self.major_rank == other.major_rank
+                and self.minor_rank == other.minor_rank
+            )
 
     def get_max_point(self) -> int:
         if self.is_konten():
             if self.minor_rank == 20:
                 return 0
             return LEVEL_MAX_POINT_KONTEN
-        return LEVEL_MAX_POINTS[(self.major_rank - 1) * 3 + self.minor_rank - 1]
+        return LEVEL_MAX_POINTS[
+            (self.major_rank - 1) * 3 + self.minor_rank - 1
+        ]
 
     def getPenaltyPoint(self, mode):
         if self.is_konten():
             return 0
-        return MODE_PENALTY[mode][(self.major_rank - 1) * 3 + self.minor_rank - 1]
+        return MODE_PENALTY[mode][
+            (self.major_rank - 1) * 3 + self.minor_rank - 1
+        ]
 
     def get_starting_point(self) -> int:
         if self.major_rank == 1:
@@ -74,7 +90,9 @@ class MajsoulLevel:
             minorRank = 1
         if majorRank == LEVEL_KONTEN - 1:
             majorRank = LEVEL_KONTEN
-        return MajsoulLevel(level.num_player_id * 10000 + majorRank * 100 + minorRank)
+        return MajsoulLevel(
+            level.num_player_id * 10000 + majorRank * 100 + minorRank
+        )
 
     def get_previous_level(self):
         if self.major_rank == 1 and self.minor_rank == 1:
@@ -87,7 +105,9 @@ class MajsoulLevel:
             minorRank = 3
         if majorRank == LEVEL_KONTEN - 1:
             majorRank = LEVEL_KONTEN - 2
-        return MajsoulLevel(level.num_player_id * 10000 + majorRank * 100 + minorRank)
+        return MajsoulLevel(
+            level.num_player_id * 10000 + majorRank * 100 + minorRank
+        )
 
     def get_adjusted_level(self, score: int):
         score = self.get_version_adjusted_score(score)
@@ -98,7 +118,11 @@ class MajsoulLevel:
             maxPoints = level.get_max_point()
             score = level.get_starting_point()
         elif score < 0:
-            if not maxPoints or level.major_rank == 1 or (level.major_rank == 2 and level.minor_rank == 1):
+            if (
+                not maxPoints
+                or level.major_rank == 1
+                or (level.major_rank == 2 and level.minor_rank == 1)
+            ):
                 score = 0
             else:
                 level = level.get_previous_level()
@@ -114,7 +138,9 @@ class MajsoulLevel:
     def get_version_adjusted_level(self):
         if self.major_rank != LEVEL_KONTEN - 1:
             return self
-        return MajsoulLevel(self.num_player_id * 10000 + LEVEL_KONTEN * 100 + 1)
+        return MajsoulLevel(
+            self.num_player_id * 10000 + LEVEL_KONTEN * 100 + 1
+        )
 
     def get_score_display(self, score: int) -> str:
         score = self.get_version_adjusted_score(score)

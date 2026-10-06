@@ -101,10 +101,14 @@ class PlayerLevel:
 
     # 定义一个方法，返回等级的编号
     def toLevelId(self):
-        return self._numPlayerId * 10000 + self._majorRank * 100 + self._minorRank
+        return (
+            self._numPlayerId * 10000 + self._majorRank * 100 + self._minorRank
+        )
 
     def get_tag(self) -> str:
-        label = PLAYER_RANKS[LEVEL_KONTEN - 2 if self.isKonten() else self._majorRank - 1]
+        label = PLAYER_RANKS[
+            LEVEL_KONTEN - 2 if self.isKonten() else self._majorRank - 1
+        ]
         if self.minor_rank == LEVEL_KONTEN - 1:
             return label
         if self.minor_rank == 1:
@@ -125,16 +129,25 @@ class PlayerLevel:
         # 如果两个等级对象都是Konten等级，即最高等级
         if self.isKonten() and other.isKonten():
             # 如果其中一个等级对象的主等级是Konten等级的前一级，即第九级
-            if self._majorRank == LEVEL_KONTEN - 1 or other._majorRank == LEVEL_KONTEN - 1:
+            if (
+                self._majorRank == LEVEL_KONTEN - 1
+                or other._majorRank == LEVEL_KONTEN - 1
+            ):
                 # 则认为两个等级对象相同
                 return True
             # 否则，比较两个等级对象的主等级和次等级是否都相同
-            return self._majorRank == other._majorRank and self._minorRank == other._minorRank
+            return (
+                self._majorRank == other._majorRank
+                and self._minorRank == other._minorRank
+            )
 
     # 定义一个方法，判断是否允许某种游戏模式
     def isAllowedMode(self, mode):
         # 根据玩家编号和主等级，从一个常量列表中获取允许的游戏模式列表
-        return mode in LEVEL_ALLOWED_MODES[self._numPlayerId * 100 + self._majorRank]
+        return (
+            mode
+            in LEVEL_ALLOWED_MODES[self._numPlayerId * 100 + self._majorRank]
+        )
 
     # 定义一个方法，判断是否是Konten等级，即最高等级
     def isKonten(self):
@@ -151,7 +164,9 @@ class PlayerLevel:
     # 定义一个方法，返回等级的标签，即等级的名称
     def getTag(self):
         # 从一个函数中获取等级的翻译列表
-        label = getTranslatedLevelTags()[LEVEL_KONTEN - 2 if self.isKonten() else self._majorRank - 1]
+        label = getTranslatedLevelTags()[
+            LEVEL_KONTEN - 2 if self.isKonten() else self._majorRank - 1
+        ]
         # 如果主等级是Konten等级的前一级，即第九级
         if self._majorRank == LEVEL_KONTEN - 1:
             # 则只返回标签，不加次等级
@@ -170,7 +185,9 @@ class PlayerLevel:
             # 否则，返回一个常量，表示Konten等级的最大分数
             return LEVEL_MAX_POINT_KONTEN
         # 否则，根据主等级和次等级，从一个常量列表中获取对应的最大分数
-        return LEVEL_MAX_POINTS[(self._majorRank - 1) * 3 + self._minorRank - 1]
+        return LEVEL_MAX_POINTS[
+            (self._majorRank - 1) * 3 + self._minorRank - 1
+        ]
 
     # 定义一个方法，返回等级的惩罚分数，即失败时扣除的分数
     def getPenaltyPoint(self, mode):
@@ -179,7 +196,9 @@ class PlayerLevel:
             # 则返回0，表示没有惩罚
             return 0
         # 否则，根据游戏模式，主等级和次等级，从一个常量字典中获取对应的惩罚分数
-        return MODE_PENALTY[mode][(self._majorRank - 1) * 3 + self._minorRank - 1]
+        return MODE_PENALTY[mode][
+            (self._majorRank - 1) * 3 + self._minorRank - 1
+        ]
 
     # 定义一个方法，返回等级的起始分数，即升级到该等级时的分数
     def getStartingPoint(self):
@@ -208,7 +227,9 @@ class PlayerLevel:
             # 则主等级变为Konten等级，即第十级
             majorRank = LEVEL_KONTEN
         # 返回一个新的等级对象，使用相同的玩家编号，但不同的等级编号
-        return PlayerLevel(level._numPlayerId * 10000 + majorRank * 100 + minorRank)
+        return PlayerLevel(
+            level._numPlayerId * 10000 + majorRank * 100 + minorRank
+        )
 
     # 定义一个方法，返回等级的上一个等级对象
     def getPreviousLevel(self):
@@ -232,7 +253,9 @@ class PlayerLevel:
             # 则主等级变为Konten等级的前两级，即第八级
             majorRank = LEVEL_KONTEN - 2
         # 返回一个新的等级对象，使用相同的玩家编号，但不同的等级编号
-        return PlayerLevel(level._numPlayerId * 10000 + majorRank * 100 + minorRank)
+        return PlayerLevel(
+            level._numPlayerId * 10000 + majorRank * 100 + minorRank
+        )
 
     # 定义一个方法，返回等级的调整后的等级对象，根据分数的变化
     def getAdjustedLevel(self, score):
@@ -253,7 +276,11 @@ class PlayerLevel:
             # 否则，如果分数小于0
         elif score < 0:
             # 如果最大分数不存在，或等级是第一级，或等级是第二级的第一子等级
-            if not maxPoints or level._majorRank == 1 or (level._majorRank == 2 and level._minorRank == 1):
+            if (
+                not maxPoints
+                or level._majorRank == 1
+                or (level._majorRank == 2 and level._minorRank == 1)
+            ):
                 # 则分数变为0
                 score = 0
             # 否则
@@ -320,7 +347,9 @@ class PlayerLevel:
         return f"{score_display}{max_point_display}"
 
     def getFullTag(self):
-        return PLAYER_RANKS_DETAIL[LEVEL_KONTEN - 2 if self.isKonten() else self._majorRank - 1]
+        return PLAYER_RANKS_DETAIL[
+            LEVEL_KONTEN - 2 if self.isKonten() else self._majorRank - 1
+        ]
 
     def getMinorRank(self):
         return self._minorRank
