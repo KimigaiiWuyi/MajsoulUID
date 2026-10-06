@@ -14,7 +14,11 @@ HTTPX_CLIENT = AsyncClient(headers=HEADERS)
 async def getRes(URL_BASE: str, path: str, bust_cache: bool = False) -> Dict:
     HTTPX_CLIENT.headers["Referer"] = URL_BASE
 
-    url = f"{URL_BASE}/1/{path}" if URL_BASE == "https://game.maj-soul.com/" else f"{URL_BASE}{path}"
+    url = (
+        f"{URL_BASE}/1/{path}"
+        if URL_BASE == "https://game.maj-soul.com/"
+        else f"{URL_BASE}{path}"
+    )
 
     cache_hash = hashlib.sha256(url.encode("utf-8")).hexdigest()
     if bust_cache:
