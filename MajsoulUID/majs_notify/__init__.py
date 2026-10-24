@@ -175,7 +175,7 @@ async def majsoul_jp_login_command(bot: Bot, ev: Event):
     if response.status_code == 200:
         res = response.json()
         if res["result"] == 0:
-            uid = res["uid"]
+            uid = str(res["uid"])
             token = res["token"]
         else:
             logger.error(res)
@@ -220,7 +220,9 @@ async def majsoul_jp_login_command(bot: Bot, ev: Event):
             {
                 "cookie": connection.access_token,
                 "friend_code": friend_code,
+                "account": uid,
                 "token": token,
+                "lang": lang,
             },
         )
     else:
@@ -230,6 +232,7 @@ async def majsoul_jp_login_command(bot: Bot, ev: Event):
             uid=str(connection.account_id),
             cookie=connection.access_token,
             friend_code=friend_code,
+            account=uid,
             token=token,
             lang=lang,
             login_type=7,

@@ -1,12 +1,16 @@
-import json
-from typing import Dict
 from pathlib import Path
 
-lqc_path = Path(__file__).parent / "proto" / "lqc.json"
-extend_res_path = Path(__file__).parent / "proto" / "extendRes.json"
+from msgspec import Struct, json
 
-with open(lqc_path, "r", encoding="utf-8") as f:
-    lqc: Dict = json.load(f)
+PROTO_PATH = Path(__file__).parent / "proto"
+BIGHEAD_PATH = Path(__file__).parent / "texture2d" / "bighead"
 
-with open(extend_res_path, "r", encoding="utf-8") as f:
-    extend_res: Dict[str, str] = json.load(f)
+
+class MajsoulSkin(Struct):
+    id: int
+    name: str
+    character_id: int
+    path: str | None
+
+
+lqc = json.decode((PROTO_PATH / "lqc.json").read_bytes(), type=dict[str, MajsoulSkin])

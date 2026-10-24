@@ -3,7 +3,7 @@ import struct
 import betterproto
 
 from ..lib import lq as liblq
-from .model import InflightRequest, MajsoulLiqiProto, MajsoulDecodedMessage
+from .model import MajsoulRpc, InflightRequest, MajsoulDecodedMessage
 
 
 class MajsoulProtoCodec:
@@ -11,11 +11,10 @@ class MajsoulProtoCodec:
     REQUEST = 2
     RESPONSE = 3
 
-    def __init__(self, pb_def: MajsoulLiqiProto, version: str):
-        self._pb = pb_def
+    def __init__(self, rpc_map: dict[str, MajsoulRpc]):
+        self._rpc_map = rpc_map
         self.index = 1
         self._inflight_requests: dict[int, InflightRequest] = {}
-        self.version = version
 
     def unwrap(self, wrapped: bytes):
         data = liblq.Wrapper().parse(wrapped)
@@ -28,8 +27,13 @@ class MajsoulProtoCodec:
         return bytes(wapper)
 
     def lookup_method(self, path: str) -> type[betterproto.Message]:
-        liqi_method = getattr(liblq, path)
+        liqi_method = getattr(liblq, path.removeprefix(".lq."))
         return liqi_method
+
+    def lookup_rpc(self, method_name: str) -> MajsoulRpc:
+        if method_name not in self._rpc_map:
+            raise ValueError(f"Unknown method {method_name}")
+        return self._rpc_map[method_name]
 
     def decode_message(self, buf: bytes):
         type_byte = buf[0]
@@ -44,12 +48,7 @@ class MajsoulProtoCodec:
             req_index = buf[1] | (buf[2] << 8)
             msg = self.unwrap(buf[3:])
             method_name = msg.name
-            _, lq, service, rpc = method_name.split(".")
-            proto_method = self._pb.nested[lq].nested[service].methods
-            if proto_method is None or rpc not in proto_method:
-                raise ValueError(f"Unknown method {rpc}")
-            proto_domain = proto_method[rpc]
-            msg_obj = self.lookup_method(proto_domain.requestType)
+            msg_obj = self.lookup_method(self.lookup_rpc(method_name).req)
         elif type_byte == self.RESPONSE:
             req_index = buf[1] | (buf[2] << 8)
             msg = self.unwrap(buf[3:])
@@ -72,14 +71,9 @@ class MajsoulProtoCodec:
         current_index = self.index
         self.index += 1
 
-        _, lq, service, rpc = method_name.split(".")
-        proto_method = self._pb.nested[lq].nested[service].methods
-        if proto_method is None or rpc not in proto_method:
-            raise ValueError(f"Unknown method {rpc}")
-        proto_domain = proto_method[rpc]
-
-        requestType = self.lookup_method(proto_domain.requestType)
-        responseType = self.lookup_method(proto_domain.responseType)
+        rpc = self.lookup_rpc(method_name)
+        requestType = self.lookup_method(rpc.req)
+        responseType = self.lookup_method(rpc.resp)
 
         msg = requestType().from_dict(payload)
         msg = self.wrap(method_name, msg.SerializeToString())

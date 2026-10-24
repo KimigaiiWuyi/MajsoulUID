@@ -19,5 +19,25 @@
 
 ## proto
 
-`utils/proto/get_liqi.py`、`lqc.json`、`lib/lq/` 为协议生成物。
-雀魂客户端升级导致登录/订阅失败时，先对照官方 liqi 再重新生成，不要在业务里 fork 字段名。
+雀魂换成 Unity 客户端后，官网 `resversion*.json` 里的 `liqi.json` 停在 `v0.11.243.w`。
+协议改从 [Avenshy/MajsoulData](https://github.com/Avenshy/MajsoulData) 的 Release 取 `liqi.desc`。
+
+| 文件 | 由谁生成 | 用途 |
+|------|---------|------|
+| `lib/lq/__init__.py` | protoc + betterproto（`--descriptor_set_in=liqi.desc`） | 消息类 |
+| `utils/proto/liqi.json` | `update_proto.py` | RPC 全名 → 请求/响应类型，`codec.py` 只认它 |
+| `utils/proto/client_version.json` | `update_proto.py` | 登录上报的资源版本 / 客户端版本 |
+| `utils/proto/lqc.json` | `update_skin.py` | 皮肤表（MajsoulData `item_definition/skin.json`） |
+| `utils/texture2d/bighead/<皮肤ID>.webp` | `update_skin.py` | 好友排行榜头像，从国服 Unity 资源包解出 |
+
+`.github/workflows/auto-liqi.yml` 每天跑一遍上面全部步骤。本地重跑：先 `update_proto.py --desc liqi.desc`，
+再用 protoc 生成 `lib/lq`，最后 `update_skin.py`（需要 `UnityPy`）。`lib/ruff.toml` 让 ruff 跳过生成代码。
+
+登录与连接对齐 Unity WebGL 客户端（Lua 源码在资源包 `LuaByte/Lua/` 下）：
+
+- 网关：向 `constants.py` 里各服的入口网关请求 `/api/clientgate/routes`，再连路由的 `wss://<domain>/gateway`，
+  连上后先发 `.lq.Route.requestConnection`。
+- `client_version_string` 为 `WebGL_2022-<资源版本>`，`tag` / `currency_platforms` 按服区分。
+- `loginBeat` 的 contract 在 `constants.LOGIN_BEAT_CONTRACT`，客户端升级后可能变。
+
+不要在业务里 fork 字段名。

@@ -38,16 +38,17 @@
     │   └── tenhou/                     # Tenhou 日志解析
     ├── majs_fu/                        # 算符
     ├── majs_help/  majs_config/
-    ├── lib/lq/                         # 雀魂 proto 生成代码
+    ├── lib/lq/                         # 雀魂 proto 生成代码（lib/ruff.toml 排除 lint）
     ├── tools/                          # download_file.py
     └── utils/
         ├── api/                        # Koromo URL / request / remote
         ├── database/models.py          # MajsBind / MajsUser / MajsPush / MajsPaipu
-        ├── proto/                      # liqi / lqc.json
+        ├── proto/                      # liqi.json / client_version.json / lqc.json + 更新脚本
+        ├── texture2d/bighead/          # 皮肤头像（update_skin.py 生成）
         └── resource/RESOURCE_PATH.py
 ```
 
-运行时：`{get_res_path()}/MajsoulUID/`（config、extendRes、paipu）。
+运行时：`{get_res_path()}/MajsoulUID/`（config、paipu）。
 
 ## Skills
 
@@ -106,7 +107,8 @@ uv run ruff format --check MajsoulUID
 1. 大号登录有封号风险。
 2. 无 WS 连接则 review / 好友不可用。
 3. `MajsPaipu.insert_data` 在 `@with_session` 里调 `full_insert_data` 可能套会话。
-4. 日/美服 token 在 `MajsUser.token`。
+4. 日/美服 token 在 `MajsUser.token`，Yostar passport uid 在 `MajsUser.account`（`uid` 是雀魂 account_id）。
+5. 协议 / 皮肤数据来自 MajsoulData，别再从官网 `resversion*.json` 取（已停更）。
 
 ## Security notes
 

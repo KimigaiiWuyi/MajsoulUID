@@ -20,23 +20,8 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Install httpx
-        run: python -m pip install --upgrade pip httpx
-
-      - name: Install betterproto
-        run: python -m pip install betterproto[compiler] --pre
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-
-      - name: Install protobufjs and protobufjs-cli
-        run: npm install -g protobufjs protobufjs-cli
-
-      - name: Run get_liqi.py
-        run: python ./MajsoulUID/utils/proto/get_liqi.py
-
-      - name: Generate liqi.proto from liqi.json
-        run: pbjs -t proto3 liqi.json > liqi.proto
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip httpx protobuf "betterproto[compiler]==2.0.0b7" "UnityPy==1.24.2"
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
@@ -44,19 +29,33 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           version: "v28.2"
 
-      - name: Make lib directory
-        run: mkdir -p MajsoulUID/lib
+      # 雀魂换成 Unity 客户端后官网 liqi.json 停更，改从 MajsoulData 的 Release 取 liqi.desc
+      - name: Download liqi.desc from MajsoulData
+        id: liqi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python ./MajsoulUID/utils/proto/update_proto.py --desc liqi.desc
 
-      - name: Generate python code from liqi.proto
-        run: protoc -I . --python_betterproto_out=./MajsoulUID/lib liqi.proto
+      - name: Generate python code from liqi.desc
+        run: protoc --descriptor_set_in=liqi.desc --python_betterproto_out=./MajsoulUID/lib ${{ steps.liqi.outputs.proto_files }}
+
+      - name: Update skin table and avatars
+        run: python ./MajsoulUID/utils/proto/update_skin.py
 
       - name: Remove files
-        run: rm -f liqi.json liqi.proto
+        run: rm -f liqi.desc
 
       - name: Set up Git
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email actions@noreply.github.com
 
-      - name: Check if there are any changes
-        run: git diff --exit-code || git commit -am "🤖 自动更新 `Liqi`" && git push
+      - name: Commit changes
+        run: |
+          git add -A MajsoulUID/lib MajsoulUID/utils/proto MajsoulUID/utils/texture2d/bighead
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "🤖 自动更新 \`Liqi\`"
+            git push
+          fi

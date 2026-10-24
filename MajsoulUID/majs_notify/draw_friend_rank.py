@@ -9,15 +9,22 @@ from gsuid_core.utils.image.convert import convert_img
 from gsuid_core.utils.image.image_tools import crop_center_img
 
 from ._level import MajsoulLevel
-from ..utils.map import lqc, extend_res
+from ..utils.map import BIGHEAD_PATH, lqc
 from ..utils.image import get_bg, add_footer
 from .majsoul_friend import MajsoulFriend
-from ..utils.resource.get_res import get_charactor_img
 from ..majs_info.draw_majs_info_pic import draw_title, get_rank_img
-from ..utils.resource.RESOURCE_PATH import CHARACTOR_PATH
 
 TEXT_PATH = Path(__file__).parent / "texture2d"
 mask = Image.open(TEXT_PATH / "mask.png")
+DEFAULT_SKIN_ID = "400000"
+
+
+def get_bighead(avatar_id: str) -> Image.Image:
+    path = BIGHEAD_PATH / f"{avatar_id}.webp"
+    if avatar_id not in lqc or not path.exists():
+        logger.info(f"[majs] 找不到皮肤 {avatar_id} 的头像, 采用默认头像")
+        path = BIGHEAD_PATH / f"{DEFAULT_SKIN_ID}.webp"
+    return Image.open(path)
 
 
 async def draw_bar(
@@ -30,33 +37,7 @@ async def draw_bar(
     bar = Image.open(TEXT_PATH / "bar.png")
     bar_draw = ImageDraw.Draw(bar)
 
-    avatar_id = str(avatar_id)
-    try:
-        path = lqc[avatar_id]["path"]
-    except KeyError:
-        logger.info("找不到头像,采用默认头像")
-        path = lqc["400000"]["path"]
-    name_path: str = path.split("/")[-1]
-    local_path: Path = CHARACTOR_PATH / name_path / "bighead.png"
-
-    if local_path.exists():
-        avatar = Image.open(local_path)
-    else:
-        path = path + "/bighead.png"
-        if path in extend_res:
-            path_prefix = extend_res[path]
-        else:
-            for i in extend_res:
-                if path in i:
-                    path_prefix = extend_res[i]
-                    path = i
-                    break
-            else:
-                path_prefix = "v0.11.14.w"
-        url = f"https://game.maj-soul.com/1/{path_prefix}/{path}"
-        avatar = await get_charactor_img(url, local_path)
-
-    avatar = avatar.resize((128, 128))
+    avatar = get_bighead(str(avatar_id)).resize((128, 128))
     bar.paste(avatar, (69, 15), mask)
 
     rank_img = await get_rank_img(

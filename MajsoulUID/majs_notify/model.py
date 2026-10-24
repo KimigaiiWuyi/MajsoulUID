@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, TypedDict
 
 import betterproto
 from msgspec import Struct
@@ -11,95 +11,65 @@ class InflightRequest(Struct):
     msg_obj: type[betterproto.Message]
 
 
-class MajsoulVersionInfo(Struct):
-    version: str
-    force_version: str
-    code: str
+class MajsoulRpc(Struct):
+    req: str
+    resp: str
 
 
-class ResItem(Struct):
-    prefix: str
+class MajsoulClientVersion(Struct):
+    liqi_version: str
+    resource_version: str
+    package_version: str
 
 
-class MajsoulResInfo(Struct):
-    res: dict[str, ResItem]
-
-
-class TI(Struct):
-    type: str
-    id: int
-
-
-class ReqRes(Struct):
-    requestType: str
-    responseType: str
-
-
-class MajsoulLiqiItem(Struct):
-    fields: dict[str, dict] | None = None
-    methods: dict[str, ReqRes] | None = None
-
-
-class MajsoulLiqiNested(Struct):
-    nested: dict[str, MajsoulLiqiItem]
-
-
-class MajsoulLiqiProto(Struct):
-    nested: dict[str, MajsoulLiqiNested]
-
-
-class MajsoulRegionUrl(Struct):
+class MajsoulRoute(Struct):
     id: str
-    url: str
+    domain: str
+    ssl: bool
 
 
-class MajsoulUSConfigIp(Struct):
-    contest_chat_url: str
-    dhs_url: str
-    name: str
-    gateways: List[MajsoulRegionUrl]
+class MajsoulMaintenanceInfo(Struct):
+    lang: str = ""
+    content: str = ""
 
 
-class MajsoulConfigIp(MajsoulUSConfigIp):
-    prefix_url: str
-    system_email_url: str
+class MajsoulRoutesData(Struct):
+    routes: List[MajsoulRoute] = []
+    maintenance: List[MajsoulMaintenanceInfo] = []
 
 
-class MajsoulConfig(Struct):
-    ip: List[MajsoulConfigIp]
-    goods_sheleve_id: str
-    emergency_url: str
-    awsc_sdk_js: str
-    nec_sdk_js: str
-    tracker_url: str
-    wapchat_url: str
-    mycard_url: str
-    homepage_url: str
-    fb_oauth_url: str
-    fb_sdk_js: str
+class MajsoulRoutesResp(Struct):
+    data: MajsoulRoutesData
 
 
-class MajsoulUSConfig(Struct):
-    ip: List[MajsoulUSConfigIp]
-    yo_service_url: List[str]
-    goods_sheleve_id: str
-    awsc_sdk_js: str
-    nec_sdk_js: str
-    tracker_url: str
+class MajsoulDeviceInfo(TypedDict):
+    platform: str
+    hardware: str
+    os: str
+    os_version: str
+    is_browser: bool
+    sale_platform: str
+    user_agent: str
+    screen_width: int
+    screen_height: int
+    screen_type: int
+    device_id: str
 
 
-class MaintenanceMessageI18n(Struct):
-    lang: str
-    context: str
+class MajsoulClientVersionInfo(TypedDict):
+    resource: str
+    package: str
 
 
-class MajsoulMaintenance(Struct):
-    message_i18n: List[MaintenanceMessageI18n]
+class MajsoulLoginFields(TypedDict):
+    """login / oauth2Login 共有的客户端信息字段。"""
 
-
-class MajsoulServerList(Struct):
-    servers: Union[List[str], None] = None
-    maintenance: Union[MajsoulMaintenance, None] = None
+    device: MajsoulDeviceInfo
+    random_key: str
+    client_version: MajsoulClientVersionInfo
+    currency_platforms: List[int]
+    client_version_string: str
+    tag: str
 
 
 class MajsoulDecodedMessage(Struct):
