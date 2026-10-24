@@ -75,7 +75,7 @@ class KoromoApi:
         player_id: Union[int, str],
         limit: Union[int, str] = 16,
         MODE: Union[str, int] = "4",
-    ):
+    ) -> Union[List[Game], int]:
         timestamp = int(datetime.datetime.now().timestamp() * 1000)
         URL = KOROMO_PLAYER_RECORD.format(MODE, player_id, timestamp)
         data = await self._koromo_request(
@@ -87,21 +87,24 @@ class KoromoApi:
                 "descending": True,
             },
         )
-        if isinstance(data, List) or isinstance(data, Dict):
-            return cast(List[Game], data)
-        return data
+        # 牌谱屋的错误 JSON 也是 dict，当成对局列表会在绘图时炸
+        if isinstance(data, list):
+            return data
+        return data if isinstance(data, int) else -1
 
     async def search_player(
         self,
         player_name: str,
         num: int = 4,
         MODE: Union[str, int] = "4",
-    ):
+    ) -> List[Player]:
         data = await self._koromo_request(
             KOROMO_SEARCH_PLAYER.format(MODE, player_name),
             params={"limit": num, "tag": "all"},
         )
-        return cast(List[Player], data)
+        if isinstance(data, list):
+            return data
+        return []
 
     async def _koromo_request(
         self,
@@ -111,7 +114,7 @@ class KoromoApi:
         params: Optional[Dict[str, Any]] = None,
         json: Optional[Dict[str, Any]] = None,
         data: Optional[Dict[str, Any]] = None,
-    ) -> Union[Dict, int]:
+    ) -> Union[Dict, List, int]:
         async with AsyncClient() as client:
             resp = await client.request(
                 method,
@@ -125,8 +128,9 @@ class KoromoApi:
             try:
                 raw_data = resp.json()
             except JSONDecodeError:
-                _raw_data = resp.text
-                raw_data = {"retcode": -999, "data": _raw_data}
+                # 限流 / 验证码页（HTTP 429 纯文本）走这里
+                logger.warning(f"[MajsoulUID] 牌谱屋返回非 JSON (HTTP {resp.status_code}): {resp.text[:200]}")
+                return -999
             logger.debug(raw_data)
             if "error" in raw_data:
                 return -1

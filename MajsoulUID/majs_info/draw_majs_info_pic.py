@@ -81,6 +81,7 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
         if s not in extended:
             extended[s] = player_extend_zero[s]
 
+    record_failed = isinstance(record, int)
     if isinstance(record, int):
         record = []
 
@@ -203,6 +204,9 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
             majs_font(34),
             "mm",
         )
+
+    if record_failed:
+        detail_draw.text((500, 760), "暂时无法获取近期对局记录", G, majs_font(30), "mm")
 
     footer = get_footer()
 
