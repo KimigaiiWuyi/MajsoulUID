@@ -1,10 +1,10 @@
 {
   "基础服务": {
-    "desc": "需要先绑定uid, 注意好友码不是UID！！",
+    "desc": "需要先绑定UID。游戏里「我的ID」是好友码，不是UID，可以用[搜索]查UID",
     "data": [
       {
         "name": "绑定uid",
-        "desc": "绑定你的雀魂UID",
+        "desc": "绑定你的雀魂UID；账号池在线时，发成好友码会自动换算",
         "eg": "绑定uid123456",
         "need_ck": false,
         "need_sk": false,

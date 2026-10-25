@@ -4,6 +4,7 @@ from gsuid_core.models import Event
 from gsuid_core.utils.message import send_diff_msg
 from gsuid_core.message_models import Button
 
+from .resolve_uid import FRIEND_CODE_TIP, resolve_bind_uid
 from .search_player import search_player_with_name
 from ..utils.database.models import MajsBind
 
@@ -27,7 +28,7 @@ async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
     uid = ev.text.strip()
 
     if not uid and "绑定" in ev.command:
-        return await bot.send("该命令需要带上正确的uid!\n如果不知道, 可以使用雀魂搜索命令查询\n如雀魂搜索Wuyi")
+        return await bot.send(f"要带上你的雀魂 UID，例如[雀魂绑定uid1148850]{FRIEND_CODE_TIP}")
 
     await bot.logger.info("[Majs] 开始执行[绑定/解绑用户信息]")
     qid = ev.user_id
@@ -37,12 +38,15 @@ async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
         return await bot.send("你输入了错误的格式!")
 
     if "绑定" in ev.command:
+        target = await resolve_bind_uid(uid)
+        uid = target.uid
+        who = f"（{target.nickname}）" if target.nickname else ""
         data = await MajsBind.insert_uid(qid, ev.bot_id, uid, ev.group_id)
         return await send_diff_msg(
             bot,
             data,
             {
-                0: f"[Majs] 绑定UID{uid}成功！",
+                0: f"[Majs] 绑定UID{uid}{who}成功！{target.note}",
                 -1: f"[Majs] UID{uid}的位数不正确！",
                 -2: f"[Majs] UID{uid}已经绑定过了！",
                 -3: "[Majs] 你输入了错误的格式!",

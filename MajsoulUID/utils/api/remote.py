@@ -59,6 +59,17 @@ def encode_account_id2(id: int) -> int:
     return z + s + 10000000
 
 
+def decode_friend_code(code: int) -> int:
+    """`encode_account_id2` 的逆运算：游戏内「我的ID」（好友码）→ UID"""
+    p = code - 10000000
+    H = 67108863
+    s = p & ~H
+    z = p & H
+    for _ in range(5):
+        z = ((z << 9) & H) | (z >> 17)
+    return (s | z) ^ 6139246
+
+
 # 定义一个函数，返回一个列表，包含玩家等级的翻译
 def getTranslatedLevelTags():
     # 使用gettext模块的gettext函数，根据当前语言环境，获取玩家等级的翻译

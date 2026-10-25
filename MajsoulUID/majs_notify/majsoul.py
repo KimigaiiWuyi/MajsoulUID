@@ -744,6 +744,18 @@ class MajsoulConnection:
             self.friend_apply_list = list(dict.fromkeys(a.account_id for a in resp.friend_apply_list.applies))
         return resp
 
+    async def fetchAccountNickname(self, account_id: int) -> str | None:
+        resp = await self.rpc_call(
+            ".lq.Lobby.fetchMultiAccountBrief",
+            {"account_id_list": [account_id]},
+        )
+        if not isinstance(resp, liblq.ResMultiAccountBrief) or resp.error.code:
+            return None
+        for player in resp.players:
+            if player.account_id == account_id and player.nickname:
+                return player.nickname
+        return None
+
     async def acceptFriendApply(self, account_id: int):
         resp = cast(
             liblq.ResCommon,
