@@ -32,14 +32,17 @@ def test_decode_friend_code_round_trip(account_id):
 
 
 class FakeConn:
-    def __init__(self, accounts: dict[int, str], closed: bool = False):
+    def __init__(self, accounts: dict[int, str], closed: bool = False, friends: dict[int, str] | None = None):
         self.accounts = accounts
         self.closed = closed
+        self.friends = {aid: types.SimpleNamespace(nickname=nick) for aid, nick in (friends or {}).items()}
+        self.lookups: list[int] = []
 
     def is_closed(self) -> bool:
         return self.closed
 
     async def fetchAccountNickname(self, account_id: int) -> str | None:
+        self.lookups.append(account_id)
         return self.accounts.get(account_id)
 
 
@@ -49,6 +52,9 @@ class FakeManager:
 
     def get_conn(self) -> FakeConn | None:
         return self.conn
+
+    def get_all_conn(self) -> list[FakeConn]:
+        return [self.conn] if self.conn else []
 
 
 def load_resolver(monkeypatch: pytest.MonkeyPatch, conn: FakeConn | None):
@@ -102,3 +108,20 @@ def test_no_pool_falls_back_to_tip(monkeypatch, conn):
     mod = load_resolver(monkeypatch, conn)
     target = asyncio.run(mod.resolve_bind_uid(str(CODE)))
     assert target == mod.BindTarget(str(CODE), None, mod.FRIEND_CODE_TIP)
+
+
+def test_uid_that_is_bot_friend_skips_ambiguity_note(monkeypatch):
+    # 实际发生过：12536235 当好友码看也对应一个真号，但它本身就是机器人好友，不该再提示
+    conn = FakeConn({UID: "浅碎丶时空", 17162248: "别人"}, friends={UID: "浅碎丶时空"})
+    mod = load_resolver(monkeypatch, conn)
+    target = asyncio.run(mod.resolve_bind_uid(str(UID)))
+    assert (target.uid, target.nickname, target.note) == (str(UID), "浅碎丶时空", "")
+    assert conn.lookups == []
+
+
+def test_friend_code_of_bot_friend_is_converted(monkeypatch):
+    conn = FakeConn({UID: "浅碎丶时空", CODE: "另一个人"}, friends={UID: "浅碎丶时空"})
+    mod = load_resolver(monkeypatch, conn)
+    target = asyncio.run(mod.resolve_bind_uid(str(CODE)))
+    assert (target.uid, target.nickname) == (str(UID), "浅碎丶时空")
+    assert "好友码" in target.note

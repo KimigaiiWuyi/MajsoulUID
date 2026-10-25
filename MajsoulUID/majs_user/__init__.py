@@ -42,16 +42,23 @@ async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
         uid = target.uid
         who = f"（{target.nickname}）" if target.nickname else ""
         data = await MajsBind.insert_uid(qid, ev.bot_id, uid, ev.group_id)
-        return await send_diff_msg(
-            bot,
-            data,
-            {
-                0: f"[Majs] 绑定UID{uid}{who}成功！{target.note}",
-                -1: f"[Majs] UID{uid}的位数不正确！",
-                -2: f"[Majs] UID{uid}已经绑定过了！",
-                -3: "[Majs] 你输入了错误的格式!",
-            },
-        )
+        if data not in (0, -2):
+            return await send_diff_msg(
+                bot,
+                data,
+                {
+                    -1: f"[Majs] UID{uid}的位数不正确！",
+                    -3: "[Majs] 你输入了错误的格式!",
+                },
+            )
+        # insert_uid 把新 UID 追加到末尾，查询 / 订阅却用第一个，所以要切到最前
+        uid_list = await MajsBind.get_uid_list_by_game(qid, ev.bot_id)
+        others = [i for i in uid_list if i != uid] if uid_list else []
+        if others:
+            await MajsBind.switch_uid_by_game(qid, ev.bot_id, uid)
+        head = f"[Majs] 绑定UID{uid}{who}成功！" if data == 0 else f"[Majs] UID{uid}{who}已经绑定过了，现在切换为它"
+        tail = f"\n你还绑过 {'、'.join(others)}，不要的话用[雀魂删除uid{others[0]}]" if others else ""
+        return await bot.send(head + target.note + tail)
     elif "切换" in ev.command:
         retcode = await MajsBind.switch_uid_by_game(qid, ev.bot_id, uid)
         if retcode == 0:

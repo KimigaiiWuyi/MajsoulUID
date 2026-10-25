@@ -357,10 +357,9 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
 
     if int(uid) not in conn.friends:
         await bot.send(
-            "[majs] 未找到好友信息! 将使用观战订阅模式！\n"
-            "该模式无法获取好友分数变化情况, 可能存在不准确的情况, 请自行关注！\n"
-            "如需使用好友订阅模式,"
-            f"请先在【游戏中】添加 {conn.nick_name}: {friend_code}好友再执行此操作！"
+            f"[majs] UID {uid} 还不是机器人好友，先用观战模式订阅。\n"
+            "观战模式拿不到分数变化，推送可能不准。\n"
+            f"想用好友模式：在【游戏中】加 {conn.nick_name}（好友码 {friend_code}）为好友，再发一次[雀魂订阅]"
         )
 
         await gs_subscribe.add_subscribe(
