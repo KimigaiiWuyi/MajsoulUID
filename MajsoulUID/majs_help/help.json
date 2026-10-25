@@ -53,6 +53,14 @@
     "desc": "群内谁又偷偷上大分了？？",
     "data": [
       {
+        "name": "好友码",
+        "desc": "查看机器人账号的好友码, 在游戏里加它为好友",
+        "eg": "好友码",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
         "name": "订阅",
         "desc": "在群内订阅机器人推送消息",
         "eg": "订阅",

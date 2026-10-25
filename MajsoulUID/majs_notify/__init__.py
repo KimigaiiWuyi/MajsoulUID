@@ -37,7 +37,10 @@ majsoul_yostar_login = SV("雀魂Yostar登陆", pm=0)
 
 majsoul_friend_level_billboard = SV("雀魂好友排行榜")
 majsoul_get_notify = SV("雀魂订阅推送")
+majsoul_friend_code = SV("雀魂好友码")
 majsoul_review = SV("雀魂牌谱Review")
+
+SERVER_NAME = {"zh": "国服", "ja": "日服", "en": "美服"}
 
 sv_majsoul_notify_sub = SV("雀魂推送订阅", pm=0)
 
@@ -391,6 +394,19 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
         return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
     else:
         return await bot.send("[majs] 推送订阅失败！")
+
+
+@majsoul_friend_code.on_command(("好友码", "加好友"), block=True)
+async def majsoul_friend_code_command(bot: Bot, ev: Event):
+    # 绑定 / 查询用的是 UID（account_id），游戏里搜人要用好友码，两者不是一个数
+    lines = [
+        f"{SERVER_NAME[user.lang] if user.lang in SERVER_NAME else user.lang}：{encode_account_id2(int(user.uid))}"
+        for user in await MajsUser.get_all_user()
+        if user.uid is not None and user.uid.isdigit()
+    ]
+    if not lines:
+        return await bot.send("账号池里还没有可用的机器人账号，请管理员先用[雀魂登陆国服]添加")
+    await bot.send("机器人好友码：\n" + "\n".join(lines) + "\n通过好友申请后，用[雀魂订阅]就能推送分数变化")
 
 
 @majsoul_notify.on_fullmatch(("推送启动", "启动推送", "服务启动", "启动服务"))

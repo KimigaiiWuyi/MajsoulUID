@@ -99,6 +99,7 @@ uv run ruff format --check MajsoulUID
 - `雀魂查询`：`get_uid(..., MajsBind)` → Koromo。文本含「三」「四」选人数，否则 `auto`。
 - `雀魂搜索`：牌谱屋搜人，按钮引导绑定。
 - 推送：登陆国服/日服/美服写入 `MajsUser` → `推送启动`（`majs_notify/majsoul.py` 的 `manager`）→ `订阅` → `gs_subscribe`。
+- `雀魂好友码`：列出账号池小号的好友码（`encode_account_id2(uid)`），群友在游戏里加 bot 好友用。好友码 ≠ UID。
 - Review：`雀魂牌谱Review <url>`，引擎 `MajsReviewEngine` = Tenhou \| Mjai。缓存 `PAIPU_PATH`。
 - 账号池命令 `pm=0`。不要手改 `lib/lq/` 生成物。
 
