@@ -69,6 +69,14 @@
         "need_admin": false
       },
       {
+        "name": "取消订阅",
+        "desc": "关闭你的订阅推送，好友模式和观战模式都会关",
+        "eg": "取消订阅",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
         "name": "好友排行榜",
         "desc": "本群绑定了UID、并加了机器人好友的人的段位排行",
         "eg": "好友排行榜三麻",

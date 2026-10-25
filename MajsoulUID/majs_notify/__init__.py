@@ -44,6 +44,9 @@ SERVER_NAME = {"zh": "国服", "ja": "日服", "en": "美服"}
 
 sv_majsoul_notify_sub = SV("雀魂推送订阅", pm=0)
 
+# 观战模式存在 core 的 Subscribe 表（按用户一条），好友模式存在 MajsPush（按 UID），两套要一起管
+TASK_NAME_MAJSOUL_WATCH = "雀魂观战订阅"
+
 
 EXSAMPLE = """雀魂登陆国服 用户名, 密码
 ⚠ 提示: 该命令将会使用账密进行登陆, 请[永远]不要使用自己的大号, 否则可能会导致账号被封！
@@ -313,26 +316,23 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
     if uid is None:
         return await bot.send(UID_HINT)
 
-    if await MajsPush.data_exist(uid=uid):
-        data = await MajsPush.select_data_by_uid(uid)
-        if data and data.push_id == "off":
-            return await bot.send("[majs] 你已经关闭了订阅信息!")
-        elif data is None:
-            return await bot.send("[majs] 你尚未有订阅信息, 无法取消!")
-        else:
-            push_id = "off"
-            retcode = await MajsPush.update_data_by_uid(
-                uid,
-                ev.bot_id,
-                push_id="off",
-            )
-            if retcode == 0:
-                logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
-                return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
-            else:
-                return await bot.send("[majs] 推送订阅失败！")
-    else:
-        return await bot.send("[majs] 你尚未有订阅信息, 无法取消!")
+    subscribes = await gs_subscribe.get_subscribe(TASK_NAME_MAJSOUL_WATCH)
+    watching = [s for s in subscribes if s.user_id == ev.user_id] if subscribes else []
+    push = await MajsPush.select_data_by_uid(uid)
+    pushing = push is not None and push.push_id != "off"
+    if not watching and not pushing:
+        return await bot.send("[majs] 你现在没有开着的订阅")
+
+    closed: list[str] = []
+    if watching:
+        await gs_subscribe.delete_subscribe("single", TASK_NAME_MAJSOUL_WATCH, ev)
+        closed.append(f"观战模式（UID {'、'.join(str(s.extra_message) for s in watching)}）")
+    if pushing:
+        if await MajsPush.update_data_by_uid(uid, ev.bot_id, push_id="off") != 0:
+            return await bot.send("[majs] 关闭好友模式推送失败，请稍后再试")
+        closed.append(f"好友模式（UID {uid}）")
+    logger.success(f"[majs] {ev.user_id} 关闭订阅: {closed}")
+    return await bot.send(f"[majs] 已关闭订阅：{'，'.join(closed)}")
 
 
 @majsoul_get_notify.on_command(("订阅"))
@@ -364,12 +364,14 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
 
         await gs_subscribe.add_subscribe(
             "single",
-            "雀魂观战订阅",
+            TASK_NAME_MAJSOUL_WATCH,
             ev,
             extra_message=uid,
         )
-        return await bot.send("[观战模式] 订阅成功！")
+        return await bot.send("[观战模式] 订阅成功！关闭用[雀魂取消订阅]")
 
+    # 换成好友模式后，旧的观战订阅还在会重复推送
+    await gs_subscribe.delete_subscribe("single", TASK_NAME_MAJSOUL_WATCH, ev)
     push_id = ev.group_id if ev.group_id else "on"
     if await MajsPush.data_exist(uid=uid):
         retcode = await MajsPush.update_data_by_uid(
@@ -387,7 +389,8 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
 
     if retcode == 0:
         logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
-        return await bot.send(f"[majs] 修改推送订阅成功！当前值：{push_id}")
+        where = "这个群" if ev.group_id else "私聊"
+        return await bot.send(f"[majs] 好友模式订阅成功！UID {uid} 的对局结果会推送到{where}，关闭用[雀魂取消订阅]")
     else:
         return await bot.send("[majs] 推送订阅失败！")
 
@@ -526,7 +529,7 @@ async def majsoul_friend_apply_command(bot: Bot, event: Event):
 @scheduler.scheduled_job("cron", minute="*/2")
 async def majsoul_notify_rank():
     await asyncio.sleep(random.randint(0, 1))
-    datas = await gs_subscribe.get_subscribe("雀魂观战订阅")
+    datas = await gs_subscribe.get_subscribe(TASK_NAME_MAJSOUL_WATCH)
 
     if not datas:
         return
