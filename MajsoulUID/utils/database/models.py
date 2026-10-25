@@ -1,9 +1,10 @@
 from typing import Type, TypeVar, Optional
 
-from sqlmodel import Field, select
+from sqlmodel import Field, col, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from gsuid_core.webconsole.mount_app import PageSchema, GsAdminModel, site
+from gsuid_core.utils.database.models import CoreUser
 from gsuid_core.utils.database.startup import exec_list
 from gsuid_core.utils.database.base_models import (
     Bind,
@@ -11,6 +12,7 @@ from gsuid_core.utils.database.base_models import (
     User,
     BaseIDModel,
     with_session,
+    with_read_session,
 )
 
 T_MajsPaipu = TypeVar("T_MajsPaipu", bound="MajsPaipu")
@@ -64,6 +66,29 @@ class MajsPush(Push, table=True):
 
 class MajsBind(Bind, table=True):
     uid: Optional[str] = Field(default=None, title="雀魂UID")
+
+    @classmethod
+    @with_read_session
+    async def get_group_uids(
+        cls,
+        session: AsyncSession,
+        bot_id: str,
+        real_bot_id: str,
+        group_id: str,
+    ) -> set[str]:
+        """本群出现过的用户、或在本群绑定的用户，他们绑定的全部 UID"""
+        # Bind.group_id 只记首次绑定的群，换个群就对不上，所以再按 CoreUser 的群成员找；
+        # CoreUser.bot_id 存的是 Event.real_bot_id，不是 Event.bot_id
+        members = select(col(CoreUser.user_id)).where(
+            col(CoreUser.bot_id) == real_bot_id,
+            col(CoreUser.group_id) == group_id,
+        )
+        stmt = select(col(cls.uid)).where(
+            col(cls.bot_id) == bot_id,
+            or_(col(cls.user_id).in_(members), col(cls.group_id) == group_id),
+        )
+        result = await session.execute(stmt)
+        return {uid for joined in result.scalars().all() if joined for uid in joined.split("_") if uid}
 
 
 class MajsUser(User, table=True):

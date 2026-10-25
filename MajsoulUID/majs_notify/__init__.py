@@ -453,12 +453,23 @@ async def majsoul_notify_check_command(bot: Bot, event: Event):
 
 @majsoul_friend_level_billboard.on_command("好友排行榜")
 async def majsoul_friend_billboard_command(bot: Bot, event: Event):
-    # get connection
+    # 私聊没有「本群」，放开就能看到所有群的人
+    if not event.group_id:
+        return await bot.send("好友排行榜只能在群里看，只列出本群绑定了 UID 的人")
+
     conn = manager.get_conn()
     if conn is None:
         return await bot.send("未找到有效连接, 请先进行[雀魂推送启动]")
 
-    friends = list(conn.friends.values())
+    uids = await MajsBind.get_group_uids(event.bot_id, event.real_bot_id, event.group_id)
+    friends = [friend for friend in conn.friends.values() if str(friend.account_id) in uids]
+    if not uids:
+        return await bot.send("本群还没有人绑定 UID，先用[雀魂绑定uid]绑定")
+    if not friends:
+        return await bot.send(
+            f"本群绑定的 {len(uids)} 个 UID 都还不是机器人好友。用[雀魂好友码]查到好友码，在游戏里加上就能上榜"
+        )
+
     if "三" in event.text:
         friends.sort(key=lambda x: (x.level3.id, x.level3_score), reverse=True)
         msg = await draw_friend_rank_img(friends, "3")
@@ -473,7 +484,8 @@ async def majsoul_friend_overview_command(bot: Bot, event: Event):
     conn = manager.get_conn()
     if conn is None:
         return await bot.send("未找到有效连接, 请先进行[雀魂推送启动]")
-    msg = "本群雀魂好友列表\n"
+    # 这是账号池的全部好友，不分群；按群看用[雀魂好友排行榜]
+    msg = f"账号池好友列表（{len(conn.friends)} 人）\n"
     for friend in conn.friends.values():
         msg += f"{friend.nickname} {friend.account_id}\n"
     await bot.send(msg)
