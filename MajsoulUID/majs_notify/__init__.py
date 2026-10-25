@@ -355,10 +355,7 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
     if friend_code is None:
         return await bot.send("[majs] 账号池账号异常, 请联系管理员!")
 
-    for friend in conn.friends:
-        if uid == str(friend.account_id):
-            break
-    else:
+    if int(uid) not in conn.friends:
         await bot.send(
             "[majs] 未找到好友信息! 将使用观战订阅模式！\n"
             "该模式无法获取好友分数变化情况, 可能存在不准确的情况, 请自行关注！\n"
@@ -461,8 +458,7 @@ async def majsoul_friend_billboard_command(bot: Bot, event: Event):
     if conn is None:
         return await bot.send("未找到有效连接, 请先进行[雀魂推送启动]")
 
-    # 去重
-    friends = conn.remove_duplicate_friends()
+    friends = list(conn.friends.values())
     if "三" in event.text:
         friends.sort(key=lambda x: (x.level3.id, x.level3_score), reverse=True)
         msg = await draw_friend_rank_img(friends, "3")
@@ -477,9 +473,8 @@ async def majsoul_friend_overview_command(bot: Bot, event: Event):
     conn = manager.get_conn()
     if conn is None:
         return await bot.send("未找到有效连接, 请先进行[雀魂推送启动]")
-    friends = conn.friends
     msg = "本群雀魂好友列表\n"
-    for friend in friends:
+    for friend in conn.friends.values():
         msg += f"{friend.nickname} {friend.account_id}\n"
     await bot.send(msg)
 
@@ -501,8 +496,8 @@ async def majsoul_friend_apply_all_command(bot: Bot, event: Event):
     conn = manager.get_conn()
     if conn is None:
         return await bot.send("未找到有效连接, 请先进行[雀魂推送启动]")
-    applys = conn.friend_apply_list
-    for apply in applys:
+    # acceptFriendApply 会从原列表里删，直接遍历会隔一个跳一个
+    for apply in list(conn.friend_apply_list):
         await conn.acceptFriendApply(apply)
     await bot.send("已同意所有好友申请")
 

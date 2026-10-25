@@ -7,7 +7,6 @@ import asyncio
 import hashlib
 import contextlib
 from typing import Dict, List, Union, Sequence, cast
-from collections.abc import Iterable
 
 import httpx2
 import msgspec
@@ -122,7 +121,8 @@ class MajsoulConnection:
         self.queue = asyncio.queues.Queue()
         self.account_id = 0
         self.nick_name = ""
-        self.friends: list[MajsoulFriend] = []
+        # 增删一律换新 dict：好友状态推送会在 await 中途遍历它
+        self.friends: dict[int, MajsoulFriend] = {}
         self.friend_apply_list: list[int] = []
         self.random_key = device_id
         self.login_type = login_type
@@ -318,7 +318,7 @@ class MajsoulConnection:
         target_user = data.target_id
         active_state = data.active_state
         msg = ""
-        for friend in self.friends:
+        for friend in self.friends.values():
             if friend.account_id == target_user:
                 nick_name = friend.nickname
                 # find what changed
@@ -461,46 +461,35 @@ class MajsoulConnection:
         target_user = data.target_id
         changed_base = data.base
         msg = ""
-        for friend in self.friends:
-            if friend.account_id == target_user:
-                # set friend base
-                friend.change_base(changed_base)
+        if target_user in self.friends:
+            self.friends[target_user].change_base(changed_base)
         if msg:
             await self.send_msg_to_user(str(target_user), msg)
 
     async def handle_FriendChange(self, notify: MajsoulDecodedMessage):
         data = cast(liblq.NotifyFriendChange, notify.payload)
         logger.info(f"NotifyFriendChange: {data.__dict__}")
+        account_id = data.account_id
+        existed = account_id in self.friends
         meta_msg = ""
         if data.type == 1:
             # TODO: The meaning of type 1 is not clear, need to check
-            for friend in self.friends:
-                if friend.account_id == data.account_id:
-                    meta_msg = f"好友 {data.account_id} 已在好友列表中！"
-                    logger.error(meta_msg)
+            friend = MajsoulFriend(data.friend)
+            self.friends = {**self.friends, account_id: friend}
+            if existed:
+                meta_msg = f"账号已存在好友 {friend.nickname}！"
             else:
-                # maybe add friend
-                friend = MajsoulFriend(data.friend)
-                if friend not in self.friends:
-                    self.friends.append(friend)
-                    meta_msg = f"账号成功添加好友 {friend.nickname}！"
-                    if data.account_id in self.friend_apply_list:
-                        self.friend_apply_list.remove(data.account_id)
-                else:
-                    meta_msg = f"账号已存在好友 {friend.nickname}！"
+                meta_msg = f"账号成功添加好友 {friend.nickname}！"
+            if account_id in self.friend_apply_list:
+                self.friend_apply_list.remove(account_id)
         elif data.type == 2:
-            # 删除好友
-            for friend in self.friends:
-                if friend.account_id == data.account_id:
-                    self.friends.remove(friend)
-                    meta_msg = f"账号成功删除好友 {friend.nickname}！"
-                    break
-        else:
-            # check if friend is in self.friends
-            for friend in self.friends:
-                if friend.account_id == data.account_id:
-                    friend = MajsoulFriend(data.friend)
-                    meta_msg = f"数据成功更新好友 {friend.nickname}！"
+            if existed:
+                meta_msg = f"账号成功删除好友 {self.friends[account_id].nickname}！"
+                self.friends = {aid: f for aid, f in self.friends.items() if aid != account_id}
+        elif existed:
+            friend = MajsoulFriend(data.friend)
+            self.friends = {**self.friends, account_id: friend}
+            meta_msg = f"数据成功更新好友 {friend.nickname}！"
         if meta_msg:
             await self.send_meta(meta_msg)
 
@@ -508,7 +497,8 @@ class MajsoulConnection:
         data = cast(liblq.NotifyNewFriendApply, notify.payload)
         account_id = data.account_id
         meta_msg = f"收到来自 {account_id} 的好友申请"
-        self.friend_apply_list.append(account_id)
+        if account_id not in self.friend_apply_list:
+            self.friend_apply_list.append(account_id)
         resp = cast(
             liblq.ResMultiAccountBrief,
             await self.rpc_call(
@@ -522,8 +512,6 @@ class MajsoulConnection:
         else:
             account = resp.players[0]
             meta_msg = f"收到来自 {account.nickname} 的好友申请"
-            if account_id not in self.friend_apply_list:
-                self.friend_apply_list.append(account_id)
         if meta_msg:
             await self.send_meta(meta_msg)
 
@@ -638,12 +626,6 @@ class MajsoulConnection:
             raise ConnectionError("Connection is broken")
         return True
 
-    def remove_duplicate_friends(self):
-        # friends: List[MajsoulFriend] = []
-        unique_friends = {friend.account_id: friend for friend in self.friends}
-        self.friends = list(unique_friends.values())
-        return self.friends
-
     def encode_p(self, password: str):
         return hmac.new(b"lailai", password.encode(), hashlib.sha256).hexdigest()
 
@@ -755,16 +737,11 @@ class MajsoulConnection:
                 {},
             ),
         )
-        friend_list = resp.friend_list.friends
-        if isinstance(friend_list, Iterable):
-            for friend in friend_list:
-                friend = MajsoulFriend(friend)
-                if friend not in self.friends:
-                    self.friends.append(friend)
-        friend_apply_list = resp.friend_apply_list.applies
-        if isinstance(friend_apply_list, Iterable):
-            for apply in friend_apply_list:
-                self.friend_apply_list.append(apply.account_id)
+        # 服务端给的是全量列表，整体替换；出错时保留旧数据，别清空
+        if not resp.error.code and not resp.friend_list.error.code:
+            self.friends = {f.base.account_id: MajsoulFriend(f) for f in resp.friend_list.friends}
+        if not resp.error.code and not resp.friend_apply_list.error.code:
+            self.friend_apply_list = list(dict.fromkeys(a.account_id for a in resp.friend_apply_list.applies))
         return resp
 
     async def acceptFriendApply(self, account_id: int):
