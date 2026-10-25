@@ -2,7 +2,7 @@ import random
 import asyncio
 from urllib.parse import parse_qs, urlparse
 
-import httpx
+import httpx2
 import email_validator
 
 from gsuid_core.sv import SV
@@ -152,7 +152,7 @@ async def majsoul_jp_login_command(bot: Bot, ev: Event):
         return await bot.send("❌ 请输入有效的email!")
 
     lang = "ja" if "日" in ev.command else "en"
-    sess = httpx.AsyncClient(headers=headers, verify=False)
+    sess = httpx2.AsyncClient(headers=headers, verify=False)
     payload = {"account": email, "lang": lang}
     response = await sess.post(url, json=payload)
     if response.status_code == 200:

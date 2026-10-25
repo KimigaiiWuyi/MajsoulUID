@@ -9,7 +9,7 @@ import contextlib
 from typing import Dict, List, Union, Sequence, cast
 from collections.abc import Iterable
 
-import httpx
+import httpx2
 import msgspec
 import aiofiles
 import websockets.client
@@ -868,12 +868,12 @@ async def fetch_route(region: MajsoulRegion) -> MajsoulRoute:
         "lang": region.route_lang,
     }
     headers = {"User-Agent": USER_AGENT, "Referer": region.web_url}
-    async with httpx.AsyncClient(headers=headers, timeout=10) as client:
+    async with httpx2.AsyncClient(headers=headers, timeout=10) as client:
         for gateway in random.sample(region.gateways, len(region.gateways)):
             try:
                 resp = await client.get(f"{gateway}/api/clientgate/routes", params=params)
                 resp.raise_for_status()
-            except httpx.HTTPError as e:
+            except httpx2.HTTPError as e:
                 logger.warning(f"[majs] 入口网关 {gateway} 不可用: {e!r}")
                 continue
             data = msgspec.convert(resp.json(), MajsoulRoutesResp).data
@@ -1024,7 +1024,7 @@ class MajsoulManager:
                         logger.error("Yostar UID is None, please check your config")
                         return "❌ Yostar UID is None, 请检查配置"
 
-                    sess = httpx.AsyncClient(headers=headers, verify=False)
+                    sess = httpx2.AsyncClient(headers=headers, verify=False)
                     url = "https://passport.mahjongsoul.com/user/login"
                     payload = {
                         "uid": passport_uid,

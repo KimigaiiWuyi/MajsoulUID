@@ -15,7 +15,7 @@ import argparse
 from typing import TypedDict
 from pathlib import Path
 
-import httpx
+import httpx2
 from google.protobuf import descriptor_pb2
 
 RELEASE_URL = "https://api.github.com/repos/Avenshy/MajsoulData/releases/latest"
@@ -93,7 +93,7 @@ def main() -> None:
     args = parser.parse_args()
     desc_path: Path = args.desc
 
-    with httpx.Client(headers=github_headers(), follow_redirects=True, timeout=60) as client:
+    with httpx2.Client(headers=github_headers(), follow_redirects=True, timeout=60) as client:
         resp = client.get(RELEASE_URL)
         resp.raise_for_status()
         release: Release = resp.json()

@@ -3,7 +3,7 @@ import time
 import asyncio
 from typing import Dict, List, Tuple, Union
 
-import httpx
+import httpx2
 import aiofiles
 
 from gsuid_core.logger import logger
@@ -13,7 +13,7 @@ from ...utils.resource.RESOURCE_PATH import PAIPU_PATH
 
 
 async def check_url(tag: str, url: str):
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         try:
             start_time = time.time()
             response = await client.get(f"{url}/status")
@@ -28,7 +28,7 @@ async def check_url(tag: str, url: str):
             else:
                 logger.info(f"{tag} {url} 超时...")
                 return tag, url, float("inf")
-        except httpx.ConnectError:
+        except httpx2.ConnectError:
             logger.info(f"{tag} {url} 超时...")
             return tag, url, float("inf")
 
@@ -53,7 +53,7 @@ async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
             data = json.loads(await f.read())
             return data
 
-    sess = httpx.AsyncClient(verify=False)
+    sess = httpx2.AsyncClient(verify=False)
     urls = {
         "[wegt]": "https://majsoul.wget.es",
         "[cn]": "http://183.36.37.120:62800",

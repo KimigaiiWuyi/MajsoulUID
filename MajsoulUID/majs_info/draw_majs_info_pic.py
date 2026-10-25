@@ -1,3 +1,4 @@
+import asyncio
 from copy import deepcopy
 from typing import Optional
 from pathlib import Path
@@ -44,11 +45,12 @@ async def draw_title(msg: str):
 @gs_cache()
 async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
     MODE: bool = MAJS_CONFIG.get_config("UseFlowerHistory").data
-    data4 = await majs_api.get_player_stats(uid)
-    data3 = await majs_api.get_player_stats(uid, "3")
-
-    extended4 = await majs_api.get_player_extended(uid)
-    extended3 = await majs_api.get_player_extended(uid, "3")
+    data4, data3, extended4, extended3 = await asyncio.gather(
+        majs_api.get_player_stats(uid),
+        majs_api.get_player_stats(uid, "3"),
+        majs_api.get_player_extended(uid),
+        majs_api.get_player_extended(uid, "3"),
+    )
 
     # from gsuid_core.utils.image.image_tools import get_avatar_with_ring
     # avatar = await get_avatar_with_ring(ev)
@@ -76,10 +78,6 @@ async def draw_majs_info_img(ev: Event, uid: str, mode: str = "auto"):
         data = data4
         extended = extended4
         record = await majs_api.get_player_record(uid)
-
-    for s in player_extend_zero:
-        if s not in extended:
-            extended[s] = player_extend_zero[s]
 
     record_failed = isinstance(record, int)
     if isinstance(record, int):

@@ -12,7 +12,7 @@ from typing import TypedDict, NotRequired
 from pathlib import Path
 from urllib.parse import urljoin
 
-import httpx
+import httpx2
 import UnityPy
 from PIL import Image
 
@@ -103,7 +103,7 @@ def bighead_asset_paths(skin: SkinInfo) -> list[str]:
     return paths
 
 
-def resolve_profile_url(client: httpx.Client) -> str:
+def resolve_profile_url(client: httpx2.Client) -> str:
     settings: ClientSettings = client.get(CLIENT_SETTINGS_URL).raise_for_status().json()
     warehouse = settings["warehouses"][0]
     warehouse_url = join_url(pick_url(warehouse["urls"]), warehouse["warehouseSettingPath"])
@@ -116,7 +116,7 @@ def resolve_profile_url(client: httpx.Client) -> str:
     raise RuntimeError(f"国服资源包没有可用的贴图格式: {TEXTURE_PROFILES}")
 
 
-def load_asset_bundles(client: httpx.Client, profile_url: str) -> dict[str, str]:
+def load_asset_bundles(client: httpx2.Client, profile_url: str) -> dict[str, str]:
     """返回 资源路径 → 所在资源包文件名。"""
     data = client.get(join_url(profile_url, "bundle_info_so.majset")).raise_for_status().content
     for obj in UnityPy.load(data).objects:
@@ -140,7 +140,7 @@ def extract_bighead(bundle: bytes) -> Image.Image:
     raise RuntimeError("资源包里没有 Texture2D")
 
 
-def update_bigheads(client: httpx.Client, table: dict[str, SkinInfo]) -> None:
+def update_bigheads(client: httpx2.Client, table: dict[str, SkinInfo]) -> None:
     BIGHEAD_DIR.mkdir(parents=True, exist_ok=True)
     missing = [skin for skin in table.values() if not (BIGHEAD_DIR / f"{skin['id']}.webp").exists()]
     if not missing:
@@ -163,7 +163,7 @@ def update_bigheads(client: httpx.Client, table: dict[str, SkinInfo]) -> None:
 
 def main() -> None:
     version: ClientVersion = json.loads(CLIENT_VERSION_PATH.read_text(encoding="utf-8"))
-    with httpx.Client(headers={"User-Agent": USER_AGENT}, follow_redirects=True, timeout=60) as client:
+    with httpx2.Client(headers={"User-Agent": USER_AGENT}, follow_redirects=True, timeout=60) as client:
         rows: list[SkinRow] = client.get(SKIN_URL.format(tag=version["liqi_version"])).raise_for_status().json()
         table = build_skin_table(rows)
         SKIN_TABLE_PATH.write_text(json.dumps(table, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -3,7 +3,7 @@ from io import BytesIO
 from typing import Dict
 from pathlib import Path
 
-import httpx
+import httpx2
 from PIL import Image, UnidentifiedImageError
 
 BASE = "https://game.maj-soul.com/1/"
@@ -49,11 +49,11 @@ try:
         response = None
         for i in range(3):
             try:
-                response = httpx.get(url, verify=False)
-            except httpx.ReadTimeout:
+                response = httpx2.get(url, verify=False)
+            except httpx2.ReadTimeout:
                 print("超时，重试一次...")
                 continue
-            except (httpx.ConnectError, httpx.ConnectTimeout):
+            except (httpx2.ConnectError, httpx2.ConnectTimeout):
                 print("SSL错误，重试一次...")
                 response = 1
                 continue

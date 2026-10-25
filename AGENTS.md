@@ -18,7 +18,7 @@
 - 绑定：**`MajsBind`**（不是 `GsBind`）。账号池：**`MajsUser`**（账密 / 日服 token）。
 - **永远不要用大号登录**（命令文案必须保留警告）。
 - **没有** `to_ai` / `@ai_tools`。
-- Python `>=3.12`（`[project]`）。依赖 `betterproto`、`websockets`、`msgspec`、`httpx`。
+- Python `>=3.12`（`[project]`）。依赖 `betterproto`、`websockets`、`msgspec`、`httpx2`、`wasmtime`（牌谱屋 cap 的 hashwx PoW）。
 - 版本：`MajsoulUID/version.py` 当前 `0.3.1`。
 
 ## Repository map
@@ -41,7 +41,7 @@
     ├── lib/lq/                         # 雀魂 proto 生成代码（lib/ruff.toml 排除 lint）
     ├── tools/                          # download_file.py
     └── utils/
-        ├── api/                        # Koromo URL / request / remote
+        ├── api/                        # Koromo URL / request / remote；cap_solver + hashwx 求牌谱屋 cap token
         ├── database/models.py          # MajsBind / MajsUser / MajsPush / MajsPaipu
         ├── proto/                      # liqi.json / client_version.json / lqc.json + 更新脚本
         ├── texture2d/bighead/          # 皮肤头像（update_skin.py 生成）
