@@ -146,8 +146,8 @@ class MajsoulPaipuParser:
 
         # clean up for sanma AI
         if nplayers == 3:
-            res.name[3] = ""
-            res.sx[3] = ""
+            res.name.append("")
+            res.sx.append("")
 
         # scores
         scores: list[list[float]] = [[e.seat, e.part_point_1, e.total_point / 1000] for e in record.head.result.players]
@@ -309,19 +309,14 @@ class MajsoulPaipuParser:
                 t for t in self.kyoku.draws[log.seat] if isinstance(t, Tile) and t.deaka() == tile.deaka()
             ]
 
-            # doesn't really matter which tile we mark ankan with - choosing last drawn
-            ankan_tile = ankantiles.pop() if ankantiles else tile
-
-            self.kyoku.discards[log.seat].append(AnkanSymbol(ankan_tile.deaka()))
+            self.kyoku.discards[log.seat].append(AnkanSymbol(tuple(ankantiles)))
             self.kyoku.nkan += 1
 
         elif log.type == 2:
             # shouminkan
-            # get pon naki from .draws and swap in new symbol
-            for i, sy in enumerate(self.kyoku.draws[log.seat]):
-                if isinstance(sy, PonSymbol) and (sy.tile == tile or sy.tile == tile.deaka()):
-                    # remove the pon from draws and add kakan to discards
-                    self.kyoku.draws[log.seat].pop(i)
+            # Keep the original pon in the chronological draw stream.
+            for sy in self.kyoku.draws[log.seat]:
+                if isinstance(sy, PonSymbol) and sy.tile.deaka() == tile.deaka():
                     self.kyoku.discards[log.seat].append(KakanSymbol(sy.a, sy.b, sy.tile, tile, sy.feeder_relative))
                     self.kyoku.nkan += 1
                     break

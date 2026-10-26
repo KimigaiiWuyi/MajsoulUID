@@ -141,14 +141,11 @@ class DaiminkanSymbol(NamedTuple):
 
 
 class AnkanSymbol(NamedTuple):
-    tile: Tile
+    tiles: tuple[Tile, ...]
 
     def encode_tenhou(self) -> str:
-        t = self.tile.encode_tenhou()
-        if self.tile.num == 5 and self.tile.type != TileType.Z:
-            return f"{Tile(0, self.tile.type).encode_tenhou()}{t}{t}a{t}"
-        else:
-            return f"{t}{t}{t}a{t}"
+        t = [str(tile.encode_tenhou()) for tile in self.tiles]
+        return f"{''.join(t[:3])}a{t[3]}"
 
 
 class PeSymbol:
@@ -159,7 +156,8 @@ class PeSymbol:
 
 class KakanSymbol(NamedTuple):
     """
-    a, b, c: 手里牌
+    a, b: 原碰牌中手里牌
+    c: 原碰牌中的喂牌
     tile: 加杠牌
     """
 
@@ -175,9 +173,8 @@ class KakanSymbol(NamedTuple):
         t = [
             str(self.a.encode_tenhou()),
             str(self.b.encode_tenhou()),
-            str(self.c.encode_tenhou()),
         ]
-        t.insert(pos, f"k{self.tile.encode_tenhou()}")
+        t.insert(pos, f"k{self.tile.encode_tenhou()}{self.c.encode_tenhou()}")
         return "".join(t)
 
 
@@ -274,9 +271,9 @@ class Yaku:
     id: int
     val: int
 
-    def name(self, round: Round, seat: int) -> str:
+    def name(self, round: Round, seat: int, nplayers: int = 4) -> str:
         if self.id == 10:
-            _b = RUNES[self.WIND[(seat + round.kyoku) % 4]][JPNAME]
+            _b = RUNES[self.WIND[(seat - round.kyoku % 4) % nplayers]][JPNAME]
             return f"{RUNES['jikaze'][JPNAME]} {_b}"
         if self.id == 11:
             _b = RUNES[self.WIND[round.kyoku // 4]][JPNAME]
@@ -358,7 +355,7 @@ class Agari:
             res.append(point)
 
             for e in agari.yaku:
-                name = e.name(self.round, agari.seat)
+                name = e.name(self.round, agari.seat, len(agari.delta))
                 if agari.yakuman:
                     res.append(f"{name}({RUNES['yakuman'][JPNAME]})")
                 else:

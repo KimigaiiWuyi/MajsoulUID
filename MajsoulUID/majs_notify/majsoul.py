@@ -6,7 +6,7 @@ import random
 import asyncio
 import hashlib
 import contextlib
-from typing import Dict, List, Union, Sequence, cast
+from typing import List, Sequence, cast
 
 import httpx2
 import msgspec
@@ -49,6 +49,7 @@ from .constants import (
 from ..utils.map import PROTO_PATH
 from .tenhou.parser import MajsoulPaipuParser
 from .majsoul_friend import MajsoulFriend
+from .paipu_cache import PAIPU_CACHE_VERSION, get_paipu_by_game_id
 from ..utils.api.remote import (
     decode_log_id,
     encode_account_id,
@@ -128,14 +129,6 @@ async def save_paipu(account_id: int, game_uuid: str, category: int, type_name: 
             paipu_type=category,
             paipu_type_name=type_name,
         )
-
-
-async def get_paipu_by_game_id(game_id: str) -> Union[Dict, None]:
-    path = PAIPU_PATH / f"{game_id} - raw.json"
-    if path.exists():
-        async with aiofiles.open(path, "r", encoding="utf-8") as f:
-            data = json.loads(await f.read())
-            return data
 
 
 class MajsoulConnection:
@@ -853,6 +846,7 @@ class MajsoulConnection:
         tenhou_log["game_id"] = game_id
         tenhou_log["log_id"] = log_id
         tenhou_log["target_id"] = target_id
+        tenhou_log["_parser_version"] = PAIPU_CACHE_VERSION
 
         logger.info(f"[Majsoul] target_id: {target_id}")
         logger.info(f"[Majsoul] logs.head.accounts: {logs.head.accounts}")
