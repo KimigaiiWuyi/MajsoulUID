@@ -260,9 +260,9 @@ class MajsoulPaipuParser:
             # chii
             self.kyoku.draws[log.seat].append(
                 ChiSymbol(
-                    Tile.parse(log.tiles[2]),
-                    Tile.parse(log.tiles[0]),
-                    Tile.parse(log.tiles[1]),
+                    a=Tile.parse(log.tiles[0]),
+                    b=Tile.parse(log.tiles[1]),
+                    tile=Tile.parse(log.tiles[2]),
                 )
             )
         elif log.type == 1:
