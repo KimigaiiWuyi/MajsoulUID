@@ -45,8 +45,11 @@ def test_rpc_map_covers_methods_used_by_plugin():
         ".lq.Lobby.oauth2Check",
         ".lq.Lobby.oauth2Login",
         ".lq.Lobby.loginBeat",
+        ".lq.Lobby.loginSuccess",
         ".lq.Lobby.fetchInfo",
         ".lq.Lobby.fetchGameRecord",
+        ".lq.Lobby.readGameRecord",
+        ".lq.Lobby.fetchGameRecordsDetail",
         ".lq.Lobby.fetchServerTime",
         ".lq.Lobby.fetchGameLiveList",
         ".lq.Lobby.fetchMultiAccountBrief",
@@ -56,6 +59,22 @@ def test_rpc_map_covers_methods_used_by_plugin():
         codec = make_codec()
         assert codec.lookup_method(rpc.req) is not None
         assert codec.lookup_method(rpc.resp) is not None
+
+
+def test_encode_record_requests():
+    codec = make_codec()
+    uuid = "261026-ddf54799-c3fa-48b0-99ad-532fefe01536"
+    _, wrapper = unpack_request(codec.encode_request(".lq.Lobby.fetchGameRecordsDetail", {"uuid_list": [uuid]}))
+    assert wrapper.name == ".lq.Lobby.fetchGameRecordsDetail"
+    assert liblq.ReqGameRecordsDetail().parse(wrapper.data).uuid_list == [uuid]
+
+    version = "WebGL_2022-0.16.289"
+    _, wrapper = unpack_request(codec.encode_request(".lq.Lobby.readGameRecord", {"client_version_string": version}))
+    read = liblq.ReqGameRecord().parse(wrapper.data)
+    assert (read.game_uuid, read.client_version_string) == ("", version)
+
+    _, wrapper = unpack_request(codec.encode_request(".lq.Lobby.loginSuccess", {}))
+    assert (wrapper.name, wrapper.data) == (".lq.Lobby.loginSuccess", b"")
 
 
 def test_encode_login_request_keeps_client_fields():

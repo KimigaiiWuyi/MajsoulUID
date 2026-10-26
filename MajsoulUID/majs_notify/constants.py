@@ -21,6 +21,8 @@ class MajsoulRegion:
     gateways: tuple[str, ...]
     # 来自 mall/channel_config 表的 WebGL 渠道
     currency_platforms: tuple[int, ...]
+    # 牌谱 data_url 是相对路径时拼的前缀（docs/config.json 的 prefix_url）
+    record_prefix_url: str = ""
 
 
 REGION_CN = MajsoulRegion(
@@ -35,6 +37,7 @@ REGION_CN = MajsoulRegion(
         "https://route-6.maj-soul.com",
     ),
     currency_platforms=(1, 2, 5, 6, 8, 10, 11),
+    record_prefix_url="https://record-old.maj-soul.com:9443/majsoul/game_record",
 )
 REGION_JP = MajsoulRegion(
     tag="jp",
@@ -50,6 +53,16 @@ REGION_EN = MajsoulRegion(
     gateways=("https://engs.mahjongsoul.com", "https://engsbk.mahjongsoul.com"),
     currency_platforms=(1, 4, 5, 9, 12),
 )
+
+
+# 牌谱接口的错误码，文案取自 MajsoulData 的 info/error 表
+ERR_RECORD_FETCH_LIMIT = 540
+RECORD_ERROR_TEXT = {
+    511: "获取牌谱失败，请稍后重试",
+    540: "超出牌谱拉取限制，请稍后重试",
+    541: "没有该牌谱的查看权限",
+    1203: "这局游戏不存在",
+}
 
 
 def yostar_region(lang: str) -> MajsoulRegion:

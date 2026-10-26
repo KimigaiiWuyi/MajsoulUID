@@ -83,6 +83,8 @@ async def majsoul_review_command(bot: Bot, ev: Event):
             return await bot.send("❌ 未找到有效连接, 请先进行[雀魂推送启动]")
         conn = random.choice(conns)
         tenhou_log = await conn.fetchLogs(desired_string)
+        if isinstance(tenhou_log, str):
+            return await bot.send(f"❌ {tenhou_log}")
     else:
         tenhou_log = await get_paipu_by_game_id(desired_string)
 

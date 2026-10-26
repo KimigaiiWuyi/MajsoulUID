@@ -11,6 +11,7 @@ from typing import Dict, List, Union, Sequence, cast
 import httpx2
 import msgspec
 import aiofiles
+import betterproto
 import websockets.client
 import websockets.exceptions
 
@@ -37,8 +38,10 @@ from .constants import (
     CLIENT_PLATFORM,
     DETAIL_PLATFORM,
     ROUTE_TYPE_MAIN,
+    RECORD_ERROR_TEXT,
     DETAIL_PLATFORM_ID,
     LOGIN_BEAT_CONTRACT,
+    ERR_RECORD_FETCH_LIMIT,
     ModeId2Room,
     MajsoulRegion,
     yostar_region,
@@ -60,6 +63,10 @@ PP_HOST = "https://game.maj-soul.com/1/?paipu="
 TASK_NAME_MAJSOUL_NOTIFY = "订阅雀魂消息推送"
 # 第一次立刻查，之后逐次拉长间隔，总共等一分多钟
 GAME_RECORD_RETRY_DELAYS = (0, 3, 5, 10, 20, 30)
+# 牌谱接口有拉取限额（540），和牌谱屋爬虫一样两次之间至少隔 1 秒
+RECORD_FETCH_INTERVAL = 1.0
+# 同一局的结果留这么久，几个好友同局时只查一次
+GAME_HEAD_CACHE_SECONDS = 600
 
 # 两份文件都由 utils/proto/update_proto.py 从 MajsoulData 生成
 RPC_MAP = msgspec.json.decode((PROTO_PATH / "liqi.json").read_bytes(), type=dict[str, MajsoulRpc])
@@ -109,6 +116,10 @@ def describe_game(game: liblq.AccountPlayingGame) -> tuple[int, str, str]:
     return category, type_name, room_name or type_name
 
 
+def record_error_text(code: int) -> str:
+    return RECORD_ERROR_TEXT[code] if code in RECORD_ERROR_TEXT else f"获取牌谱失败（错误码 {code}）"
+
+
 async def save_paipu(account_id: int, game_uuid: str, category: int, type_name: str) -> None:
     if not await MajsPaipu.data_exist(uuid=game_uuid):
         await MajsPaipu.insert_data(
@@ -154,6 +165,9 @@ class MajsoulConnection:
         self.friend_apply_list: list[int] = []
         # 好友 id → (等待中的上下线推送, 开始抖动前的在线状态)
         self._online_pending: dict[int, tuple[asyncio.Task[None], bool]] = {}
+        self._record_lock = asyncio.Lock()
+        self._last_record_fetch = 0.0
+        self._game_heads: dict[str, asyncio.Task[liblq.RecordGame | None]] = {}
         self.random_key = device_id
         self.login_type = login_type
 
@@ -373,20 +387,20 @@ class MajsoulConnection:
         url = f"{PP_HOST}{game_uuid}_a{encode_account_id(account_id)}"
         msg = f"{friend.nickname} 结束了在 {place} 的对局\n"
 
-        record = await self.fetch_game_record(game_uuid)
-        if record is None:
+        head = await self.fetch_game_head(game_uuid)
+        if head is None:
             if account_id not in self.friends:
                 return
             # 中途掉线也会清空 playing：人还离线或已回到这局，就是还没打完
             current = self.friends[account_id]
             if not current.is_online or current.playing.game_uuid == game_uuid:
                 return
-            await self.send_msg_to_user(str(account_id), f"{msg}获取牌谱失败\n对局牌谱:{url}")
+            await self.send_msg_to_user(str(account_id), f"{msg}获取对局结果失败\n对局牌谱:{url}")
             return
 
-        players = record.head.result.players
+        players = head.result.players
         friend_seat, level_id, level_score = 0, 0, 0
-        for account in record.head.accounts:
+        for account in head.accounts:
             if account.account_id == account_id:
                 level = account.level3 if len(players) == 3 else account.level
                 friend_seat, level_id, level_score = account.seat, level.id, level.score
@@ -401,19 +415,62 @@ class MajsoulConnection:
         msg += f"对局牌谱:{url}"
         await self.send_msg_to_user(str(account_id), msg)
 
-    async def fetch_game_record(self, game_uuid: str) -> liblq.ResGameRecord | None:
-        # 刚结束的对局服务端要过几秒才查得到牌谱
+    async def record_call(self, method_name: str, payload: dict[str, str | list[str]]) -> betterproto.Message:
+        async with self._record_lock:
+            wait = self._last_record_fetch + RECORD_FETCH_INTERVAL - time.monotonic()
+            if wait > 0:
+                await asyncio.sleep(wait)
+            resp = await self.rpc_call(method_name, payload)
+            self._last_record_fetch = time.monotonic()
+            return resp
+
+    async def fetch_game_head(self, game_uuid: str) -> liblq.RecordGame | None:
+        if game_uuid not in self._game_heads:
+            self._game_heads[game_uuid] = asyncio.create_task(self.query_game_head(game_uuid))
+            loop = asyncio.get_running_loop()
+            loop.call_later(GAME_HEAD_CACHE_SECONDS, self._game_heads.pop, game_uuid, None)
+        # shield：一个好友的处理被取消时，别把其他人共用的查询一起取消
+        return await asyncio.shield(self._game_heads[game_uuid])
+
+    async def query_game_head(self, game_uuid: str) -> liblq.RecordGame | None:
+        # 推送只要名次和点数，用牌谱屋同款的 fetchGameRecordsDetail，不拉整局牌谱
         for delay in GAME_RECORD_RETRY_DELAYS:
             await asyncio.sleep(delay)
-            resp = await self.rpc_call(
-                ".lq.Lobby.fetchGameRecord",
-                {"game_uuid": game_uuid, "client_version_string": self.clientVersionString},
-            )
-            if isinstance(resp, liblq.ResGameRecord) and not resp.error.code:
-                return resp
-            logger.warning(f"[majs] 获取牌谱 {game_uuid} 失败: {resp}")
-        logger.error(f"[majs] 获取牌谱 {game_uuid} 重试 {len(GAME_RECORD_RETRY_DELAYS)} 次仍失败")
+            resp = await self.record_call(".lq.Lobby.fetchGameRecordsDetail", {"uuid_list": [game_uuid]})
+            if not isinstance(resp, liblq.ResGameRecordsDetail):
+                logger.warning(f"[majs] 获取对局结果 {game_uuid} 返回异常: {resp}")
+                continue
+            if resp.error.code:
+                logger.warning(f"[majs] 获取对局结果 {game_uuid} 失败: {resp.error}")
+                if resp.error.code == ERR_RECORD_FETCH_LIMIT:
+                    return None
+                continue
+            for record in resp.record_list:
+                if record.uuid == game_uuid:
+                    return record
+            logger.info(f"[majs] 对局结果 {game_uuid} 还没生成")
+        logger.error(f"[majs] 获取对局结果 {game_uuid} 重试 {len(GAME_RECORD_RETRY_DELAYS)} 次仍失败")
         return None
+
+    async def download_record_data(self, data_url: str) -> bytes:
+        if not data_url:
+            return b""
+        # 客户端 UI_PaiPuNew.ReplaceUrl：不是 http 开头就拼上 prefix_url
+        if not data_url.startswith("http"):
+            if not self._region.record_prefix_url:
+                logger.warning(f"[majs] {self._region.tag} 服没有牌谱前缀，无法下载 {data_url}")
+                return b""
+            data_url = self._region.record_prefix_url + data_url
+        try:
+            async with httpx2.AsyncClient(headers={"User-Agent": USER_AGENT}, timeout=30) as client:
+                resp = await client.get(data_url)
+        except httpx2.HTTPError as e:
+            logger.warning(f"[majs] 下载牌谱数据失败 {data_url}: {e!r}")
+            return b""
+        if resp.status_code != 200:
+            logger.warning(f"[majs] 下载牌谱数据失败 {data_url}: HTTP {resp.status_code}")
+            return b""
+        return resp.content
 
     async def handle_FriendViewChange(self, notify: MajsoulDecodedMessage):
         data = cast(liblq.NotifyFriendViewChange, notify.payload)
@@ -594,6 +651,15 @@ class MajsoulConnection:
         if not isinstance(resp, liblq.ResCommon) or resp.error.code:
             logger.warning(f"[majs] loginBeat 失败: {resp}")
 
+    async def finish_login(self) -> None:
+        # 对齐客户端 UI_Entrance:OnLoginSuccess：先 loginBeat，有昵称的号再报 loginSuccess
+        await self.login_beat()
+        if not self.nick_name:
+            return
+        resp = await self.rpc_call(".lq.Lobby.loginSuccess", {})
+        if not isinstance(resp, liblq.ResCommon) or resp.error.code:
+            logger.warning(f"[majs] loginSuccess 失败: {resp}")
+
     async def oauth2_check(self, login_type: int, access_token: str) -> bool:
         for retry in range(2):
             if retry:
@@ -622,7 +688,7 @@ class MajsoulConnection:
         self.account_id = resp.account_id
         self.nick_name = resp.account.nickname
 
-        await self.login_beat()
+        await self.finish_login()
         logger.info("Connection ready")
         self.access_token = access_token
 
@@ -664,7 +730,7 @@ class MajsoulConnection:
 
         self.manual_login_username = username
         self.manual_login_password = password
-        await self.login_beat()
+        await self.finish_login()
         logger.info("Connection ready")
         return self.account_id, self.access_token
 
@@ -745,17 +811,22 @@ class MajsoulConnection:
             else:
                 target_id = int(seps[1])
 
-        logs = cast(
-            liblq.ResGameRecord,
-            await self.rpc_call(
-                ".lq.Lobby.fetchGameRecord",
-                {
-                    "game_uuid": log_id,
-                    "client_version_string": self.clientVersionString,
-                },
-            ),
+        logs = await self.record_call(
+            ".lq.Lobby.fetchGameRecord",
+            {"game_uuid": log_id, "client_version_string": self.clientVersionString},
         )
-        detail_records = liblq.Wrapper().parse(logs.data)
+        if not isinstance(logs, liblq.ResGameRecord):
+            logger.warning(f"[majs] 获取牌谱 {log_id} 返回异常: {logs}")
+            return record_error_text(511)
+        if logs.error.code:
+            logger.warning(f"[majs] 获取牌谱 {log_id} 失败: {logs.error}")
+            return record_error_text(logs.error.code)
+        # 客户端拉到牌谱后都会补一句 readGameRecord（GameMgr:CheckPaiPu）
+        await self.rpc_call(".lq.Lobby.readGameRecord", {"client_version_string": self.clientVersionString})
+        record_data = logs.data or await self.download_record_data(logs.data_url)
+        if not record_data:
+            return "牌谱数据下载失败，请稍后重试"
+        detail_records = liblq.Wrapper().parse(record_data)
 
         payload = liblq.GameDetailRecords().parse(detail_records.data)
 
