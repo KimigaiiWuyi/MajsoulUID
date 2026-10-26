@@ -1,16 +1,17 @@
-from pathlib import Path
 from typing import List, Union
+from pathlib import Path
 
 from PIL import Image, ImageDraw
+
 from gsuid_core.logger import logger
+from gsuid_core.utils.fonts.fonts import core_font as majs_font
 from gsuid_core.utils.image.convert import convert_img
 from gsuid_core.utils.image.image_tools import crop_center_img
-from gsuid_core.utils.fonts.fonts import core_font as majs_font
 
 from ._level import MajsoulLevel
 from ..utils.map import BIGHEAD_PATH, lqc
-from .majsoul_friend import MajsoulFriend
 from ..utils.image import get_bg, add_footer
+from .majsoul_friend import MajsoulFriend
 from ..majs_info.draw_majs_info_pic import draw_title, get_rank_img
 
 TEXT_PATH = Path(__file__).parent / "texture2d"
@@ -69,9 +70,7 @@ async def draw_friend_rank_img(friends: List[MajsoulFriend], mode: str = "4"):
             level = friend.level3
             score = level.formatAdjustedScore(friend.level3_score)
 
-        bar = await draw_bar(
-            friend.avatar_id, friend.nickname, level, score, mode
-        )
+        bar = await draw_bar(friend.avatar_id, friend.nickname, level, score, mode)
 
         img.paste(bar, (0, 538 + index * 153), bar)
 

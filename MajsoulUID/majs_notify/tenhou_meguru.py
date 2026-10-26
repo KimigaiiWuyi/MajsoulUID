@@ -61,9 +61,7 @@ class MeguruLog:
         self.result = log[-1]
         self.dora_list = log[2]
         self.uradora_list = log[3]
-        self.player_state = [
-            [log[4 + i * 3], log[5 + i * 3], log[6 + i * 3]] for i in range(4)
-        ]
+        self.player_state = [[log[4 + i * 3], log[5 + i * 3], log[6 + i * 3]] for i in range(4)]
         self.frame = []
 
     def process(self):

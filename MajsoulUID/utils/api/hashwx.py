@@ -11,6 +11,7 @@ from pathlib import Path
 from collections.abc import Sequence
 
 import wasmtime
+
 from gsuid_core.pool import to_thread
 
 _WASM_PATH = Path(__file__).parent / "hashwx.wasm"
@@ -52,11 +53,7 @@ class HashwxError(Exception):
 @functools.cache
 def _compiled() -> tuple[wasmtime.Engine, wasmtime.Module, wasmtime.Module]:
     engine = wasmtime.Engine()
-    return (
-        engine,
-        wasmtime.Module.from_file(engine, _WASM_PATH),
-        wasmtime.Module(engine, _DRIVER_WAT),
-    )
+    return engine, wasmtime.Module.from_file(engine, _WASM_PATH), wasmtime.Module(engine, _DRIVER_WAT)
 
 
 class _Instance:
@@ -69,9 +66,7 @@ class _Instance:
         imports: Sequence[wasmtime.Func | wasmtime.Memory],
     ) -> None:
         self._store = store
-        self._exports = wasmtime.Instance(store, module, imports).exports(
-            store
-        )
+        self._exports = wasmtime.Instance(store, module, imports).exports(store)
 
     def func(self, name: str) -> wasmtime.Func:
         export = self._exports[name]
@@ -112,35 +107,18 @@ def solve_hashwx(c_hex: str, d: int, n: int) -> int:
     challenge = bytes.fromhex(c_hex)
     target = _U64_MAX // d
     for block in range(_MAX_BLOCKS):
-        memory.write(
-            store,
-            hashlib.sha256(challenge + block.to_bytes(8, "little")).digest(),
-            seed_ptr,
-        )
+        memory.write(store, hashlib.sha256(challenge + block.to_bytes(8, "little")).digest(), seed_ptr)
         hx.func("hashwx_make")(store, ctx, seed_ptr)
         # 每个 seed 会生成一段新的哈希函数 wasm，编译后接进 driver
         code_ptr = hx.call("hashwx_module", ctx)
-        code = bytes(
-            memory.read(
-                store, code_ptr, code_ptr + hx.call("hashwx_module_size", ctx)
-            )
-        )
-        side = _Instance(store, wasmtime.Module(engine, code), [memory]).func(
-            "exec"
-        )
+        code = bytes(memory.read(store, code_ptr, code_ptr + hx.call("hashwx_module_size", ctx)))
+        side = _Instance(store, wasmtime.Module(engine, code), [memory]).func("exec")
         driver = _Instance(
             store,
             driver_module,
-            [
-                memory,
-                hx.func("hashwx_exec_begin"),
-                hx.func("hashwx_exec_final"),
-                side,
-            ],
+            [memory, hx.func("hashwx_exec_begin"), hx.func("hashwx_exec_final"), side],
         )
-        nonce = driver.call(
-            "search", ctx, reg_ptr, mem_ptr, block * n, n, target
-        )
+        nonce = driver.call("search", ctx, reg_ptr, mem_ptr, block * n, n, target)
         if nonce >= 0:
             return nonce
     raise HashwxError(f"超过 {_MAX_BLOCKS} 个 block 仍未解出")

@@ -32,15 +32,11 @@ async def resolve_bind_uid(raw: str) -> BindTarget:
 
     code_uid = decode_friend_code(int(raw))
     # 已是机器人好友的那种读法基本就是对的，不必再查、也不必再提示另一种读法
-    friends = {
-        aid: f for c in manager.get_all_conn() for aid, f in c.friends.items()
-    }
+    friends = {aid: f for c in manager.get_all_conn() for aid, f in c.friends.items()}
     if int(raw) in friends:
         return BindTarget(raw, friends[int(raw)].nickname, "")
     if code_uid in friends:
-        return BindTarget(
-            str(code_uid), friends[code_uid].nickname, _converted(raw)
-        )
+        return BindTarget(str(code_uid), friends[code_uid].nickname, _converted(raw))
 
     try:
         as_uid = await _nickname(conn, int(raw))
@@ -60,8 +56,4 @@ async def resolve_bind_uid(raw: str) -> BindTarget:
         return BindTarget(str(code_uid), as_code, _converted(raw))
     if as_uid:
         return BindTarget(raw, as_uid, "")
-    return BindTarget(
-        raw,
-        None,
-        f"\n账号池没查到这个 UID，可能不在同一个服，也可能填成了好友码。{SEARCH_TIP}",
-    )
+    return BindTarget(raw, None, f"\n账号池没查到这个 UID，可能不在同一个服，也可能填成了好友码。{SEARCH_TIP}")

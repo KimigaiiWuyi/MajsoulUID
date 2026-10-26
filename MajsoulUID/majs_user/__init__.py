@@ -1,12 +1,12 @@
 from gsuid_core.sv import SV
 from gsuid_core.bot import Bot
 from gsuid_core.models import Event
-from gsuid_core.message_models import Button
 from gsuid_core.utils.message import send_diff_msg
+from gsuid_core.message_models import Button
 
-from ..utils.database.models import MajsBind
-from .search_player import search_player_with_name
 from .resolve_uid import FRIEND_CODE_TIP, resolve_bind_uid
+from .search_player import search_player_with_name
+from ..utils.database.models import MajsBind
 
 majs_user_bind = SV("雀魂用户绑定")
 
@@ -28,9 +28,7 @@ async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
     uid = ev.text.strip()
 
     if not uid and "绑定" in ev.command:
-        return await bot.send(
-            f"要带上你的雀魂 UID，例如[雀魂绑定uid1148850]{FRIEND_CODE_TIP}"
-        )
+        return await bot.send(f"要带上你的雀魂 UID，例如[雀魂绑定uid1148850]{FRIEND_CODE_TIP}")
 
     await bot.logger.info("[Majs] 开始执行[绑定/解绑用户信息]")
     qid = ev.user_id
@@ -58,16 +56,8 @@ async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
         others = [i for i in uid_list if i != uid] if uid_list else []
         if others:
             await MajsBind.switch_uid_by_game(qid, ev.bot_id, uid)
-        head = (
-            f"[Majs] 绑定UID{uid}{who}成功！"
-            if data == 0
-            else f"[Majs] UID{uid}{who}已经绑定过了，现在切换为它"
-        )
-        tail = (
-            f"\n你还绑过 {'、'.join(others)}，不要的话用[雀魂删除uid{others[0]}]"
-            if others
-            else ""
-        )
+        head = f"[Majs] 绑定UID{uid}{who}成功！" if data == 0 else f"[Majs] UID{uid}{who}已经绑定过了，现在切换为它"
+        tail = f"\n你还绑过 {'、'.join(others)}，不要的话用[雀魂删除uid{others[0]}]" if others else ""
         return await bot.send(head + target.note + tail)
     elif "切换" in ev.command:
         retcode = await MajsBind.switch_uid_by_game(qid, ev.bot_id, uid)
@@ -76,9 +66,7 @@ async def send_majs_bind_uid_msg(bot: Bot, ev: Event):
         elif retcode == -3:
             now_uid = await MajsBind.get_uid_by_game(qid, ev.bot_id)
             if now_uid:
-                return await bot.send(
-                    f"[Majs] 你目前只绑定了一个UID{now_uid}, 无法切换!"
-                )
+                return await bot.send(f"[Majs] 你目前只绑定了一个UID{now_uid}, 无法切换!")
             else:
                 return await bot.send("[Majs] 你尚未绑定任何UID, 无法切换!")
         else:
