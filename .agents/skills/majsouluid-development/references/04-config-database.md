@@ -11,6 +11,9 @@
 | `UseFlowerHistory` | 战绩历史用花图 |
 | `MajsIsPushActiveToMaster` | 订阅信息是否抄送推送对象 |
 | `MajsFriendPushBotId` / `Type` / `ID` | 账号池元信息推送渠道 |
+| `MajsPushOnlineState` | 推送好友上下线（默认开） |
+| `MajsOnlineStateDelay` | 上下线状态保持多少秒没变才推送（默认 120） |
+| `MajsPushGameStart` | 推送对局开始（默认关；对局结束总会推） |
 | `MajsIsAutoApplyFriend` | 自动同意好友 |
 | `MajsReviewToken` | Mjai |
 | `MajsReviewEngine` | Tenhou / Mjai |

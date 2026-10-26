@@ -58,6 +58,8 @@ from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 TASK_NAME_MAJSOUL_NOTIFY = "订阅雀魂消息推送"
+# 第一次立刻查，之后逐次拉长间隔，总共等一分多钟
+GAME_RECORD_RETRY_DELAYS = (0, 3, 5, 10, 20, 30)
 
 # 两份文件都由 utils/proto/update_proto.py 从 MajsoulData 生成
 RPC_MAP = msgspec.json.decode((PROTO_PATH / "liqi.json").read_bytes(), type=dict[str, MajsoulRpc])
@@ -89,6 +91,32 @@ def process_dict(obj):
     else:
         logger.warning(f"Unsupported type: {type(obj)}")
         return str(obj)
+
+
+def describe_game(game: liblq.AccountPlayingGame) -> tuple[int, str, str]:
+    """返回 (牌谱类型, 类型名, 推送里显示的场次名)。"""
+    category = game.category
+    if category == 1:
+        type_name = "歹人场"
+    elif category == 2:
+        type_name = "段位场"
+    elif category == 4:
+        type_name = "比赛场"
+    else:
+        type_name = "未知牌谱类型"
+    mode_id = game.meta.mode_id
+    room_name = ModeId2Room[mode_id] if mode_id in ModeId2Room else ""
+    return category, type_name, room_name or type_name
+
+
+async def save_paipu(account_id: int, game_uuid: str, category: int, type_name: str) -> None:
+    if not await MajsPaipu.data_exist(uuid=game_uuid):
+        await MajsPaipu.insert_data(
+            account_id=str(account_id),
+            uuid=game_uuid,
+            paipu_type=category,
+            paipu_type_name=type_name,
+        )
 
 
 async def get_paipu_by_game_id(game_id: str) -> Union[Dict, None]:
@@ -124,6 +152,8 @@ class MajsoulConnection:
         # 增删一律换新 dict：好友状态推送会在 await 中途遍历它
         self.friends: dict[int, MajsoulFriend] = {}
         self.friend_apply_list: list[int] = []
+        # 好友 id → (等待中的上下线推送, 开始抖动前的在线状态)
+        self._online_pending: dict[int, tuple[asyncio.Task[None], bool]] = {}
         self.random_key = device_id
         self.login_type = login_type
 
@@ -291,170 +321,99 @@ class MajsoulConnection:
         await self.send_meta(meta_msg)
 
     async def handle_FriendStateChange(self, notify: MajsoulDecodedMessage):
-        def get_playing(
-            active_state: liblq.AccountActiveState | liblq.AccountPlayingGame,
-        ):
-            if isinstance(active_state, liblq.AccountActiveState):
-                category = active_state.playing.category
-                mode_id = active_state.playing.meta.mode_id
-            elif isinstance(active_state, liblq.AccountPlayingGame):
-                category = active_state.category
-                mode_id = active_state.meta.mode_id
-            else:
-                err = "only accept AccountActiveState or AccountPlayingGame"
-                raise ValueError(err)
+        data = notify.payload
+        if not isinstance(data, liblq.NotifyFriendStateChange) or data.target_id not in self.friends:
+            return
+        friend = self.friends[data.target_id]
+        state = data.active_state
+        was_online = friend.is_online
+        old_game = friend.playing
+        # 先落状态：拉牌谱要等几十秒，期间到达的推送得拿新状态去比
+        friend.change_state(state)
 
-            if category == 1:
-                type_name = "歹人场"
-            elif category == 2:
-                type_name = "段位场"
-            elif category == 4:
-                type_name = "比赛场"
-            else:
-                type_name = "未知牌谱类型"
-            return category, type_name, mode_id
+        if state.is_online != was_online:
+            self.schedule_online_push(friend.account_id, was_online)
+        new_uuid = state.playing.game_uuid
+        if old_game.game_uuid and old_game.game_uuid != new_uuid:
+            await self.on_game_end(friend, old_game)
+        if new_uuid and new_uuid != old_game.game_uuid:
+            await self.on_game_start(friend, state.playing)
 
-        data = cast(liblq.NotifyFriendStateChange, notify.payload)
-        target_user = data.target_id
-        active_state = data.active_state
-        msg = ""
-        for friend in self.friends.values():
-            if friend.account_id == target_user:
-                nick_name = friend.nickname
-                # find what changed
-                if active_state.is_online and not friend.is_online:
-                    msg = f"{nick_name} 上线了"
-                elif not active_state.is_online and friend.is_online:
-                    msg = f"{nick_name} 下线了"
+    def schedule_online_push(self, account_id: int, was_online: bool) -> None:
+        if not MAJS_CONFIG.get_config("MajsPushOnlineState").data:
+            return
+        if account_id in self._online_pending:
+            # 还在抖动：取消上一次等待，基准仍是第一次变化前的状态
+            task, was_online = self._online_pending[account_id]
+            task.cancel()
+        task = asyncio.create_task(self.push_online_state(account_id, was_online))
+        self._online_pending[account_id] = (task, was_online)
 
-                # if active_state have playing
-                active_uuid = active_state.playing.game_uuid
-                if active_uuid and not friend.playing.game_uuid:
-                    category, type_name, mode_id = get_playing(active_state)
+    async def push_online_state(self, account_id: int, was_online: bool) -> None:
+        # 掉线重连会在几秒内连发下线、上线，状态稳定一段时间后再推
+        await asyncio.sleep(MAJS_CONFIG.get_config("MajsOnlineStateDelay").data)
+        del self._online_pending[account_id]
+        if account_id not in self.friends or self.friends[account_id].is_online == was_online:
+            return
+        friend = self.friends[account_id]
+        msg = f"{friend.nickname} 上线了" if friend.is_online else f"{friend.nickname} 下线了"
+        await self.send_msg_to_user(str(account_id), msg)
 
-                    room_name = ModeId2Room.get(mode_id, "")
-                    if room_name:
-                        msg = f"{nick_name} 开始了在 {room_name} 的对局\n"
-                    else:
-                        msg = f"{nick_name} 开始了在 {type_name} 的对局\n"
-                    msg += f"对局id: {active_state.playing.game_uuid}"
-                    # save game_uuid
-                    if not await MajsPaipu.data_exist(uuid=active_uuid):
-                        await MajsPaipu.insert_data(
-                            account_id=str(friend.account_id),
-                            uuid=active_uuid,
-                            paipu_type=category,
-                            paipu_type_name=type_name,
-                        )
+    async def on_game_start(self, friend: MajsoulFriend, game: liblq.AccountPlayingGame) -> None:
+        category, type_name, place = describe_game(game)
+        await save_paipu(friend.account_id, game.game_uuid, category, type_name)
+        if MAJS_CONFIG.get_config("MajsPushGameStart").data:
+            await self.send_msg_to_user(str(friend.account_id), f"{friend.nickname} 开始了在 {place} 的对局")
 
-                elif not active_state.playing and friend.playing:
-                    category, type_name, mode_id = get_playing(friend.playing)
+    async def on_game_end(self, friend: MajsoulFriend, game: liblq.AccountPlayingGame) -> None:
+        category, type_name, place = describe_game(game)
+        account_id = friend.account_id
+        game_uuid = game.game_uuid
+        await save_paipu(account_id, game_uuid, category, type_name)
+        url = f"{PP_HOST}{game_uuid}_a{encode_account_id(account_id)}"
+        msg = f"{friend.nickname} 结束了在 {place} 的对局\n"
 
-                    mode_id = friend.playing.meta.mode_id
-                    room_name = ModeId2Room.get(mode_id, "")
-                    if room_name:
-                        msg = f"{nick_name} 结束了在 {room_name} 的对局\n"
-                    else:
-                        msg = f"{nick_name} 结束了在 {type_name} 的对局\n"
-                    uuid = friend.playing.game_uuid
-                    encode_aid = encode_account_id(friend.account_id)
-                    url = f"{PP_HOST}{uuid}_a{encode_aid}"
+        record = await self.fetch_game_record(game_uuid)
+        if record is None:
+            if account_id not in self.friends:
+                return
+            # 中途掉线也会清空 playing：人还离线或已回到这局，就是还没打完
+            current = self.friends[account_id]
+            if not current.is_online or current.playing.game_uuid == game_uuid:
+                return
+            await self.send_msg_to_user(str(account_id), f"{msg}获取牌谱失败\n对局牌谱:{url}")
+            return
 
-                    # check 三麻 or 四麻
-                    is_sanma = False
-                    if "三" in room_name:
-                        is_sanma = True
+        players = record.head.result.players
+        friend_seat, level_id, level_score = 0, 0, 0
+        for account in record.head.accounts:
+            if account.account_id == account_id:
+                level = account.level3 if len(players) == 3 else account.level
+                friend_seat, level_id, level_score = account.seat, level.id, level.score
+                break
+        for rank, player in enumerate(players, 1):
+            if player.seat == friend_seat:
+                msg += f"排名:{rank} 最终打点:{player.part_point_1} 得点:{player.grading_score}\n"
+                if category == 2:
+                    level_info = MajsoulLevel(level_id).formatAdjustedScoreWithTag(level_score + player.grading_score)
+                    msg += f"当前段位:{level_info}\n"
+                break
+        msg += f"对局牌谱:{url}"
+        await self.send_msg_to_user(str(account_id), msg)
 
-                    cvs = self.clientVersionString
-                    game_record = cast(
-                        liblq.ResGameRecord,
-                        await self.rpc_call(
-                            ".lq.Lobby.fetchGameRecord",
-                            {
-                                "game_uuid": uuid,
-                                "client_version_string": cvs,
-                            },
-                        ),
-                    )
-
-                    # check if game_record is valid
-                    if game_record.error.code:
-                        # check is_online before send message
-                        if not active_state.is_online:
-                            friend.change_state(active_state)
-                            if not await MajsPaipu.data_exist(uuid=active_uuid):
-                                await MajsPaipu.insert_data(
-                                    account_id=str(friend.account_id),
-                                    uuid=active_uuid,
-                                    paipu_type=category,
-                                    paipu_type_name=type_name,
-                                )
-                            return
-                        logger.error(f"获取牌谱失败: {game_record.error}, retrying")
-                        # sleep 1s
-                        await asyncio.sleep(1)
-                        # retry 1 time
-                        cvs = self.clientVersionString
-                        game_record = cast(
-                            liblq.ResGameRecord,
-                            await self.rpc_call(
-                                ".lq.Lobby.fetchGameRecord",
-                                {
-                                    "game_uuid": uuid,
-                                    "client_version_string": cvs,
-                                },
-                            ),
-                        )
-                        if game_record.error.code:
-                            logger.error(f"获取牌谱失败: {game_record.error}")
-                            msg += "获取牌谱失败\n"
-                            msg += f"对局id: {uuid}"
-                            msg += f"对局牌谱:{url}"
-                            friend.change_state(active_state)
-                            await self.send_msg_to_user(str(target_user), msg)
-                            continue
-
-                    accounts = game_record.head.accounts
-                    friend_seat = 0
-                    friend_level_id = 0
-                    friend_score = 0
-                    for account in accounts:
-                        if account.account_id == friend.account_id:
-                            friend_seat = account.seat
-                            if is_sanma:
-                                friend_level_id = account.level3.id
-                                friend_score = account.level3.score
-                            else:
-                                friend_level_id = account.level.id
-                                friend_score = account.level.score
-                            break
-                    record_result = game_record.head.result.players
-                    for i, player in enumerate(record_result):
-                        if player.seat == friend_seat:
-                            msg += f"排名:{i + 1} "
-                            msg += f"最终打点:{player.part_point_1} "
-                            msg += f"得点:{player.grading_score}\n"
-
-                            if category == 2:
-                                level_info = MajsoulLevel(friend_level_id).formatAdjustedScoreWithTag(
-                                    friend_score + player.grading_score
-                                )
-                                msg += f"当前段位:{level_info}\n"
-                            break
-
-                    msg += f"对局牌谱:{url}"
-                    if not await MajsPaipu.data_exist(uuid=active_uuid):
-                        await MajsPaipu.insert_data(
-                            account_id=str(friend.account_id),
-                            uuid=active_uuid,
-                            paipu_type=category,
-                            paipu_type_name=type_name,
-                        )
-
-                # set friend state
-                friend.change_state(active_state)
-        if msg:
-            await self.send_msg_to_user(str(target_user), msg)
+    async def fetch_game_record(self, game_uuid: str) -> liblq.ResGameRecord | None:
+        # 刚结束的对局服务端要过几秒才查得到牌谱
+        for delay in GAME_RECORD_RETRY_DELAYS:
+            await asyncio.sleep(delay)
+            resp = await self.rpc_call(
+                ".lq.Lobby.fetchGameRecord",
+                {"game_uuid": game_uuid, "client_version_string": self.clientVersionString},
+            )
+            if isinstance(resp, liblq.ResGameRecord) and not resp.error.code:
+                return resp
+            logger.warning(f"[majs] 获取牌谱 {game_uuid} 失败: {resp}")
+        logger.error(f"[majs] 获取牌谱 {game_uuid} 重试 {len(GAME_RECORD_RETRY_DELAYS)} 次仍失败")
+        return None
 
     async def handle_FriendViewChange(self, notify: MajsoulDecodedMessage):
         data = cast(liblq.NotifyFriendViewChange, notify.payload)

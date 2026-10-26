@@ -7,6 +7,9 @@
 `majs_notify/majsoul.py` 维持连接。观战/终局通过 `gs_subscribe.get_subscribe` 找到订阅者再 `target_send`。
 任务名：`TASK_NAME_MAJSOUL_NOTIFY`、用户侧「雀魂观战订阅」。
 
+好友状态推送在 `handle_FriendStateChange`：先更新好友状态再处理。对局结束后 `fetch_game_record`
+按 `GAME_RECORD_RETRY_DELAYS` 重试，刚结束的对局要过几秒才查得到牌谱。
+
 维护：`MajsoulMaintenanceError`。推送对象还可按配置抄送给主人（`MajsIsPushActiveToMaster` + bot_id/type/id）。
 
 ## Review

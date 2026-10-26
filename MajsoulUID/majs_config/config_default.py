@@ -3,6 +3,7 @@ from typing import Dict, List
 from gsuid_core.config import core_config
 from gsuid_core.utils.plugins_config.models import (
     GSC,
+    GsIntConfig,
     GsStrConfig,
     GsBoolConfig,
 )
@@ -41,6 +42,22 @@ CONFIG_DEFAULT: Dict[str, GSC] = {
         "账号池信息推送号码",
         "用于设置默认推送对象",
         defalut_id,
+    ),
+    "MajsPushOnlineState": GsBoolConfig(
+        "推送好友上下线",
+        "关闭后不再推送好友上线 / 下线",
+        True,
+    ),
+    "MajsOnlineStateDelay": GsIntConfig(
+        "上下线推送等待秒数",
+        "上下线状态保持这么久没变才推送, 掉线马上重连不会刷屏",
+        120,
+        1800,
+    ),
+    "MajsPushGameStart": GsBoolConfig(
+        "推送对局开始",
+        "开启后好友开始对局时也推送一条, 对局结束总会推送",
+        False,
     ),
     "MajsIsAutoApplyFriend": GsBoolConfig(
         "账号池是否自动同意添加好友",
