@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 
-USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-)
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 
 # 以下取值对齐 Unity WebGL 客户端（Lua: GameUtility / LoginMgr / NetRoute）
 CLIENT_PLATFORM = "WebGL"
@@ -43,14 +41,20 @@ REGION_JP = MajsoulRegion(
     tag="jp",
     web_url="https://game.mahjongsoul.com/",
     route_lang="jp",
-    gateways=("https://jpgs.mahjongsoul.com", "https://jpgsbk.mahjongsoul.com"),
+    gateways=(
+        "https://jpgs.mahjongsoul.com",
+        "https://jpgsbk.mahjongsoul.com",
+    ),
     currency_platforms=(1, 3, 5, 9, 12),
 )
 REGION_EN = MajsoulRegion(
     tag="en",
     web_url="https://mahjongsoul.game.yo-star.com/",
     route_lang="en",
-    gateways=("https://engs.mahjongsoul.com", "https://engsbk.mahjongsoul.com"),
+    gateways=(
+        "https://engs.mahjongsoul.com",
+        "https://engsbk.mahjongsoul.com",
+    ),
     currency_platforms=(1, 4, 5, 9, 12),
 )
 

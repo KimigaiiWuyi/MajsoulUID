@@ -8,9 +8,9 @@
 
 import io
 import json
-from typing import TypedDict, NotRequired
 from pathlib import Path
 from urllib.parse import urljoin
+from typing import TypedDict, NotRequired
 
 import httpx2
 import UnityPy
@@ -25,9 +25,7 @@ SKIN_URL = "https://raw.githubusercontent.com/Avenshy/MajsoulData/{tag}/data/tab
 CLIENT_SETTINGS_URL = "https://game.maj-soul.com/assetbundles/clientBundleSettings/chs_t-release.json"
 TEXTURE_PROFILES = ("ASTC", "DXT")
 BIGHEAD_SIZE = (128, 128)
-USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-)
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 
 UnityPy.config.FALLBACK_UNITY_VERSION = "2022.3.62f2c1"
 
@@ -79,7 +77,13 @@ def join_url(base: str, path: str) -> str:
 
 
 def pick_url(entries: list[UrlEntry]) -> str:
-    best = max(entries, key=lambda e: (e["Priority"] if "Priority" in e else 0, e["weight"] if "weight" in e else 0))
+    best = max(
+        entries,
+        key=lambda e: (
+            e["Priority"] if "Priority" in e else 0,
+            e["weight"] if "weight" in e else 0,
+        ),
+    )
     return best["url"]
 
 
@@ -104,9 +108,13 @@ def bighead_asset_paths(skin: SkinInfo) -> list[str]:
 
 
 def resolve_profile_url(client: httpx2.Client) -> str:
-    settings: ClientSettings = client.get(CLIENT_SETTINGS_URL).raise_for_status().json()
+    settings: ClientSettings = (
+        client.get(CLIENT_SETTINGS_URL).raise_for_status().json()
+    )
     warehouse = settings["warehouses"][0]
-    warehouse_url = join_url(pick_url(warehouse["urls"]), warehouse["warehouseSettingPath"])
+    warehouse_url = join_url(
+        pick_url(warehouse["urls"]), warehouse["warehouseSettingPath"]
+    )
     ws: WarehouseSettings = client.get(warehouse_url).raise_for_status().json()
     bundle_base = join_url(pick_url(ws["urls"]), ws["bundlePath"])
     for profile in TEXTURE_PROFILES:
@@ -116,17 +124,30 @@ def resolve_profile_url(client: httpx2.Client) -> str:
     raise RuntimeError(f"国服资源包没有可用的贴图格式: {TEXTURE_PROFILES}")
 
 
-def load_asset_bundles(client: httpx2.Client, profile_url: str) -> dict[str, str]:
+def load_asset_bundles(
+    client: httpx2.Client, profile_url: str
+) -> dict[str, str]:
     """返回 资源路径 → 所在资源包文件名。"""
-    data = client.get(join_url(profile_url, "bundle_info_so.majset")).raise_for_status().content
+    data = (
+        client.get(join_url(profile_url, "bundle_info_so.majset"))
+        .raise_for_status()
+        .content
+    )
     for obj in UnityPy.load(data).objects:
         if obj.type.name != "MonoBehaviour":
             continue
         tree = obj.read_typetree()
-        if not isinstance(tree, dict) or "bundleInfos" not in tree or "assetInfos" not in tree:
+        if (
+            not isinstance(tree, dict)
+            or "bundleInfos" not in tree
+            or "assetInfos" not in tree
+        ):
             continue
         bundle_names = [str(b["name"]) for b in tree["bundleInfos"]]
-        return {str(a["assetPath"]): bundle_names[int(a["ownerBundleIndex"])] for a in tree["assetInfos"]}
+        return {
+            str(a["assetPath"]): bundle_names[int(a["ownerBundleIndex"])]
+            for a in tree["assetInfos"]
+        }
     raise RuntimeError("bundle_info_so.majset 里没有 BundleInfoSO")
 
 
@@ -136,13 +157,19 @@ def extract_bighead(bundle: bytes) -> Image.Image:
             continue
         image = obj.read().image
         if isinstance(image, Image.Image):
-            return image.convert("RGBA").resize(BIGHEAD_SIZE, Image.Resampling.LANCZOS)
+            return image.convert("RGBA").resize(
+                BIGHEAD_SIZE, Image.Resampling.LANCZOS
+            )
     raise RuntimeError("资源包里没有 Texture2D")
 
 
 def update_bigheads(client: httpx2.Client, table: dict[str, SkinInfo]) -> None:
     BIGHEAD_DIR.mkdir(parents=True, exist_ok=True)
-    missing = [skin for skin in table.values() if not (BIGHEAD_DIR / f"{skin['id']}.webp").exists()]
+    missing = [
+        skin
+        for skin in table.values()
+        if not (BIGHEAD_DIR / f"{skin['id']}.webp").exists()
+    ]
     if not missing:
         print("皮肤头像已是最新")
         return
@@ -154,7 +181,11 @@ def update_bigheads(client: httpx2.Client, table: dict[str, SkinInfo]) -> None:
         if not found:
             print(f"跳过 {skin['id']} {skin['name']}: 资源包里没有 bighead")
             continue
-        bundle = client.get(join_url(profile_url, assets[found[0]])).raise_for_status().content
+        bundle = (
+            client.get(join_url(profile_url, assets[found[0]]))
+            .raise_for_status()
+            .content
+        )
         buf = io.BytesIO()
         extract_bighead(bundle).save(buf, "WEBP", quality=90, method=6)
         (BIGHEAD_DIR / f"{skin['id']}.webp").write_bytes(buf.getvalue())
@@ -162,11 +193,22 @@ def update_bigheads(client: httpx2.Client, table: dict[str, SkinInfo]) -> None:
 
 
 def main() -> None:
-    version: ClientVersion = json.loads(CLIENT_VERSION_PATH.read_text(encoding="utf-8"))
-    with httpx2.Client(headers={"User-Agent": USER_AGENT}, follow_redirects=True, timeout=60) as client:
-        rows: list[SkinRow] = client.get(SKIN_URL.format(tag=version["liqi_version"])).raise_for_status().json()
+    version: ClientVersion = json.loads(
+        CLIENT_VERSION_PATH.read_text(encoding="utf-8")
+    )
+    with httpx2.Client(
+        headers={"User-Agent": USER_AGENT}, follow_redirects=True, timeout=60
+    ) as client:
+        rows: list[SkinRow] = (
+            client.get(SKIN_URL.format(tag=version["liqi_version"]))
+            .raise_for_status()
+            .json()
+        )
         table = build_skin_table(rows)
-        SKIN_TABLE_PATH.write_text(json.dumps(table, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        SKIN_TABLE_PATH.write_text(
+            json.dumps(table, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
         print(f"皮肤表 {version['liqi_version']}: {len(table)} 条")
         update_bigheads(client, table)
 

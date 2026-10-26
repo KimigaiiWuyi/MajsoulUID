@@ -12,13 +12,15 @@ import os
 import re
 import json
 import argparse
-from typing import TypedDict
 from pathlib import Path
+from typing import TypedDict
 
 import httpx2
 from google.protobuf import descriptor_pb2
 
-RELEASE_URL = "https://api.github.com/repos/Avenshy/MajsoulData/releases/latest"
+RELEASE_URL = (
+    "https://api.github.com/repos/Avenshy/MajsoulData/releases/latest"
+)
 DESC_ASSET = "liqi.desc"
 PROTO_PACKAGE = "lq"
 VERSION_RE = re.compile(r"^\d+(\.\d+)+$")
@@ -60,7 +62,9 @@ def github_headers() -> dict[str, str]:
 def parse_release_tag(tag: str) -> ClientVersion:
     # 标签格式是 `<docs_version>-<product_version>`，见 MajsoulData 的 get_max_data.py
     resource_version, _, package_version = tag.partition("-")
-    if not VERSION_RE.match(resource_version) or not VERSION_RE.match(package_version):
+    if not VERSION_RE.match(resource_version) or not VERSION_RE.match(
+        package_version
+    ):
         raise ValueError(f"无法识别的 MajsoulData 版本标签: {tag}")
     return {
         "liqi_version": tag,
@@ -69,22 +73,31 @@ def parse_release_tag(tag: str) -> ClientVersion:
     }
 
 
-def build_rpc_map(file_set: descriptor_pb2.FileDescriptorSet) -> dict[str, RpcTypes]:
+def build_rpc_map(
+    file_set: descriptor_pb2.FileDescriptorSet,
+) -> dict[str, RpcTypes]:
     rpc_map: dict[str, RpcTypes] = {}
     for file in file_set.file:
         for service in file.service:
             for method in service.method:
                 name = f".{file.package}.{service.name}.{method.name}"
-                rpc_map[name] = {"req": method.input_type, "resp": method.output_type}
+                rpc_map[name] = {
+                    "req": method.input_type,
+                    "resp": method.output_type,
+                }
     return dict(sorted(rpc_map.items()))
 
 
 def proto_files(file_set: descriptor_pb2.FileDescriptorSet) -> list[str]:
-    return [file.name for file in file_set.file if file.package == PROTO_PACKAGE]
+    return [
+        file.name for file in file_set.file if file.package == PROTO_PACKAGE
+    ]
 
 
 def write_json(path: Path, data: dict[str, RpcTypes] | ClientVersion) -> None:
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
 
 
 def main() -> None:
@@ -93,12 +106,18 @@ def main() -> None:
     args = parser.parse_args()
     desc_path: Path = args.desc
 
-    with httpx2.Client(headers=github_headers(), follow_redirects=True, timeout=60) as client:
+    with httpx2.Client(
+        headers=github_headers(), follow_redirects=True, timeout=60
+    ) as client:
         resp = client.get(RELEASE_URL)
         resp.raise_for_status()
         release: Release = resp.json()
         tag = release["tag_name"]
-        urls = [asset["browser_download_url"] for asset in release["assets"] if asset["name"] == DESC_ASSET]
+        urls = [
+            asset["browser_download_url"]
+            for asset in release["assets"]
+            if asset["name"] == DESC_ASSET
+        ]
         if not urls:
             raise RuntimeError(f"MajsoulData {tag} 缺少 {DESC_ASSET}")
         desc = client.get(urls[0])
