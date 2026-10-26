@@ -74,10 +74,8 @@ async def majsoul_review_command(bot: Bot, ev: Event):
     else:
         return await bot.send("❌ 请输入有效的牌谱URL!")
 
-    path1 = PAIPU_PATH / f"{desired_string} - raw.json"
-    path2 = PAIPU_PATH / f"{desired_string} - review.json"
-
-    if not (path1.exists() and path2.exists()):
+    tenhou_log = await get_paipu_by_game_id(desired_string)
+    if tenhou_log is None:
         conns = manager.get_all_conn()
         if not conns:
             return await bot.send("❌ 未找到有效连接, 请先进行[雀魂推送启动]")
@@ -85,9 +83,6 @@ async def majsoul_review_command(bot: Bot, ev: Event):
         tenhou_log = await conn.fetchLogs(desired_string)
         if isinstance(tenhou_log, str):
             return await bot.send(f"❌ {tenhou_log}")
-    else:
-        tenhou_log = await get_paipu_by_game_id(desired_string)
-
     if not tenhou_log:
         return await bot.send("❌ 未找到有效牌谱!")
 

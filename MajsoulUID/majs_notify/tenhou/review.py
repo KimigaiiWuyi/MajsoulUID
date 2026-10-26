@@ -1,15 +1,15 @@
+import asyncio
 import json
 import time
-import asyncio
 from typing import Dict, List, Tuple, Union
 
-import httpx2
 import aiofiles
-
+import httpx2
 from gsuid_core.logger import logger
 
 from ...majs_config.majs_config import MAJS_CONFIG
 from ...utils.resource.RESOURCE_PATH import PAIPU_PATH
+from ..paipu_cache import PAIPU_CACHE_VERSION
 
 
 async def check_url(tag: str, url: str):
@@ -47,13 +47,14 @@ async def find_fastest_url(
 
 async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
     game_id = tenhou_log["game_id"]
-    path = PAIPU_PATH / f"{game_id} - review.json"
+    player_id = tenhou_log["_target_actor"] if "_target_actor" in tenhou_log else 0
+    engine: str = MAJS_CONFIG.get_config("MajsReviewEngine").data
+    path = PAIPU_PATH / f"{game_id} - {engine.lower()} - player{player_id} - v{PAIPU_CACHE_VERSION} - review.json"
     if path.exists():
         async with aiofiles.open(path, "r", encoding="utf-8") as f:
             data = json.loads(await f.read())
             return data
 
-    sess = httpx2.AsyncClient(verify=False)
     urls = {
         "[wegt]": "https://majsoul.wget.es",
         "[cn]": "http://183.36.37.120:62800",
@@ -76,35 +77,45 @@ async def review_tenhou(tenhou_log: Dict[str, str]) -> Union[str, Dict]:
 
     logger.info(f"[Majsoul] Fastest Review URL: {tag} {url}")
 
-    player_id = tenhou_log.get("_target_actor", 0)
     auth_token: str = MAJS_CONFIG.get_config("MajsReviewToken").data
     headers = {"Authentication": f"Bear {auth_token}"} if auth_token else {}
-    engine: str = MAJS_CONFIG.get_config("MajsReviewEngine").data
     payload = {
         "type": engine.lower(),
         "player_id": player_id,
         "data": tenhou_log,
     }
 
-    response = await sess.post(f"{url}/review?type={engine}", json=payload, headers=headers)
-    if response.status_code == 429:
-        return "❌ 触发限流 请2分钟后再试!"
-    response.raise_for_status()
-    task_id = response.json()["task_id"]
-
-    for _ in range(20):
-        response = await sess.get(f"{url}/review", params={"task": task_id})
+    async with httpx2.AsyncClient(verify=False) as sess:
+        response = await sess.post(f"{url}/review?type={engine}", json=payload, headers=headers)
+        if response.status_code == 429:
+            return "❌ 触发限流 请2分钟后再试!"
         response.raise_for_status()
-        res = response.json()
-        status = res["status"]
-        if status == "working":
-            logger.info(f"[Majsoul] Review Task {task_id} is working...")
-            await asyncio.sleep(6)
-        elif status == "done":
-            logger.info(f"[Majsoul] Review Task {task_id} is finished!")
-            break
-    else:
-        return "❌ 未找到有效的Review信息!可能是处理超过等待时间请在2分钟后重试!"
+        task_id = response.json()["task_id"]
+
+        for _ in range(20):
+            response = await sess.get(f"{url}/review", params={"task": task_id})
+            if response.status_code == 429:
+                return "❌ 触发限流 请2分钟后再试!"
+            if response.status_code == 500:
+                try:
+                    res = response.json()
+                except ValueError:
+                    response.raise_for_status()
+                if isinstance(res, dict) and "status" in res and res["status"] == "error":
+                    return f"❌ Review失败: {res['error']}"
+            response.raise_for_status()
+            res = response.json()
+            status = res["status"]
+            if status == "error":
+                return f"❌ Review失败: {res['error']}"
+            if status == "working":
+                logger.info(f"[Majsoul] Review Task {task_id} is working...")
+                await asyncio.sleep(6)
+            elif status == "done":
+                logger.info(f"[Majsoul] Review Task {task_id} is finished!")
+                break
+        else:
+            return "❌ 未找到有效的Review信息!可能是处理超过等待时间请在2分钟后重试!"
 
     async with aiofiles.open(path, "w", encoding="utf-8") as f:
         await f.write(json.dumps(res, ensure_ascii=False, indent=4))
