@@ -64,26 +64,16 @@ def test_rpc_map_covers_methods_used_by_plugin():
 def test_encode_record_requests():
     codec = make_codec()
     uuid = "261026-ddf54799-c3fa-48b0-99ad-532fefe01536"
-    _, wrapper = unpack_request(
-        codec.encode_request(
-            ".lq.Lobby.fetchGameRecordsDetail", {"uuid_list": [uuid]}
-        )
-    )
+    _, wrapper = unpack_request(codec.encode_request(".lq.Lobby.fetchGameRecordsDetail", {"uuid_list": [uuid]}))
     assert wrapper.name == ".lq.Lobby.fetchGameRecordsDetail"
     assert liblq.ReqGameRecordsDetail().parse(wrapper.data).uuid_list == [uuid]
 
     version = "WebGL_2022-0.16.289"
-    _, wrapper = unpack_request(
-        codec.encode_request(
-            ".lq.Lobby.readGameRecord", {"client_version_string": version}
-        )
-    )
+    _, wrapper = unpack_request(codec.encode_request(".lq.Lobby.readGameRecord", {"client_version_string": version}))
     read = liblq.ReqGameRecord().parse(wrapper.data)
     assert (read.game_uuid, read.client_version_string) == ("", version)
 
-    _, wrapper = unpack_request(
-        codec.encode_request(".lq.Lobby.loginSuccess", {})
-    )
+    _, wrapper = unpack_request(codec.encode_request(".lq.Lobby.loginSuccess", {}))
     assert (wrapper.name, wrapper.data) == (".lq.Lobby.loginSuccess", b"")
 
 
@@ -94,12 +84,7 @@ def test_encode_login_request_keeps_client_fields():
         {
             "account": "someone@example.com",
             "password": "hashed",
-            "device": {
-                "platform": "pc",
-                "is_browser": True,
-                "device_id": "dev-1",
-                "screen_type": 1,
-            },
+            "device": {"platform": "pc", "is_browser": True, "device_id": "dev-1", "screen_type": 1},
             "random_key": "dev-1",
             "client_version": {"resource": "0.16.289", "package": "4.0.51"},
             "currency_platforms": [1, 2, 5],
@@ -121,17 +106,11 @@ def test_encode_login_request_keeps_client_fields():
 
 def test_decode_response_uses_inflight_type():
     codec = make_codec()
-    index, _ = unpack_request(
-        codec.encode_request(
-            ".lq.Route.requestConnection", {"type": 1, "route_id": "r"}
-        )
-    )
+    index, _ = unpack_request(codec.encode_request(".lq.Route.requestConnection", {"type": 1, "route_id": "r"}))
 
     res = liblq.ResRequestConnection(timestamp=123, result=1)
     body = bytes(liblq.Wrapper(name="", data=bytes(res)))
-    msg = codec.decode_message(
-        struct.pack("<BBB", codec.RESPONSE, index & 0xFF, index >> 8) + body
-    )
+    msg = codec.decode_message(struct.pack("<BBB", codec.RESPONSE, index & 0xFF, index >> 8) + body)
 
     assert msg.method_name == ".lq.Route.requestConnection"
     assert isinstance(msg.payload, liblq.ResRequestConnection)
@@ -141,9 +120,7 @@ def test_decode_response_uses_inflight_type():
 def test_decode_notify_by_wrapper_name():
     codec = make_codec()
     notify = liblq.NotifyNewFriendApply(account_id=42)
-    body = bytes(
-        liblq.Wrapper(name=".lq.NotifyNewFriendApply", data=bytes(notify))
-    )
+    body = bytes(liblq.Wrapper(name=".lq.NotifyNewFriendApply", data=bytes(notify)))
     msg = codec.decode_message(bytes([codec.NOTIFY]) + body)
 
     assert isinstance(msg.payload, liblq.NotifyNewFriendApply)

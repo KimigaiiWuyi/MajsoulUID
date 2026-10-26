@@ -18,21 +18,12 @@ model = importlib.import_module(f"{PKG}.majs_notify.model")
 liblq = importlib.import_module(f"{PKG}.lib.lq")
 
 # 好友总览截图里的四个人
-FRIENDS = {
-    1194642: "烟树历历",
-    17033013: "兰潇澜",
-    12536235: "浅碎丶时空",
-    218174: "雨滴答滴答",
-}
+FRIENDS = {1194642: "烟树历历", 17033013: "兰潇澜", 12536235: "浅碎丶时空", 218174: "雨滴答滴答"}
 
 
 def make_friend(account_id: int, nickname: str):
     level = liblq.AccountLevel(id=10301)
-    return liblq.Friend(
-        base=liblq.PlayerBaseView(
-            account_id=account_id, nickname=nickname, level=level, level3=level
-        )
-    )
+    return liblq.Friend(base=liblq.PlayerBaseView(account_id=account_id, nickname=nickname, level=level, level3=level))
 
 
 def make_conn(responses: list | None = None):
@@ -51,32 +42,21 @@ def make_conn(responses: list | None = None):
     return conn
 
 
-def fetch_info_resp(
-    friends: dict[int, str], applies: list[int], error_code: int = 0
-):
+def fetch_info_resp(friends: dict[int, str], applies: list[int], error_code: int = 0):
     return liblq.ResFetchInfo(
         error=liblq.Error(code=error_code),
-        friend_list=liblq.ResFriendList(
-            friends=[make_friend(aid, nick) for aid, nick in friends.items()]
-        ),
+        friend_list=liblq.ResFriendList(friends=[make_friend(aid, nick) for aid, nick in friends.items()]),
         friend_apply_list=liblq.ResFriendApplyList(
-            applies=[
-                liblq.ResFriendApplyListFriendApply(account_id=aid)
-                for aid in applies
-            ]
+            applies=[liblq.ResFriendApplyListFriendApply(account_id=aid) for aid in applies]
         ),
     )
 
 
 def friend_change(account_id: int, change_type: int, nickname: str = ""):
     payload = liblq.NotifyFriendChange(
-        account_id=account_id,
-        type=change_type,
-        friend=make_friend(account_id, nickname),
+        account_id=account_id, type=change_type, friend=make_friend(account_id, nickname)
     )
-    return model.MajsoulDecodedMessage(
-        msg_type=1, req_index=0, method_name="", payload=payload
-    )
+    return model.MajsoulDecodedMessage(msg_type=1, req_index=0, method_name="", payload=payload)
 
 
 def test_fetch_info_repeated_keeps_one_entry_per_friend():
@@ -89,21 +69,14 @@ def test_fetch_info_repeated_keeps_one_entry_per_friend():
 
 
 def test_fetch_info_drops_friends_removed_on_server():
-    conn = make_conn(
-        [
-            fetch_info_resp(FRIENDS, []),
-            fetch_info_resp({218174: "雨滴答滴答"}, []),
-        ]
-    )
+    conn = make_conn([fetch_info_resp(FRIENDS, []), fetch_info_resp({218174: "雨滴答滴答"}, [])])
     asyncio.run(conn.fetchInfo())
     asyncio.run(conn.fetchInfo())
     assert list(conn.friends) == [218174]
 
 
 def test_fetch_info_error_keeps_old_list():
-    conn = make_conn(
-        [fetch_info_resp(FRIENDS, [7]), fetch_info_resp({}, [], error_code=1)]
-    )
+    conn = make_conn([fetch_info_resp(FRIENDS, [7]), fetch_info_resp({}, [], error_code=1)])
     asyncio.run(conn.fetchInfo())
     asyncio.run(conn.fetchInfo())
     assert len(conn.friends) == 4
@@ -148,9 +121,7 @@ def test_friend_change_while_iterating_does_not_break_loop():
     for friend in conn.friends.values():
         seen.append(friend.account_id)
         if len(seen) == 1:
-            asyncio.run(
-                conn.handle_FriendChange(friend_change(100, 1, "新朋友"))
-            )
+            asyncio.run(conn.handle_FriendChange(friend_change(100, 1, "新朋友")))
             asyncio.run(conn.handle_FriendChange(friend_change(218174, 2)))
     assert seen == list(FRIENDS)
     assert set(conn.friends) == {1194642, 17033013, 12536235, 100}

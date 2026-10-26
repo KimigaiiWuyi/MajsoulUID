@@ -14,25 +14,13 @@ import aiofiles
 import betterproto
 import websockets.client
 import websockets.exceptions
+
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
 from gsuid_core.subscribe import gs_subscribe
 
 from ..lib import lq as liblq
-from ._level import MajsoulLevel
-from ..utils.map import PROTO_PATH
 from .codec import MajsoulProtoCodec
-from .majsoul_friend import MajsoulFriend
-from ..utils.api.remote_const import GameMode
-from .tenhou.parser import MajsoulPaipuParser
-from ..majs_config.majs_config import MAJS_CONFIG
-from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
-from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
-from ..utils.api.remote import (
-    decode_log_id,
-    encode_account_id,
-    decode_account_id2,
-)
 from .model import (
     MjsLog,
     MajsoulRpc,
@@ -43,6 +31,7 @@ from .model import (
     MajsoulClientVersion,
     MajsoulDecodedMessage,
 )
+from ._level import MajsoulLevel
 from .constants import (
     REGION_CN,
     USER_AGENT,
@@ -57,6 +46,18 @@ from .constants import (
     MajsoulRegion,
     yostar_region,
 )
+from ..utils.map import PROTO_PATH
+from .tenhou.parser import MajsoulPaipuParser
+from .majsoul_friend import MajsoulFriend
+from ..utils.api.remote import (
+    decode_log_id,
+    encode_account_id,
+    decode_account_id2,
+)
+from ..utils.database.models import MajsPush, MajsUser, MajsPaipu
+from ..utils.api.remote_const import GameMode
+from ..majs_config.majs_config import MAJS_CONFIG
+from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
 
 PP_HOST = "https://game.maj-soul.com/1/?paipu="
 TASK_NAME_MAJSOUL_NOTIFY = "订阅雀魂消息推送"
@@ -68,13 +69,8 @@ RECORD_FETCH_INTERVAL = 1.0
 GAME_HEAD_CACHE_SECONDS = 600
 
 # 两份文件都由 utils/proto/update_proto.py 从 MajsoulData 生成
-RPC_MAP = msgspec.json.decode(
-    (PROTO_PATH / "liqi.json").read_bytes(), type=dict[str, MajsoulRpc]
-)
-CLIENT_VERSION = msgspec.json.decode(
-    (PROTO_PATH / "client_version.json").read_bytes(),
-    type=MajsoulClientVersion,
-)
+RPC_MAP = msgspec.json.decode((PROTO_PATH / "liqi.json").read_bytes(), type=dict[str, MajsoulRpc])
+CLIENT_VERSION = msgspec.json.decode((PROTO_PATH / "client_version.json").read_bytes(), type=MajsoulClientVersion)
 
 
 class MajsoulMaintenanceError(Exception):
@@ -85,9 +81,7 @@ def make_device_id(region: MajsoulRegion, identity: str) -> str:
     # 真实客户端的 device_id 存在本地、换次登录也不变，这里按账号固定一个
     if not identity:
         return str(uuid.uuid4())
-    return str(
-        uuid.uuid5(uuid.NAMESPACE_URL, f"majsoul:{region.tag}:{identity}")
-    )
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, f"majsoul:{region.tag}:{identity}"))
 
 
 def process_dict(obj):
@@ -123,16 +117,10 @@ def describe_game(game: liblq.AccountPlayingGame) -> tuple[int, str, str]:
 
 
 def record_error_text(code: int) -> str:
-    return (
-        RECORD_ERROR_TEXT[code]
-        if code in RECORD_ERROR_TEXT
-        else f"获取牌谱失败（错误码 {code}）"
-    )
+    return RECORD_ERROR_TEXT[code] if code in RECORD_ERROR_TEXT else f"获取牌谱失败（错误码 {code}）"
 
 
-async def save_paipu(
-    account_id: int, game_uuid: str, category: int, type_name: str
-) -> None:
+async def save_paipu(account_id: int, game_uuid: str, category: int, type_name: str) -> None:
     if not await MajsPaipu.data_exist(uuid=game_uuid):
         await MajsPaipu.insert_data(
             account_id=str(account_id),
@@ -160,17 +148,13 @@ class MajsoulConnection:
         device_id: str,
     ):
         self._route = route
-        self._endpoint = (
-            f"{'wss' if route.ssl else 'ws'}://{route.domain}/gateway"
-        )
+        self._endpoint = f"{'wss' if route.ssl else 'ws'}://{route.domain}/gateway"
         self._region = region
         self._codec = codec
         self._ws = None
         self._req_events: dict[int, asyncio.Event] = {}
         self._res: dict[int, MajsoulDecodedMessage] = {}
-        self.clientVersionString = (
-            f"{CLIENT_PLATFORM}_2022-{CLIENT_VERSION.resource_version}"
-        )
+        self.clientVersionString = f"{CLIENT_PLATFORM}_2022-{CLIENT_VERSION.resource_version}"
         self.no_operation_counter = 0
         self.bg_tasks = []
         self.queue = asyncio.queues.Queue()
@@ -258,14 +242,8 @@ class MajsoulConnection:
                 "platform": DETAIL_PLATFORM,
             },
         )
-        if (
-            not isinstance(resp, liblq.ResRequestConnection)
-            or resp.error.code
-            or resp.result != 1
-        ):
-            raise ConnectionError(
-                f"[majs] 路由 {self._route.id} 拒绝连接: {resp}"
-            )
+        if not isinstance(resp, liblq.ResRequestConnection) or resp.error.code or resp.result != 1:
+            raise ConnectionError(f"[majs] 路由 {self._route.id} 拒绝连接: {resp}")
 
     def is_closed(self) -> bool:
         return self._ws is None or getattr(self._ws, "closed", True)
@@ -287,9 +265,7 @@ class MajsoulConnection:
                     await subscribe.send(message)
                     await asyncio.sleep(random.uniform(1, 3))
                 except Exception as e:
-                    logger.error(
-                        f"发送通知失败: {subscribe.group_id}, 错误: {e}"
-                    )
+                    logger.error(f"发送通知失败: {subscribe.group_id}, 错误: {e}")
 
         except Exception as e:
             logger.error(f"获取订阅列表失败: {e}")
@@ -360,10 +336,7 @@ class MajsoulConnection:
 
     async def handle_FriendStateChange(self, notify: MajsoulDecodedMessage):
         data = notify.payload
-        if (
-            not isinstance(data, liblq.NotifyFriendStateChange)
-            or data.target_id not in self.friends
-        ):
+        if not isinstance(data, liblq.NotifyFriendStateChange) or data.target_id not in self.friends:
             return
         friend = self.friends[data.target_id]
         state = data.active_state
@@ -387,48 +360,26 @@ class MajsoulConnection:
             # 还在抖动：取消上一次等待，基准仍是第一次变化前的状态
             task, was_online = self._online_pending[account_id]
             task.cancel()
-        task = asyncio.create_task(
-            self.push_online_state(account_id, was_online)
-        )
+        task = asyncio.create_task(self.push_online_state(account_id, was_online))
         self._online_pending[account_id] = (task, was_online)
 
-    async def push_online_state(
-        self, account_id: int, was_online: bool
-    ) -> None:
+    async def push_online_state(self, account_id: int, was_online: bool) -> None:
         # 掉线重连会在几秒内连发下线、上线，状态稳定一段时间后再推
-        await asyncio.sleep(
-            MAJS_CONFIG.get_config("MajsOnlineStateDelay").data
-        )
+        await asyncio.sleep(MAJS_CONFIG.get_config("MajsOnlineStateDelay").data)
         del self._online_pending[account_id]
-        if (
-            account_id not in self.friends
-            or self.friends[account_id].is_online == was_online
-        ):
+        if account_id not in self.friends or self.friends[account_id].is_online == was_online:
             return
         friend = self.friends[account_id]
-        msg = (
-            f"{friend.nickname} 上线了"
-            if friend.is_online
-            else f"{friend.nickname} 下线了"
-        )
+        msg = f"{friend.nickname} 上线了" if friend.is_online else f"{friend.nickname} 下线了"
         await self.send_msg_to_user(str(account_id), msg)
 
-    async def on_game_start(
-        self, friend: MajsoulFriend, game: liblq.AccountPlayingGame
-    ) -> None:
+    async def on_game_start(self, friend: MajsoulFriend, game: liblq.AccountPlayingGame) -> None:
         category, type_name, place = describe_game(game)
-        await save_paipu(
-            friend.account_id, game.game_uuid, category, type_name
-        )
+        await save_paipu(friend.account_id, game.game_uuid, category, type_name)
         if MAJS_CONFIG.get_config("MajsPushGameStart").data:
-            await self.send_msg_to_user(
-                str(friend.account_id),
-                f"{friend.nickname} 开始了在 {place} 的对局",
-            )
+            await self.send_msg_to_user(str(friend.account_id), f"{friend.nickname} 开始了在 {place} 的对局")
 
-    async def on_game_end(
-        self, friend: MajsoulFriend, game: liblq.AccountPlayingGame
-    ) -> None:
+    async def on_game_end(self, friend: MajsoulFriend, game: liblq.AccountPlayingGame) -> None:
         category, type_name, place = describe_game(game)
         account_id = friend.account_id
         game_uuid = game.game_uuid
@@ -444,9 +395,7 @@ class MajsoulConnection:
             current = self.friends[account_id]
             if not current.is_online or current.playing.game_uuid == game_uuid:
                 return
-            await self.send_msg_to_user(
-                str(account_id), f"{msg}获取对局结果失败\n对局牌谱:{url}"
-            )
+            await self.send_msg_to_user(str(account_id), f"{msg}获取对局结果失败\n对局牌谱:{url}")
             return
 
         players = head.result.players
@@ -454,35 +403,21 @@ class MajsoulConnection:
         for account in head.accounts:
             if account.account_id == account_id:
                 level = account.level3 if len(players) == 3 else account.level
-                friend_seat, level_id, level_score = (
-                    account.seat,
-                    level.id,
-                    level.score,
-                )
+                friend_seat, level_id, level_score = account.seat, level.id, level.score
                 break
         for rank, player in enumerate(players, 1):
             if player.seat == friend_seat:
                 msg += f"排名:{rank} 最终打点:{player.part_point_1} 得点:{player.grading_score}\n"
                 if category == 2:
-                    level_info = MajsoulLevel(
-                        level_id
-                    ).formatAdjustedScoreWithTag(
-                        level_score + player.grading_score
-                    )
+                    level_info = MajsoulLevel(level_id).formatAdjustedScoreWithTag(level_score + player.grading_score)
                     msg += f"当前段位:{level_info}\n"
                 break
         msg += f"对局牌谱:{url}"
         await self.send_msg_to_user(str(account_id), msg)
 
-    async def record_call(
-        self, method_name: str, payload: dict[str, str | list[str]]
-    ) -> betterproto.Message:
+    async def record_call(self, method_name: str, payload: dict[str, str | list[str]]) -> betterproto.Message:
         async with self._record_lock:
-            wait = (
-                self._last_record_fetch
-                + RECORD_FETCH_INTERVAL
-                - time.monotonic()
-            )
+            wait = self._last_record_fetch + RECORD_FETCH_INTERVAL - time.monotonic()
             if wait > 0:
                 await asyncio.sleep(wait)
             resp = await self.rpc_call(method_name, payload)
@@ -491,13 +426,9 @@ class MajsoulConnection:
 
     async def fetch_game_head(self, game_uuid: str) -> liblq.RecordGame | None:
         if game_uuid not in self._game_heads:
-            self._game_heads[game_uuid] = asyncio.create_task(
-                self.query_game_head(game_uuid)
-            )
+            self._game_heads[game_uuid] = asyncio.create_task(self.query_game_head(game_uuid))
             loop = asyncio.get_running_loop()
-            loop.call_later(
-                GAME_HEAD_CACHE_SECONDS, self._game_heads.pop, game_uuid, None
-            )
+            loop.call_later(GAME_HEAD_CACHE_SECONDS, self._game_heads.pop, game_uuid, None)
         # shield：一个好友的处理被取消时，别把其他人共用的查询一起取消
         return await asyncio.shield(self._game_heads[game_uuid])
 
@@ -505,18 +436,12 @@ class MajsoulConnection:
         # 推送只要名次和点数，用牌谱屋同款的 fetchGameRecordsDetail，不拉整局牌谱
         for delay in GAME_RECORD_RETRY_DELAYS:
             await asyncio.sleep(delay)
-            resp = await self.record_call(
-                ".lq.Lobby.fetchGameRecordsDetail", {"uuid_list": [game_uuid]}
-            )
+            resp = await self.record_call(".lq.Lobby.fetchGameRecordsDetail", {"uuid_list": [game_uuid]})
             if not isinstance(resp, liblq.ResGameRecordsDetail):
-                logger.warning(
-                    f"[majs] 获取对局结果 {game_uuid} 返回异常: {resp}"
-                )
+                logger.warning(f"[majs] 获取对局结果 {game_uuid} 返回异常: {resp}")
                 continue
             if resp.error.code:
-                logger.warning(
-                    f"[majs] 获取对局结果 {game_uuid} 失败: {resp.error}"
-                )
+                logger.warning(f"[majs] 获取对局结果 {game_uuid} 失败: {resp.error}")
                 if resp.error.code == ERR_RECORD_FETCH_LIMIT:
                     return None
                 continue
@@ -524,9 +449,7 @@ class MajsoulConnection:
                 if record.uuid == game_uuid:
                     return record
             logger.info(f"[majs] 对局结果 {game_uuid} 还没生成")
-        logger.error(
-            f"[majs] 获取对局结果 {game_uuid} 重试 {len(GAME_RECORD_RETRY_DELAYS)} 次仍失败"
-        )
+        logger.error(f"[majs] 获取对局结果 {game_uuid} 重试 {len(GAME_RECORD_RETRY_DELAYS)} 次仍失败")
         return None
 
     async def download_record_data(self, data_url: str) -> bytes:
@@ -535,23 +458,17 @@ class MajsoulConnection:
         # 客户端 UI_PaiPuNew.ReplaceUrl：不是 http 开头就拼上 prefix_url
         if not data_url.startswith("http"):
             if not self._region.record_prefix_url:
-                logger.warning(
-                    f"[majs] {self._region.tag} 服没有牌谱前缀，无法下载 {data_url}"
-                )
+                logger.warning(f"[majs] {self._region.tag} 服没有牌谱前缀，无法下载 {data_url}")
                 return b""
             data_url = self._region.record_prefix_url + data_url
         try:
-            async with httpx2.AsyncClient(
-                headers={"User-Agent": USER_AGENT}, timeout=30
-            ) as client:
+            async with httpx2.AsyncClient(headers={"User-Agent": USER_AGENT}, timeout=30) as client:
                 resp = await client.get(data_url)
         except httpx2.HTTPError as e:
             logger.warning(f"[majs] 下载牌谱数据失败 {data_url}: {e!r}")
             return b""
         if resp.status_code != 200:
-            logger.warning(
-                f"[majs] 下载牌谱数据失败 {data_url}: HTTP {resp.status_code}"
-            )
+            logger.warning(f"[majs] 下载牌谱数据失败 {data_url}: HTTP {resp.status_code}")
             return b""
         return resp.content
 
@@ -583,14 +500,8 @@ class MajsoulConnection:
                 self.friend_apply_list.remove(account_id)
         elif data.type == 2:
             if existed:
-                meta_msg = (
-                    f"账号成功删除好友 {self.friends[account_id].nickname}！"
-                )
-                self.friends = {
-                    aid: f
-                    for aid, f in self.friends.items()
-                    if aid != account_id
-                }
+                meta_msg = f"账号成功删除好友 {self.friends[account_id].nickname}！"
+                self.friends = {aid: f for aid, f in self.friends.items() if aid != account_id}
         elif existed:
             friend = MajsoulFriend(data.friend)
             self.friends = {**self.friends, account_id: friend}
@@ -671,22 +582,14 @@ class MajsoulConnection:
             await self._ws.send(req)  # type: ignore
             await asyncio.wait_for(evt.wait(), timeout=30)
             if idx not in self._res:
-                raise ConnectionError(
-                    "Connection is broken while waiting rpc response"
-                )
+                raise ConnectionError("Connection is broken while waiting rpc response")
 
             res = self._res[idx]
             return res.payload
         except asyncio.CancelledError:
             raise
-        except (
-            websockets.exceptions.ConnectionClosed,
-            asyncio.TimeoutError,
-            ConnectionError,
-        ) as e:
-            logger.warning(
-                f"[majs] rpc_call失败, method={method_name}, index={idx}: {e}"
-            )
+        except (websockets.exceptions.ConnectionClosed, asyncio.TimeoutError, ConnectionError) as e:
+            logger.warning(f"[majs] rpc_call失败, method={method_name}, index={idx}: {e}")
             raise ConnectionError("Majsoul WebSocket connection lost") from e
         finally:
             self._res.pop(idx, None)
@@ -740,15 +643,11 @@ class MajsoulConnection:
         return True
 
     def encode_p(self, password: str):
-        return hmac.new(
-            b"lailai", password.encode(), hashlib.sha256
-        ).hexdigest()
+        return hmac.new(b"lailai", password.encode(), hashlib.sha256).hexdigest()
 
     async def login_beat(self) -> None:
         # 客户端把 loginBeat 失败当成非致命，只重试不登出
-        resp = await self.rpc_call(
-            ".lq.Lobby.loginBeat", {"contract": LOGIN_BEAT_CONTRACT}
-        )
+        resp = await self.rpc_call(".lq.Lobby.loginBeat", {"contract": LOGIN_BEAT_CONTRACT})
         if not isinstance(resp, liblq.ResCommon) or resp.error.code:
             logger.warning(f"[majs] loginBeat 失败: {resp}")
 
@@ -865,16 +764,9 @@ class MajsoulConnection:
         )
         # 服务端给的是全量列表，整体替换；出错时保留旧数据，别清空
         if not resp.error.code and not resp.friend_list.error.code:
-            self.friends = {
-                f.base.account_id: MajsoulFriend(f)
-                for f in resp.friend_list.friends
-            }
+            self.friends = {f.base.account_id: MajsoulFriend(f) for f in resp.friend_list.friends}
         if not resp.error.code and not resp.friend_apply_list.error.code:
-            self.friend_apply_list = list(
-                dict.fromkeys(
-                    a.account_id for a in resp.friend_apply_list.applies
-                )
-            )
+            self.friend_apply_list = list(dict.fromkeys(a.account_id for a in resp.friend_apply_list.applies))
         return resp
 
     async def fetchAccountNickname(self, account_id: int) -> str | None:
@@ -921,10 +813,7 @@ class MajsoulConnection:
 
         logs = await self.record_call(
             ".lq.Lobby.fetchGameRecord",
-            {
-                "game_uuid": log_id,
-                "client_version_string": self.clientVersionString,
-            },
+            {"game_uuid": log_id, "client_version_string": self.clientVersionString},
         )
         if not isinstance(logs, liblq.ResGameRecord):
             logger.warning(f"[majs] 获取牌谱 {log_id} 返回异常: {logs}")
@@ -933,13 +822,8 @@ class MajsoulConnection:
             logger.warning(f"[majs] 获取牌谱 {log_id} 失败: {logs.error}")
             return record_error_text(logs.error.code)
         # 客户端拉到牌谱后都会补一句 readGameRecord（GameMgr:CheckPaiPu）
-        await self.rpc_call(
-            ".lq.Lobby.readGameRecord",
-            {"client_version_string": self.clientVersionString},
-        )
-        record_data = logs.data or await self.download_record_data(
-            logs.data_url
-        )
+        await self.rpc_call(".lq.Lobby.readGameRecord", {"client_version_string": self.clientVersionString})
+        record_data = logs.data or await self.download_record_data(logs.data_url)
         if not record_data:
             return "牌谱数据下载失败，请稍后重试"
         detail_records = liblq.Wrapper().parse(record_data)
@@ -963,9 +847,7 @@ class MajsoulConnection:
                     item = MjsLogItem(name=name, data=msg)
                     action_list.append(item)
 
-        tenhou_log = MajsoulPaipuParser().handle_game_record(
-            record=MjsLog(logs.head, action_list)
-        )
+        tenhou_log = MajsoulPaipuParser().handle_game_record(record=MjsLog(logs.head, action_list))
 
         tenhou_log["head"] = process_dict(logs.head.__dict__)
         tenhou_log["game_id"] = game_id
@@ -1008,36 +890,24 @@ async def fetch_route(region: MajsoulRegion) -> MajsoulRoute:
     async with httpx2.AsyncClient(headers=headers, timeout=10) as client:
         for gateway in random.sample(region.gateways, len(region.gateways)):
             try:
-                resp = await client.get(
-                    f"{gateway}/api/clientgate/routes", params=params
-                )
+                resp = await client.get(f"{gateway}/api/clientgate/routes", params=params)
                 resp.raise_for_status()
             except httpx2.HTTPError as e:
                 logger.warning(f"[majs] 入口网关 {gateway} 不可用: {e!r}")
                 continue
             data = msgspec.convert(resp.json(), MajsoulRoutesResp).data
             if data.maintenance:
-                notes = [
-                    m.content
-                    for m in data.maintenance
-                    if m.lang in (region.route_lang, "chs")
-                ]
-                raise MajsoulMaintenanceError(
-                    "\n".join(notes or [data.maintenance[0].content])
-                )
+                notes = [m.content for m in data.maintenance if m.lang in (region.route_lang, "chs")]
+                raise MajsoulMaintenanceError("\n".join(notes or [data.maintenance[0].content]))
             if data.routes:
                 return random.choice(data.routes)
             logger.warning(f"[majs] 入口网关 {gateway} 没有返回可用路由")
     raise ConnectionError(f"[majs] {region.tag} 服的入口网关全部不可用")
 
 
-async def open_connection(
-    region: MajsoulRegion, login_type: int, device_id: str
-) -> MajsoulConnection:
+async def open_connection(region: MajsoulRegion, login_type: int, device_id: str) -> MajsoulConnection:
     route = await fetch_route(region)
-    conn = MajsoulConnection(
-        route, region, login_type, MajsoulProtoCodec(RPC_MAP), device_id
-    )
+    conn = MajsoulConnection(route, region, login_type, MajsoulProtoCodec(RPC_MAP), device_id)
     await conn.connect()
     await conn.request_connection()
 
@@ -1051,9 +921,7 @@ async def open_connection(
             "network_quality": random.randint(0, 100),
         },
     )
-    logger.info(
-        f"Authenticating ({conn.clientVersionString}, liqi {CLIENT_VERSION.liqi_version})"
-    )
+    logger.info(f"Authenticating ({conn.clientVersionString}, liqi {CLIENT_VERSION.liqi_version})")
     return conn
 
 
@@ -1062,9 +930,7 @@ async def createMajsoulConnection(
     password: str = "",
     access_token: str = "",
 ):
-    conn = await open_connection(
-        REGION_CN, 0, make_device_id(REGION_CN, username)
-    )
+    conn = await open_connection(REGION_CN, 0, make_device_id(REGION_CN, username))
 
     if access_token:
         try:
@@ -1075,9 +941,7 @@ async def createMajsoulConnection(
         if not username or not password:
             raise ValueError("Username or password is empty")
         try:
-            account_id, access_token = await conn.manual_login(
-                username, password
-            )
+            account_id, access_token = await conn.manual_login(username, password)
             await MajsUser.update_data_by_data(
                 {"uid": str(account_id)},
                 {
@@ -1117,9 +981,7 @@ class MajsoulManager:
         login_type: int,
     ):
         try:
-            conn = await createMajsoulConnection(
-                username, password, access_token
-            )
+            conn = await createMajsoulConnection(username, password, access_token)
         except MajsoulMaintenanceError as e:
             return f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
         except ValueError as e:
@@ -1151,26 +1013,18 @@ class MajsoulManager:
             for user in users:
                 if user.login_type == 0:
                     try:
-                        conn = await createMajsoulConnection(
-                            username=user.username, access_token=user.cookie
-                        )
+                        conn = await createMajsoulConnection(username=user.username, access_token=user.cookie)
                     except MajsoulMaintenanceError as e:
-                        return (
-                            f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
-                        )
+                        return f"❌ 登陆失败, 雀魂服务器正在维护中!\ncontext: {e}"
                     except ValueError as e:
-                        logger.warning(
-                            f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}"
-                        )
+                        logger.warning(f"[majs] AccessToken已失效, 使用账密进行刷新！\n{e}")
                         try:
                             conn = await createMajsoulConnection(
                                 username=user.username,
                                 password=user.password,
                             )
                         except ValueError as e:
-                            logger.error(
-                                f"[majs] 刷新AccessToken失败, 请重新登录！\n{e}"
-                            )
+                            logger.error(f"[majs] 刷新AccessToken失败, 请重新登录！\n{e}")
                             return "❌ AccessToken已失效, 请重新登录！"
 
                     self.conn.append(conn)
@@ -1186,9 +1040,7 @@ class MajsoulManager:
                     # passport uid 存在 account；旧数据只有雀魂 account_id，重新登录一次即可
                     passport_uid = user.account or user.uid
                     if passport_uid is None:
-                        logger.error(
-                            "Yostar UID is None, please check your config"
-                        )
+                        logger.error("Yostar UID is None, please check your config")
                         return "❌ Yostar UID is None, 请检查配置"
 
                     sess = httpx2.AsyncClient(headers=headers, verify=False)
@@ -1217,9 +1069,7 @@ class MajsoulManager:
                             user.lang,
                         )
                     except ValueError as e:
-                        logger.warning(
-                            f"[majs] Yostar token已失效, 请重新登录！\n{e}"
-                        )
+                        logger.warning(f"[majs] Yostar token已失效, 请重新登录！\n{e}")
                         return "❌ Yostar token已失效, 请重新登录！"
 
                     self.conn.append(conn)

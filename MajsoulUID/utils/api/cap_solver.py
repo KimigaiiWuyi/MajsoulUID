@@ -13,11 +13,12 @@ import zlib
 import base64
 import asyncio
 import operator
-from collections.abc import AsyncGenerator
 from typing import TypeVar, Callable, Annotated
+from collections.abc import AsyncGenerator
 
 import httpx2
 import msgspec
+
 from gsuid_core.logger import logger
 from gsuid_core.server import on_core_start
 
@@ -57,9 +58,7 @@ class InstrPayload(msgspec.Struct):
     blob: str
 
 
-class InstrChallenge(
-    msgspec.Struct, tag_field="protocol", tag="instrumentation"
-):
+class InstrChallenge(msgspec.Struct, tag_field="protocol", tag="instrumentation"):
     payload: InstrPayload
 
 
@@ -111,14 +110,7 @@ _CHROME_PROBE = msgspec.Raw(
             "oscpu": "__undefined",
             "deviceMemory": 8,
             "uaDataPresent": True,
-            "uaData": {
-                "mobile": False,
-                "brands": [
-                    "Not-A.Brand/99",
-                    "Google Chrome/157",
-                    "Chromium/157",
-                ],
-            },
+            "uaData": {"mobile": False, "brands": ["Not-A.Brand/99", "Google Chrome/157", "Chromium/157"]},
             "plugins": {"length": 5},
             "pdfViewerEnabled": True,
             "engine": {"hasMozInnerScreenX": False, "hasChrome": True},
@@ -145,9 +137,7 @@ Helper = Callable[[int, int, int], int]
 _ID = r"[A-Za-z0-9_$]+"
 _CHALLENGE_ID = re.compile(r'nonce:"([0-9a-f]{32})"')
 # 形如 var o={};o["a"]=a;o["b"]=b;…return o;
-_STATE_OUT = re.compile(
-    rf'var ({_ID})=\{{\}};((?:\1\["{_ID}"\]={_ID};)+)return \1;'
-)
+_STATE_OUT = re.compile(rf'var ({_ID})=\{{\}};((?:\1\["{_ID}"\]={_ID};)+)return \1;')
 _STATE_KEY = re.compile(rf'\["({_ID})"\]')
 # 请求总带 UA，三元恒取真分支；换掉它之后剩下的语法 Python 都认
 _UA_TERNARY = re.compile(r"navigator\.userAgent \? (\d+) : \d+")
@@ -174,10 +164,7 @@ def _fn_helper(a: int, b: int, c: int) -> int:
 
 def _dom_sum(x: int, y: int, z: int) -> int:
     # 建树时每个值右移 8 次，当前位为 0 的中间值进链；回溯求和就是把这些值加起来
-    return _js_mod(
-        sum(v >> i for v in (x, y, z) for i in range(8) if (v >> i) & 1 == 0),
-        256,
-    )
+    return _js_mod(sum(v >> i for v in (x, y, z) for i in range(8) if (v >> i) & 1 == 0), 256)
 
 
 # blob 每次换函数名，按定义里的特征串认出语义
@@ -195,20 +182,14 @@ def _bind_helpers(src: str, names: set[str]) -> dict[str, Helper]:
     ends = [pos for pos, _ in starts[1:]] + [len(src)]
     bound: dict[str, Helper] = {}
     for (start, name), end in zip(starts, ends):
-        impls = [
-            impl
-            for marker, impl in _HELPER_MARKERS.items()
-            if marker in src[start:end]
-        ]
+        impls = [impl for marker, impl in _HELPER_MARKERS.items() if marker in src[start:end]]
         if len(impls) != 1:
             raise CapError(f"blob 里认不出 helper 函数 {name}")
         bound[name] = impls[0]
     return bound
 
 
-def _js_eval(
-    node: ast.expr, state: dict[str, int], helpers: dict[str, Helper]
-) -> int:
+def _js_eval(node: ast.expr, state: dict[str, int], helpers: dict[str, Helper]) -> int:
     """位运算两侧先截成 int32，% 的符号跟被除数，与 JS 一致；不认识的节点直接报错。"""
 
     def ev(sub: ast.expr) -> int:
@@ -222,17 +203,13 @@ def _js_eval(
         case ast.UnaryOp(op=ast.Invert(), operand=operand):
             return ~_to_int32(ev(operand))
         case ast.BinOp(left=left, op=op, right=right) if type(op) in _BITWISE:
-            return _BITWISE[type(op)](
-                _to_int32(ev(left)), _to_int32(ev(right))
-            )
+            return _BITWISE[type(op)](_to_int32(ev(left)), _to_int32(ev(right)))
         case ast.BinOp(left=left, op=ast.Mod(), right=right):
             return _js_mod(ev(left), ev(right))
         case ast.BinOp(left=left, op=ast.Add(), right=right):
             return ev(left) + ev(right)
         case ast.Call(func=ast.Name(id=fn), args=[a, b, c]) if fn in helpers:
-            return helpers[fn](
-                _to_int32(ev(a)), _to_int32(ev(b)), _to_int32(ev(c))
-            )
+            return helpers[fn](_to_int32(ev(a)), _to_int32(ev(b)), _to_int32(ev(c)))
     raise CapError(f"blob 表达式无法转译: {ast.unparse(node)[:80]}")
 
 
@@ -261,39 +238,25 @@ def _solve_instrumentation(blob: str) -> Instr:
         tree = ast.parse(_UA_TERNARY.sub(r"\1", body[cut:]).strip())
     except SyntaxError as e:
         raise CapError(f"blob 等式不是可识别的语法: {e}") from e
-    calls = {
-        n.func.id
-        for n in ast.walk(tree)
-        if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
-    }
+    calls = {n.func.id for n in ast.walk(tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}
     helpers = _bind_helpers(body[:cut], calls)
     for stmt in tree.body:
         match stmt:
-            case ast.Assign(targets=[ast.Name(id=dest)], value=value) if (
-                dest in state
-            ):
+            case ast.Assign(targets=[ast.Name(id=dest)], value=value) if dest in state:
                 state[dest] = _js_eval(value, state, helpers)
             case _:
                 raise CapError(f"blob 语句无法转译: {ast.unparse(stmt)[:80]}")
-    return Instr(
-        i=challenge_id.group(1),
-        state={name: state[name] for name in names},
-        p=_CHROME_PROBE,
-    )
+    return Instr(i=challenge_id.group(1), state={name: state[name] for name in names}, p=_CHROME_PROBE)
 
 
 def _decode(resp: httpx2.Response, type_: type[T]) -> T:
     try:
         return msgspec.json.decode(resp.content, type=type_)
     except msgspec.DecodeError as e:
-        raise CapError(
-            f"{resp.url.path} 响应不识别 (HTTP {resp.status_code}): {resp.text[:120]!r}"
-        ) from e
+        raise CapError(f"{resp.url.path} 响应不识别 (HTTP {resp.status_code}): {resp.text[:120]!r}") from e
 
 
-async def _solve(
-    challenge: HashwxChallenge | InstrChallenge,
-) -> NonceSolution | InstrSolution:
+async def _solve(challenge: HashwxChallenge | InstrChallenge) -> NonceSolution | InstrSolution:
     if isinstance(challenge, InstrChallenge):
         return InstrSolution(_solve_instrumentation(challenge.payload.blob))
     p = challenge.payload
@@ -304,22 +267,16 @@ async def _fetch_token() -> tuple[str, float]:
     """跑一轮 challenge -> 求解 -> redeem，返回 (token, 过期时间戳秒)。"""
     start = time.perf_counter()
     async with httpx2.AsyncClient(headers=_CAP_HEADERS, timeout=30) as client:
-        challenge = _decode(
-            await client.post(f"{CAP_API}/challenge"), ChallengeResp
-        )
+        challenge = _decode(await client.post(f"{CAP_API}/challenge"), ChallengeResp)
         # gather 保持题目原顺序，redeem 按下标逐一校验
-        solutions = await asyncio.gather(
-            *(_solve(ch) for ch in challenge.challenges)
-        )
+        solutions = await asyncio.gather(*(_solve(ch) for ch in challenge.challenges))
         resp = await client.post(
             f"{CAP_API}/redeem",
             content=msgspec.json.encode(RedeemReq(challenge.token, solutions)),
             headers={"content-type": "application/json"},
         )
         redeemed = _decode(resp, RedeemResp)
-    hashes = sum(
-        int(s.nonce) + 1 for s in solutions if isinstance(s, NonceSolution)
-    )
+    hashes = sum(int(s.nonce) + 1 for s in solutions if isinstance(s, NonceSolution))
     logger.info(
         f"[MajsoulUID] 牌谱屋 cap token 已刷新"
         f"（{len(solutions)} 题，{hashes} 次哈希，{time.perf_counter() - start:.1f}s）"
@@ -350,9 +307,7 @@ class KoromoCapAuth(httpx2.Auth):
         if self._background is None or self._background.done():
             self._background = asyncio.create_task(self._refresh())
 
-    async def async_auth_flow(
-        self, request: httpx2.Request
-    ) -> AsyncGenerator[httpx2.Request, httpx2.Response]:
+    async def async_auth_flow(self, request: httpx2.Request) -> AsyncGenerator[httpx2.Request, httpx2.Response]:
         token = await self._get_token()
         response = yield _with_token(request, token)
         if response.status_code != 429:
@@ -364,23 +319,14 @@ class KoromoCapAuth(httpx2.Auth):
         token = await self._get_token(rejected=token)
         if token is not None:
             # 和官方前端一样，换 token 后加时间戳参数绕开缓存
-            request.url = request.url.copy_add_param(
-                "cap_token_refreshed", int(time.time() * 1000)
-            )
+            request.url = request.url.copy_add_param("cap_token_refreshed", int(time.time() * 1000))
             yield _with_token(request, token)
 
     def _usable(self, rejected: str | None) -> bool:
-        return (
-            self._token is not None
-            and self._token != rejected
-            and time.time() < self._expires_at - _EXPIRY_MARGIN
-        )
+        return self._token is not None and self._token != rejected and time.time() < self._expires_at - _EXPIRY_MARGIN
 
     def _fresh(self) -> bool:
-        return (
-            self._token is not None
-            and time.time() < self._expires_at - _REFRESH_AHEAD
-        )
+        return self._token is not None and time.time() < self._expires_at - _REFRESH_AHEAD
 
     async def _get_token(self, rejected: str | None = None) -> str | None:
         """rejected 是服务端刚拒掉的 token。"""

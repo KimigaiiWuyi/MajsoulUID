@@ -19,13 +19,8 @@ async def search_player_with_name(name: str) -> Tuple[str, Optional[List]]:
             None,
         )
 
-    hint2 = (
-        "提示：绑定后加机器人好友（[雀魂好友码]），再用[雀魂订阅]推送对局！"
-    )
+    hint2 = "提示：绑定后加机器人好友（[雀魂好友码]），再用[雀魂订阅]推送对局！"
     return (
-        "\n".join(msg_list)
-        + "\n提示：用[雀魂绑定uid+上面的UID]绑定你的号！\n"
-        + hint2
-        + "\n",
+        "\n".join(msg_list) + "\n提示：用[雀魂绑定uid+上面的UID]绑定你的号！\n" + hint2 + "\n",
         uid_list,
     )

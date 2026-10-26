@@ -12,11 +12,7 @@ cap = importlib.import_module(f"{PKG}.utils.api.cap_solver")
 hashwx = importlib.import_module(f"{PKG}.utils.api.hashwx")
 
 # 牌谱屋线上抓的 blob；答案由已跑通 redeem 的上一版求解器算出
-FIXTURES = json.loads(
-    (
-        Path(__file__).parent / "fixtures" / "cap_instrumentation.json"
-    ).read_text("utf-8")
-)
+FIXTURES = json.loads((Path(__file__).parent / "fixtures" / "cap_instrumentation.json").read_text("utf-8"))
 
 
 @pytest.mark.parametrize("case", FIXTURES, ids=lambda case: case["i"][:8])
@@ -48,9 +44,7 @@ def _dom_tree_walk(x: int, y: int, z: int) -> int:
     return cap._js_mod(s, 256)
 
 
-@pytest.mark.parametrize(
-    "xyz", [(0, 0, 0), (1, 2, 3), (-1, -2, 255), (2**31 - 1, -(2**31), 12345)]
-)
+@pytest.mark.parametrize("xyz", [(0, 0, 0), (1, 2, 3), (-1, -2, 255), (2**31 - 1, -(2**31), 12345)])
 def test_dom_sum_matches_tree_walk(xyz):
     assert cap._dom_sum(*xyz) == _dom_tree_walk(*xyz)
 
@@ -58,19 +52,9 @@ def test_dom_sum_matches_tree_walk(xyz):
 @pytest.mark.parametrize(
     ("c", "d", "n", "nonce"),
     [
-        (
-            "f21cbeca942017e04c72826c34928872f3066c67b54b3eda3cde2d1b576c57d1",
-            1000,
-            65536,
-            1309,
-        ),
+        ("f21cbeca942017e04c72826c34928872f3066c67b54b3eda3cde2d1b576c57d1", 1000, 65536, 1309),
         # n 很小时解落在第 2 个 block，覆盖 seed 轮换
-        (
-            "612104f19e8b1592a02d2c92a36dd74cce541264f841ad6d6eb7f0e66f891af8",
-            50,
-            16,
-            19,
-        ),
+        ("612104f19e8b1592a02d2c92a36dd74cce541264f841ad6d6eb7f0e66f891af8", 50, 16, 19),
     ],
 )
 def test_hashwx_nonce_is_stable(c, d, n, nonce):
@@ -91,9 +75,7 @@ def _auth_with_fake_fetch(monkeypatch, fail: bool = False):
     return cap.KoromoCapAuth(), calls
 
 
-def test_token_near_expiry_is_reused_while_refreshing_in_background(
-    monkeypatch,
-):
+def test_token_near_expiry_is_reused_while_refreshing_in_background(monkeypatch):
     auth, calls = _auth_with_fake_fetch(monkeypatch)
 
     async def run():
@@ -111,9 +93,7 @@ def test_concurrent_rejections_refresh_once(monkeypatch):
 
     async def run():
         auth._token, auth._expires_at = "bad", time.time() + 7200
-        return await asyncio.gather(
-            *(auth._get_token(rejected="bad") for _ in range(3))
-        )
+        return await asyncio.gather(*(auth._get_token(rejected="bad") for _ in range(3)))
 
     assert asyncio.run(run()) == ["new1"] * 3
     assert len(calls) == 1

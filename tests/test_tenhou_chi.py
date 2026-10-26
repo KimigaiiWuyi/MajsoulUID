@@ -1,6 +1,6 @@
+import importlib
 import sys
 import types
-import importlib
 from pathlib import Path
 
 import pytest
@@ -33,9 +33,7 @@ liblq = importlib.import_module(f"{PKG}.lib.lq")
         (("4m", "6m", "0m"), "c511416"),
     ],
 )
-def test_chi_encodes_called_tile_before_consumed_tiles(
-    tiles: tuple[str, str, str], expected: str
-) -> None:
+def test_chi_encodes_called_tile_before_consumed_tiles(tiles: tuple[str, str, str], expected: str) -> None:
     parser = parser_mod.MajsoulPaipuParser()
     parser.kyoku = model.Kyoku(
         nplayers=4,
@@ -57,9 +55,7 @@ def test_chi_encodes_called_tile_before_consumed_tiles(
     parser.handle(
         log_model.MjsLogItem(
             name="RecordChiPengGang",
-            data=liblq.RecordChiPengGang(
-                seat=3, type=0, tiles=list(tiles), froms=[3, 3, 2]
-            ),
+            data=liblq.RecordChiPengGang(seat=3, type=0, tiles=list(tiles), froms=[3, 3, 2]),
         )
     )
 

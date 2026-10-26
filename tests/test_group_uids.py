@@ -4,9 +4,7 @@ import importlib
 
 from sqlalchemy.dialects import sqlite
 
-models = importlib.import_module(
-    "gsuid_core.plugins.MajsoulUID.MajsoulUID.utils.database.models"
-)
+models = importlib.import_module("gsuid_core.plugins.MajsoulUID.MajsoulUID.utils.database.models")
 
 GROUP_A = "1130845366158377063"
 GROUP_B = "1246842766206435410"
@@ -30,23 +28,14 @@ class SqliteSession:
         self.db = db
 
     async def execute(self, stmt):
-        sql = str(
-            stmt.compile(
-                dialect=sqlite.dialect(),
-                compile_kwargs={"literal_binds": True},
-            )
-        )
+        sql = str(stmt.compile(dialect=sqlite.dialect(), compile_kwargs={"literal_binds": True}))
         return Rows(self.db.execute(sql).fetchall())
 
 
 def make_db():
     db = sqlite3.connect(":memory:")
-    db.execute(
-        "CREATE TABLE majsbind (bot_id TEXT, user_id TEXT, group_id TEXT, uid TEXT)"
-    )
-    db.execute(
-        "CREATE TABLE coreuser (bot_id TEXT, user_id TEXT, group_id TEXT)"
-    )
+    db.execute("CREATE TABLE majsbind (bot_id TEXT, user_id TEXT, group_id TEXT, uid TEXT)")
+    db.execute("CREATE TABLE coreuser (bot_id TEXT, user_id TEXT, group_id TEXT)")
     db.executemany(
         "INSERT INTO majsbind VALUES (?, ?, ?, ?)",
         [
@@ -63,20 +52,14 @@ def make_db():
     )
     db.executemany(
         "INSERT INTO coreuser VALUES (?, ?, ?)",
-        [
-            ("discord", "alice", GROUP_A),
-            ("discord", "alice", GROUP_B),
-            ("discord", "carol", GROUP_B),
-        ],
+        [("discord", "alice", GROUP_A), ("discord", "alice", GROUP_B), ("discord", "carol", GROUP_B)],
     )
     return db
 
 
 def group_uids(group_id: str, bot_id: str = "discord") -> set[str]:
     fn = models.MajsBind.get_group_uids.__wrapped__
-    return asyncio.run(
-        fn(models.MajsBind, SqliteSession(make_db()), bot_id, bot_id, group_id)
-    )
+    return asyncio.run(fn(models.MajsBind, SqliteSession(make_db()), bot_id, bot_id, group_id))
 
 
 def test_group_sees_only_its_own_members():

@@ -10,16 +10,12 @@ remote_const = importlib.import_module(f"{PKG}.utils.api.remote_const")
 
 def _api_returning(response: httpx2.Response):
     api = request.KoromoApi()
-    api._client = httpx2.AsyncClient(
-        transport=httpx2.MockTransport(lambda _: response)
-    )
+    api._client = httpx2.AsyncClient(transport=httpx2.MockTransport(lambda _: response))
     return api
 
 
 def test_extended_missing_fields_get_zero_defaults():
-    api = _api_returning(
-        httpx2.Response(200, json={"count": 3, "和牌率": 0.25})
-    )
+    api = _api_returning(httpx2.Response(200, json={"count": 3, "和牌率": 0.25}))
     extended = asyncio.run(api.get_player_extended(1))
     assert not isinstance(extended, int)
     assert extended["和牌率"] == 0.25
@@ -33,9 +29,7 @@ def test_error_json_becomes_error_code():
 
 
 def test_captcha_page_becomes_error_code():
-    api = _api_returning(
-        httpx2.Response(429, text="[x-cap-token-required] CAPTCHA required")
-    )
+    api = _api_returning(httpx2.Response(429, text="[x-cap-token-required] CAPTCHA required"))
     assert asyncio.run(api.get_player_record(1)) == -999
     assert asyncio.run(api.search_player("a")) == []
 
