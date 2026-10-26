@@ -4,8 +4,8 @@ from gsuid_core.models import Event
 from gsuid_core.utils.database.api import get_uid
 
 from ..utils.error_reply import UID_HINT
-from .draw_majs_info_pic import draw_majs_info_img
 from ..utils.database.models import MajsBind
+from .draw_majs_info_pic import draw_majs_info_img
 
 majs_user_info = SV("雀魂用户信息查询")
 

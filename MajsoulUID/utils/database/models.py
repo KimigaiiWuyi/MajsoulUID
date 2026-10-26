@@ -2,10 +2,9 @@ from typing import Type, TypeVar, Optional
 
 from sqlmodel import Field, col, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from gsuid_core.webconsole.mount_app import PageSchema, GsAdminModel, site
 from gsuid_core.utils.database.models import CoreUser
 from gsuid_core.utils.database.startup import exec_list
+from gsuid_core.webconsole.mount_app import PageSchema, GsAdminModel, site
 from gsuid_core.utils.database.base_models import (
     Bind,
     Push,
@@ -51,7 +50,9 @@ class MajsPaipu(BaseIDModel, table=True):
 
     @classmethod
     @with_session
-    async def data_exist(cls: Type[T_MajsPaipu], session: AsyncSession, uuid: str) -> bool:
+    async def data_exist(
+        cls: Type[T_MajsPaipu], session: AsyncSession, uuid: str
+    ) -> bool:
         stmt = select(cls).where(cls.uuid == uuid)
         result = await session.execute(stmt)
         data = result.scalars().all()
@@ -88,7 +89,13 @@ class MajsBind(Bind, table=True):
             or_(col(cls.user_id).in_(members), col(cls.group_id) == group_id),
         )
         result = await session.execute(stmt)
-        return {uid for joined in result.scalars().all() if joined for uid in joined.split("_") if uid}
+        return {
+            uid
+            for joined in result.scalars().all()
+            if joined
+            for uid in joined.split("_")
+            if uid
+        }
 
 
 class MajsUser(User, table=True):

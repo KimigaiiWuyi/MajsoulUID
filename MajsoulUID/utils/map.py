@@ -13,4 +13,6 @@ class MajsoulSkin(Struct):
     path: str | None
 
 
-lqc = json.decode((PROTO_PATH / "lqc.json").read_bytes(), type=dict[str, MajsoulSkin])
+lqc = json.decode(
+    (PROTO_PATH / "lqc.json").read_bytes(), type=dict[str, MajsoulSkin]
+)

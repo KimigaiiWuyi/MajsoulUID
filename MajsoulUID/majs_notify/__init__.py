@@ -4,31 +4,30 @@ from urllib.parse import parse_qs, urlparse
 
 import httpx2
 import email_validator
-
 from gsuid_core.sv import SV
-from gsuid_core.aps import scheduler
 from gsuid_core.bot import Bot
-from gsuid_core.logger import logger
 from gsuid_core.models import Event
+from gsuid_core.aps import scheduler
+from gsuid_core.logger import logger
 from gsuid_core.segment import MessageSegment
 from gsuid_core.subscribe import gs_subscribe
 from gsuid_core.utils.database.api import get_uid
 
+from .draw_frame import render_frame
+from ..utils.error_reply import UID_HINT
+from .constants import USER_AGENT, ModeId2Room
+from ..utils.api.remote import encode_account_id2
+from .draw_friend_rank import draw_friend_rank_img
+from .draw_review_info import draw_review_info_img
+from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
+from .tenhou.review import review_tenhou, get_review_result
+from ..utils.database.models import MajsBind, MajsPush, MajsUser
 from .majsoul import (
     TASK_NAME_MAJSOUL_NOTIFY,
     MajsoulMaintenanceError,
     manager,
     get_paipu_by_game_id,
 )
-from .constants import USER_AGENT, ModeId2Room
-from .draw_frame import render_frame
-from .tenhou.review import review_tenhou, get_review_result
-from .draw_friend_rank import draw_friend_rank_img
-from .draw_review_info import draw_review_info_img
-from ..utils.api.remote import encode_account_id2
-from ..utils.error_reply import UID_HINT
-from ..utils.database.models import MajsBind, MajsPush, MajsUser
-from ..utils.resource.RESOURCE_PATH import PAIPU_PATH
 
 majsoul_notify = SV("雀魂推送服务", pm=0)
 majsoul_add_account = SV("雀魂账号池", pm=0)
@@ -118,7 +117,9 @@ async def majsoul_render_log(bot: Bot, ev: Event):
     et = ev.text.strip().replace("，", ",").replace(",", " ")
     paipu_command = et.split(" ")
     if len(paipu_command) != 3:
-        return await bot.send("❌ 请输入有效的格式!\n例如：雀魂场况 241118 10 5")
+        return await bot.send(
+            "❌ 请输入有效的格式!\n例如：雀魂场况 241118 10 5"
+        )
 
     paipu_id = paipu_command[0]
     kyoku_id = int(paipu_command[1])
@@ -130,10 +131,14 @@ async def majsoul_render_log(bot: Bot, ev: Event):
             paipu = await get_paipu_by_game_id(paipu_id)
             break
     else:
-        return await bot.send("❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]")
+        return await bot.send(
+            "❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]"
+        )
 
     if paipu is None:
-        return await bot.send("❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]")
+        return await bot.send(
+            "❌ 未找到有效牌谱!\n请先使用[雀魂牌谱review + URL]"
+        )
 
     res = await review_tenhou(paipu)
     if isinstance(res, str):
@@ -143,7 +148,9 @@ async def majsoul_render_log(bot: Bot, ev: Event):
     await bot.send(im)
 
 
-@majsoul_yostar_login.on_command(("登录美服", "登录日服", "登陆日服", "登陆美服"))
+@majsoul_yostar_login.on_command(
+    ("登录美服", "登录日服", "登陆日服", "登陆美服")
+)
 async def majsoul_jp_login_command(bot: Bot, ev: Event):
     url = "https://passport.mahjongsoul.com/account/auth_request"
     headers = {
@@ -273,7 +280,9 @@ async def majsoul_add_at(bot: Bot, ev: Event):
         if isinstance(connection, str):
             return await bot.send(connection)
         if isinstance(connection, bool):
-            return await bot.send("❌ 登陆失败, 请输入正确的username和password!")
+            return await bot.send(
+                "❌ 登陆失败, 请输入正确的username和password!"
+            )
     else:
         return await bot.send(f"❌ 登陆失败!参考命令:\n{EXSAMPLE}")
 
@@ -319,7 +328,11 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
         return await bot.send(UID_HINT)
 
     subscribes = await gs_subscribe.get_subscribe(TASK_NAME_MAJSOUL_WATCH)
-    watching = [s for s in subscribes if s.user_id == ev.user_id] if subscribes else []
+    watching = (
+        [s for s in subscribes if s.user_id == ev.user_id]
+        if subscribes
+        else []
+    )
     push = await MajsPush.select_data_by_uid(uid)
     pushing = push is not None and push.push_id != "off"
     if not watching and not pushing:
@@ -327,10 +340,17 @@ async def majsoul_cancel_notify_command(bot: Bot, ev: Event):
 
     closed: list[str] = []
     if watching:
-        await gs_subscribe.delete_subscribe("single", TASK_NAME_MAJSOUL_WATCH, ev)
-        closed.append(f"观战模式（UID {'、'.join(str(s.extra_message) for s in watching)}）")
+        await gs_subscribe.delete_subscribe(
+            "single", TASK_NAME_MAJSOUL_WATCH, ev
+        )
+        closed.append(
+            f"观战模式（UID {'、'.join(str(s.extra_message) for s in watching)}）"
+        )
     if pushing:
-        if await MajsPush.update_data_by_uid(uid, ev.bot_id, push_id="off") != 0:
+        if (
+            await MajsPush.update_data_by_uid(uid, ev.bot_id, push_id="off")
+            != 0
+        ):
             return await bot.send("[majs] 关闭好友模式推送失败，请稍后再试")
         closed.append(f"好友模式（UID {uid}）")
     logger.success(f"[majs] {ev.user_id} 关闭订阅: {closed}")
@@ -392,7 +412,9 @@ async def majsoul_get_notify_command(bot: Bot, ev: Event):
     if retcode == 0:
         logger.success(f"[majs] {uid}订阅推送成功！当前值：{push_id}")
         where = "这个群" if ev.group_id else "私聊"
-        return await bot.send(f"[majs] 好友模式订阅成功！UID {uid} 的对局结果会推送到{where}，关闭用[雀魂取消订阅]")
+        return await bot.send(
+            f"[majs] 好友模式订阅成功！UID {uid} 的对局结果会推送到{where}，关闭用[雀魂取消订阅]"
+        )
     else:
         return await bot.send("[majs] 推送订阅失败！")
 
@@ -406,8 +428,14 @@ async def majsoul_friend_code_command(bot: Bot, ev: Event):
         if user.uid is not None and user.uid.isdigit()
     ]
     if not lines:
-        return await bot.send("账号池里还没有可用的机器人账号，请管理员先用[雀魂登陆国服]添加")
-    await bot.send("机器人好友码：\n" + "\n".join(lines) + "\n通过好友申请后，用[雀魂订阅]就能推送分数变化")
+        return await bot.send(
+            "账号池里还没有可用的机器人账号，请管理员先用[雀魂登陆国服]添加"
+        )
+    await bot.send(
+        "机器人好友码：\n"
+        + "\n".join(lines)
+        + "\n通过好友申请后，用[雀魂订阅]就能推送分数变化"
+    )
 
 
 @majsoul_notify.on_fullmatch(("推送启动", "启动推送", "服务启动", "启动服务"))
@@ -459,14 +487,22 @@ async def majsoul_notify_check_command(bot: Bot, event: Event):
 async def majsoul_friend_billboard_command(bot: Bot, event: Event):
     # 私聊没有「本群」，放开就能看到所有群的人
     if not event.group_id:
-        return await bot.send("好友排行榜只能在群里看，只列出本群绑定了 UID 的人")
+        return await bot.send(
+            "好友排行榜只能在群里看，只列出本群绑定了 UID 的人"
+        )
 
     conn = manager.get_conn()
     if conn is None:
         return await bot.send("未找到有效连接, 请先进行[雀魂推送启动]")
 
-    uids = await MajsBind.get_group_uids(event.bot_id, event.real_bot_id, event.group_id)
-    friends = [friend for friend in conn.friends.values() if str(friend.account_id) in uids]
+    uids = await MajsBind.get_group_uids(
+        event.bot_id, event.real_bot_id, event.group_id
+    )
+    friends = [
+        friend
+        for friend in conn.friends.values()
+        if str(friend.account_id) in uids
+    ]
     if not uids:
         return await bot.send("本群还没有人绑定 UID，先用[雀魂绑定uid]绑定")
     if not friends:
