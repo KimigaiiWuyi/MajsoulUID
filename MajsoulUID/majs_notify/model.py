@@ -26,6 +26,11 @@ class MajsoulRoute(Struct):
     id: str
     domain: str
     ssl: bool
+    # 网关给的线路状态：idle / normal / busy / ...；level 越高越优先（Entrance 选主线路）
+    state: str = "idle"
+    level: int = 0
+    order: int = 1000
+    name: str = ""
 
 
 class MajsoulMaintenanceInfo(Struct):

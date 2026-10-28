@@ -13,7 +13,6 @@ import httpx2
 import msgspec
 import aiofiles
 import betterproto
-from websockets.exceptions import InvalidHandshake
 
 from gsuid_core.gss import gss
 from gsuid_core.logger import logger
@@ -24,8 +23,6 @@ from .codec import CLIENT_VERSION, message_type
 from .model import (
     MjsLog,
     MjsLogItem,
-    MajsoulRoute,
-    MajsoulRoutesResp,
     YostarPassportResp,
     MajsoulDecodedMessage,
 )
@@ -39,10 +36,8 @@ from .constants import (
     ERR_PROHIBITED,
     IGNORED_NOTIFY,
     CLIENT_PLATFORM,
-    DETAIL_PLATFORM,
     ERR_LOGIN_QUEUE,
     LOGIN_TYPE_PHONE,
-    RECONNECT_DELAYS,
     RECORD_ERROR_TEXT,
     SOCIO_TYPE_YOSTAR,
     LOGIN_TYPE_ACCOUNT,
@@ -60,6 +55,7 @@ from .constants import (
     yostar_region,
 )
 from .paipu_cache import PAIPU_CACHE_VERSION, get_paipu_by_game_id
+from .route_group import SOCKET_ERRORS, RouteGroup, GatewayFetcher
 from .tenhou.parser import MajsoulPaipuParser
 from .majsoul_friend import MajsoulFriend
 from ..utils.api.remote import (
@@ -81,8 +77,8 @@ GAME_RECORD_RETRY_DELAYS = (0, 3, 5, 10, 20, 30)
 RECORD_FETCH_INTERVAL = 1.0
 # 同一局的结果留这么久，几个好友同局时只查一次
 GAME_HEAD_CACHE_SECONDS = 600
-# 连路由、发请求、问网关时可能遇到的网络错误（TimeoutError、ConnectionError 都是 OSError）
-NETWORK_ERRORS = (OSError, InvalidHandshake, httpx2.HTTPError)
+# 连路由、发请求、问网关时可能遇到的网络错误
+NETWORK_ERRORS = (*SOCKET_ERRORS, httpx2.HTTPError)
 
 
 class MajsoulLoginError(Exception):
@@ -247,7 +243,10 @@ async def wait_event(event: asyncio.Event, timeout: float) -> bool:
 
 
 class MajsoulConnection:
-    """账号池里的一个小号。断线重连只换底下的 RouteSocket，好友和推送状态都留着。"""
+    """账号池里的一个小号（LobbyNetMgr + LoginMgr 那一层）。
+
+    线路由 RouteGroup 管，断线重连、切备用线路都不动这里的好友和推送状态。
+    """
 
     def __init__(self, credential: MajsoulCredential, device_id: str):
         self.credential = credential
@@ -259,11 +258,13 @@ class MajsoulConnection:
         self.account_id = 0
         self.nick_name = ""
         self.access_token = credential.access_token
-        self._socket: RouteSocket | None = None
+        self._gateway = GatewayFetcher(self._region)
+        self._group: RouteGroup | None = None
+        # 上次用的主线路（客户端存在 ROUTE_KEY 里），重新登录时优先用
+        self._preferred_route = ""
         self._kick_relogin_used = False
         self._idle = IdleSimulator()
         self._loops: list[asyncio.Task[None]] = []
-        self._reconnect_task: asyncio.Task[None] | None = None
         self._notify_tasks: set[asyncio.Task[None]] = set()
         self._side_tasks: set[asyncio.Task[None]] = set()
         self._kicked_socket: RouteSocket | None = None
@@ -298,10 +299,14 @@ class MajsoulConnection:
     def reset_kick(self) -> None:
         self._kick_relogin_used = False
 
+    @property
+    def main_socket(self) -> RouteSocket | None:
+        return self._group.main if self._group is not None else None
+
     async def rpc_call(self, method_name: str, req: betterproto.Message, resp_type: type[RespT]) -> RespT:
-        if self._socket is None:
+        if self._group is None:
             raise ConnectionError("[majs] 还没有连上雀魂")
-        return await self._socket.request(method_name, req, resp_type)
+        return await self._group.request(method_name, req, resp_type)
 
     # ---------- 登录（UI_Entrance / LoginMgr） ----------
 
@@ -365,8 +370,9 @@ class MajsoulConnection:
         await self._shutdown()
         self.state = ConnState.OFFLINE
         try:
-            route = await fetch_route(self._region)
-            await self._open_socket(route)
+            group = RouteGroup(self._region, self._gateway, self)
+            self._group = group
+            await self._open_entrance(group)
             resp = await self._fresh_login()
             await self._apply_login(resp)
             # LoginMgr.OnLoginSuccess 末尾发 loginBeat；UI_Entrance:OnLoginSuccess 有昵称才报 loginSuccess
@@ -387,7 +393,18 @@ class MajsoulConnection:
         self._idle = IdleSimulator()
         self.state = ConnState.ONLINE
         self._start_loops()
+        # LobbyNetMgr.InitOnLoginSuccess：登录成功后线路组才开始管重连和备用线路
+        group.start()
         logger.info(f"[majs] {self.label} 登录成功")
+
+    async def _open_entrance(self, group: RouteGroup) -> None:
+        # 和打开游戏一样先拉一遍线路表；维护中不连（NetRouteGroup_Entrance）
+        if not await self._gateway.fetch():
+            raise ConnectionError(f"[majs] {self._region.tag} 服的入口网关全部不可用")
+        if self._gateway.maintenance:
+            raise MajsoulMaintenanceError(f"雀魂服务器正在维护：{self._gateway.maintenance}")
+        main = await group.open_entrance(self._preferred_route)
+        self._preferred_route = main.route.id
 
     async def _fresh_login(self) -> liblq.ResLogin:
         cred = self.credential
@@ -501,22 +518,7 @@ class MajsoulConnection:
         if resp.error.code:
             logger.warning(f"[majs] loginSuccess 失败: {resp.error}")
 
-    # ---------- 连接、心跳与重连（NetRoute / NetRouteGroup / GameMgr） ----------
-
-    async def _open_socket(self, route: MajsoulRoute) -> None:
-        socket = RouteSocket(
-            route,
-            self._region,
-            lambda notify: self._on_notify(socket, notify),
-            self._on_socket_closed,
-        )
-        self._socket = socket
-        await socket.open()
-
-    async def _close_socket(self) -> None:
-        if self._socket is not None:
-            socket, self._socket = self._socket, None
-            await socket.close()
+    # ---------- 心跳、重连与线路事件（GameMgr / LobbyNetMgr） ----------
 
     def _start_loops(self) -> None:
         self._stop_loops()
@@ -533,19 +535,19 @@ class MajsoulConnection:
     async def _lobby_ping_loop(self) -> None:
         while True:
             await asyncio.sleep(LOBBY_PING_INTERVAL)
-            socket = self._socket
+            socket = self.main_socket
             if socket is None or not socket.is_open() or self.state is not ConnState.ONLINE:
                 continue
             try:
                 await socket.send_heartbeat(self._idle.sample(time.monotonic()))
             except ConnectionError:
-                # 刚好断开：RouteSocket 会通知重连
+                # 刚好断开：线路组会去重连
                 continue
 
     async def _server_time_loop(self) -> None:
         while True:
             await asyncio.sleep(SERVER_TIME_INTERVAL)
-            socket = self._socket
+            socket = self.main_socket
             if socket is None or not socket.is_open() or self.state is not ConnState.ONLINE:
                 continue
             try:
@@ -554,13 +556,11 @@ class MajsoulConnection:
                 continue
 
     async def _shutdown(self) -> None:
-        """关掉连接和后台任务，准备重新登录；不动正在跑的通知处理。"""
+        """关掉线路组和后台任务，准备重新登录；不动正在跑的通知处理。"""
         self._stop_loops()
-        current = asyncio.current_task()
-        if self._reconnect_task is not None and self._reconnect_task is not current:
-            self._reconnect_task.cancel()
-        self._reconnect_task = None
-        await self._close_socket()
+        if self._group is not None:
+            group, self._group = self._group, None
+            await group.close()
 
     async def close(self) -> None:
         """从账号池移除前调用：停掉一切，不再重连。"""
@@ -583,57 +583,59 @@ class MajsoulConnection:
         await self._fail(reason)
         await self.send_meta(f"账号 {self.label} {reason}，推送已停止。\n发送[雀魂重启服务]重新登录")
 
-    def _on_socket_closed(self, socket: RouteSocket) -> None:
-        if socket is not self._socket or self.state is not ConnState.ONLINE:
+    def on_reconnect_started(self) -> None:
+        if self.state is not ConnState.ONLINE:
             return
-        # NetRouteGroup:_OnRouteClose：主路由意外断开，在同一条路由上重连
-        logger.warning(f"[majs] {self.label} 断线，开始重连")
+        logger.warning(f"[majs] {self.label} 断线，线路组开始重连")
         self.state = ConnState.RECONNECTING
         self._stop_loops()
-        self._reconnect_task = spawn(self._reconnect(socket.route), f"majs-reconnect-{self.account_id}")
 
-    async def _reconnect(self, route: MajsoulRoute) -> None:
+    async def on_reconnected(self, changed: bool) -> None:
         try:
-            await self._reconnect_attempts(route)
+            await self._on_reconnected(changed)
         except Exception as e:
             # 意料之外的异常别让状态卡在「重连中」：先放弃并提醒，再原样抛出去
             await self._give_up(f"重连时出错：{e!r}")
             raise
 
-    async def _reconnect_attempts(self, route: MajsoulRoute) -> None:
-        for attempt, delay in enumerate(RECONNECT_DELAYS, 1):
-            await asyncio.sleep(delay)
-            logger.info(f"[majs] {self.label} 第 {attempt} 次重连")
+    async def _on_reconnected(self, changed: bool) -> None:
+        if not changed:
+            # LobbyNetMgr：原线路重连上了就 LoginMgr.Relogin，带 reconnect=true；失败官方弹致命错误
             try:
-                await self._open_socket(route)
-                # LoginMgr.Relogin：重连后用 access_token 重新登录，带 reconnect=true
                 resp = await self._send_login(".lq.Lobby.oauth2Login", self._oauth2_login_req(self.access_token, True))
-                if resp.error.code or not resp.account_id:
-                    # 官方这里弹「自动重连登录失败」，不再重试
-                    await self._give_up(f"自动重连登录失败（错误码 {resp.error.code}）")
-                    return
-                await self._after_relogin(resp)
-                return
             except MajsoulLoginError as e:
                 await self._give_up(str(e))
                 return
             except NETWORK_ERRORS as e:
-                logger.warning(f"[majs] {self.label} 第 {attempt} 次重连失败: {e!r}")
-                await self._close_socket()
-        await self._give_up(f"断线后重连 {len(RECONNECT_DELAYS)} 次都没连上")
-
-    async def _after_relogin(self, resp: liblq.ResLogin) -> None:
-        # LoginMgr._OnReloginSuccess：OnLoginSuccess（发 loginBeat）→ fetchServerTime → loginSuccess
-        await self._apply_login(resp)
-        await self.login_beat()
-        if self._socket is not None:
-            await self._socket.send(".lq.Lobby.fetchServerTime", liblq.ReqCommon())
-        await self._send_login_success()
-        # 插件自己的：官方重登后不重新拉好友，这里要拿断线期间变化后的好友状态
+                await self._give_up(f"自动重连登录失败：{e!r}")
+                return
+            if resp.error.code or not resp.account_id:
+                await self._give_up(f"自动重连登录失败（错误码 {resp.error.code}）")
+                return
+            # LoginMgr._OnReloginSuccess：OnLoginSuccess（发 loginBeat）→ fetchServerTime → loginSuccess
+            await self._apply_login(resp)
+            await self.login_beat()
+            socket = self.main_socket
+            if socket is not None:
+                await socket.send(".lq.Lobby.fetchServerTime", liblq.ReqCommon())
+            await self._send_login_success()
+        main = self.main_socket
+        if main is not None:
+            self._preferred_route = main.route.id
+        # 换线路走的是 fastLogin（LoginMgr.OnFastLogin），不用重新登录
+        # 插件自己的：官方不重新拉好友，这里要拿断线期间变化后的好友状态
         await self.fetchInfo()
-        self.state = ConnState.ONLINE
-        self._start_loops()
-        logger.info(f"[majs] {self.label} 重连成功")
+        if self.state is ConnState.RECONNECTING:
+            self.state = ConnState.ONLINE
+            self._start_loops()
+        logger.info(f"[majs] {self.label} {'切换线路' if changed else '重连'}成功")
+
+    async def on_reconnect_failed(self, reason: str) -> None:
+        await self._give_up(reason)
+
+    def prepare_login_request(self) -> liblq.ReqPrepareLogin:
+        # NetRouteGroup:_StandbyPrepareLogin：用 LoginMgr 里的 access_token 和登录类型
+        return liblq.ReqPrepareLogin(access_token=self.access_token, type=self.credential.login_type)
 
     async def _on_kicked(self, reason: str) -> None:
         # UI_AnotherLogin / UI_Hanguplogout 先关掉连接；官方之后关自动登录，这里自动重登一次
@@ -657,14 +659,16 @@ class MajsoulConnection:
 
     # ---------- 通知 ----------
 
-    def _on_notify(self, socket: RouteSocket, notify: MajsoulDecodedMessage) -> None:
+    def on_group_notify(self, socket: RouteSocket, notify: MajsoulDecodedMessage) -> None:
         if isinstance(notify.payload, (liblq.NotifyAnotherLogin, liblq.NotifyAccountLogout)):
             # 同一条连接上的第二条顶号/登出通知、旧连接迟到的通知，都算同一次被顶
-            if socket is not self._socket or socket is self._kicked_socket:
+            if socket is not self.main_socket or socket is self._kicked_socket:
                 return
             self._kicked_socket = socket
-            # 官方收到就立刻关网络；先改状态，接着到来的断开就不会被当成掉线去重连
+            # 官方收到就立刻 LobbyNetMgr.Close()；先停掉线路组，接着到来的断开就不会被当成掉线去重连
             self.state = ConnState.OFFLINE
+            if self._group is not None:
+                self._group.mark_closed()
         task = spawn(self.handle_notify(notify), f"majs-notify-{notify.method_name}")
         self._notify_tasks.add(task)
         task.add_done_callback(self._notify_tasks.discard)
@@ -1051,37 +1055,6 @@ class MajsoulConnection:
             )
 
         return tenhou_log
-
-
-async def fetch_route(region: MajsoulRegion) -> MajsoulRoute:
-    """和 Unity 客户端一样，先向入口网关要路由表，再挑一条路由去连。"""
-    params = {
-        "platform": DETAIL_PLATFORM,
-        "version": CLIENT_VERSION.package_version,
-        "lang": region.route_lang,
-    }
-    headers = {"User-Agent": USER_AGENT, "Referer": region.web_url}
-    async with httpx2.AsyncClient(headers=headers, timeout=10) as client:
-        for gateway in random.sample(region.gateways, len(region.gateways)):
-            try:
-                resp = await client.get(f"{gateway}/api/clientgate/routes", params=params)
-                resp.raise_for_status()
-            except httpx2.HTTPError as e:
-                logger.warning(f"[majs] 入口网关 {gateway} 不可用: {e!r}")
-                continue
-            try:
-                data = msgspec.json.decode(resp.content, type=MajsoulRoutesResp).data
-            except msgspec.DecodeError as e:
-                logger.warning(f"[majs] 入口网关 {gateway} 返回内容无法解析: {e}")
-                continue
-            if data.maintenance:
-                notes = [m.content for m in data.maintenance if m.lang in (region.route_lang, "chs")]
-                notice = "\n".join(notes or [data.maintenance[0].content])
-                raise MajsoulMaintenanceError(f"雀魂服务器正在维护：{notice}")
-            if data.routes:
-                return random.choice(data.routes)
-            logger.warning(f"[majs] 入口网关 {gateway} 没有返回可用路由")
-    raise ConnectionError(f"[majs] {region.tag} 服的入口网关全部不可用")
 
 
 def connection_from_user(user: MajsUser) -> MajsoulConnection | None:

@@ -9,7 +9,11 @@ USER_AGENT = (
 CLIENT_PLATFORM = "WebGL"
 DETAIL_PLATFORM = "Web"
 DETAIL_PLATFORM_ID = 11
+# NetDefines.RouteType = Basic.Enum({'None','Main','Standby','Detect'})，从 0 开始
+ROUTE_TYPE_NONE = 0
 ROUTE_TYPE_MAIN = 1
+ROUTE_TYPE_STANDBY = 2
+ROUTE_TYPE_DETECT = 3
 LOGIN_BEAT_CONTRACT = "DF2vkXCnfeXp4WoGrBGNcJBufZiMN3uP"
 # LoginMgr._SendLoginBeat：失败隔 1 秒重发，最多发 2 次
 LOGIN_BEAT_ATTEMPTS = 2
@@ -40,6 +44,49 @@ HANGUP_LOGOUT_SECONDS = 50 * 60
 SERVER_TIME_INTERVAL = 3600
 # NetRouteGroup 的重连间隔表 h={0.3,1,3,6,10,15}，用完还连不上就放弃
 RECONNECT_DELAYS = (0.3, 1.0, 3.0, 6.0, 10.0, 15.0)
+
+# ---- 备用线路（NetRouteGroup / NetRoute / GatewayFetcher），单位秒 ----
+DELAY_GOOD_THRESHOLD = 0.3
+DELAY_BAD_THRESHOLD = 1.0
+GROUP_TICK_INTERVAL = 1.0
+# 主线路质量超过 4 秒持续 5 秒算黑洞；重连超过 20 秒也去切备用线路
+BLACK_HOLE_QUALITY = 4.0
+BLACK_HOLE_SECONDS = 5.0
+RECONNECT_SWITCH_AFTER = 20.0
+# 上次重连 / 切换后 30 秒内不切；主线路刚开 10 秒、备用 / 探测刚开 3 秒内不切
+SWITCH_COOLDOWN = 30.0
+MAIN_SETTLE_SECONDS = 10.0
+STANDBY_SETTLE_SECONDS = 3.0
+# 备用比主线路好 0.5 秒才自动切；探测比备用好 0.1 秒才替换备用
+SWITCH_MAIN_MARGIN = 0.5
+SWITCH_STANDBY_MARGIN = 0.1
+# NetRoute:_Loop：备用线路开满 20 分钟、探测线路开满 40 秒（没被锁定时）自动关
+STANDBY_MAX_AGE = 20 * 60.0
+DETECT_MAX_AGE = 40.0
+# NetRoute:Detect：距上次探测结束超过 30 秒才再测，每次连发 2~5 个 ping
+DETECT_INTERVAL = 30.0
+# _CalcDetectCooldown：备用线路越差探测越勤，最短 3 秒，最长 3 分钟
+DETECT_COOLDOWN_MIN = 3.0
+DETECT_COOLDOWN_MAX = 3 * 60.0
+# 各种失败后这条线路多久不再拿来探测
+BAN_CONNECT_FAILED = 5 * 60.0
+BAN_SWITCH_FAILED = 5 * 60.0
+BAN_PREPARE_FAILED = 5 * 60.0
+BAN_REPLACED = 60.0
+BAN_DETECT_BAD = 10 * 60.0
+BAN_DETECT_WORSE = 3 * 60.0
+# GatewayFetcher.CheckFetch：成功后 2 分钟、维护中 30 秒刷新一次路由表
+GATEWAY_REFRESH_INTERVAL = 2 * 60.0
+GATEWAY_MAINTENANCE_REFRESH = 30.0
+GATEWAY_TIMEOUT = 10.0
+# Fetch：先问上次成功的网关，3 秒没结果再每批 3 个问其他的
+GATEWAY_RETRY_DELAY = 3.0
+GATEWAY_BATCH = 3
+# GameUtility.ENetBusyState；只有 idle、normal 能用，探测只挑 idle
+BUSY_IDLE = "idle"
+BUSY_NORMAL = "normal"
+BUSY_REJECTED = "rejected"
+BUSY_REMOVED = "removed"
 
 # UI_Entrance：503 弹封禁说明，156 进 UI_LoginQueue 排队
 ERR_PROHIBITED = 503

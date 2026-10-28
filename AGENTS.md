@@ -76,7 +76,8 @@ uv run --no-project --python ../../../.venv/Scripts/python.exe --with "betterpro
 
 **类型检查的坑**：在本目录直接跑 `basedpyright` 会读到 Core 根的 `pyrightconfig.json`，它排除了 `gsuid_core/plugins`，
 结果是「0 errors」但其实一个文件都没查。要另写一份 `include` 本插件、`exclude` 掉 `MajsoulUID/lib/lq`、
-`venvPath` 指 Core 根的配置，用 `basedpyright --project <那份配置>` 跑。
+`venvPath` 指 Core 根、`extraPaths` 加上 Core 根和本插件 `tests/`（测试之间互相 import）的配置，
+用 `basedpyright --project <那份配置>` 跑。
 
 ## Code style
 
@@ -98,7 +99,8 @@ uv run --no-project --python ../../../.venv/Scripts/python.exe --with "betterpro
 
 ## Testing
 
-`tests/` 离线跑，不连雀魂。连接层在 `test_session.py`：会话用假的 RouteSocket，`RouteSocket` 本身起本地 WebSocket 服务端测。
+`tests/` 离线跑，不连雀魂。连接层：`test_session.py` 测会话和 `RouteSocket`，`test_route_group.py` 测主 / 备用 / 探测线路；
+假线路、假网关在 `tests/route_fakes.py`，`RouteSocket` 和切线路各有一个起本地 WebSocket 服务端的真连接测试。
 改 `codec.py` / `route*.py` / `majsoul.py` 的登录重连 / `tenhou/parser.py` / `remote.py` 时补单测。
 `config_default.py` import 时读 `core_config.masters`，脱离 Core 会炸，单测要 mock。
 
