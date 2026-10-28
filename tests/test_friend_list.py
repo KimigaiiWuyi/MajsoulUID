@@ -52,6 +52,14 @@ def fetch_info_resp(friends: dict[int, str], applies: list[int], error_code: int
     )
 
 
+class FakeWs:
+    def __init__(self, closed: bool = False):
+        self.closed = closed
+
+    async def close(self):
+        self.closed = True
+
+
 def friend_change(account_id: int, change_type: int, nickname: str = ""):
     payload = liblq.NotifyFriendChange(
         account_id=account_id, type=change_type, friend=make_friend(account_id, nickname)
@@ -81,6 +89,53 @@ def test_fetch_info_error_keeps_old_list():
     asyncio.run(conn.fetchInfo())
     assert len(conn.friends) == 4
     assert conn.friend_apply_list == [7]
+
+
+def test_another_login_closes_kicked_connection():
+    # 被顶号后服务端不断开 WS，不自己关掉的话 start() 会一直把它当好连接用
+    conn = make_conn()
+    conn._ws = FakeWs()
+    asyncio.run(conn.handle_AnotherLogin())
+    assert conn.is_closed()
+    assert len(conn.metas) == 1
+
+
+def test_get_conn_skips_closed_connection():
+    manager = majsoul.MajsoulManager()
+    kicked, alive = make_conn(), make_conn()
+    kicked._ws = FakeWs(closed=True)
+    alive._ws = FakeWs()
+    manager.conn = [kicked, alive]
+    assert manager.get_conn() is alive
+    alive._ws.closed = True
+    assert manager.get_conn() is None
+
+
+def test_concurrent_start_logs_in_once(monkeypatch):
+    # 定时任务和指令同时 start()，同一个号登两次，先登的那条就拿不到好友了
+    logins = []
+
+    async def create_connection(username: str = "", password: str = "", access_token: str = ""):
+        await asyncio.sleep(0.01)
+        conn = make_conn([fetch_info_resp(FRIENDS, [])])
+        conn._ws = FakeWs()
+        logins.append(conn)
+        return conn
+
+    async def get_all_user():
+        return [types.SimpleNamespace(login_type=0, username="u", cookie="c", password="p")]
+
+    monkeypatch.setattr(majsoul, "createMajsoulConnection", create_connection)
+    monkeypatch.setattr(majsoul, "MajsUser", types.SimpleNamespace(get_all_user=get_all_user))
+    manager = majsoul.MajsoulManager()
+
+    async def start_twice():
+        return await asyncio.gather(manager.start(), manager.start())
+
+    first, second = asyncio.run(start_twice())
+    assert len(logins) == 1
+    assert first is second is logins[0]
+    assert len(first.friends) == len(FRIENDS)
 
 
 def test_friend_change_add_update_delete():

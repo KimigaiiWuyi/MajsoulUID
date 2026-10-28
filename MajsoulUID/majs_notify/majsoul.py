@@ -47,9 +47,9 @@ from .constants import (
     yostar_region,
 )
 from ..utils.map import PROTO_PATH
+from .paipu_cache import PAIPU_CACHE_VERSION, get_paipu_by_game_id
 from .tenhou.parser import MajsoulPaipuParser
 from .majsoul_friend import MajsoulFriend
-from .paipu_cache import PAIPU_CACHE_VERSION, get_paipu_by_game_id
 from ..utils.api.remote import (
     decode_log_id,
     encode_account_id,
@@ -323,8 +323,12 @@ class MajsoulConnection:
             logger.warning(f"[majs] 未知通知: {notify}")
 
     async def handle_AnotherLogin(self):
-        meta_msg = f"账号 {self.nick_name}({self.account_id}) 在别处登陆\n"
-        meta_msg += "请检查AccessToken, 可能已过期！"
+        # 被顶号后服务端不断开 WS，好友接口一律报 1004；自己断开，start() 才会重登
+        logger.warning(f"[majs] 账号 {self.nick_name}({self.account_id}) 在别处登录, 断开当前连接")
+        if self._ws is not None and not self.is_closed():
+            await self._ws.close()
+        meta_msg = f"账号 {self.nick_name}({self.account_id}) 在别处登录，已断开，下次使用时自动重新登录\n"
+        meta_msg += "反复出现说明还有别的程序在登录这个账号"
         await self.send_meta(meta_msg)
 
     async def handle_FriendStateChange(self, notify: MajsoulDecodedMessage):
@@ -747,20 +751,18 @@ class MajsoulConnection:
             await asyncio.sleep(0.7)
         return game_live_list
 
-    async def fetchInfo(self):
-        resp = cast(
-            liblq.ResFetchInfo,
-            await self.rpc_call(
-                ".lq.Lobby.fetchInfo",
-                {},
-            ),
-        )
+    async def fetchInfo(self) -> None:
+        resp = await self.rpc_call(".lq.Lobby.fetchInfo", {})
+        if not isinstance(resp, liblq.ResFetchInfo):
+            logger.warning(f"[majs] fetchInfo 返回异常: {resp}")
+            return
         # 服务端给的是全量列表，整体替换；出错时保留旧数据，别清空
-        if not resp.error.code and not resp.friend_list.error.code:
+        if resp.error.code or resp.friend_list.error.code:
+            logger.warning(f"[majs] 刷新好友列表失败, 保留旧数据: {resp.error} {resp.friend_list.error}")
+        else:
             self.friends = {f.base.account_id: MajsoulFriend(f) for f in resp.friend_list.friends}
         if not resp.error.code and not resp.friend_apply_list.error.code:
             self.friend_apply_list = list(dict.fromkeys(a.account_id for a in resp.friend_apply_list.applies))
-        return resp
 
     async def fetchAccountNickname(self, account_id: int) -> str | None:
         resp = await self.rpc_call(
@@ -966,6 +968,8 @@ class MajsoulManager:
     def __init__(self):
         # maybe we need to support multiple connections in the future
         self.conn: list[MajsoulConnection] = []
+        # 两处同时 start() 会把同一个号登两次，先登的被顶掉、拿不到好友
+        self._lock = asyncio.Lock()
 
     async def check_username_password(
         self,
@@ -999,6 +1003,14 @@ class MajsoulManager:
         return conn
 
     async def start(self):
+        async with self._lock:
+            return await self._start()
+
+    async def restart(self):
+        async with self._lock:
+            return await self._restart()
+
+    async def _start(self):
         if len(self.conn) == 0:
             # get all accounts
             users: Sequence[MajsUser] = await MajsUser.get_all_user()
@@ -1070,10 +1082,10 @@ class MajsoulManager:
                     await conn.fetchInfo()
         if self.conn and self.conn[0].is_closed():
             logger.warning("[majs] 已有连接已断开，正在自动重启雀魂订阅服务")
-            return await self.restart()
+            return await self._restart()
         return self.conn[0]
 
-    async def restart(self):
+    async def _restart(self):
         if self.conn:
             if len(self.conn) >= 1:
                 for task in self.conn[0].bg_tasks:
@@ -1085,14 +1097,14 @@ class MajsoulManager:
                     with contextlib.suppress(Exception):
                         await conn._ws.close()  # type: ignore
         self.conn = []
-        return await self.start()
+        return await self._start()
 
     def get_conn(self):
-        conns = self.get_all_conn()
-        if conns:
-            return conns[0]
+        # 断开的连接留在池里等 start() 重连，它的好友缓存不能再拿来回答
+        for conn in self.conn:
+            if not conn.is_closed():
+                return conn
         return None
-        return self.get_all_conn()[0]
 
     def get_all_conn(self):
         return self.conn
