@@ -48,14 +48,41 @@
 `.github/workflows/auto-liqi.yml` 每天跑一遍上面全部步骤。本地重跑：先 `update_proto.py --desc liqi.desc`，
 再用 protoc 生成 `lib/lq`，最后 `update_skin.py`（需要 `UnityPy`）。根目录 `ruff.toml` 和 `.pre-commit-config.yaml` 都跳过生成代码。
 
-登录与连接对齐 Unity WebGL 客户端（Lua 源码在资源包 `LuaByte/Lua/` 下）：
+## 登录与连接
 
-- 网关：向 `constants.py` 里各服的入口网关请求 `/api/clientgate/routes`，再连路由的 `wss://<domain>/gateway`，
-  连上后先发 `.lq.Route.requestConnection`。
-- `client_version_string` 为 `WebGL_2022-<资源版本>`，`tag` / `currency_platforms` 按服区分。
+**改这一块之前先对照官方 Unity WebGL 客户端的 Lua，不要自己设计。** 数值都放在 `constants.py`，注释里写了出处。
+
+| 文件 | 对应客户端 | 管什么 |
+|------|-----------|--------|
+| `codec.py` | `NetRoute._RequestToByte` / `_ParseMessageProto` | 编解码；序号 `(i+1)%60007` 全局共用；解不出的消息返回 `None` 跳过 |
+| `route_delay.py` | `RouteDelayWatcher` / `NetworkQualityAnalyzer` | 算心跳里的 `delay`、`network_quality`；请求 10 秒超时 |
+| `route.py` | `NetRoute` | 一条 WebSocket：`requestConnection`、每 15 秒（线路不稳 5 秒）路由心跳、`NotifyConnectionShutdown` 关路由 |
+| `majsoul.py` 的 `MajsoulConnection` | `NetRouteGroup` + `LoginMgr` + `UI_Entrance` | 登录、重连、被顶号、6 分钟挂机心跳、每小时 `fetchServerTime` |
+
+- 网关：向各服入口网关请求 `/api/clientgate/routes`，再连路由的 `wss://<domain>/gateway`。WebSocket 带页面的
+  `Origin` 和浏览器 UA，不发 ping 帧（浏览器不发），保活只靠 `Route.heartbeat`。
+- 登录：token 先 `oauth2Check`（只发一次）再 `oauth2Login`；国服 token 失效时用存下的账密 `login`
+  （插件自己的逻辑，官方是回登录页让人点）。账密登录的 `type`：纯数字当手机号（标签 1，str 3132「手机号码」），
+  其余为 0（str 3127「邮箱/账号登录」）。密码原文入库，和官方 `SetPrefs('password', ...)` 一致。
+- 错误码：`503` 封禁，直接失败；`156` 进排队（`fetchQueueInfo` 每 10 秒刷新，等 `NotifyLoginQueueFinished`）。
+- 登录成功：`loginBeat`（失败隔 1 秒再发一次），有昵称再 `loginSuccess`，然后 `fetchInfo` 拿好友。
+- 断线：同一条路由按 `0.3/1/3/6/10/15` 秒重连，连上后 `oauth2Login(reconnect=true)`，再 `loginBeat` →
+  `fetchServerTime` → `loginSuccess`，最后 `fetchInfo`（插件自己加的，要断线期间的好友状态）。
+  6 次都连不上、或重登返回错误码，就放弃并推送提醒，等管理员 `重启服务`。
+- 被顶号（`NotifyAnotherLogin`）/ 服务端登出（`NotifyAccountLogout`）：关连接，自动重登一次；
+  再来一次就停在 `KICKED`。官方是直接关自动登录，这里的「重登一次」是插件需求。
+- 挂机心跳的 `no_operation_counter`：`IdleSimulator` 随机模拟动鼠标，永远不到 50 分钟（官方满 50 分钟会自己登出）。
 - `loginBeat` 的 contract 在 `constants.LOGIN_BEAT_CONTRACT`，客户端升级后可能变。
-- 登录后 `finish_login`：先 `loginBeat`，有昵称的号再发 `loginSuccess`（`UI_Entrance:OnLoginSuccess`）。
-- 资源包里的 `.lua.bytes` 大多用 16 字节循环 XOR 加密，密钥 `wrelupqezdfrqdsd`（见 MajsoulData
-  `src/pipeline.py` 的 `LUA_XOR_KEY`）。资源清单在 `bundle_info_so.majset`，取法同 `update_skin.py`。
+
+### 拿官方 Lua
+
+资源包里的 `.lua.bytes` 大多用 16 字节循环 XOR 加密，密钥 `wrelupqezdfrqdsd`（见 MajsoulData
+`src/pipeline.py` 的 `LUA_XOR_KEY`）。资源清单在 `bundle_info_so.majset`，取法同 `update_skin.py`：
+按资源路径（如 `LuaByte/Lua/UI/UI_AnotherLogin.lua.bytes`）找到所在资源包，UnityPy 读出 TextAsset 再解 XOR。
+
+- 网络层：`Net/NetCore/NetRoute.lua`、`NetRouteGroup.lua`、`RouteDelayWatcher.lua`，登录在 `LoginMgr.lua`、
+  `UI/UI_Entrance.lua`，顶号/登出/排队在 `UI/UI_AnotherLogin.lua`、`UI_Hanguplogout.lua`、`UI_LoginQueue.lua`。
+- `Tools.StrOfLocalization(id)` 的文案：`Excels/Data/str/str_b*.lua` 里 `g[id]=b({id,...,下标})`，
+  下标对 `Excels/Langs/str_str_chs.lua` 的字符串数组（从 1 数）。
 
 不要在业务里 fork 字段名。

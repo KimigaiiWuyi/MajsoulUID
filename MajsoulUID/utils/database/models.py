@@ -103,33 +103,6 @@ class MajsUser(User, table=True):
     password: str = Field(default="", title="密码")
     token: str = Field(default="", title="Token For JP Account")
 
-    @classmethod
-    @with_session
-    async def get_account(
-        cls: Type["MajsUser"],
-        session: AsyncSession,
-        uid: str,
-    ) -> Optional[str]:
-        return await cls.get_user_attr_by_uid(uid, "account")
-
-    @classmethod
-    @with_session
-    async def get_password(
-        cls: Type["MajsUser"],
-        session: AsyncSession,
-        uid: str,
-    ) -> Optional[str]:
-        return await cls.get_user_attr_by_uid(uid, "password")
-
-    @classmethod
-    @with_session
-    async def get_token(
-        cls: Type["MajsUser"],
-        session: AsyncSession,
-        uid: str,
-    ) -> Optional[str]:
-        return await cls.get_user_attr_by_uid(uid, "token")
-
 
 @site.register_admin
 class MajsPaipuadmin(GsAdminModel):

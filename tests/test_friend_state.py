@@ -78,8 +78,11 @@ def make_friend(account_id: int, nickname: str, online: bool, game_uuid: str):
 
 
 def make_conn(online: bool = True, game_uuid: str = "", records: list | None = None, region=None):
-    route = types.SimpleNamespace(ssl=True, domain="example.invalid")
-    conn = majsoul.MajsoulConnection(route, region, 0, None, "device")
+    if region is constants.REGION_JP:
+        credential = majsoul.MajsoulCredential(login_type=constants.SOCIO_TYPE_YOSTAR, lang="ja")
+    else:
+        credential = majsoul.MajsoulCredential(login_type=constants.SOCIO_TYPE_CN)
+    conn = majsoul.MajsoulConnection(credential, "device")
     friends = {FRIEND_ID: "兰潇澜", OTHER_ID: "烟树历历"}
     conn.friends = {
         aid: majsoul.MajsoulFriend(make_friend(aid, nick, online, game_uuid)) for aid, nick in friends.items()
@@ -87,7 +90,7 @@ def make_conn(online: bool = True, game_uuid: str = "", records: list | None = N
     conn.sent = []
     conn.calls = []
 
-    async def rpc_call(method_name: str, payload: dict):
+    async def rpc_call(method_name: str, req, resp_type):
         conn.calls.append(method_name)
         if method_name in (DETAIL, ".lq.Lobby.fetchGameRecord"):
             return records.pop(0)
@@ -264,7 +267,9 @@ def test_record_calls_keep_interval(monkeypatch: pytest.MonkeyPatch):
         stamps: list[float] = []
 
         async def one():
-            await conn.record_call(DETAIL, {"uuid_list": [GAME_UUID]})
+            await conn.record_call(
+                DETAIL, liblq.ReqGameRecordsDetail(uuid_list=[GAME_UUID]), liblq.ResGameRecordsDetail
+            )
             stamps.append(time.monotonic())
 
         await asyncio.gather(one(), one(), one())
@@ -317,14 +322,3 @@ def test_relative_data_url_gets_region_prefix(monkeypatch: pytest.MonkeyPatch):
     assert asyncio.run(conn.download_record_data("https://cdn.example/x")) == b"record"
     assert requested == [constants.REGION_CN.record_prefix_url + "/2610/abc", "https://cdn.example/x"]
     assert asyncio.run(make_conn(region=constants.REGION_JP).download_record_data("/2610/abc")) == b""
-
-
-@pytest.mark.parametrize(
-    ("nickname", "expected"),
-    [("账号池", [".lq.Lobby.loginBeat", ".lq.Lobby.loginSuccess"]), ("", [".lq.Lobby.loginBeat"])],
-)
-def test_finish_login_reports_login_success(nickname: str, expected: list[str]):
-    conn = make_conn()
-    conn.nick_name = nickname
-    asyncio.run(conn.finish_login())
-    assert conn.calls == expected

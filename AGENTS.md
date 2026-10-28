@@ -66,11 +66,17 @@
 在**本插件目录**执行。解释器指向 Core 根 `.venv`。
 
 ```sh
-uv run ruff check MajsoulUID
-uv run ruff format --check MajsoulUID
+uv run ruff check MajsoulUID tests
+uv run ruff format --check MajsoulUID tests
+# Core 的 .venv 没装 betterproto，跑测试时临时带上
+uv run --no-project --python ../../../.venv/Scripts/python.exe --with "betterproto==2.0.0b7" python -m pytest tests -q
 ```
 
-`ruff.toml` 照抄 Core 根的配置：**行宽 120**、lint `E/F/I/W/ASYNC`。`.pre-commit-config.yaml` 里 ruff 的版本和 Core uv dev 组锁的版本一致，升级时两边一起改。无正式 `tests/`；改 codec / tenhou parser 时加 `tests/test_*.py`。
+`ruff.toml` 照抄 Core 根的配置：**行宽 120**、lint `E/F/I/W/ASYNC`。`.pre-commit-config.yaml` 里 ruff 的版本和 Core uv dev 组锁的版本一致，升级时两边一起改。
+
+**类型检查的坑**：在本目录直接跑 `basedpyright` 会读到 Core 根的 `pyrightconfig.json`，它排除了 `gsuid_core/plugins`，
+结果是「0 errors」但其实一个文件都没查。要另写一份 `include` 本插件、`exclude` 掉 `MajsoulUID/lib/lq`、
+`venvPath` 指 Core 根的配置，用 `basedpyright --project <那份配置>` 跑。
 
 ## Code style
 
@@ -92,14 +98,17 @@ uv run ruff format --check MajsoulUID
 
 ## Testing
 
-无套件。改 `codec.py` / `tenhou/parser.py` / `remote.py` 时补单测。`config_default.py` import 时读 `core_config.masters`，脱离 Core 会炸，单测要 mock。
+`tests/` 离线跑，不连雀魂。连接层在 `test_session.py`：会话用假的 RouteSocket，`RouteSocket` 本身起本地 WebSocket 服务端测。
+改 `codec.py` / `route*.py` / `majsoul.py` 的登录重连 / `tenhou/parser.py` / `remote.py` 时补单测。
+`config_default.py` import 时读 `core_config.masters`，脱离 Core 会炸，单测要 mock。
 
 ## 本仓库结构约定
 
 - 嵌套加载：`__nest__.py` + `__full__.py`。
 - `雀魂查询`：`get_uid(..., MajsBind)` → Koromo。文本含「三」「四」选人数，否则 `auto`。
 - `雀魂搜索`：牌谱屋搜人，按钮引导绑定。
-- 推送：登陆国服/日服/美服写入 `MajsUser` → `推送启动`（`majs_notify/majsoul.py` 的 `manager`）→ `订阅` → `gs_subscribe`。
+- 推送：登陆国服/日服/美服写入 `MajsUser` → Core 启动时自动登录（或 `推送启动`，`majs_notify/majsoul.py` 的 `manager`）→ `订阅` → `gs_subscribe`。
+- 连接、登录、心跳、重连、被顶号的行为照官方客户端 Lua 来，细节和出处见 skill 的 `03-notify-review-and-proto.md`。
 - `雀魂好友码`：列出账号池小号的好友码（`encode_account_id2(uid)`），群友在游戏里加 bot 好友用。好友码 ≠ UID。
 - Review：`雀魂牌谱Review <url>`，引擎 `MajsReviewEngine` = Tenhou \| Mjai。缓存 `PAIPU_PATH`。
 - 账号池命令 `pm=0`。不要手改 `lib/lq/` 生成物。

@@ -4,6 +4,8 @@ import asyncio
 import importlib
 from pathlib import Path
 
+import pytest
+
 PLUGIN_ROOT = Path(__file__).resolve().parents[1] / "MajsoulUID"
 PKG = "gsuid_core.plugins.MajsoulUID.MajsoulUID"
 
@@ -17,6 +19,7 @@ majsoul = importlib.import_module(f"{PKG}.majs_notify.majsoul")
 model = importlib.import_module(f"{PKG}.majs_notify.model")
 liblq = importlib.import_module(f"{PKG}.lib.lq")
 
+ConnState = majsoul.ConnState
 # 好友总览截图里的四个人
 FRIENDS = {1194642: "烟树历历", 17033013: "兰潇澜", 12536235: "浅碎丶时空", 218174: "雨滴答滴答"}
 
@@ -26,12 +29,12 @@ def make_friend(account_id: int, nickname: str):
     return liblq.Friend(base=liblq.PlayerBaseView(account_id=account_id, nickname=nickname, level=level, level3=level))
 
 
-def make_conn(responses: list | None = None):
-    route = types.SimpleNamespace(ssl=True, domain="example.invalid")
-    conn = majsoul.MajsoulConnection(route, None, 0, None, "device")
+def make_conn(responses: list | None = None, username: str = "u"):
+    credential = majsoul.MajsoulCredential(login_type=0, username=username, password="p")
+    conn = majsoul.MajsoulConnection(credential, "device")
     conn.metas = []
 
-    async def rpc_call(method_name: str, payload: dict):
+    async def rpc_call(method_name: str, req, resp_type):
         return responses.pop(0)
 
     async def send_meta(msg: str):
@@ -50,14 +53,6 @@ def fetch_info_resp(friends: dict[int, str], applies: list[int], error_code: int
             applies=[liblq.ResFriendApplyListFriendApply(account_id=aid) for aid in applies]
         ),
     )
-
-
-class FakeWs:
-    def __init__(self, closed: bool = False):
-        self.closed = closed
-
-    async def close(self):
-        self.closed = True
 
 
 def friend_change(account_id: int, change_type: int, nickname: str = ""):
@@ -91,51 +86,135 @@ def test_fetch_info_error_keeps_old_list():
     assert conn.friend_apply_list == [7]
 
 
-def test_another_login_closes_kicked_connection():
-    # 被顶号后服务端不断开 WS，不自己关掉的话 start() 会一直把它当好连接用
-    conn = make_conn()
-    conn._ws = FakeWs()
-    asyncio.run(conn.handle_AnotherLogin())
-    assert conn.is_closed()
-    assert len(conn.metas) == 1
-
-
-def test_get_conn_skips_closed_connection():
+def test_get_conn_skips_offline_connection():
     manager = majsoul.MajsoulManager()
     kicked, alive = make_conn(), make_conn()
-    kicked._ws = FakeWs(closed=True)
-    alive._ws = FakeWs()
+    kicked.state = ConnState.KICKED
+    alive.state = ConnState.ONLINE
     manager.conn = [kicked, alive]
     assert manager.get_conn() is alive
-    alive._ws.closed = True
+    alive.state = ConnState.RECONNECTING
     assert manager.get_conn() is None
 
 
-def test_concurrent_start_logs_in_once(monkeypatch):
-    # 定时任务和指令同时 start()，同一个号登两次，先登的那条就拿不到好友了
-    logins = []
-
-    async def create_connection(username: str = "", password: str = "", access_token: str = ""):
-        await asyncio.sleep(0.01)
-        conn = make_conn([fetch_info_resp(FRIENDS, [])])
-        conn._ws = FakeWs()
-        logins.append(conn)
-        return conn
+def fake_pool(monkeypatch: pytest.MonkeyPatch, outcomes: dict[str, str]) -> list[str]:
+    """账号池里放 outcomes 里的号；值为 "ok" 的登录成功，其余当作失败文案。"""
+    logins: list[str] = []
 
     async def get_all_user():
-        return [types.SimpleNamespace(login_type=0, username="u", cookie="c", password="p")]
+        return [types.SimpleNamespace(username=name) for name in outcomes]
 
-    monkeypatch.setattr(majsoul, "createMajsoulConnection", create_connection)
+    def connection_from_user(user: types.SimpleNamespace):
+        conn = make_conn([fetch_info_resp(FRIENDS, [])], username=user.username)
+
+        async def login():
+            await asyncio.sleep(0.01)
+            logins.append(user.username)
+            if outcomes[user.username] != "ok":
+                conn.state, conn.last_error = ConnState.FAILED, outcomes[user.username]
+                raise majsoul.MajsoulLoginError(outcomes[user.username])
+            conn.state = ConnState.ONLINE
+            await conn.fetchInfo()
+
+        conn.login = login
+        return conn
+
     monkeypatch.setattr(majsoul, "MajsUser", types.SimpleNamespace(get_all_user=get_all_user))
+    monkeypatch.setattr(majsoul, "connection_from_user", connection_from_user)
+    return logins
+
+
+def test_concurrent_start_logs_in_once(monkeypatch: pytest.MonkeyPatch):
+    # 定时任务和指令同时 start()，同一个号登两次，先登的那条就会被顶掉
+    logins = fake_pool(monkeypatch, {"u": "ok"})
     manager = majsoul.MajsoulManager()
 
     async def start_twice():
         return await asyncio.gather(manager.start(), manager.start())
 
     first, second = asyncio.run(start_twice())
-    assert len(logins) == 1
-    assert first is second is logins[0]
-    assert len(first.friends) == len(FRIENDS)
+    assert logins == ["u"]
+    assert first == second
+    assert len(manager.conn[0].friends) == len(FRIENDS)
+
+
+def test_start_keeps_going_when_one_account_fails(monkeypatch: pytest.MonkeyPatch):
+    # 之前第一个号失败就直接 return，后面的号永远登不上
+    logins = fake_pool(monkeypatch, {"bad": "账号被封禁", "good": "ok"})
+    manager = majsoul.MajsoulManager()
+    lines = asyncio.run(manager.start())
+    assert logins == ["bad", "good"]
+    assert lines[0].startswith("❌") and "账号被封禁" in lines[0]
+    assert lines[1].startswith("✅")
+    assert manager.get_conn() is manager.conn[1]
+
+
+def test_start_does_not_relogin_online_accounts(monkeypatch: pytest.MonkeyPatch):
+    logins = fake_pool(monkeypatch, {"u": "ok"})
+    manager = majsoul.MajsoulManager()
+    asyncio.run(manager.start())
+    asyncio.run(manager.start())
+    assert logins == ["u"]
+
+
+def test_add_account_closes_same_account_before_login(monkeypatch: pytest.MonkeyPatch):
+    # 旧会话不先关掉，新登录会把它顶下线，它再自动重登又把新的顶掉
+    events: list[str] = []
+    old = make_conn(username="same")
+    old.state = ConnState.ONLINE
+
+    async def close_old():
+        events.append("close old")
+        old.state = ConnState.OFFLINE
+
+    old.close = close_old
+
+    async def login(self):
+        events.append(f"login {self.credential.username}")
+        self.account_id = 42
+        self.state = ConnState.ONLINE
+
+    monkeypatch.setattr(majsoul.MajsoulConnection, "login", login)
+    manager = majsoul.MajsoulManager()
+    manager.conn = [old]
+    manager._loaded = True
+    credential = majsoul.MajsoulCredential(login_type=0, username="same", password="new")
+    conn = asyncio.run(manager.add_account(credential))
+    assert events == ["close old", "login same"]
+    assert manager.conn == [conn]
+
+
+def test_failed_readd_puts_old_session_back(monkeypatch: pytest.MonkeyPatch):
+    # 比如重新添加时密码输错：旧会话已经关了，得放回账号池重新登录，不能让这个号消失
+    events: list[str] = []
+    old = make_conn(username="same")
+    old.state = ConnState.ONLINE
+
+    async def close_old():
+        events.append("close old")
+        old.state = ConnState.OFFLINE
+
+    async def login_old():
+        events.append("login old")
+        old.state = ConnState.ONLINE
+
+    old.close = close_old
+    old.login = login_old
+
+    async def login_new(self):
+        events.append("login new")
+        raise majsoul.MajsoulLoginError("账密登录失败（错误码 1002）")
+
+    monkeypatch.setattr(majsoul.MajsoulConnection, "login", login_new)
+    manager = majsoul.MajsoulManager()
+    manager.conn = [old]
+    manager._loaded = True
+    credential = majsoul.MajsoulCredential(login_type=0, username="same", password="wrong")
+    with pytest.raises(majsoul.MajsoulLoginError):
+        asyncio.run(manager.add_account(credential))
+    assert events == ["close old", "login new", "login old"]
+    assert manager.conn == [old]
+    assert manager.get_conn() is old
 
 
 def test_friend_change_add_update_delete():
@@ -166,6 +245,18 @@ def test_update_for_unknown_friend_is_ignored():
     asyncio.run(conn.handle_FriendChange(friend_change(100, 3, "陌生人")))
     assert conn.friends == {}
     assert conn.metas == []
+
+
+def test_new_friend_apply_without_brief_uses_account_id(monkeypatch: pytest.MonkeyPatch):
+    # 之前 fetchMultiAccountBrief 返回空列表时直接取 players[0]，抛 IndexError
+    conn = make_conn([liblq.ResMultiAccountBrief()])
+    payload = liblq.NotifyNewFriendApply(account_id=77)
+    notify = model.MajsoulDecodedMessage(msg_type=1, req_index=0, method_name="", payload=payload)
+    config = types.SimpleNamespace(get_config=lambda key: types.SimpleNamespace(data=False))
+    monkeypatch.setattr(majsoul, "MAJS_CONFIG", config)
+    asyncio.run(conn.handle_NewFriendApply(notify))
+    assert conn.friend_apply_list == [77]
+    assert conn.metas == ["收到来自 77 的好友申请"]
 
 
 def test_friend_change_while_iterating_does_not_break_loop():

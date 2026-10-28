@@ -1,4 +1,4 @@
-from typing import List, TypedDict
+from typing import List
 
 import betterproto
 from msgspec import Struct
@@ -42,34 +42,13 @@ class MajsoulRoutesResp(Struct):
     data: MajsoulRoutesData
 
 
-class MajsoulDeviceInfo(TypedDict):
-    platform: str
-    hardware: str
-    os: str
-    os_version: str
-    is_browser: bool
-    sale_platform: str
-    user_agent: str
-    screen_width: int
-    screen_height: int
-    screen_type: int
-    device_id: str
+class YostarPassportResp(Struct):
+    """passport.mahjongsoul.com 各接口的回包，result 为 0 才算成功。"""
 
-
-class MajsoulClientVersionInfo(TypedDict):
-    resource: str
-    package: str
-
-
-class MajsoulLoginFields(TypedDict):
-    """login / oauth2Login 共有的客户端信息字段。"""
-
-    device: MajsoulDeviceInfo
-    random_key: str
-    client_version: MajsoulClientVersionInfo
-    currency_platforms: List[int]
-    client_version_string: str
-    tag: str
+    result: int
+    uid: int | str = ""
+    token: str = ""
+    accessToken: str = ""
 
 
 class MajsoulDecodedMessage(Struct):

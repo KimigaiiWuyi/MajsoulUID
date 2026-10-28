@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from urllib.parse import urlsplit
 
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
@@ -10,6 +11,42 @@ DETAIL_PLATFORM = "Web"
 DETAIL_PLATFORM_ID = 11
 ROUTE_TYPE_MAIN = 1
 LOGIN_BEAT_CONTRACT = "DF2vkXCnfeXp4WoGrBGNcJBufZiMN3uP"
+# LoginMgr._SendLoginBeat：失败隔 1 秒重发，最多发 2 次
+LOGIN_BEAT_ATTEMPTS = 2
+LOGIN_BEAT_RETRY_DELAY = 1.0
+# 登录页标签：0「邮箱/账号登录」（str 3127），1「手机号码」（str 3132，只能输数字）
+LOGIN_TYPE_ACCOUNT = 0
+LOGIN_TYPE_PHONE = 1
+# oauth2 登录类型：0 国服自己的 access_token，7 Yostar
+SOCIO_TYPE_CN = 0
+SOCIO_TYPE_YOSTAR = 7
+
+# NetRoute._RequestToByte：i=(i+1)%60007，按两字节小端写进包头
+REQUEST_INDEX_MOD = 60007
+# RouteDelayWatcher：请求等回包超过 10 秒算超时；NetRoute:Connect 10 秒连不上就关
+RPC_TIMEOUT = 10.0
+CONNECT_TIMEOUT = 10.0
+# NetDefines.DELAY_INF；心跳里的 delay / network_quality 都是秒 ×1000 后夹到 [0, 5000]
+DELAY_INF = 1000.0
+HEARTBEAT_FIELD_MAX = 5000
+# NetRoute:_Loop：每 15 秒 ping 一次，全部请求和心跳算出的线路质量差超过 0.1 时 5 秒一次
+ROUTE_PING_INTERVAL = 15.0
+ROUTE_PING_INTERVAL_UNSTABLE = 5.0
+ROUTE_QUALITY_GAP = 0.1
+# GameMgr：每 6 分钟带上挂机秒数 ping 一次，挂机满 50 分钟客户端自己弹登出
+LOBBY_PING_INTERVAL = 6 * 60
+HANGUP_LOGOUT_SECONDS = 50 * 60
+# GameMgr:_gameInit：每小时 fetchServerTime 校一次时
+SERVER_TIME_INTERVAL = 3600
+# NetRouteGroup 的重连间隔表 h={0.3,1,3,6,10,15}，用完还连不上就放弃
+RECONNECT_DELAYS = (0.3, 1.0, 3.0, 6.0, 10.0, 15.0)
+
+# UI_Entrance：503 弹封禁说明，156 进 UI_LoginQueue 排队
+ERR_PROHIBITED = 503
+ERR_LOGIN_QUEUE = 156
+# UI_LoginQueue：每 10 秒刷新排队信息，连续出错超过 3 次报错
+LOGIN_QUEUE_POLL_INTERVAL = 10.0
+LOGIN_QUEUE_MAX_ERRORS = 3
 
 IGNORED_NOTIFY = frozenset({".lq.NotifyAccountUpdate"})
 
@@ -25,6 +62,11 @@ class MajsoulRegion:
     currency_platforms: tuple[int, ...]
     # 牌谱 data_url 是相对路径时拼的前缀（docs/config.json 的 prefix_url）
     record_prefix_url: str = ""
+
+    @property
+    def origin(self) -> str:
+        parts = urlsplit(self.web_url)
+        return f"{parts.scheme}://{parts.netloc}"
 
 
 REGION_CN = MajsoulRegion(
@@ -65,6 +107,9 @@ RECORD_ERROR_TEXT = {
     541: "没有该牌谱的查看权限",
     1203: "这局游戏不存在",
 }
+
+
+SERVER_NAME = {"zh": "国服", "ja": "日服", "jp": "日服", "en": "美服"}
 
 
 def yostar_region(lang: str) -> MajsoulRegion:
