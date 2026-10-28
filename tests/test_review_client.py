@@ -1,11 +1,11 @@
-import asyncio
-import importlib
-import json
-import logging
 import sys
+import json
 import types
-from collections.abc import Callable, Generator
+import asyncio
+import logging
+import importlib
 from pathlib import Path
+from collections.abc import Callable, Generator
 
 import httpx2
 import pytest

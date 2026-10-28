@@ -1,5 +1,5 @@
 import pytest
-from test_tenhou_chi import liblq, log_model, model, parser_mod
+from test_tenhou_chi import liblq, model, log_model, parser_mod
 
 
 def make_parser(hand: tuple[str, ...] = ()) -> parser_mod.MajsoulPaipuParser:

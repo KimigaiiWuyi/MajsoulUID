@@ -26,7 +26,8 @@
 ```
 .
 ├── AGENTS.md / README.md / ICON.png
-├── pyproject.toml                      # 无 ruff.toml
+├── pyproject.toml / uv.lock            # 依赖锁只用 uv
+├── ruff.toml                           # 照抄 Core 根 ruff.toml
 ├── __init__.py / __nest__.py
 ├── .agents/skills/majsouluid-development/
 └── MajsoulUID/
@@ -38,7 +39,7 @@
     │   └── tenhou/                     # Tenhou 日志解析
     ├── majs_fu/                        # 算符
     ├── majs_help/  majs_config/
-    ├── lib/lq/                         # 雀魂 proto 生成代码（lib/ruff.toml 排除 lint）
+    ├── lib/lq/                         # 雀魂 proto 生成代码（ruff.toml 排除 lint）
     ├── tools/                          # download_file.py
     └── utils/
         ├── api/                        # Koromo URL / request / remote；cap_solver + hashwx 求牌谱屋 cap token
@@ -69,7 +70,7 @@ uv run ruff check MajsoulUID
 uv run ruff format --check MajsoulUID
 ```
 
-本仓库没有 `ruff.toml`。新代码仍按 Core：**行宽 120**、lint `E/F/I/W`。不要用 `pyproject.toml` 里遗留 black 79 去重排整棵历史树。无正式 `tests/`；改 codec / tenhou parser 时加 `tests/test_*.py`。
+`ruff.toml` 照抄 Core 根的配置：**行宽 120**、lint `E/F/I/W/ASYNC`。`.pre-commit-config.yaml` 里 ruff 的版本和 Core uv dev 组锁的版本一致，升级时两边一起改。无正式 `tests/`；改 codec / tenhou parser 时加 `tests/test_*.py`。
 
 ## Code style
 

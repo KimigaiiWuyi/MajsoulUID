@@ -1,15 +1,16 @@
-import asyncio
 import json
 import time
+import asyncio
 from typing import Dict, List, Tuple, Union
 
-import aiofiles
 import httpx2
+import aiofiles
+
 from gsuid_core.logger import logger
 
+from ..paipu_cache import PAIPU_CACHE_VERSION
 from ...majs_config.majs_config import MAJS_CONFIG
 from ...utils.resource.RESOURCE_PATH import PAIPU_PATH
-from ..paipu_cache import PAIPU_CACHE_VERSION
 
 
 async def check_url(tag: str, url: str):

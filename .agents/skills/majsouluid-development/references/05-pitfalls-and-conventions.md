@@ -4,7 +4,7 @@
 
 ## 规范
 
-新代码：Core `AGENTS.md` §1。本插件无 ruff.toml 时仍按 120 列写新文件。
+新代码：Core `AGENTS.md` §1。本插件 `ruff.toml` 照抄 Core，行宽 120。
 不要把雀魂术语写进 Core 意图表。接 AI 用 `to_ai` + `covers`/`aliases` 前缀「雀魂·」。
 
 ## 坑

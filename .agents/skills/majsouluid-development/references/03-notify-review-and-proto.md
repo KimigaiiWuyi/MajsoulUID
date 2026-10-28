@@ -46,7 +46,7 @@
 | `utils/texture2d/bighead/<皮肤ID>.webp` | `update_skin.py` | 好友排行榜头像，从国服 Unity 资源包解出 |
 
 `.github/workflows/auto-liqi.yml` 每天跑一遍上面全部步骤。本地重跑：先 `update_proto.py --desc liqi.desc`，
-再用 protoc 生成 `lib/lq`，最后 `update_skin.py`（需要 `UnityPy`）。`lib/ruff.toml` 让 ruff 跳过生成代码。
+再用 protoc 生成 `lib/lq`，最后 `update_skin.py`（需要 `UnityPy`）。根目录 `ruff.toml` 和 `.pre-commit-config.yaml` 都跳过生成代码。
 
 登录与连接对齐 Unity WebGL 客户端（Lua 源码在资源包 `LuaByte/Lua/` 下）：
 

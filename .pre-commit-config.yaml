@@ -1,38 +1,28 @@
 ci:
   autofix_commit_msg: "🚨 `pre-commit-ci`修复格式错误"
-  skip:
-    - "poetry-lock"
   autofix_prs: true
   autoupdate_branch: main
   autoupdate_schedule: monthly
   autoupdate_commit_msg: "⬆️ `pre-commit-ci`自动升级"
 repos:
-  - repo: https://github.com/pycqa/isort
-    rev: 7.0.0
+  # 和 Core uv dev 组里的 ruff 同版本
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.6
     hooks:
-      - id: isort
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
 
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 25.11.0
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
     hooks:
-      - id: black
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
 
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.3.0
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.12.23
     hooks:
-      - id: flake8
-
-  - repo: https://github.com/hadialqattan/pycln
-    rev: v2.6.0
-    hooks:
-      - id: pycln
-
-  - repo: https://github.com/python-poetry/poetry
-    rev: 1.8.0
-    hooks:
-      - id: poetry-check
-      - id: poetry-lock
-      - id: poetry-export
-        args: ["-f", "requirements.txt", "--without-hashes", "-o", "requirements.txt"]
-        verbose: true
+      - id: uv-lock
+      - id: uv-export
 exclude: 'MajsoulUID/lib/lq/'

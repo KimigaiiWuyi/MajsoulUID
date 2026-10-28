@@ -1,2 +1,0 @@
-# protoc + betterproto 生成物，和 .pre-commit-config.yaml 一样不做检查
-exclude = ["lq"]

@@ -1,8 +1,8 @@
+import sys
+import json
+import types
 import asyncio
 import importlib.util
-import json
-import sys
-import types
 from pathlib import Path
 
 import pytest
