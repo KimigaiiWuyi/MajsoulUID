@@ -35,6 +35,7 @@ from ._level import MajsoulLevel
 from .constants import (
     REGION_CN,
     USER_AGENT,
+    IGNORED_NOTIFY,
     CLIENT_PLATFORM,
     DETAIL_PLATFORM,
     ROUTE_TYPE_MAIN,
@@ -308,6 +309,8 @@ class MajsoulConnection:
                     )
 
     async def handle_notify(self, notify: MajsoulDecodedMessage):
+        if notify.method_name in IGNORED_NOTIFY:
+            return
         logger.info(f"[majs] 通知: {notify}")
         if notify.method_name == ".lq.NotifyFriendStateChange":
             self.queue.put_nowait(self.handle_FriendStateChange(notify))

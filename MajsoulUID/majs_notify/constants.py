@@ -11,6 +11,8 @@ DETAIL_PLATFORM_ID = 11
 ROUTE_TYPE_MAIN = 1
 LOGIN_BEAT_CONTRACT = "DF2vkXCnfeXp4WoGrBGNcJBufZiMN3uP"
 
+IGNORED_NOTIFY = frozenset({".lq.NotifyAccountUpdate"})
+
 
 @dataclass(frozen=True)
 class MajsoulRegion:
