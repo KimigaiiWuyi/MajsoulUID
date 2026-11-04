@@ -796,6 +796,7 @@ class MajsoulConnection:
         msg = f"{friend.nickname} 结束了在 {place} 的对局\n"
 
         head = await self.fetch_game_head(game_uuid)
+        paipu_link = f"\n对局牌谱:{url}" if MAJS_CONFIG.get_config("MajsPushPaipuLink").data else ""
         if head is None:
             if account_id not in self.friends:
                 return
@@ -803,7 +804,7 @@ class MajsoulConnection:
             current = self.friends[account_id]
             if not current.is_online or current.playing.game_uuid == game_uuid:
                 return
-            await self.send_msg_to_user(str(account_id), f"{msg}获取对局结果失败\n对局牌谱:{url}")
+            await self.send_msg_to_user(str(account_id), f"{msg}获取对局结果失败{paipu_link}")
             return
 
         players = head.result.players
@@ -820,7 +821,7 @@ class MajsoulConnection:
                     level_info = MajsoulLevel(level_id).formatAdjustedScoreWithTag(level_score + player.grading_score)
                     msg += f"当前段位:{level_info}\n"
                 break
-        msg += f"对局牌谱:{url}"
+        msg = msg.rstrip("\n") + paipu_link
         await self.send_msg_to_user(str(account_id), msg)
 
     async def record_call(self, method_name: str, req: betterproto.Message, resp_type: type[RespT]) -> RespT:

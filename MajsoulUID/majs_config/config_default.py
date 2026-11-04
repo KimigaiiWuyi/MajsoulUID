@@ -59,6 +59,11 @@ CONFIG_DEFAULT: Dict[str, GSC] = {
         "开启后好友开始对局时也推送一条, 对局结束总会推送",
         False,
     ),
+    "MajsPushPaipuLink": GsBoolConfig(
+        "订阅推送牌谱链接",
+        "开启后在订阅的对局结束通知中附带牌谱链接，关闭时仅推送结果；保存后即时生效，无需重启",
+        False,
+    ),
     "MajsIsAutoApplyFriend": GsBoolConfig(
         "账号池是否自动同意添加好友",
         "设置后账号池的账号将会自动同意添加所有好友申请",

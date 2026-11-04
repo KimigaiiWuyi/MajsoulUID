@@ -42,6 +42,7 @@ def config(monkeypatch: pytest.MonkeyPatch) -> FakeConfig:
         MajsPushOnlineState=True,
         MajsOnlineStateDelay=0.05,
         MajsPushGameStart=False,
+        MajsPushPaipuLink=False,
         MajsIsPushActiveToMaster=False,
     )
     monkeypatch.setattr(majsoul, "MAJS_CONFIG", cfg)
@@ -197,6 +198,7 @@ def test_game_start_push_has_no_game_id(config: FakeConfig, saved: list[str]):
 
 
 def test_game_end_uses_record_detail_and_retries_until_ready(config: FakeConfig, saved: list[str]):
+    config.values["MajsPushPaipuLink"] = True
     conn = make_conn(game_uuid=GAME_UUID, records=[detail_error(), detail_not_ready(), detail_ok()])
     asyncio.run(conn.handle_FriendStateChange(state_change(True)))
     # 推送只查对局头部，不调会被限额的 fetchGameRecord
@@ -210,12 +212,14 @@ def test_game_end_uses_record_detail_and_retries_until_ready(config: FakeConfig,
 
 
 def test_game_end_record_never_ready_sends_link(config: FakeConfig, saved: list[str]):
+    config.values["MajsPushPaipuLink"] = True
     conn = make_conn(game_uuid=GAME_UUID, records=[detail_not_ready() for _ in range(3)])
     asyncio.run(conn.handle_FriendStateChange(state_change(True)))
     assert conn.sent == [f"兰潇澜 结束了在 银之间 · 三人南 的对局\n获取对局结果失败\n对局牌谱:{paipu_url()}"]
 
 
 def test_fetch_limit_gives_up_without_retrying(config: FakeConfig, saved: list[str]):
+    config.values["MajsPushPaipuLink"] = True
     conn = make_conn(game_uuid=GAME_UUID, records=[detail_error(540), detail_ok(), detail_ok()])
     asyncio.run(conn.handle_FriendStateChange(state_change(True)))
     assert conn.calls == [DETAIL]
@@ -223,6 +227,8 @@ def test_fetch_limit_gives_up_without_retrying(config: FakeConfig, saved: list[s
 
 
 def test_friends_in_same_game_share_one_lookup(config: FakeConfig, saved: list[str]):
+    config.values["MajsPushPaipuLink"] = True
+
     async def scenario():
         conn = make_conn(game_uuid=GAME_UUID, records=[detail_not_ready(), detail_ok()])
         await asyncio.gather(
@@ -235,6 +241,26 @@ def test_friends_in_same_game_share_one_lookup(config: FakeConfig, saved: list[s
     assert conn.calls == [DETAIL, DETAIL]
     assert sorted(msg.split(" ")[0] for msg in conn.sent) == ["兰潇澜", "烟树历历"]
     assert any(f"对局牌谱:{paipu_url(OTHER_ID)}" in msg for msg in conn.sent)
+
+
+@pytest.mark.parametrize("record_ready", [True, False])
+def test_game_end_link_switch_takes_effect_without_reconnect(
+    config: FakeConfig, saved: list[str], record_ready: bool
+) -> None:
+    async def scenario() -> list[str]:
+        records = [detail_ok()] if record_ready else [detail_not_ready() for _ in range(3)]
+        conn = make_conn(records=records)
+        for enabled in (False, True, False):
+            config.values["MajsPushPaipuLink"] = enabled
+            await conn.on_game_end(conn.friends[FRIEND_ID], playing(GAME_UUID))
+        return conn.sent
+
+    without_link, with_link, disabled_again = asyncio.run(scenario())
+    assert "对局牌谱:" not in without_link
+    assert "https://" not in without_link
+    assert with_link == f"{without_link}\n对局牌谱:{paipu_url()}"
+    assert disabled_again == without_link
+    assert ("排名:1 最终打点:52000 得点:45" if record_ready else "获取对局结果失败") in without_link
 
 
 def test_disconnect_mid_game_stays_silent(config: FakeConfig, saved: list[str]):
