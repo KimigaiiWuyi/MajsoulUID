@@ -23,6 +23,9 @@
 
 支持 国服 & 美服 & 日服
 
+订阅通知默认不附带牌谱链接。可在 Web 控制台的 MajsoulUID 配置中开启「订阅推送牌谱链接」
+（`MajsPushPaipuLink`），恢复发送牌谱链接；随时开启或关闭，保存后即时生效，无需重启。
+
 <details><summary>绑定切换删除UID - 命令: 雀魂绑定UID、雀魂删除UID、雀魂切换UID</summary><p>
 还没有图
 </p></details>
