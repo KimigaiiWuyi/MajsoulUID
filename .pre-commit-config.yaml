@@ -7,7 +7,7 @@ ci:
 repos:
   # 和 Core uv dev 组里的 ruff 同版本
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.6
+    rev: v0.17.3
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -21,7 +21,7 @@ repos:
 
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.12.23
+    rev: 0.13.6
     hooks:
       - id: uv-lock
       - id: uv-export
