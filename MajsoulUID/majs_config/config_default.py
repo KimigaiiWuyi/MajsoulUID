@@ -76,4 +76,9 @@ CONFIG_DEFAULT: Dict[str, GSC] = {
         "Tenhou",
         ["Tenhou", "Mjai"],
     ),
+    "MajsKoromoApiKey": GsStrConfig(
+        "牌谱屋API Key(可选)",
+        "留空则裸请求走公共限额(QPS≈1);爬数据可邮件联系牌谱屋作者申请Key,设置后以Bearer携带",
+        "",
+    ),
 }

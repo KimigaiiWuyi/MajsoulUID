@@ -1,7 +1,10 @@
+import time
+import asyncio
 import datetime
 from typing import TypeVar
 from collections.abc import Mapping, Sequence
 
+import httpx2
 from httpx2 import Limits, AsyncClient
 from pydantic import JsonValue, TypeAdapter, ValidationError
 
@@ -16,6 +19,7 @@ from .api import (
 from .models import Game, Stats, Player, Extended
 from .cap_solver import cap_auth
 from .remote_const import GameMode, player_stats_zero, player_extend_zero
+from ...majs_config.majs_config import MAJS_CONFIG
 
 T = TypeVar("T")
 Params = dict[str, str | int | bool]
@@ -59,11 +63,19 @@ def _validate(adapter: TypeAdapter[T], raw: Mapping[str, object] | Sequence[Json
 
 class KoromoApi:
     ssl_verify = True
+    # 牌谱屋公共限额要求 QPS≈1（三/四麻分开计量），见 amae-koromo#126
+    _MIN_INTERVAL = 1.0
 
     def __init__(self) -> None:
         # 复用连接：每次新建客户端都要重新握手，单个请求实测多花约 0.7s。
-        # 牌谱屋强制 cap token，不带会 429；求解与失效重试都在 cap_auth 里
-        self._client = AsyncClient(auth=cap_auth, timeout=300, limits=Limits(keepalive_expiry=60))
+        # 查询类端点匿名放行（带 cap token 反而被拒）；records 走 cap token；
+        # 配了牌谱屋 API Key 时以 Bearer 携带，覆盖匿名配额
+        self._client = AsyncClient(timeout=300, limits=Limits(keepalive_expiry=60))
+        api_key: str = MAJS_CONFIG.get_config("MajsKoromoApiKey").data
+        if api_key:
+            self._client.headers["authorization"] = f"Bearer {api_key}"
+        self._pace_lock = asyncio.Lock()
+        self._last_request = 0.0
 
     async def aclose(self) -> None:
         await self._client.aclose()
@@ -91,7 +103,7 @@ class KoromoApi:
             "tag": "54",
             "descending": True,
         }
-        return await self._get_list(url, params, _RECORDS)
+        return await self._get_list(url, params, _RECORDS, use_cap=True)
 
     async def search_player(self, player_name: str, num: int = 4, MODE: int | str = "4") -> list[Player]:
         players = await self._get_list(
@@ -105,18 +117,55 @@ class KoromoApi:
         raw = await self._koromo_get(url, params)
         if not isinstance(raw, dict):
             return raw if isinstance(raw, int) else -1
-        # 对局少的号会缺字段（见 ac7f147），先垫上全 0 默认值再校验
-        return _validate(adapter, {**defaults, **raw})
+        # 对局少的号会缺字段（见 ac7f147），先垫上全 0 默认值再校验；
+        # 服务器对无数据字段会显式回 null，垫底前先剥掉
+        present = {k: v for k, v in raw.items() if v is not None}
+        return _validate(adapter, {**defaults, **present})
 
-    async def _get_list(self, url: str, params: Params, adapter: TypeAdapter[list[T]]) -> list[T] | int:
-        raw = await self._koromo_get(url, params)
+    async def _get_list(
+        self, url: str, params: Params, adapter: TypeAdapter[list[T]], use_cap: bool = False
+    ) -> list[T] | int:
+        raw = await self._koromo_get(url, params, use_cap)
         if not isinstance(raw, list):
             # 牌谱屋的错误 JSON 也是 dict，当成列表会在绘图时炸
             return raw if isinstance(raw, int) else -1
         return _validate(adapter, raw)
 
-    async def _koromo_get(self, url: str, params: Params) -> Json | int:
-        resp = await self._client.get(url, params=params)
+    async def _koromo_get(self, url: str, params: Params, use_cap: bool = False) -> Json | int:
+        # 调用方会一次 gather 四个查询，串行加间隔把突发压回 QPS≈1
+        async with self._pace_lock:
+            delay = self._MIN_INTERVAL - (time.monotonic() - self._last_request)
+            if delay > 0:
+                await asyncio.sleep(delay)
+            self._last_request = time.monotonic()
+            resp = await self._get_with_cap(url, params) if use_cap else await self._client.get(url, params=params)
+        try:
+            raw = _JSON.validate_json(resp.content)
+        except ValidationError:
+            # 限流 / 验证码页（HTTP 429 纯文本）走这里
+            logger.warning(f"[MajsoulUID] 牌谱屋返回非 JSON (HTTP {resp.status_code}): {resp.text[:200]}")
+            return -999
+        logger.debug(raw)
+        if isinstance(raw, dict) and "error" in raw:
+            return -1
+        return raw
+
+    async def _get_with_cap(self, url: str, params: Params) -> httpx2.Response:
+        """records 专用：挂 cap token，被拒就换新 token 重试一次（官方前端同款）。"""
+        token = await cap_auth.get_token()
+        if token is None:
+            # 求解失败时裸请求照发，429 交给上层处理
+            return await self._client.get(url, params=params)
+        headers = {"authorization": f"Bearer {token}"}
+        resp = await self._client.get(url, params=params, headers=headers)
+        if resp.status_code != 429 or "x-cap-token-required" not in resp.text:
+            return resp
+        fresh = await cap_auth.get_token(rejected=token)
+        if fresh is None:
+            return resp
+        # 换 token 后加时间戳参数绕缓存，与官方前端一致
+        refreshed = {**params, "cap_token_refreshed": int(time.time() * 1000)}
+        return await self._client.get(url, params=refreshed, headers={"authorization": f"Bearer {fresh}"})
         try:
             raw = _JSON.validate_json(resp.content)
         except ValidationError:

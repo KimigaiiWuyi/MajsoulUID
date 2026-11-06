@@ -1,6 +1,11 @@
-"""牌谱屋 cap token：自动求解 cap-widget format 2 挑战，以 httpx2 Auth 挂到 API 请求上。
+"""牌谱屋 cap token：自动求解 cap-widget format 2 挑战，供 player_records 端点使用。
 
-牌谱屋 2026-07 起对 API 强制 cap token，不带 token 的请求返回 429 [x-cap-token-required]。
+牌谱屋 API 的门禁按端点区分（2026-11 实测）：
+- player_stats / player_extended_stats / search_player 匿名配额内裸请求即可，
+  新解的 cap token 带上去反而被拒（429 x-cap-token-required）
+- player_records 匿名必 429，须带有效 cap token；token 可复用，TTL 约 2 小时
+
+求解：
 1. POST /challenge 下发若干 hashwx（PoW）题和一道 instrumentation（浏览器算术）题
 2. hashwx 跑官方 wasm（见 hashwx.py）；instrumentation 把 blob 里的算术转译成 Python 求值
 3. POST /redeem 按原顺序提交解，换到 token，之后以 Authorization: Bearer 携带
@@ -325,6 +330,10 @@ class KoromoCapAuth(httpx2.Auth):
     def _usable(self, rejected: str | None) -> bool:
         return self._token is not None and self._token != rejected and time.time() < self._expires_at - _EXPIRY_MARGIN
 
+    async def get_token(self, rejected: str | None = None) -> str | None:
+        """records 端点用：拿当前有效 token；rejected 是刚被服务端拒掉的。"""
+        return await self._get_token(rejected)
+
     def _fresh(self) -> bool:
         return self._token is not None and time.time() < self._expires_at - _REFRESH_AHEAD
 
@@ -352,5 +361,5 @@ cap_auth = KoromoCapAuth()
 
 @on_core_start
 async def _prewarm_cap_token() -> None:
-    # 启动时先在后台解一次，第一条查询不用等 PoW，也不拖慢启动
+    # 启动时先在后台解一次，records 查询不用现场等 PoW，也不拖慢启动
     cap_auth.refresh_in_background()
