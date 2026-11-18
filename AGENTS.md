@@ -44,7 +44,8 @@
     └── utils/
         ├── api/                        # Koromo URL / request / remote；cap_solver + hashwx 求牌谱屋 cap token
         ├── database/models.py          # MajsBind / MajsUser / MajsPush / MajsPaipu
-        ├── proto/                      # liqi.json / client_version.json / lqc.json + 更新脚本
+        ├── proto/                      # liqi.json / client_version.json / error_text.json / lqc.json + 更新脚本
+        ├── unity_bundle.py             # 不靠 UnityPy 读 Unity 资源包，151 时取官方版本号用
         ├── texture2d/bighead/          # 皮肤头像（update_skin.py 生成）
         └── resource/RESOURCE_PATH.py
 ```

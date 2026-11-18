@@ -19,7 +19,7 @@ from gsuid_core.logger import logger
 from gsuid_core.subscribe import gs_subscribe
 
 from ..lib import lq as liblq
-from .codec import CLIENT_VERSION, message_type
+from .codec import message_type
 from .model import (
     MjsLog,
     MjsLogItem,
@@ -35,12 +35,11 @@ from .constants import (
     SOCIO_TYPE_CN,
     ERR_PROHIBITED,
     IGNORED_NOTIFY,
-    CLIENT_PLATFORM,
     ERR_LOGIN_QUEUE,
     LOGIN_TYPE_PHONE,
-    RECORD_ERROR_TEXT,
     SOCIO_TYPE_YOSTAR,
     LOGIN_TYPE_ACCOUNT,
+    ERR_CLIENT_OUTDATED,
     LOBBY_PING_INTERVAL,
     LOGIN_BEAT_ATTEMPTS,
     LOGIN_BEAT_CONTRACT,
@@ -54,9 +53,11 @@ from .constants import (
     MajsoulRegion,
     yostar_region,
 )
+from .error_text import error_message
 from .paipu_cache import PAIPU_CACHE_VERSION, get_paipu_by_game_id
 from .route_group import SOCKET_ERRORS, RouteGroup, GatewayFetcher
 from .tenhou.parser import MajsoulPaipuParser
+from .client_version import CLIENT_VERSION, ClientVersion
 from .majsoul_friend import MajsoulFriend
 from ..utils.api.remote import (
     decode_log_id,
@@ -218,10 +219,6 @@ def describe_game(game: liblq.AccountPlayingGame) -> tuple[int, str, str]:
     return category, type_name, room_name or type_name
 
 
-def record_error_text(code: int) -> str:
-    return RECORD_ERROR_TEXT[code] if code in RECORD_ERROR_TEXT else f"获取牌谱失败（错误码 {code}）"
-
-
 async def save_paipu(account_id: int, game_uuid: str, category: int, type_name: str) -> None:
     if not await MajsPaipu.data_exist(uuid=game_uuid):
         await MajsPaipu.insert_data(
@@ -252,7 +249,6 @@ class MajsoulConnection:
         self.credential = credential
         self._region = credential.region
         self.random_key = device_id
-        self.clientVersionString = f"{CLIENT_PLATFORM}_2022-{CLIENT_VERSION.resource_version}"
         self.state = ConnState.OFFLINE
         self.last_error = ""
         self.account_id = 0
@@ -300,6 +296,10 @@ class MajsoulConnection:
         self._kick_relogin_used = False
 
     @property
+    def clientVersionString(self) -> str:
+        return CLIENT_VERSION.version_string
+
+    @property
     def main_socket(self) -> RouteSocket | None:
         return self._group.main if self._group is not None else None
 
@@ -325,12 +325,6 @@ class MajsoulConnection:
             device_id=self.random_key,
         )
 
-    def _client_version(self) -> liblq.ClientVersionInfo:
-        return liblq.ClientVersionInfo(
-            resource=CLIENT_VERSION.resource_version,
-            package=CLIENT_VERSION.package_version,
-        )
-
     def _oauth2_login_req(self, token: str, reconnect: bool) -> liblq.ReqOauth2Login:
         return liblq.ReqOauth2Login(
             type=self.credential.login_type,
@@ -338,7 +332,7 @@ class MajsoulConnection:
             reconnect=reconnect,
             device=self._device(),
             random_key=self.random_key,
-            client_version=self._client_version(),
+            client_version=CLIENT_VERSION.info(),
             currency_platforms=list(self._region.currency_platforms),
             client_version_string=self.clientVersionString,
             tag=self._region.tag,
@@ -352,7 +346,7 @@ class MajsoulConnection:
             reconnect=False,
             device=self._device(),
             random_key=self.random_key,
-            client_version=self._client_version(),
+            client_version=CLIENT_VERSION.info(),
             gen_access_token=True,
             currency_platforms=list(self._region.currency_platforms),
             type=LOGIN_TYPE_PHONE if username.isdigit() else LOGIN_TYPE_ACCOUNT,
@@ -409,20 +403,7 @@ class MajsoulConnection:
     async def _fresh_login(self) -> liblq.ResLogin:
         cred = self.credential
         if cred.login_type == SOCIO_TYPE_YOSTAR:
-            code = await yostar_passport_login(self._region, cred.passport_uid, cred.passport_token)
-            auth = await self.rpc_call(
-                ".lq.Lobby.oauth2Auth",
-                liblq.ReqOauth2Auth(
-                    type=SOCIO_TYPE_YOSTAR,
-                    code=code,
-                    uid=cred.passport_uid,
-                    client_version_string=self.clientVersionString,
-                ),
-                liblq.ResOauth2Auth,
-            )
-            if auth.error.code or not auth.access_token:
-                raise MajsoulLoginError(f"Yostar 授权失败（错误码 {auth.error.code}）")
-            resp = await self._token_login(auth.access_token)
+            resp = await self._token_login(await self._yostar_auth())
             if resp is None:
                 raise MajsoulLoginError("Yostar 账号校验没通过，请重新[雀魂登录日服]")
             return resp
@@ -436,8 +417,31 @@ class MajsoulConnection:
         # 插件自己的逻辑：官方 token 失效会回登录页让人点登录，这里直接用存下的账密
         resp = await self._send_login(".lq.Lobby.login", self._password_login_req())
         if resp.error.code or not resp.account_id:
-            raise MajsoulLoginError(f"账密登录失败（错误码 {resp.error.code}）")
+            raise MajsoulLoginError(f"账密登录失败：{error_message(resp.error.code)}")
         return resp
+
+    async def _yostar_auth(self) -> str:
+        cred = self.credential
+        while True:
+            code = await yostar_passport_login(self._region, cred.passport_uid, cred.passport_token)
+            used = CLIENT_VERSION.current
+            auth = await self.rpc_call(
+                ".lq.Lobby.oauth2Auth",
+                liblq.ReqOauth2Auth(
+                    type=SOCIO_TYPE_YOSTAR,
+                    code=code,
+                    uid=cred.passport_uid,
+                    client_version_string=self.clientVersionString,
+                ),
+                liblq.ResOauth2Auth,
+            )
+            if auth.error.code == ERR_CLIENT_OUTDATED:
+                # 换上新版本号后连 passport 登录一起重走，不复用旧的 code
+                await self._refresh_client_version(used)
+                continue
+            if auth.error.code or not auth.access_token:
+                raise MajsoulLoginError(f"Yostar 授权失败：{error_message(auth.error.code)}")
+            return auth.access_token
 
     async def _token_login(self, token: str) -> liblq.ResLogin | None:
         # UI_Entrance:CheckToken：oauth2Check 只发一次，出错或没有账号就回登录页
@@ -451,21 +455,36 @@ class MajsoulConnection:
             return None
         resp = await self._send_login(".lq.Lobby.oauth2Login", self._oauth2_login_req(token, reconnect=False))
         if resp.error.code or not resp.account_id:
-            logger.info(f"[majs] oauth2Login 失败: {resp.error}")
+            logger.info(f"[majs] oauth2Login 失败: {error_message(resp.error.code)}")
             return None
         self.access_token = token
         return resp
 
     async def _send_login(self, method_name: str, req: liblq.ReqLogin | liblq.ReqOauth2Login) -> liblq.ResLogin:
-        """503 是封禁；156 要先排队，排到了再用同一个请求登录（UI_Entrance / UI_LoginQueue）。"""
+        """503 是封禁；156 要先排队，排到了再用同一个请求登录（UI_Entrance / UI_LoginQueue）。
+
+        151 是版本过旧：换上官网的新版本号再发一次（插件自己的逻辑，官方是让玩家重启游戏）。
+        """
         while True:
             resp = await self.rpc_call(method_name, req, liblq.ResLogin)
             if resp.error.code == ERR_PROHIBITED:
-                raise MajsoulBannedError(f"账号被封禁：{resp.error}")
+                raise MajsoulBannedError(f"账号被封禁：{error_message(resp.error.code)}")
+            if resp.error.code == ERR_CLIENT_OUTDATED:
+                used = req.client_version
+                await self._refresh_client_version(ClientVersion(resource=used.resource, package=used.package))
+                req.client_version = CLIENT_VERSION.info()
+                req.client_version_string = self.clientVersionString
+                continue
             if resp.error.code != ERR_LOGIN_QUEUE:
                 return resp
             logger.info(f"[majs] {self.label} 登录需要排队")
             await self._wait_login_queue()
+
+    async def _refresh_client_version(self, used: ClientVersion) -> None:
+        if not await CLIENT_VERSION.refresh(used):
+            raise MajsoulLoginError(
+                f"雀魂版本更新了，没能自动获取新版本号，请更新 MajsoulUID 插件后重试（错误码 {ERR_CLIENT_OUTDATED}）"
+            )
 
     async def _wait_login_queue(self) -> None:
         # UI_LoginQueue：先拉一次排队信息，之后每 10 秒刷新，等 NotifyLoginQueueFinished
@@ -610,7 +629,7 @@ class MajsoulConnection:
                 await self._give_up(f"自动重连登录失败：{e!r}")
                 return
             if resp.error.code or not resp.account_id:
-                await self._give_up(f"自动重连登录失败（错误码 {resp.error.code}）")
+                await self._give_up(f"自动重连登录失败：{error_message(resp.error.code)}")
                 return
             # LoginMgr._OnReloginSuccess：OnLoginSuccess（发 loginBeat）→ fetchServerTime → loginSuccess
             await self._apply_login(resp)
@@ -997,7 +1016,7 @@ class MajsoulConnection:
         )
         if logs.error.code:
             logger.warning(f"[majs] 获取牌谱 {log_id} 失败: {logs.error}")
-            return record_error_text(logs.error.code)
+            return f"获取牌谱失败：{error_message(logs.error.code)}"
         # 客户端拉到牌谱后都会补一句 readGameRecord（GameMgr:CheckPaiPu）
         await self.rpc_call(
             ".lq.Lobby.readGameRecord",

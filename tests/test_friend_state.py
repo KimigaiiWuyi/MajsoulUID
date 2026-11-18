@@ -307,7 +307,8 @@ def test_record_calls_keep_interval(monkeypatch: pytest.MonkeyPatch):
 
 def test_fetch_logs_returns_error_text_and_skips_read(config: FakeConfig):
     conn = make_conn(records=[liblq.ResGameRecord(error=liblq.Error(code=540))])
-    assert asyncio.run(conn.fetchLogs("261026-not-cached")) == "超出牌谱拉取限制，请稍后重试"
+    text = asyncio.run(conn.fetchLogs("261026-not-cached"))
+    assert text == "获取牌谱失败：超出牌谱拉取限制，请稍后重试（错误码 540）"
     assert conn.calls == [".lq.Lobby.fetchGameRecord"]
 
 

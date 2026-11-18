@@ -6,13 +6,12 @@ import betterproto
 from gsuid_core.logger import logger
 
 from ..lib import lq as liblq
-from .model import MajsoulRpc, InflightRequest, MajsoulClientVersion, MajsoulDecodedMessage
+from .model import MajsoulRpc, InflightRequest, MajsoulDecodedMessage
 from .constants import REQUEST_INDEX_MOD
 from ..utils.map import PROTO_PATH
 
-# 两份文件都由 utils/proto/update_proto.py 从 MajsoulData 生成
+# 由 utils/proto/update_proto.py 从 MajsoulData 生成
 RPC_MAP = msgspec.json.decode((PROTO_PATH / "liqi.json").read_bytes(), type=dict[str, MajsoulRpc])
-CLIENT_VERSION = msgspec.json.decode((PROTO_PATH / "client_version.json").read_bytes(), type=MajsoulClientVersion)
 
 MESSAGE_TYPES: dict[str, type[betterproto.Message]] = {
     name: obj for name, obj in vars(liblq).items() if isinstance(obj, type) and issubclass(obj, betterproto.Message)

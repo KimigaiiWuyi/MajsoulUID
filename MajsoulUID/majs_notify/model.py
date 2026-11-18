@@ -1,7 +1,7 @@
 from typing import List
 
 import betterproto
-from msgspec import Struct
+from msgspec import Struct, field
 
 from ..lib.lq import RecordGame
 
@@ -45,6 +45,34 @@ class MajsoulRoutesData(Struct):
 
 class MajsoulRoutesResp(Struct):
     data: MajsoulRoutesData
+
+
+class BundleUrl(Struct):
+    url: str
+    weight: int = 0
+    priority: int = field(default=0, name="Priority")
+
+
+class BundleWarehouse(Struct):
+    urls: List[BundleUrl]
+    setting_path: str = field(name="warehouseSettingPath")
+
+
+class ClientBundleSettings(Struct):
+    """国服 clientBundleSettings/chs_t-release.json：热更新资源仓库的入口。"""
+
+    warehouses: List[BundleWarehouse]
+
+
+class WarehouseSettings(Struct):
+    urls: List[BundleUrl]
+    bundle_path: str = field(name="bundlePath")
+
+
+class DocsVersion(Struct):
+    """资源包里的 docs_version/version.json，GameMgr:InitConfigData 读它当资源版本。"""
+
+    version: str
 
 
 class YostarPassportResp(Struct):

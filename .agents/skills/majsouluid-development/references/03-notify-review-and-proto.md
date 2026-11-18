@@ -17,8 +17,9 @@
 - 推送遇到 540 直接放弃，发牌谱链接，不再重试
 - 推送不要调 `fetchGameRecord`（整局牌谱），只有 Review 的 `fetchLogs` 用它
 
-错误码文案在 MajsoulData 的 `data/tables/info/error.json` → `raw/lua/.../Langs/info_error_chs.lua`，
-常用的抄在 `constants.RECORD_ERROR_TEXT`。
+错误码给用户看时一律用 `error_text.error_message(code)`，输出「官方文案（错误码 N）」，别直接甩数字。
+表是 `utils/proto/error_text.json`，由 `update_proto.py` 从 MajsoulData 的 `data/tables/info/error.json`
+（错误码 → 文案下标）和 `raw/lua/.../Langs/info_error_chs.lua`（文案数组，下标从 1 数）拼出来。
 
 维护：`MajsoulMaintenanceError`。推送对象还可按配置抄送给主人（`MajsIsPushActiveToMaster` + bot_id/type/id）。
 
@@ -41,7 +42,8 @@
 |------|---------|------|
 | `lib/lq/__init__.py` | protoc + betterproto（`--descriptor_set_in=liqi.desc`） | 消息类 |
 | `utils/proto/liqi.json` | `update_proto.py` | RPC 全名 → 请求/响应类型，`codec.py` 只认它 |
-| `utils/proto/client_version.json` | `update_proto.py` | 登录上报的资源版本 / 客户端版本 |
+| `utils/proto/client_version.json` | `update_proto.py` | 登录上报的资源版本 / 客户端版本（打包时的默认值） |
+| `utils/proto/error_text.json` | `update_proto.py` | 错误码 → 官方中文提示 |
 | `utils/proto/lqc.json` | `update_skin.py` | 皮肤表（MajsoulData `item_definition/skin.json`） |
 | `utils/texture2d/bighead/<皮肤ID>.webp` | `update_skin.py` | 好友排行榜头像，从国服 Unity 资源包解出 |
 
@@ -59,6 +61,7 @@
 | `route.py` | `NetRoute` | 一条 WebSocket：`requestConnection` 带线路类型、每 15 秒（线路不稳 5 秒）路由心跳、测速连发 ping、备用 20 分钟 / 探测 40 秒自动关、`NotifyConnectionShutdown` 关路由 |
 | `route_group.py` | `NetRouteGroup` + `GatewayFetcher` + `NetRouteGroup_Entrance` | 主 / 备用 / 探测三条线路、同线路重连、黑洞和重连超时切备用、线路表刷新 |
 | `majsoul.py` 的 `MajsoulConnection` | `LobbyNetMgr` + `LoginMgr` + `UI_Entrance` | 登录、重连后 Relogin、被顶号、6 分钟挂机心跳、每小时 `fetchServerTime` |
+| `client_version.py` | `GameUtility.SetBIInfo` / `GetClientVersionString` + `GameMgr:InitConfigData` | 上报的版本号；151 时去国服 CDN 取新版本号 |
 
 - 网关：向各服入口网关请求 `/api/clientgate/routes`，再连路由的 `wss://<domain>/gateway`。WebSocket 带页面的
   `Origin` 和浏览器 UA，不发 ping 帧（浏览器不发），保活只靠 `Route.heartbeat`。
@@ -66,6 +69,13 @@
   （插件自己的逻辑，官方是回登录页让人点）。账密登录的 `type`：纯数字当手机号（标签 1，str 3132「手机号码」），
   其余为 0（str 3127「邮箱/账号登录」）。密码原文入库，和官方 `SetPrefs('password', ...)` 一致。
 - 错误码：`503` 封禁，直接失败；`156` 进排队（`fetchQueueInfo` 每 10 秒刷新，等 `NotifyLoginQueueFinished`）。
+- 版本号：`resource` 是 `GameMgr.Inst.version`（资源包里的 `docs_version/version.json`），`package` 是
+  `GameVersion.version`（WebGL 页面的 `productVersion`），版本串是 `WebGL_2022-<resource>`。默认取
+  `client_version.json`，但它要等 MajsoulData 出新版、Auto Liqi 跑完、用户更新插件，会落后官方。
+  所以 `login` / `oauth2Login` / `oauth2Auth` 回 `151`（版本过旧）时，插件按客户端热更新的路径
+  （网页 → `clientBundleSettings` → `bundle_info_so.majset` → docs_version 资源包）读出当前版本，换上后重发
+  （插件自己的逻辑，官方是提示重启游戏）。10 分钟内最多查一次；官网也是这个版本或取不到，就报「请更新插件」。
+  资源包用 `utils/unity_bundle.py` 解析，不依赖 UnityPy；版本号只在内存里，重启后又从 `client_version.json` 开始。
 - 登录成功：`loginBeat`（失败隔 1 秒再发一次），有昵称再 `loginSuccess`，然后 `fetchInfo` 拿好友。
 - 主线路选择：上次用的线路能用就用，否则在网关 `state` 为 idle / normal 的线路里挑 `level` 最高的随机一条。
 - 断线：同一条路由按 `0.3/1/3/6/10/15` 秒重连，连上后 `oauth2Login(reconnect=true)`，再 `loginBeat` →

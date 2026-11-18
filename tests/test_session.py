@@ -20,6 +20,8 @@ route_delay = importlib.import_module(f"{PKG}.majs_notify.route_delay")
 constants = importlib.import_module(f"{PKG}.majs_notify.constants")
 model = importlib.import_module(f"{PKG}.majs_notify.model")
 account_input = importlib.import_module(f"{PKG}.majs_notify.account_input")
+client_version = importlib.import_module(f"{PKG}.majs_notify.client_version")
+error_text = importlib.import_module(f"{PKG}.majs_notify.error_text")
 liblq = importlib.import_module(f"{PKG}.lib.lq")
 
 ConnState = majsoul.ConnState
@@ -174,6 +176,66 @@ def test_login_queue_waits_for_finish_notice(server: FakeServer):
     calls = [call for call in server.calls if call != "fetchQueueInfo"]
     assert calls == ["login", "login", "loginBeat", "loginSuccess", "fetchInfo"]
     assert server.calls[1] == "fetchQueueInfo"
+
+
+def use_official_version(monkeypatch: pytest.MonkeyPatch, official) -> None:
+    """本地版本固定成 0.0.1 / 1.0.0，去官网查到的是 `official`。"""
+    monkeypatch.setattr(client_version.CLIENT_VERSION, "current", client_version.ClientVersion("0.0.1", "1.0.0"))
+    monkeypatch.setattr(client_version.CLIENT_VERSION, "_checked_at", None)
+
+    async def fetch():
+        return official
+
+    monkeypatch.setattr(client_version, "fetch_official_version", fetch)
+
+
+def versioned(seen: list[str], resp):
+    # 同一个请求对象会改了版本号再发，要在发的时候记下来
+    def reply(socket: FakeSocket, req):
+        seen.append(f"{req.client_version_string} {req.client_version.resource}/{req.client_version.package}")
+        return resp
+
+    return reply
+
+
+def test_outdated_client_switches_to_official_version(server: FakeServer, monkeypatch: pytest.MonkeyPatch):
+    use_official_version(monkeypatch, client_version.ClientVersion("0.0.2", "1.0.1"))
+    seen: list[str] = []
+    outdated = liblq.ResLogin(error=liblq.Error(code=constants.ERR_CLIENT_OUTDATED))
+    server.reply("login", versioned(seen, outdated), versioned(seen, ok_login()))
+    server.reply("loginBeat", liblq.ResCommon())
+    server.reply("loginSuccess", liblq.ResCommon())
+    server.reply("fetchInfo", liblq.ResFetchInfo())
+
+    async def scenario():
+        conn = make_conn(username="u", password="pw")
+        await conn.login()
+        state = conn.state
+        await finish(conn)
+        return state
+
+    assert asyncio.run(scenario()) is ConnState.ONLINE
+    assert seen == ["WebGL_2022-0.0.1 0.0.1/1.0.0", "WebGL_2022-0.0.2 0.0.2/1.0.1"]
+
+
+def test_outdated_client_without_newer_version_fails_readably(server: FakeServer, monkeypatch: pytest.MonkeyPatch):
+    use_official_version(monkeypatch, client_version.ClientVersion("0.0.1", "1.0.0"))
+    seen: list[str] = []
+    outdated = liblq.ResLogin(error=liblq.Error(code=constants.ERR_CLIENT_OUTDATED))
+    server.reply("login", versioned(seen, outdated))
+
+    async def scenario():
+        conn = make_conn(username="u", password="pw")
+        with pytest.raises(majsoul.MajsoulLoginError, match="更新 MajsoulUID"):
+            await conn.login()
+        return conn
+
+    conn = asyncio.run(scenario())
+    # 官网也是这个版本：不重发，也不把原始错误码甩给用户
+    assert len(seen) == 1
+    assert conn.state is ConnState.FAILED and "错误码 151" in conn.last_error
+    assert "版本过旧" in error_text.error_message(constants.ERR_CLIENT_OUTDATED)
+    assert error_text.error_message(-1) == "未知错误（错误码 -1）"
 
 
 def test_login_beat_retries_once(server: FakeServer):

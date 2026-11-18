@@ -91,6 +91,18 @@ BUSY_REMOVED = "removed"
 # UI_Entrance：503 弹封禁说明，156 进 UI_LoginQueue 排队
 ERR_PROHIBITED = 503
 ERR_LOGIN_QUEUE = 156
+# info/error 151「您的游戏版本过旧，请重新启动游戏以更新到最新版本」
+ERR_CLIENT_OUTDATED = 151
+
+# 国服热更新资源的入口，update_skin.py 和 MajsoulData 也从这里取资源包
+CLIENT_BUNDLE_SETTINGS_URL = "https://game.maj-soul.com/assetbundles/clientBundleSettings/chs_t-release.json"
+TEXTURE_PROFILES = ("ASTC", "DXT")
+# GameMgr:InitConfigData 读这个文件当资源版本（GameMgr.Inst.version）
+DOCS_VERSION_ASSET = "MyAssets/docs_version/version.json"
+DOCS_VERSION_TEXT_ASSET = "version"
+# 插件自己的：151 后去官网查新版本号，两次至少隔这么久，别一直 151 时反复下资源索引
+CLIENT_VERSION_REFRESH_INTERVAL = 600.0
+CLIENT_VERSION_FETCH_TIMEOUT = 30.0
 # UI_LoginQueue：每 10 秒刷新排队信息，连续出错超过 3 次报错
 LOGIN_QUEUE_POLL_INTERVAL = 10.0
 LOGIN_QUEUE_MAX_ERRORS = 3
@@ -146,14 +158,8 @@ REGION_EN = MajsoulRegion(
 )
 
 
-# 牌谱接口的错误码，文案取自 MajsoulData 的 info/error 表
+# 牌谱接口的拉取限额，超了返回这个错误码
 ERR_RECORD_FETCH_LIMIT = 540
-RECORD_ERROR_TEXT = {
-    511: "获取牌谱失败，请稍后重试",
-    540: "超出牌谱拉取限制，请稍后重试",
-    541: "没有该牌谱的查看权限",
-    1203: "这局游戏不存在",
-}
 
 
 SERVER_NAME = {"zh": "国服", "ja": "日服", "jp": "日服", "en": "美服"}

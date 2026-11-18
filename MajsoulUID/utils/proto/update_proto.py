@@ -3,6 +3,7 @@
 产物：
 - `liqi.json`：RPC 全名 → 请求 / 响应消息名，运行时 codec 只认这份
 - `client_version.json`：登录时上报的资源版本 / 客户端版本
+- `error_text.json`：错误码 → 官方中文提示（info/error 表 + Langs/info_error_chs.lua）
 - `--desc` 指定路径的 `liqi.desc`：交给 protoc 生成 `lib/lq`
 
 雀魂换成 Unity 客户端后，官网 `resversion*.json` 里的 liqi.json 已停更。
@@ -19,6 +20,9 @@ import httpx2
 from google.protobuf import descriptor_pb2
 
 RELEASE_URL = "https://api.github.com/repos/Avenshy/MajsoulData/releases/latest"
+RAW_URL = "https://raw.githubusercontent.com/Avenshy/MajsoulData/{tag}/{path}"
+ERROR_TABLE = "data/tables/info/error.json"
+ERROR_LANG = "raw/lua/LuaByte/Lua/Excels/Langs/info_error_chs.lua"
 DESC_ASSET = "liqi.desc"
 PROTO_PACKAGE = "lq"
 VERSION_RE = re.compile(r"^\d+(\.\d+)+$")
@@ -26,6 +30,9 @@ VERSION_RE = re.compile(r"^\d+(\.\d+)+$")
 PROTO_DIR = Path(__file__).parent
 RPC_MAP_PATH = PROTO_DIR / "liqi.json"
 CLIENT_VERSION_PATH = PROTO_DIR / "client_version.json"
+ERROR_TEXT_PATH = PROTO_DIR / "error_text.json"
+LUA_STRING_RE = re.compile(r'"((?:[^"\\]|\\.)*)"')
+LUA_ESCAPES = {"n": "\n", "t": "\t", '"': '"', "'": "'", "\\": "\\"}
 
 
 class ReleaseAsset(TypedDict):
@@ -41,6 +48,12 @@ class Release(TypedDict):
 class RpcTypes(TypedDict):
     req: str
     resp: str
+
+
+class ErrorRow(TypedDict):
+    id: int
+    # Langs/info_error_chs.lua 字符串数组的下标，从 1 数；少数码没有中文文案，是 null
+    chs: int | None
 
 
 class ClientVersion(TypedDict):
@@ -83,7 +96,34 @@ def proto_files(file_set: descriptor_pb2.FileDescriptorSet) -> list[str]:
     return [file.name for file in file_set.file if file.package == PROTO_PACKAGE]
 
 
-def write_json(path: Path, data: dict[str, RpcTypes] | ClientVersion) -> None:
+def unescape_lua(text: str) -> str:
+    def replace(m: re.Match[str]) -> str:
+        ch = m.group(1)
+        if ch not in LUA_ESCAPES:
+            raise ValueError(f"不认识的 Lua 转义: \\{ch}")
+        return LUA_ESCAPES[ch]
+
+    return re.sub(r"\\(.)", replace, text)
+
+
+def parse_lua_strings(source: str) -> list[str]:
+    """Langs/*.lua 的格式是 `local a={"…","…"}return a`。"""
+    body = source.strip()
+    if not body.startswith("local a={") or not body.endswith("}return a"):
+        raise ValueError("Langs 文件格式变了")
+    return [unescape_lua(m.group(1)) for m in LUA_STRING_RE.finditer(body)]
+
+
+def build_error_text(rows: list[ErrorRow], texts: list[str]) -> dict[str, str]:
+    table: dict[str, str] = {}
+    for row in sorted(rows, key=lambda r: r["id"]):
+        index = row["chs"]
+        if index is not None:
+            table[str(row["id"])] = texts[index - 1]
+    return table
+
+
+def write_json(path: Path, data: dict[str, RpcTypes] | dict[str, str] | ClientVersion) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
@@ -103,11 +143,14 @@ def main() -> None:
             raise RuntimeError(f"MajsoulData {tag} 缺少 {DESC_ASSET}")
         desc = client.get(urls[0])
         desc.raise_for_status()
+        rows: list[ErrorRow] = client.get(RAW_URL.format(tag=tag, path=ERROR_TABLE)).raise_for_status().json()
+        lang = client.get(RAW_URL.format(tag=tag, path=ERROR_LANG)).raise_for_status().text
 
     file_set = descriptor_pb2.FileDescriptorSet.FromString(desc.content)
     desc_path.write_bytes(desc.content)
     write_json(RPC_MAP_PATH, build_rpc_map(file_set))
     write_json(CLIENT_VERSION_PATH, parse_release_tag(tag))
+    write_json(ERROR_TEXT_PATH, build_error_text(rows, parse_lua_strings(lang)))
 
     files = " ".join(proto_files(file_set))
     print(f"MajsoulData {tag}: {files}")

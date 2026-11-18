@@ -18,7 +18,6 @@ from websockets.exceptions import InvalidHandshake
 from gsuid_core.logger import logger
 
 from ..lib import lq as liblq
-from .codec import CLIENT_VERSION
 from .model import MajsoulRoute, MajsoulRoutesData, MajsoulRoutesResp, MajsoulDecodedMessage
 from .route import NEVER, RespT, RouteInfo, RouteSocket, RouteRejected, spawn
 from .constants import (
@@ -59,6 +58,7 @@ from .constants import (
     GATEWAY_MAINTENANCE_REFRESH,
     MajsoulRegion,
 )
+from .client_version import CLIENT_VERSION
 
 # 连线路时可能遇到的网络错误（TimeoutError、ConnectionError 都是 OSError）
 SOCKET_ERRORS = (OSError, InvalidHandshake)
@@ -157,7 +157,7 @@ class GatewayFetcher:
     async def _try_gateway(self, gateway: str) -> tuple[str, MajsoulRoutesData] | None:
         params = {
             "platform": DETAIL_PLATFORM,
-            "version": CLIENT_VERSION.package_version,
+            "version": CLIENT_VERSION.current.package,
             "lang": self._region.route_lang,
         }
         headers = {"User-Agent": USER_AGENT, "Referer": self._region.web_url}
