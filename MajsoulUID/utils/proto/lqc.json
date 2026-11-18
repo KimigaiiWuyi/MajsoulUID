@@ -3094,5 +3094,77 @@
     "name": "契约",
     "character_id": 20000127,
     "path": null
+  },
+  "40012801": {
+    "id": 40012801,
+    "name": "芙莉莲",
+    "character_id": 20000128,
+    "path": "deco/character/40012801"
+  },
+  "40012802": {
+    "id": 40012802,
+    "name": "契约",
+    "character_id": 20000128,
+    "path": "deco/character/40012802"
+  },
+  "40012803": {
+    "id": 40012803,
+    "name": "于遥远之地",
+    "character_id": 20000128,
+    "path": "deco/character/40012803"
+  },
+  "40012901": {
+    "id": 40012901,
+    "name": "菲伦",
+    "character_id": 20000129,
+    "path": "deco/character/40012901"
+  },
+  "40012902": {
+    "id": 40012902,
+    "name": "契约",
+    "character_id": 20000129,
+    "path": "deco/character/40012902"
+  },
+  "40012903": {
+    "id": 40012903,
+    "name": "于遥远之地",
+    "character_id": 20000129,
+    "path": "deco/character/40012903"
+  },
+  "40013001": {
+    "id": 40013001,
+    "name": "休塔尔克",
+    "character_id": 20000130,
+    "path": "deco/character/40013001"
+  },
+  "40013002": {
+    "id": 40013002,
+    "name": "契约",
+    "character_id": 20000130,
+    "path": "deco/character/40013002"
+  },
+  "40013003": {
+    "id": 40013003,
+    "name": "于遥远之地",
+    "character_id": 20000130,
+    "path": "deco/character/40013003"
+  },
+  "40013101": {
+    "id": 40013101,
+    "name": "尤贝尔",
+    "character_id": 20000131,
+    "path": "deco/character/40013101"
+  },
+  "40013102": {
+    "id": 40013102,
+    "name": "契约",
+    "character_id": 20000131,
+    "path": "deco/character/40013102"
+  },
+  "40013103": {
+    "id": 40013103,
+    "name": "于遥远之地",
+    "character_id": 20000131,
+    "path": "deco/character/40013103"
   }
 }

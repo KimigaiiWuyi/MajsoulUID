@@ -1123,6 +1123,50 @@
     "req": ".lq.ReqMajClubActivityUpgradeWaiting",
     "resp": ".lq.ResMajClubActivityCommon"
   },
+  ".lq.Lobby.majWorkshopActivityCollect": {
+    "req": ".lq.ReqMajWorkshopActivityCollect",
+    "resp": ".lq.ResMajWorkshopActivityCollect"
+  },
+  ".lq.Lobby.majWorkshopActivityCraft": {
+    "req": ".lq.ReqMajWorkshopActivityCraft",
+    "resp": ".lq.ResMajWorkshopActivityCraft"
+  },
+  ".lq.Lobby.majWorkshopActivityFetchData": {
+    "req": ".lq.ReqMajWorkshopActivityFetchData",
+    "resp": ".lq.ResMajWorkshopActivityFetchData"
+  },
+  ".lq.Lobby.majWorkshopActivityGardenRestore": {
+    "req": ".lq.ReqMajWorkshopActivityGardenRestore",
+    "resp": ".lq.ResMajWorkshopActivityGardenRestore"
+  },
+  ".lq.Lobby.majWorkshopActivityGardenRestoreAndCollect": {
+    "req": ".lq.ReqMajWorkshopActivityGardenRestoreAndCollect",
+    "resp": ".lq.ResMajWorkshopActivityGardenRestoreAndCollect"
+  },
+  ".lq.Lobby.majWorkshopActivityQuickCraft": {
+    "req": ".lq.ReqMajWorkshopActivityQuickCraft",
+    "resp": ".lq.ResMajWorkshopActivityQuickCraft"
+  },
+  ".lq.Lobby.majWorkshopActivityRead": {
+    "req": ".lq.ReqMajWorkshopActivityRead",
+    "resp": ".lq.ResMajWorkshopActivityRead"
+  },
+  ".lq.Lobby.majWorkshopActivityRecovery": {
+    "req": ".lq.ReqMajWorkshopActivityRecovery",
+    "resp": ".lq.ResMajWorkshopActivityRecovery"
+  },
+  ".lq.Lobby.majWorkshopActivitySetSelectedOrder": {
+    "req": ".lq.ReqMajWorkshopActivitySetSelectedOrder",
+    "resp": ".lq.ResMajWorkshopActivitySetSelectedOrder"
+  },
+  ".lq.Lobby.majWorkshopActivitySubmitOrder": {
+    "req": ".lq.ReqMajWorkshopActivitySubmitOrder",
+    "resp": ".lq.ResMajWorkshopActivitySubmitOrder"
+  },
+  ".lq.Lobby.majWorkshopActivityUnderstandOrder": {
+    "req": ".lq.ReqMajWorkshopActivityUnderstandOrder",
+    "resp": ".lq.ResMajWorkshopActivityUnderstandOrder"
+  },
   ".lq.Lobby.marathonActivityFinishRace": {
     "req": ".lq.ReqMarathonActivityFinishRace",
     "resp": ".lq.ResMarathonActivityFinishRace"
@@ -1494,6 +1538,10 @@
   ".lq.Lobby.setHiddenCharacter": {
     "req": ".lq.ReqSetHiddenCharacter",
     "resp": ".lq.ResSetHiddenCharacter"
+  },
+  ".lq.Lobby.setHiddenHandsView": {
+    "req": ".lq.ReqSetHiddenHandsView",
+    "resp": ".lq.ResSetHiddenHandsView"
   },
   ".lq.Lobby.setLoadingImage": {
     "req": ".lq.ReqSetLoadingImage",

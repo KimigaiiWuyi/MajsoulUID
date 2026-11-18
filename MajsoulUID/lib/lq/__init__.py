@@ -190,6 +190,7 @@ class AccountActivityUpdate(betterproto.Message):
     activity_buff: "AccountActivityUpdateActivityBuffDataArrayDirty" = (
         betterproto.message_field(23)
     )
+    work_shop_data: List["ActivityMajWorkshopChanges"] = betterproto.message_field(24)
 
 
 @dataclass(eq=False, repr=False)
@@ -1082,6 +1083,95 @@ class ActivityMajClubUpgradeDataChanges(betterproto.Message):
     rooms: "ActivityMajClubRoomDataArrayDirty" = betterproto.message_field(1)
     characters: "ActivityMajClubCharacterDataArrayDirty" = betterproto.message_field(2)
     wait_zone_level: "UInt32Dirty" = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMajWorkshopChanges(betterproto.Message):
+    game: "ActivityMajWorkshopGameDataChanges" = betterproto.message_field(1)
+    illustrated_book: "ActivityMajWorkshopIllustratedBookChanges" = (
+        betterproto.message_field(2)
+    )
+    activity_id: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMajWorkshopCraft(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    count: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMajWorkshopCraftArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["ActivityMajWorkshopCraft"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMajWorkshopData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    game: "ActivityMajWorkshopGameData" = betterproto.message_field(2)
+    illustrated_book: "ActivityMajWorkshopIllustratedBook" = betterproto.message_field(
+        3
+    )
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMajWorkshopGameData(betterproto.Message):
+    level: int = betterproto.uint32_field(1)
+    sell_bouns_count: int = betterproto.uint32_field(2)
+    crafts: List["ActivityMajWorkshopCraft"] = betterproto.message_field(3)
+    gardens: List["ActivityMajWorkshopGarden"] = betterproto.message_field(4)
+    orders: List["ActivityMajWorkshopOrder"] = betterproto.message_field(5)
+    last_sell_bouns_time: int = betterproto.uint32_field(7)
+    understood_order_ids: List[int] = betterproto.uint32_field(8)
+    selected_order_id: int = betterproto.uint32_field(9)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMajWorkshopGameDataChanges(betterproto.Message):
+    level: "UInt32Dirty" = betterproto.message_field(1)
+    sell_bouns_count: "UInt32Dirty" = betterproto.message_field(2)
+    crafts: "ActivityMajWorkshopCraftArrayDirty" = betterproto.message_field(3)
+    gardens: "ActivityMajWorkshopGardenArrayDirty" = betterproto.message_field(4)
+    orders: "ActivityMajWorkshopOrderArrayDirty" = betterproto.message_field(5)
+    selected_order_id: "UInt32Dirty" = betterproto.message_field(6)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMajWorkshopGarden(betterproto.Message):
+    id: int = betterproto.uint32_field(1)
+    last_collected_time: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMajWorkshopGardenArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["ActivityMajWorkshopGarden"] = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMajWorkshopIllustratedBook(betterproto.Message):
+    unlocked_craft_id: List[int] = betterproto.uint32_field(1)
+    have_read_craft_id: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMajWorkshopIllustratedBookChanges(betterproto.Message):
+    unlocked_craft_id: "UInt32ArrayDirty" = betterproto.message_field(1)
+    have_read_craft_id: "UInt32ArrayDirty" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMajWorkshopOrder(betterproto.Message):
+    order_id: int = betterproto.uint32_field(1)
+    id: int = betterproto.uint32_field(2)
+    understood: bool = betterproto.bool_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ActivityMajWorkshopOrderArrayDirty(betterproto.Message):
+    dirty: bool = betterproto.bool_field(1)
+    value: List["ActivityMajWorkshopOrder"] = betterproto.message_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -5116,6 +5206,10 @@ class TingPaiInfo(betterproto.Message):
     yiman_zimo: bool = betterproto.bool_field(7)
     count_zimo: int = betterproto.uint32_field(8)
     fu_zimo: int = betterproto.uint32_field(9)
+    dora_count: int = betterproto.uint32_field(10)
+    li_dora_count: int = betterproto.uint32_field(11)
+    red_dora_count: int = betterproto.uint32_field(12)
+    ying_count: int = betterproto.uint32_field(13)
 
 
 @dataclass(eq=False, repr=False)
@@ -6786,6 +6880,101 @@ class ReqMajClubActivityUpgradeWaiting(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivityCollect(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    garden_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivityCraft(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    crafts: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivityFetchData(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivityGardenRestore(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    garden_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivityGardenRestoreAndCollect(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    garden_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivityQuickCraft(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    target_craft_id: int = betterproto.uint32_field(2)
+    garden_collects: List[
+        "ReqMajWorkshopActivityQuickCraftActivityMajWorkshopGardenCollect"
+    ] = betterproto.message_field(3)
+    craft_steps: List[
+        "ReqMajWorkshopActivityQuickCraftActivityMajWorkshopCraftStep"
+    ] = betterproto.message_field(4)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivityQuickCraftActivityMajWorkshopGardenCollect(
+    betterproto.Message
+):
+    garden_id: int = betterproto.uint32_field(1)
+    use_free_collect: bool = betterproto.bool_field(2)
+    cost: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivityQuickCraftCraftInput(betterproto.Message):
+    craft_id: int = betterproto.uint32_field(1)
+    from_: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivityQuickCraftActivityMajWorkshopCraftStep(betterproto.Message):
+    input: List["ReqMajWorkshopActivityQuickCraftCraftInput"] = (
+        betterproto.message_field(1)
+    )
+    output_craft_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivityRead(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    craft_id_list: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivityRecovery(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    craft_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivitySetSelectedOrder(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivitySubmitOrder(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    order_id: int = betterproto.uint32_field(2)
+    craft_id: int = betterproto.uint32_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ReqMajWorkshopActivityUnderstandOrder(betterproto.Message):
+    activity_id: int = betterproto.uint32_field(1)
+    order_id: int = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
 class ReqMarathonActivityFinishRace(betterproto.Message):
     activity_id: int = betterproto.uint32_field(1)
     race_data: List["ActivityMarathonCheckData"] = betterproto.message_field(2)
@@ -7357,6 +7546,11 @@ class ReqSetFriendRoomRandomBotChar(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class ReqSetHiddenCharacter(betterproto.Message):
     chara_list: List[int] = betterproto.uint32_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class ReqSetHiddenHandsView(betterproto.Message):
+    hidden_hands_view: List[int] = betterproto.uint32_field(1)
 
 
 @dataclass(eq=False, repr=False)
@@ -8075,6 +8269,7 @@ class ResCharacterInfo(betterproto.Message):
     character_sort: List[int] = betterproto.uint32_field(9)
     hidden_characters: List[int] = betterproto.uint32_field(10)
     other_character_sort: List[int] = betterproto.uint32_field(11)
+    hidden_hands_view: List[int] = betterproto.uint32_field(12)
 
 
 @dataclass(eq=False, repr=False)
@@ -9466,6 +9661,77 @@ class ResMajClubActivityStartDay(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class ResMajWorkshopActivityCollect(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMajWorkshopChanges" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResMajWorkshopActivityCraft(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMajWorkshopChanges" = betterproto.message_field(2)
+    greate_craft_id: int = betterproto.uint32_field(3)
+    greate_success: bool = betterproto.bool_field(4)
+    greate_success_craft: List[int] = betterproto.uint32_field(5)
+
+
+@dataclass(eq=False, repr=False)
+class ResMajWorkshopActivityFetchData(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    data: "ActivityMajWorkshopData" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResMajWorkshopActivityGardenRestore(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMajWorkshopChanges" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResMajWorkshopActivityGardenRestoreAndCollect(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMajWorkshopChanges" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResMajWorkshopActivityQuickCraft(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMajWorkshopChanges" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResMajWorkshopActivityRead(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMajWorkshopChanges" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResMajWorkshopActivityRecovery(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMajWorkshopChanges" = betterproto.message_field(2)
+    extra_reward: List["ExecuteReward"] = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResMajWorkshopActivitySetSelectedOrder(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMajWorkshopChanges" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResMajWorkshopActivitySubmitOrder(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    success: bool = betterproto.bool_field(2)
+    changes: "ActivityMajWorkshopChanges" = betterproto.message_field(3)
+
+
+@dataclass(eq=False, repr=False)
+class ResMajWorkshopActivityUnderstandOrder(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    changes: "ActivityMajWorkshopChanges" = betterproto.message_field(2)
+
+
+@dataclass(eq=False, repr=False)
 class ResMarathonActivityFinishRace(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     highest_record: "MarathonGameRecord" = betterproto.message_field(2)
@@ -10061,6 +10327,12 @@ class ResServerTime(betterproto.Message):
 class ResSetHiddenCharacter(betterproto.Message):
     error: "Error" = betterproto.message_field(1)
     hidden_characters: List[int] = betterproto.uint32_field(2)
+
+
+@dataclass(eq=False, repr=False)
+class ResSetHiddenHandsView(betterproto.Message):
+    error: "Error" = betterproto.message_field(1)
+    hidden_hands_view: List[int] = betterproto.uint32_field(2)
 
 
 @dataclass(eq=False, repr=False)
@@ -15589,6 +15861,193 @@ class LobbyStub(betterproto.ServiceStub):
             metadata=metadata,
         )
 
+    async def maj_workshop_activity_collect(
+        self,
+        req_maj_workshop_activity_collect: "ReqMajWorkshopActivityCollect",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMajWorkshopActivityCollect":
+        return await self._unary_unary(
+            "/lq.Lobby/majWorkshopActivityCollect",
+            req_maj_workshop_activity_collect,
+            ResMajWorkshopActivityCollect,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def maj_workshop_activity_craft(
+        self,
+        req_maj_workshop_activity_craft: "ReqMajWorkshopActivityCraft",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMajWorkshopActivityCraft":
+        return await self._unary_unary(
+            "/lq.Lobby/majWorkshopActivityCraft",
+            req_maj_workshop_activity_craft,
+            ResMajWorkshopActivityCraft,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def maj_workshop_activity_fetch_data(
+        self,
+        req_maj_workshop_activity_fetch_data: "ReqMajWorkshopActivityFetchData",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMajWorkshopActivityFetchData":
+        return await self._unary_unary(
+            "/lq.Lobby/majWorkshopActivityFetchData",
+            req_maj_workshop_activity_fetch_data,
+            ResMajWorkshopActivityFetchData,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def maj_workshop_activity_garden_restore(
+        self,
+        req_maj_workshop_activity_garden_restore: "ReqMajWorkshopActivityGardenRestore",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMajWorkshopActivityGardenRestore":
+        return await self._unary_unary(
+            "/lq.Lobby/majWorkshopActivityGardenRestore",
+            req_maj_workshop_activity_garden_restore,
+            ResMajWorkshopActivityGardenRestore,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def maj_workshop_activity_garden_restore_and_collect(
+        self,
+        req_maj_workshop_activity_garden_restore_and_collect: "ReqMajWorkshopActivityGardenRestoreAndCollect",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMajWorkshopActivityGardenRestoreAndCollect":
+        return await self._unary_unary(
+            "/lq.Lobby/majWorkshopActivityGardenRestoreAndCollect",
+            req_maj_workshop_activity_garden_restore_and_collect,
+            ResMajWorkshopActivityGardenRestoreAndCollect,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def maj_workshop_activity_quick_craft(
+        self,
+        req_maj_workshop_activity_quick_craft: "ReqMajWorkshopActivityQuickCraft",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMajWorkshopActivityQuickCraft":
+        return await self._unary_unary(
+            "/lq.Lobby/majWorkshopActivityQuickCraft",
+            req_maj_workshop_activity_quick_craft,
+            ResMajWorkshopActivityQuickCraft,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def maj_workshop_activity_read(
+        self,
+        req_maj_workshop_activity_read: "ReqMajWorkshopActivityRead",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMajWorkshopActivityRead":
+        return await self._unary_unary(
+            "/lq.Lobby/majWorkshopActivityRead",
+            req_maj_workshop_activity_read,
+            ResMajWorkshopActivityRead,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def maj_workshop_activity_recovery(
+        self,
+        req_maj_workshop_activity_recovery: "ReqMajWorkshopActivityRecovery",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMajWorkshopActivityRecovery":
+        return await self._unary_unary(
+            "/lq.Lobby/majWorkshopActivityRecovery",
+            req_maj_workshop_activity_recovery,
+            ResMajWorkshopActivityRecovery,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def maj_workshop_activity_set_selected_order(
+        self,
+        req_maj_workshop_activity_set_selected_order: "ReqMajWorkshopActivitySetSelectedOrder",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMajWorkshopActivitySetSelectedOrder":
+        return await self._unary_unary(
+            "/lq.Lobby/majWorkshopActivitySetSelectedOrder",
+            req_maj_workshop_activity_set_selected_order,
+            ResMajWorkshopActivitySetSelectedOrder,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def maj_workshop_activity_submit_order(
+        self,
+        req_maj_workshop_activity_submit_order: "ReqMajWorkshopActivitySubmitOrder",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMajWorkshopActivitySubmitOrder":
+        return await self._unary_unary(
+            "/lq.Lobby/majWorkshopActivitySubmitOrder",
+            req_maj_workshop_activity_submit_order,
+            ResMajWorkshopActivitySubmitOrder,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def maj_workshop_activity_understand_order(
+        self,
+        req_maj_workshop_activity_understand_order: "ReqMajWorkshopActivityUnderstandOrder",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResMajWorkshopActivityUnderstandOrder":
+        return await self._unary_unary(
+            "/lq.Lobby/majWorkshopActivityUnderstandOrder",
+            req_maj_workshop_activity_understand_order,
+            ResMajWorkshopActivityUnderstandOrder,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
     async def marathon_activity_finish_race(
         self,
         req_marathon_activity_finish_race: "ReqMarathonActivityFinishRace",
@@ -17165,6 +17624,23 @@ class LobbyStub(betterproto.ServiceStub):
             "/lq.Lobby/setHiddenCharacter",
             req_set_hidden_character,
             ResSetHiddenCharacter,
+            timeout=timeout,
+            deadline=deadline,
+            metadata=metadata,
+        )
+
+    async def set_hidden_hands_view(
+        self,
+        req_set_hidden_hands_view: "ReqSetHiddenHandsView",
+        *,
+        timeout: Optional[float] = None,
+        deadline: Optional["Deadline"] = None,
+        metadata: Optional["MetadataLike"] = None
+    ) -> "ResSetHiddenHandsView":
+        return await self._unary_unary(
+            "/lq.Lobby/setHiddenHandsView",
+            req_set_hidden_hands_view,
+            ResSetHiddenHandsView,
             timeout=timeout,
             deadline=deadline,
             metadata=metadata,
@@ -19862,6 +20338,66 @@ class LobbyBase(ServiceBase):
     ) -> "ResMajClubActivityCommon":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def maj_workshop_activity_collect(
+        self, req_maj_workshop_activity_collect: "ReqMajWorkshopActivityCollect"
+    ) -> "ResMajWorkshopActivityCollect":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def maj_workshop_activity_craft(
+        self, req_maj_workshop_activity_craft: "ReqMajWorkshopActivityCraft"
+    ) -> "ResMajWorkshopActivityCraft":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def maj_workshop_activity_fetch_data(
+        self, req_maj_workshop_activity_fetch_data: "ReqMajWorkshopActivityFetchData"
+    ) -> "ResMajWorkshopActivityFetchData":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def maj_workshop_activity_garden_restore(
+        self,
+        req_maj_workshop_activity_garden_restore: "ReqMajWorkshopActivityGardenRestore",
+    ) -> "ResMajWorkshopActivityGardenRestore":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def maj_workshop_activity_garden_restore_and_collect(
+        self,
+        req_maj_workshop_activity_garden_restore_and_collect: "ReqMajWorkshopActivityGardenRestoreAndCollect",
+    ) -> "ResMajWorkshopActivityGardenRestoreAndCollect":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def maj_workshop_activity_quick_craft(
+        self, req_maj_workshop_activity_quick_craft: "ReqMajWorkshopActivityQuickCraft"
+    ) -> "ResMajWorkshopActivityQuickCraft":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def maj_workshop_activity_read(
+        self, req_maj_workshop_activity_read: "ReqMajWorkshopActivityRead"
+    ) -> "ResMajWorkshopActivityRead":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def maj_workshop_activity_recovery(
+        self, req_maj_workshop_activity_recovery: "ReqMajWorkshopActivityRecovery"
+    ) -> "ResMajWorkshopActivityRecovery":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def maj_workshop_activity_set_selected_order(
+        self,
+        req_maj_workshop_activity_set_selected_order: "ReqMajWorkshopActivitySetSelectedOrder",
+    ) -> "ResMajWorkshopActivitySetSelectedOrder":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def maj_workshop_activity_submit_order(
+        self,
+        req_maj_workshop_activity_submit_order: "ReqMajWorkshopActivitySubmitOrder",
+    ) -> "ResMajWorkshopActivitySubmitOrder":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def maj_workshop_activity_understand_order(
+        self,
+        req_maj_workshop_activity_understand_order: "ReqMajWorkshopActivityUnderstandOrder",
+    ) -> "ResMajWorkshopActivityUnderstandOrder":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def marathon_activity_finish_race(
         self, req_marathon_activity_finish_race: "ReqMarathonActivityFinishRace"
     ) -> "ResMarathonActivityFinishRace":
@@ -20290,6 +20826,11 @@ class LobbyBase(ServiceBase):
     async def set_hidden_character(
         self, req_set_hidden_character: "ReqSetHiddenCharacter"
     ) -> "ResSetHiddenCharacter":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
+    async def set_hidden_hands_view(
+        self, req_set_hidden_hands_view: "ReqSetHiddenHandsView"
+    ) -> "ResSetHiddenHandsView":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def set_loading_image(
@@ -22569,6 +23110,94 @@ class LobbyBase(ServiceBase):
         response = await self.maj_club_activity_upgrade_waiting(request)
         await stream.send_message(response)
 
+    async def __rpc_maj_workshop_activity_collect(
+        self,
+        stream: "grpclib.server.Stream[ReqMajWorkshopActivityCollect, ResMajWorkshopActivityCollect]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.maj_workshop_activity_collect(request)
+        await stream.send_message(response)
+
+    async def __rpc_maj_workshop_activity_craft(
+        self,
+        stream: "grpclib.server.Stream[ReqMajWorkshopActivityCraft, ResMajWorkshopActivityCraft]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.maj_workshop_activity_craft(request)
+        await stream.send_message(response)
+
+    async def __rpc_maj_workshop_activity_fetch_data(
+        self,
+        stream: "grpclib.server.Stream[ReqMajWorkshopActivityFetchData, ResMajWorkshopActivityFetchData]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.maj_workshop_activity_fetch_data(request)
+        await stream.send_message(response)
+
+    async def __rpc_maj_workshop_activity_garden_restore(
+        self,
+        stream: "grpclib.server.Stream[ReqMajWorkshopActivityGardenRestore, ResMajWorkshopActivityGardenRestore]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.maj_workshop_activity_garden_restore(request)
+        await stream.send_message(response)
+
+    async def __rpc_maj_workshop_activity_garden_restore_and_collect(
+        self,
+        stream: "grpclib.server.Stream[ReqMajWorkshopActivityGardenRestoreAndCollect, ResMajWorkshopActivityGardenRestoreAndCollect]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.maj_workshop_activity_garden_restore_and_collect(request)
+        await stream.send_message(response)
+
+    async def __rpc_maj_workshop_activity_quick_craft(
+        self,
+        stream: "grpclib.server.Stream[ReqMajWorkshopActivityQuickCraft, ResMajWorkshopActivityQuickCraft]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.maj_workshop_activity_quick_craft(request)
+        await stream.send_message(response)
+
+    async def __rpc_maj_workshop_activity_read(
+        self,
+        stream: "grpclib.server.Stream[ReqMajWorkshopActivityRead, ResMajWorkshopActivityRead]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.maj_workshop_activity_read(request)
+        await stream.send_message(response)
+
+    async def __rpc_maj_workshop_activity_recovery(
+        self,
+        stream: "grpclib.server.Stream[ReqMajWorkshopActivityRecovery, ResMajWorkshopActivityRecovery]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.maj_workshop_activity_recovery(request)
+        await stream.send_message(response)
+
+    async def __rpc_maj_workshop_activity_set_selected_order(
+        self,
+        stream: "grpclib.server.Stream[ReqMajWorkshopActivitySetSelectedOrder, ResMajWorkshopActivitySetSelectedOrder]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.maj_workshop_activity_set_selected_order(request)
+        await stream.send_message(response)
+
+    async def __rpc_maj_workshop_activity_submit_order(
+        self,
+        stream: "grpclib.server.Stream[ReqMajWorkshopActivitySubmitOrder, ResMajWorkshopActivitySubmitOrder]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.maj_workshop_activity_submit_order(request)
+        await stream.send_message(response)
+
+    async def __rpc_maj_workshop_activity_understand_order(
+        self,
+        stream: "grpclib.server.Stream[ReqMajWorkshopActivityUnderstandOrder, ResMajWorkshopActivityUnderstandOrder]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.maj_workshop_activity_understand_order(request)
+        await stream.send_message(response)
+
     async def __rpc_marathon_activity_finish_race(
         self,
         stream: "grpclib.server.Stream[ReqMarathonActivityFinishRace, ResMarathonActivityFinishRace]",
@@ -23262,6 +23891,14 @@ class LobbyBase(ServiceBase):
     ) -> None:
         request = await stream.recv_message()
         response = await self.set_hidden_character(request)
+        await stream.send_message(response)
+
+    async def __rpc_set_hidden_hands_view(
+        self,
+        stream: "grpclib.server.Stream[ReqSetHiddenHandsView, ResSetHiddenHandsView]",
+    ) -> None:
+        request = await stream.recv_message()
+        response = await self.set_hidden_hands_view(request)
         await stream.send_message(response)
 
     async def __rpc_set_loading_image(
@@ -25335,6 +25972,72 @@ class LobbyBase(ServiceBase):
                 ReqMajClubActivityUpgradeWaiting,
                 ResMajClubActivityCommon,
             ),
+            "/lq.Lobby/majWorkshopActivityCollect": grpclib.const.Handler(
+                self.__rpc_maj_workshop_activity_collect,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMajWorkshopActivityCollect,
+                ResMajWorkshopActivityCollect,
+            ),
+            "/lq.Lobby/majWorkshopActivityCraft": grpclib.const.Handler(
+                self.__rpc_maj_workshop_activity_craft,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMajWorkshopActivityCraft,
+                ResMajWorkshopActivityCraft,
+            ),
+            "/lq.Lobby/majWorkshopActivityFetchData": grpclib.const.Handler(
+                self.__rpc_maj_workshop_activity_fetch_data,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMajWorkshopActivityFetchData,
+                ResMajWorkshopActivityFetchData,
+            ),
+            "/lq.Lobby/majWorkshopActivityGardenRestore": grpclib.const.Handler(
+                self.__rpc_maj_workshop_activity_garden_restore,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMajWorkshopActivityGardenRestore,
+                ResMajWorkshopActivityGardenRestore,
+            ),
+            "/lq.Lobby/majWorkshopActivityGardenRestoreAndCollect": grpclib.const.Handler(
+                self.__rpc_maj_workshop_activity_garden_restore_and_collect,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMajWorkshopActivityGardenRestoreAndCollect,
+                ResMajWorkshopActivityGardenRestoreAndCollect,
+            ),
+            "/lq.Lobby/majWorkshopActivityQuickCraft": grpclib.const.Handler(
+                self.__rpc_maj_workshop_activity_quick_craft,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMajWorkshopActivityQuickCraft,
+                ResMajWorkshopActivityQuickCraft,
+            ),
+            "/lq.Lobby/majWorkshopActivityRead": grpclib.const.Handler(
+                self.__rpc_maj_workshop_activity_read,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMajWorkshopActivityRead,
+                ResMajWorkshopActivityRead,
+            ),
+            "/lq.Lobby/majWorkshopActivityRecovery": grpclib.const.Handler(
+                self.__rpc_maj_workshop_activity_recovery,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMajWorkshopActivityRecovery,
+                ResMajWorkshopActivityRecovery,
+            ),
+            "/lq.Lobby/majWorkshopActivitySetSelectedOrder": grpclib.const.Handler(
+                self.__rpc_maj_workshop_activity_set_selected_order,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMajWorkshopActivitySetSelectedOrder,
+                ResMajWorkshopActivitySetSelectedOrder,
+            ),
+            "/lq.Lobby/majWorkshopActivitySubmitOrder": grpclib.const.Handler(
+                self.__rpc_maj_workshop_activity_submit_order,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMajWorkshopActivitySubmitOrder,
+                ResMajWorkshopActivitySubmitOrder,
+            ),
+            "/lq.Lobby/majWorkshopActivityUnderstandOrder": grpclib.const.Handler(
+                self.__rpc_maj_workshop_activity_understand_order,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqMajWorkshopActivityUnderstandOrder,
+                ResMajWorkshopActivityUnderstandOrder,
+            ),
             "/lq.Lobby/marathonActivityFinishRace": grpclib.const.Handler(
                 self.__rpc_marathon_activity_finish_race,
                 grpclib.const.Cardinality.UNARY_UNARY,
@@ -25892,6 +26595,12 @@ class LobbyBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 ReqSetHiddenCharacter,
                 ResSetHiddenCharacter,
+            ),
+            "/lq.Lobby/setHiddenHandsView": grpclib.const.Handler(
+                self.__rpc_set_hidden_hands_view,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                ReqSetHiddenHandsView,
+                ResSetHiddenHandsView,
             ),
             "/lq.Lobby/setLoadingImage": grpclib.const.Handler(
                 self.__rpc_set_loading_image,
