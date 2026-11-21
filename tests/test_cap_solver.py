@@ -103,3 +103,32 @@ def test_failed_refresh_sends_request_without_token(monkeypatch):
     auth, calls = _auth_with_fake_fetch(monkeypatch, fail=True)
     assert asyncio.run(auth._get_token()) is None
     assert len(calls) == 1
+
+
+def test_close_cancels_background_refresh(monkeypatch):
+    started = asyncio.Event()
+    cancelled = False
+
+    async def slow_fetch():
+        nonlocal cancelled
+        started.set()
+        try:
+            await asyncio.sleep(60)
+        except asyncio.CancelledError:
+            cancelled = True
+            raise
+        return "tok", time.time() + 7200
+
+    monkeypatch.setattr(cap, "_fetch_token", slow_fetch)
+    auth = cap.KoromoCapAuth()
+
+    async def run():
+        auth.refresh_in_background()
+        await started.wait()
+        auth.close()
+        task = auth._background
+        assert task is not None
+        await asyncio.gather(task, return_exceptions=True)
+
+    asyncio.run(run())
+    assert cancelled is True

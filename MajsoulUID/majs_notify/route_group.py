@@ -95,6 +95,11 @@ class GatewayFetcher:
     def fetching(self) -> bool:
         return self._task is not None and not self._task.done()
 
+    def cancel(self) -> None:
+        self.on_routes = None
+        if self._task is not None and not self._task.done():
+            self._task.cancel()
+
     def check_fetch(self, force: bool = False) -> bool:
         """GatewayFetcher.CheckFetch：到点了就在后台刷新，返回 True 表示正在刷新。"""
         if self.fetching():
@@ -261,7 +266,7 @@ class RouteGroup:
     async def close(self) -> None:
         self.closed = True
         self.reconnecting = False
-        self._gateway.on_routes = None
+        self._gateway.cancel()
         current = asyncio.current_task()
         tasks = [task for task in (self._tick_task, self._reconnect_task, *self._jobs) if task is not None]
         for task in tasks:

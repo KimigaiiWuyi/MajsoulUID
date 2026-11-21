@@ -1,8 +1,11 @@
+import sys
 import asyncio
 import sqlite3
 import importlib
 
 from sqlalchemy.dialects import sqlite
+
+from gsuid_core.utils.database.startup import exec_list
 
 models = importlib.import_module("gsuid_core.plugins.MajsoulUID.MajsoulUID.utils.database.models")
 
@@ -73,3 +76,13 @@ def test_unknown_group_is_empty():
 
 def test_other_platform_is_excluded():
     assert group_uids(GROUP_B, bot_id="onebot") == set()
+
+
+def test_models_can_be_reimported_on_plugin_reload():
+    before = len(exec_list)
+    module_name = models.__name__
+    sys.modules.pop(module_name, None)
+    reloaded = importlib.import_module(module_name)
+    assert len(exec_list) == before
+    for model_cls in (reloaded.MajsPaipu, reloaded.MajsPush, reloaded.MajsBind, reloaded.MajsUser):
+        assert model_cls.__table_args__ == {"extend_existing": True}

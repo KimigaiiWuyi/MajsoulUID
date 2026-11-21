@@ -17,16 +17,21 @@ from gsuid_core.utils.database.base_models import (
 
 T_MajsPaipu = TypeVar("T_MajsPaipu", bound="MajsPaipu")
 
-exec_list.append('ALTER TABLE MajsUser ADD COLUMN username TEXT DEFAULT ""')
-exec_list.append('ALTER TABLE MajsUser ADD COLUMN password TEXT DEFAULT ""')
-exec_list.append('ALTER TABLE MajsUser ADD COLUMN account TEXT DEFAULT ""')
-
-exec_list.append('ALTER TABLE MajsUser ADD COLUMN token TEXT DEFAULT ""')
-exec_list.append('ALTER TABLE MajsUser ADD COLUMN lang TEXT DEFAULT "zh"')
-exec_list.append("ALTER TABLE MajsUser ADD COLUMN login_type INT DEFAULT 0")
+for _sql in (
+    'ALTER TABLE MajsUser ADD COLUMN username TEXT DEFAULT ""',
+    'ALTER TABLE MajsUser ADD COLUMN password TEXT DEFAULT ""',
+    'ALTER TABLE MajsUser ADD COLUMN account TEXT DEFAULT ""',
+    'ALTER TABLE MajsUser ADD COLUMN token TEXT DEFAULT ""',
+    'ALTER TABLE MajsUser ADD COLUMN lang TEXT DEFAULT "zh"',
+    "ALTER TABLE MajsUser ADD COLUMN login_type INT DEFAULT 0",
+):
+    if _sql not in exec_list:
+        exec_list.append(_sql)
 
 
 class MajsPaipu(BaseIDModel, table=True):
+    __table_args__ = {"extend_existing": True}
+
     account_id: str = Field(default="", title="雀魂账号ID")
     uuid: str = Field(default="", title="牌谱UUID")
     paipu_type: int = Field(default=-1, title="牌谱类型")
@@ -59,12 +64,16 @@ class MajsPaipu(BaseIDModel, table=True):
 
 
 class MajsPush(Push, table=True):
+    __table_args__ = {"extend_existing": True}
+
     uid: Optional[str] = Field(default=None, title="雀魂UID")
     user_id: str = Field(default="", title="用户ID")
     push_id: str = Field(default="off", title="是否开启推送")
 
 
 class MajsBind(Bind, table=True):
+    __table_args__ = {"extend_existing": True}
+
     uid: Optional[str] = Field(default=None, title="雀魂UID")
 
     @classmethod
@@ -92,6 +101,8 @@ class MajsBind(Bind, table=True):
 
 
 class MajsUser(User, table=True):
+    __table_args__ = {"extend_existing": True}
+
     uid: Optional[str] = Field(default=None, title="雀魂UID")
     username: str = Field(default="", title="昵称")
     friend_code: str = Field(default="", title="好友码")

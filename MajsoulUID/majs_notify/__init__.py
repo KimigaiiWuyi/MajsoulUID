@@ -11,7 +11,7 @@ from gsuid_core.aps import scheduler
 from gsuid_core.bot import Bot
 from gsuid_core.logger import logger
 from gsuid_core.models import Event
-from gsuid_core.server import on_core_start
+from gsuid_core.server import on_core_start, on_core_shutdown
 from gsuid_core.segment import MessageSegment
 from gsuid_core.subscribe import gs_subscribe
 from gsuid_core.utils.database.api import get_uid
@@ -90,6 +90,15 @@ async def start_majsoul_account_pool() -> None:
     task = spawn(_auto_start_pool(), "majs-auto-start")
     _background_tasks.add(task)
     task.add_done_callback(_background_tasks.discard)
+
+
+@on_core_shutdown
+async def stop_majsoul_account_pool() -> None:
+    for task in list(_background_tasks):
+        task.cancel()
+    if _background_tasks:
+        await asyncio.gather(*_background_tasks, return_exceptions=True)
+    await manager.close()
 
 
 @majsoul_review.on_command(("牌谱Review", "牌谱review", "Review", "review"))

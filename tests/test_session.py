@@ -673,3 +673,22 @@ def test_route_socket_closed_during_handshake_leaves_nothing_running():
     still_open, tasks = asyncio.run(run_with_server(handler, body, process_request=slow_handshake))
     assert not still_open
     assert tasks == []
+
+
+def test_manager_close_stops_all_connections_and_resets_loaded(server: FakeServer):
+    script_token_login(server)
+
+    async def scenario():
+        conn = make_conn(username="a@b.com", access_token="tok")
+        await conn.login()
+        mgr = majsoul.MajsoulManager()
+        mgr.conn = [conn]
+        mgr._loaded = True
+        await mgr.close()
+        return mgr.conn, mgr._loaded, conn.state, conn.main_socket
+
+    conns, loaded, state, socket = asyncio.run(scenario())
+    assert conns == []
+    assert loaded is False
+    assert state is ConnState.OFFLINE
+    assert socket is None

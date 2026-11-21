@@ -17,8 +17,6 @@ HELP_DATA = Path(__file__).parent / "help.json"
 ICON_PATH = Path(__file__).parent / "icon_path"
 TEXT_PATH = Path(__file__).parent / "texture2d"
 
-PREFIX = get_plugin_available_prefix("MajsoulUID")
-
 
 async def get_help_data() -> Dict[str, PluginHelp]:
     async with aiofiles.open(HELP_DATA, "rb") as file:
@@ -31,7 +29,7 @@ async def get_help():
         plugin_info={f"v{MajsoulUID_version}": ""},
         plugin_icon=Image.open(ICON),
         plugin_help=await get_help_data(),
-        plugin_prefix=PREFIX,
+        plugin_prefix=get_plugin_available_prefix("MajsoulUID"),
         help_mode="dark",
         banner_bg=Image.open(TEXT_PATH / "banner_bg.jpg"),
         banner_sub_text="小心八木唯！",

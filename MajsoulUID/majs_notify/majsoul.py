@@ -584,14 +584,16 @@ class MajsoulConnection:
     async def close(self) -> None:
         """从账号池移除前调用：停掉一切，不再重连。"""
         self.state = ConnState.OFFLINE
-        await self._shutdown()
         current = asyncio.current_task()
         tasks: list[asyncio.Task[None]] = [*self._notify_tasks, *(task for task, _ in self._online_pending.values())]
         for task in tasks:
             if task is not current:
                 task.cancel()
+        self._online_pending.clear()
         for head in self._game_heads.values():
             head.cancel()
+        self._game_heads.clear()
+        await self._shutdown()
 
     async def _fail(self, reason: str) -> None:
         self.state = ConnState.FAILED
@@ -1121,13 +1123,21 @@ class MajsoulManager:
         async with self._lock:
             return await self._start()
 
+    async def close(self) -> None:
+        """关掉账号池里所有连接，供核心关闭或插件卸载时收尾。"""
+        async with self._lock:
+            await self._close_all()
+
     async def restart(self) -> list[str]:
         async with self._lock:
-            for conn in self.conn:
-                await conn.close()
-            self.conn = []
-            self._loaded = False
+            await self._close_all()
             return await self._start()
+
+    async def _close_all(self) -> None:
+        for conn in self.conn:
+            await conn.close()
+        self.conn = []
+        self._loaded = False
 
     async def _start(self) -> list[str]:
         await self._load()

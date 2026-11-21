@@ -25,7 +25,7 @@ import httpx2
 import msgspec
 
 from gsuid_core.logger import logger
-from gsuid_core.server import on_core_start
+from gsuid_core.server import on_core_start, on_core_shutdown
 
 from .hashwx import HashwxError, solve_hashwx
 
@@ -312,6 +312,10 @@ class KoromoCapAuth(httpx2.Auth):
         if self._background is None or self._background.done():
             self._background = asyncio.create_task(self._refresh())
 
+    def close(self) -> None:
+        if self._background is not None and not self._background.done():
+            self._background.cancel()
+
     async def async_auth_flow(self, request: httpx2.Request) -> AsyncGenerator[httpx2.Request, httpx2.Response]:
         token = await self._get_token()
         response = yield _with_token(request, token)
@@ -363,3 +367,8 @@ cap_auth = KoromoCapAuth()
 async def _prewarm_cap_token() -> None:
     # 启动时先在后台解一次，records 查询不用现场等 PoW，也不拖慢启动
     cap_auth.refresh_in_background()
+
+
+@on_core_shutdown
+async def _close_cap_token() -> None:
+    cap_auth.close()

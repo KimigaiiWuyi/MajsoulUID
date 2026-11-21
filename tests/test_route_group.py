@@ -324,6 +324,37 @@ def test_gateway_all_failed_clears_routes(monkeypatch: pytest.MonkeyPatch):
     assert gateway.routes == {} and gateway._fails == 1
 
 
+def test_gateway_cancel_stops_background_fetch(monkeypatch: pytest.MonkeyPatch):
+    gateway = route_group.GatewayFetcher(constants.REGION_JP)
+    started = asyncio.Event()
+    cancelled = False
+
+    async def slow_fetch() -> bool:
+        nonlocal cancelled
+        started.set()
+        try:
+            await asyncio.sleep(60)
+        except asyncio.CancelledError:
+            cancelled = True
+            raise
+        return True
+
+    monkeypatch.setattr(gateway, "fetch", slow_fetch)
+
+    async def scenario() -> None:
+        gateway.on_routes = lambda: None
+        assert gateway.check_fetch(force=True) is True
+        await started.wait()
+        gateway.cancel()
+        assert gateway.on_routes is None
+        task = gateway._task
+        assert task is not None
+        await asyncio.gather(task, return_exceptions=True)
+
+    asyncio.run(scenario())
+    assert cancelled is True
+
+
 def test_real_sockets_switch_to_standby_while_reconnecting(monkeypatch: pytest.MonkeyPatch):
     """真 RouteSocket + 本地两台服务端：探测出备用线路，主线路断了就切过去。"""
     monkeypatch.setattr(route_group, "RouteSocket", route_mod.RouteSocket)

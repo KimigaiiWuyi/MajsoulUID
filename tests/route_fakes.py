@@ -135,6 +135,9 @@ class FakeGateway:
         self.checks += 1
         return False
 
+    def cancel(self) -> None:
+        self.on_routes = None
+
 
 class FakeListener:
     def __init__(self) -> None:
